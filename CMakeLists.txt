@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.1)
 
 project(HelloWorld VERSION 1.0.0 LANGUAGES CXX)
 
-add_executable(HelloWorld Src/main.cpp Src/InputParser.cpp)
+add_executable(HelloWorld Src/main.cpp Src/InputParser.cppm)
 
 if(MSVC)
     target_compile_options(HelloWorld PRIVATE
