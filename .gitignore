@@ -1,0 +1,129 @@
+# Qt-related
+*.pro.user
+*.pro.user.*
+*.qmlc
+*.jsc
+Makefile*
+*build-*
+*.qm
+.qmake.cache
+.qmake.stash
+
+*.jpg
+*.png
+*.jpeg
+runs/
+UI_elements_for_training/
+vcpkg_installed/
+uncrustify.exe
+*.pt
+__pycache__/
+output.cpp
+*.log
+*.pdb
+_deps/
+
+# QtCreator
+*.autosave
+*.user
+*.cxx
+*.cpp~
+*.h~
+
+# QtCreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# QtCreator CMake
+CMakeLists.txt.user*
+*.cbp
+
+# Build directories
+build/
+build-*/
+bin/
+debug/
+release/
+Debug/
+Release/
+
+
+
+# C++ objects and libs
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.so.*
+*.dll
+*.dylib
+
+# Qt-es
+object_script.*.Release
+object_script.*.Debug
+*_plugin_import.cpp
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qmlc
+*.jsc
+Makefile*
+*build-*
+*.qm
+
+# Qt unit tests
+target_wrapper.*
+
+# QtCreator local machine specific files
+*.autosave
+
+# Compiled Object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDEs
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
