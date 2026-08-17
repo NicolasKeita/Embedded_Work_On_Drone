@@ -1,36 +1,17 @@
+/*
+Filename: Src/main.cpp
+Description: Program entry point for the command-line demo application.
+
+Copyright (c) 2026 Nicolas K.
+All rights reserved.
+*/
+
 import std;
-import InputParser;
+import App;
 
 int main(int argc, char* argv[])
 {
-    InputParser parser(argc, argv);
-    parser.ParseArguments();
-
-    std::cout << "Options détectées :" << std::endl;
-    if (parser.HasOption("--help"))
-    {
-        std::cout << "  --help : affiche l'aide" << std::endl;
-    }
-    if (parser.HasOption("--version"))
-    {
-        std::cout << "  --version : affiche la version" << std::endl;
-    }
-
-    const std::string output = parser.GetOptionValue("--output");
-    if (!output.empty())
-    {
-        std::cout << "  --output : " << output << std::endl;
-    }
-
-    const auto positional = parser.GetPositionalArguments();
-    if (!positional.empty())
-    {
-        std::cout << "Arguments positionnels :" << std::endl;
-        for (const auto& argument : positional)
-        {
-            std::cout << "  " << argument << std::endl;
-        }
-    }
-
-    return 0;
+    int x = 5;
+    Application app(argc, argv);
+    return app.Run();
 }
