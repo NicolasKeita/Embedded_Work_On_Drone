@@ -15,6 +15,41 @@ from shared.brace_utils import (
 )
 
 
+def has_stream_operators(line: str) -> bool:
+    """
+    Return True when the line contains the stream insertion/extraction
+    operators '<<' or '>>' outside string literals. Function signatures never
+    contain these operators, so lines carrying them are statement
+    continuations (e.g. multi-line std::cout statements) and must not be
+    treated as function declaration headers.
+    """
+    in_string = False
+    string_char = None
+    i = 0
+
+    while i < len(line):
+        char = line[i]
+
+        if in_string:
+            if char == '\\':
+                i += 2
+                continue
+            if char == string_char:
+                in_string = False
+        elif char == '"' or char == "'":
+            in_string = True
+            string_char = char
+        elif char == '<' and line[i:i + 2] == '<<':
+            return True
+        elif char == '>' and line[i:i + 2] == '>>':
+            return True
+
+        i += 1
+
+    return False
+
+
+
 def is_function_definition_context(lines: List[str], line_idx: int, brace_line: str, paren_depth: int, angle_depth: int) -> bool:
     if paren_depth != 0 or angle_depth != 0:
         return False
@@ -35,6 +70,8 @@ def check_multiline_function_signature(lines: List[str], line_idx: int) -> bool:
         if line == '{':
             continue
         if line.startswith(':') or line.startswith(','):
+            continue
+        if has_stream_operators(line):
             continue
         for char in reversed(line):
             if char == ')':
@@ -63,6 +100,8 @@ def find_function_start_for_brace(lines: List[str], line_idx: int) -> Optional[i
         if line.startswith(':'):
             continue
         if line.startswith(','):
+            continue
+        if has_stream_operators(line):
             continue
         if line.endswith(')'):
             paren_depth = 1

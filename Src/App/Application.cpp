@@ -24,7 +24,7 @@ void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
 }
 
 int Application::RunSimulationDemo() const
-              {
+{
     std::cout << "\n=== Demo physique : RPM = 1000, servos a 0 degre ===" << std::endl;
 
     Aircraft aircraft;
@@ -47,6 +47,6 @@ int Application::RunSimulationDemo() const
 }
 
 int Application::Run() const
-              {
+{
     return RunSimulationDemo();
 }
