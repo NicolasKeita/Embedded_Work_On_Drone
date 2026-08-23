@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""
+Linter Reporting
+
+Warning message rendering for the C++ code linter.
+"""
+
+import sys
+from typing import List, Tuple
+
+from linter.style_checks import MAX_FUNCTION_LENGTH
+
+
+def _get_path_label(file_path: str) -> str:
+    if file_path:
+        return file_path
+    return "<stdin>"
+
+
+def print_issue_header(file_path: str) -> None:
+    path_label = _get_path_label(file_path)
+    print(f"\n{path_label}", file=sys.stderr)
+
+
+def print_line_length_warnings(long_lines: List[Tuple[int, int]], max_length: int = 120) -> None:
+    for line_num, actual_length in long_lines:
+        print(f"⚠️  Line {line_num} exceeds {max_length} characters: {actual_length} characters", file=sys.stderr)
+
+
+def print_comment_placement_warnings(invalid_comments: List[Tuple[int, str]]) -> None:
+    for line_num, comment_type in invalid_comments:
+        if comment_type == "singleline":
+            print(f"⚠️  Line {line_num}: Single-line comment not above a function", file=sys.stderr)
+        elif comment_type == "inline":
+            print(f"⚠️  Line {line_num}: Inline comment not allowed (only comments above functions are permitted)", file=sys.stderr)
+        elif comment_type == "multiline_start":
+            print(f"⚠️  Line {line_num}: Multiline comment not above a function", file=sys.stderr)
+        elif comment_type == "multiline_content":
+            print(f"⚠️  Line {line_num}: Multiline comment content not above a function", file=sys.stderr)
+
+
+def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: int = 120) -> None:
+    if exceeds_limit:
+        print(f"⚠️  File exceeds {max_lines} lines: {line_count} lines", file=sys.stderr)
+
+
+def print_function_length_warnings(long_functions: List[Tuple[str, int, int]], max_lines: int = MAX_FUNCTION_LENGTH) -> None:
+    for func_name, start_line, line_count in long_functions:
+        print(f"⚠️  Function '{func_name}' at line {start_line} exceeds {max_lines} lines: {line_count} lines", file=sys.stderr)
+
+
+def print_cppm_interface_warnings(
+    violations: List[Tuple[str, int, int]],
+    file_path: str
+) -> None:
+    path_label = _get_path_label(file_path)
+    for function_name, start_line, body_line_count in violations:
+        print(
+            f"??  {path_label}:{start_line}: Non-trivial implementation in .cppm for "
+            f"'{function_name}' ({body_line_count} body lines). Move it to a .cpp file.",
+            file=sys.stderr
+        )
