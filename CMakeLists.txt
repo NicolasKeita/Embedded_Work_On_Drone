@@ -3,10 +3,16 @@ cmake_minimum_required(VERSION 4.1)
 project(HelloWorld VERSION 1.0.0 LANGUAGES CXX)
 
 set(SRC_FILES
-    Src/InputParser.cppm
-    Src/InputParser.cpp
     Src/App/Application.cppm
     Src/App/Application.cpp
+    Src/Simulation/PhysicsModel.cppm
+    Src/Simulation/PhysicsModel.cpp
+    Src/Simulation/Actuators.cppm
+    Src/Simulation/Actuators.cpp
+    Src/Simulation/Sensors.cppm
+    Src/Simulation/Sensors.cpp
+    Src/Simulation/Aircraft.cppm
+    Src/Simulation/Aircraft.cpp
 )
 add_executable(HelloWorld Src/main.cpp)
 target_sources(HelloWorld

@@ -1,6 +1,6 @@
 /*
 Filename: Src/App/Application.cpp
-Description: Application runtime that prints help text, option values and positional arguments.
+Description: Application runtime executing the aircraft physics simulation demo.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -9,43 +9,48 @@ All rights reserved.
 module App;
 
 import std;
-import InputParser;
 
-Application::Application(int argc, char* argv[])
-    : m_argc(argc), m_argv(argv)
+import PhysicsModel;
+import Sensors;
+import Actuators;
+import Aircraft;
+
+void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
 {
+    std::cout << "t = " << std::fixed << std::setprecision(1) << timeSeconds
+              << "s   altitude = " << std::setprecision(2)
+              << aircraft.GetSensors().GetAltitudeMeters() << "m   vitesse verticale = "
+              << aircraft.GetSensors().GetVerticalSpeedMps() << "m/s" << std::endl;
 }
 
-int Application::Run() const
+int Application::RunSimulationDemo() const
 {
-    InputParser parser(m_argc, m_argv);
-    parser.ParseArguments();
+    std::cout << "\n=== Demo physique : RPM = 1000, servos a 0 degre ===" << std::endl;
 
-    std::cout << "Options detectees :" << std::endl;
-    if (parser.HasOption("--help"))
-    {
-        std::cout << "  --help : affiche l'aide" << std::endl;
-    }
-    if (parser.HasOption("--version"))
-    {
-        std::cout << "  --version : affiche la version" << std::endl;
-    }
+    Aircraft aircraft;
+    aircraft.SetCommand({1000.0, 0.0, 0.0});
 
-    const std::string output = parser.GetOptionValue("--output");
-    if (!output.empty())
+    // Integration en pas de 10ms ; on affiche une mesure par seconde.
+    for (int second = 0; second <= 8; ++second)
     {
-        std::cout << "  --output : " << output << std::endl;
-    }
-
-    const auto positional = parser.GetPositionalArguments();
-    if (!positional.empty())
-    {
-        std::cout << "Arguments positionnels :" << std::endl;
-        for (const auto& argument : positional)
+        if (second == 5)
         {
-            std::cout << "  " << argument << std::endl;
+            std::cout << "--- On baisse les tours moteur : RPM 1000 -> 500 ---" << std::endl;
+            aircraft.SetCommand({500.0, 0.0, 0.0});
+        }
+
+        PrintTelemetry(static_cast<double>(second), aircraft);
+
+        for (int step = 0; step < 100; ++step)
+        {
+            aircraft.Update(0.01);
         }
     }
 
     return 0;
+}
+
+int Application::Run() const
+{
+    return RunSimulationDemo();
 }

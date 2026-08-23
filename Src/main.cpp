@@ -1,6 +1,6 @@
 /*
 Filename: Src/main.cpp
-Description: Program entry point for the command-line demo application.
+Description: Program entry point delegating execution to the Application class.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -8,8 +8,8 @@ All rights reserved.
 
 import App;
 
-int main(int argc, char* argv[])
+int main()
 {
-    Application app(argc, argv);
+    Application app;
     return app.Run();
 }

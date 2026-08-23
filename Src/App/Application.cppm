@@ -1,6 +1,6 @@
 /*
 Filename: Src/App/Application.cppm
-Description: Public application interface for argument processing and runtime behavior.
+Description: Public application interface running the aircraft physics demo.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -10,14 +10,17 @@ export module App;
 
 import std;
 
+import PhysicsModel;
+import Sensors;
+import Actuators;
+import Aircraft;
+
 export class Application
 {
 public:
-    Application(int argc, char* argv[]);
-
     int Run() const;
 
 private:
-    int m_argc;
-    char** m_argv;
+    static void PrintTelemetry(double timeSeconds, const Aircraft& aircraft);
+    int RunSimulationDemo() const;
 };
