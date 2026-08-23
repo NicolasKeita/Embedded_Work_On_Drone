@@ -83,6 +83,8 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
 
         formatted_code = short_if_formatter.format_if_statements(formatted_code)
 
+        formatted_code = brace_formatter.format_control_structure_braces(formatted_code)
+
         formatted_code = brace_formatter.format_function_braces(formatted_code)
 
         formatted_code = module_formatter.reorder_using_after_prototypes(formatted_code)

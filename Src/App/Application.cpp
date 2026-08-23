@@ -30,7 +30,6 @@ int Application::RunSimulationDemo() const
     Aircraft aircraft;
     aircraft.SetCommand({1000.0, 0.0, 0.0});
 
-    // Integration en pas de 10ms ; on affiche une mesure par seconde.
     for (int second = 0; second <= 8; ++second)
     {
         if (second == 5)

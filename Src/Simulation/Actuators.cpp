@@ -16,7 +16,6 @@ namespace
     constexpr double kMaxRpm = 12000.0;
     constexpr double kMinServoDeg = -30.0;
     constexpr double kMaxServoDeg = 30.0;
-    // Meme coefficient que le PhysicsModel attend : la poussee vient des moteurs.
     constexpr double kThrustCoeff = 1.77e-5;
 }
 
