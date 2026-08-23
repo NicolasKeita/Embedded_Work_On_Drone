@@ -10,9 +10,9 @@ module Aircraft;
 
 import std;
 
+import Actuators;
 import PhysicsModel;
 import Sensors;
-import Actuators;
 
 void Aircraft::SetCommand(const ControlCommand& command)
 {

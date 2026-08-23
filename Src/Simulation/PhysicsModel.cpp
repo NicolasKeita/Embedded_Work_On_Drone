@@ -29,8 +29,7 @@ void PhysicsModel::Update(double dt, double thrustNewtons)
     m_state.verticalSpeedMps += acceleration * dt;
     m_state.altitudeMeters += m_state.verticalSpeedMps * dt;
 
-    if (m_state.altitudeMeters < 0.0)
-    {
+    if (m_state.altitudeMeters < 0.0) {
         m_state.altitudeMeters = 0.0;
         m_state.verticalSpeedMps = 0.0;
     }

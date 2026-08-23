@@ -10,10 +10,10 @@ module App;
 
 import std;
 
-import PhysicsModel;
-import Sensors;
 import Actuators;
 import Aircraft;
+import PhysicsModel;
+import Sensors;
 
 void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
 {
@@ -24,24 +24,21 @@ void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
 }
 
 int Application::RunSimulationDemo() const
-{
+              {
     std::cout << "\n=== Demo physique : RPM = 1000, servos a 0 degre ===" << std::endl;
 
     Aircraft aircraft;
     aircraft.SetCommand({1000.0, 0.0, 0.0});
 
-    for (int second = 0; second <= 8; ++second)
-    {
-        if (second == 5)
-        {
+    for (int second = 0; second <= 8; ++second) {
+        if (second == 5) {
             std::cout << "--- On baisse les tours moteur : RPM 1000 -> 500 ---" << std::endl;
             aircraft.SetCommand({500.0, 0.0, 0.0});
         }
 
         PrintTelemetry(static_cast<double>(second), aircraft);
 
-        for (int step = 0; step < 100; ++step)
-        {
+        for (int step = 0; step < 100; ++step) {
             aircraft.Update(0.01);
         }
     }
@@ -50,6 +47,6 @@ int Application::RunSimulationDemo() const
 }
 
 int Application::Run() const
-{
+              {
     return RunSimulationDemo();
 }
