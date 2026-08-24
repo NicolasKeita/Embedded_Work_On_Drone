@@ -22,22 +22,22 @@ namespace
             const std::string argument = argv[i] != nullptr ? argv[i] : "";
 
             if (argument == "-h" || argument == "--help") {
-                sim::test::print_usage(executableName);
+                sim::test::ScenarioCatalog::print_usage(executableName);
                 return 0;
             }
 
-            if (argument.size() != 1 || sim::test::find_scenario(argument[0]) == nullptr) {
+            if (argument.size() != 1 || sim::test::ScenarioCatalog::find(argument[0]) == nullptr) {
                 std::cout << "Erreur : argument invalide \"" << argument << "\"." << std::endl;
                 std::cout << std::endl;
-                sim::test::print_usage(executableName);
+                sim::test::ScenarioCatalog::print_usage(executableName);
                 return 2;
             }
 
-            selected.push_back(sim::test::find_scenario(argument[0]));
+            selected.push_back(sim::test::ScenarioCatalog::find(argument[0]));
         }
 
         if (selected.empty()) {
-            for (const sim::test::ScenarioEntry& entry : sim::test::get_scenarios()) {
+            for (const sim::test::ScenarioEntry& entry : sim::test::ScenarioCatalog::all()) {
                 selected.push_back(&entry);
             }
         }
