@@ -16,12 +16,12 @@ import TestHarness;
 namespace
 {
     const std::array kScenarios{
-        sim::test::ScenarioEntry{'a', "Repos (RPM = 0, servos = 0)", ::ScenarioRest},
-        sim::test::ScenarioEntry{'b', "Montee (RPM > hover)", ::ScenarioClimb},
-        sim::test::ScenarioEntry{'c', "Descente (RPM < hover)", ::ScenarioDescent},
-        sim::test::ScenarioEntry{'d', "Deplacement X (hover + pitch > 0)", ::ScenarioMoveX},
-        sim::test::ScenarioEntry{'e', "Deplacement Y (hover + roll > 0)", ::ScenarioMoveY},
-        sim::test::ScenarioEntry{'f', "Combine (RPM > hover, pitch > 0, roll < 0)", ::ScenarioCombined},
+        sim::test::ScenarioEntry{'a', "Repos (RPM = 0, servos = 0)", sim::test::scenarios::rest},
+        sim::test::ScenarioEntry{'b', "Montee (RPM > hover)", sim::test::scenarios::climb},
+        sim::test::ScenarioEntry{'c', "Descente (RPM < hover)", sim::test::scenarios::descent},
+        sim::test::ScenarioEntry{'d', "Deplacement X (hover + pitch > 0)", sim::test::scenarios::move_x},
+        sim::test::ScenarioEntry{'e', "Deplacement Y (hover + roll > 0)", sim::test::scenarios::move_y},
+        sim::test::ScenarioEntry{'f', "Combine (RPM > hover, pitch > 0, roll < 0)", sim::test::scenarios::combined},
     };
 }
 

@@ -13,7 +13,9 @@ import std;
 import Aircraft;
 import TestHarness;
 
-void ScenarioRest(sim::test::TestRunner& runner, double)
+namespace sim::test::scenarios {
+
+void rest(TestRunner& runner, double)
 {
     std::cout << "\n=== Scenario A : repos (RPM = 0, servos = 0) ===" << std::endl;
     runner.log_header();
@@ -28,31 +30,31 @@ void ScenarioRest(sim::test::TestRunner& runner, double)
     runner.check(s.actual_rpm == 0.0, "A4 : RPM effectif nul");
 }
 
-void ScenarioClimb(sim::test::TestRunner& runner, double hoverRpm)
+void climb(TestRunner& runner, double hover_rpm)
 {
     std::cout << "\n=== Scenario B : montee (RPM = 1.1 x hover, servos = 0) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
-    aircraft.set_command({1.1 * hoverRpm, 0.0, 0.0});
+    aircraft.set_command({1.1 * hover_rpm, 0.0, 0.0});
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
     runner.check(s.z > 1.0, "B1 : altitude en croissance (z > 1 m)");
     runner.check(s.vz > 0.0, "B2 : vitesse verticale positive");
-    runner.check(s.actual_rpm > hoverRpm, "B3 : RPM effectif superieur au stationnaire");
+    runner.check(s.actual_rpm > hover_rpm, "B3 : RPM effectif superieur au stationnaire");
 }
 
-void ScenarioDescent(sim::test::TestRunner& runner, double hoverRpm)
+void descent(TestRunner& runner, double hover_rpm)
 {
     std::cout << "\n=== Scenario C : descente (montee puis RPM = 0.6 x hover) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
-    runner.take_off(aircraft, hoverRpm);
+    runner.take_off(aircraft, hover_rpm);
     const double topAltitude = aircraft.state().z;
 
-    aircraft.set_command({0.6 * hoverRpm, 0.0, 0.0});
+    aircraft.set_command({0.6 * hover_rpm, 0.0, 0.0});
     runner.run(aircraft, 10.0);
 
     const AircraftState& s = aircraft.state();
@@ -61,15 +63,15 @@ void ScenarioDescent(sim::test::TestRunner& runner, double hoverRpm)
     runner.check(s.z == 0.0, "C3 : retour au sol (blocage a z = 0)");
 }
 
-void ScenarioMoveX(sim::test::TestRunner& runner, double hoverRpm)
+void move_x(TestRunner& runner, double hover_rpm)
 {
     std::cout << "\n=== Scenario D : deplacement X (hover + pitch > 0) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
-    runner.take_off(aircraft, hoverRpm);
+    runner.take_off(aircraft, hover_rpm);
 
-    aircraft.set_command({hoverRpm, 10.0, 10.0});
+    aircraft.set_command({hover_rpm, 10.0, 10.0});
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
@@ -79,15 +81,15 @@ void ScenarioMoveX(sim::test::TestRunner& runner, double hoverRpm)
     runner.check(s.y == 0.0 && s.vy == 0.0, "D4 : pas de derivation laterale");
 }
 
-void ScenarioMoveY(sim::test::TestRunner& runner, double hoverRpm)
+void move_y(TestRunner& runner, double hover_rpm)
 {
     std::cout << "\n=== Scenario E : deplacement Y (hover + roll > 0) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
-    runner.take_off(aircraft, hoverRpm);
+    runner.take_off(aircraft, hover_rpm);
 
-    aircraft.set_command({hoverRpm, 12.0, -12.0});
+    aircraft.set_command({hover_rpm, 12.0, -12.0});
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
@@ -97,15 +99,15 @@ void ScenarioMoveY(sim::test::TestRunner& runner, double hoverRpm)
     runner.check(s.x == 0.0 && s.vx == 0.0, "E4 : pas de derivation longitudinale");
 }
 
-void ScenarioCombined(sim::test::TestRunner& runner, double hoverRpm)
+void combined(TestRunner& runner, double hover_rpm)
 {
     std::cout << "\n=== Scenario F : combine (RPM > hover, pitch > 0, roll < 0) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
-    runner.take_off(aircraft, hoverRpm);
+    runner.take_off(aircraft, hover_rpm);
 
-    aircraft.set_command({1.15 * hoverRpm, -5.0, 15.0});
+    aircraft.set_command({1.15 * hover_rpm, -5.0, 15.0});
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
@@ -114,3 +116,5 @@ void ScenarioCombined(sim::test::TestRunner& runner, double hoverRpm)
     runner.check(s.vx > 0.0 && s.x > 1.0, "F3 : deplacement X positif");
     runner.check(s.vy < 0.0 && s.y < 0.0, "F4 : deplacement Y negatif");
 }
+
+} // namespace sim::test::scenarios
