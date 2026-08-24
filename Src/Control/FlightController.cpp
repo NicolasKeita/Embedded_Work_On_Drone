@@ -54,7 +54,7 @@ le modele physique (cf. Aircraft::update_attitude) :
 */
 ControlCommand FlightController::horizontal_servos(const AircraftState&    state,
                                                    const VelocitySetpoint& setpoint) const
-  {
+{
     const double tiltLimit = config_.max_tilt_deg;
 
     const double pitchDeg =
@@ -80,7 +80,7 @@ fixent le melange servo ; les deux sont recombinees en une seule commande.
 */
 ControlCommand FlightController::compute_command(const AircraftState&    state,
                                                  const VelocitySetpoint& setpoint) const
-  {
+{
     ControlCommand cmd = horizontal_servos(state, setpoint);
     cmd.wing_rpm = vertical_rpm(state, setpoint);
 

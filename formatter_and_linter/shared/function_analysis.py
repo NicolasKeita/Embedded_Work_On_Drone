@@ -90,6 +90,38 @@ def check_multiline_function_signature(lines: List[str], line_idx: int) -> bool:
     return False
 
 
+def strip_trailing_qualifiers(line: str) -> str:
+    """
+    Remove trailing cv/ref-qualifiers and function specifiers ('const',
+    'noexcept', 'override', 'final', '&', '&&') from the end of a line so the
+    closing parenthesis of a multi-line function signature becomes detectable.
+    """
+    stripped = line.rstrip()
+    changed = True
+
+    while changed:
+        changed = False
+        for qualifier in ('const', 'noexcept', 'override', 'final'):
+            if stripped.endswith(qualifier):
+                candidate = stripped[:-len(qualifier)]
+                if not candidate or candidate[-1].isspace():
+                    stripped = candidate.rstrip()
+                    changed = True
+                    break
+        if not changed and stripped.endswith('&&'):
+            candidate = stripped[:-2]
+            if not candidate or candidate[-1].isspace():
+                stripped = candidate.rstrip()
+                changed = True
+        if not changed and stripped.endswith('&'):
+            candidate = stripped[:-1]
+            if not candidate or candidate[-1].isspace():
+                stripped = candidate.rstrip()
+                changed = True
+
+    return stripped
+
+
 def find_function_start_for_brace(lines: List[str], line_idx: int) -> Optional[int]:
     for i in range(line_idx - 1, -1, -1):
         line = lines[i].strip()
@@ -103,9 +135,10 @@ def find_function_start_for_brace(lines: List[str], line_idx: int) -> Optional[i
             continue
         if has_stream_operators(line):
             continue
-        if line.endswith(')'):
+        effective_line = strip_trailing_qualifiers(line)
+        if effective_line.endswith(')'):
             paren_depth = 1
-            for char in reversed(line[:-1]):
+            for char in reversed(effective_line[:-1]):
                 if char == ')':
                     paren_depth += 1
                 elif char == '(':
