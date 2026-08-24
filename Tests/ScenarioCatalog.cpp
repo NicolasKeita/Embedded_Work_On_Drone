@@ -15,22 +15,25 @@ import TestHarness;
 
 namespace
 {
-    const std::array<ScenarioEntry, 6> kScenarios{{
-        {'a', "Repos (RPM = 0, servos = 0)", ScenarioRest},
-        {'b', "Montee (RPM > hover)", ScenarioClimb},
-        {'c', "Descente (RPM < hover)", ScenarioDescent},
-        {'d', "Deplacement X (hover + pitch > 0)", ScenarioMoveX},
-        {'e', "Deplacement Y (hover + roll > 0)", ScenarioMoveY},
-        {'f', "Combine (RPM > hover, pitch > 0, roll < 0)", ScenarioCombined},
-    }};
+    // CTAD deduit la taille : ajouter une entree ici ne casse plus l'interface.
+    const std::array kScenarios{
+        sim::test::ScenarioEntry{'a', "Repos (RPM = 0, servos = 0)", ::ScenarioRest},
+        sim::test::ScenarioEntry{'b', "Montee (RPM > hover)", ::ScenarioClimb},
+        sim::test::ScenarioEntry{'c', "Descente (RPM < hover)", ::ScenarioDescent},
+        sim::test::ScenarioEntry{'d', "Deplacement X (hover + pitch > 0)", ::ScenarioMoveX},
+        sim::test::ScenarioEntry{'e', "Deplacement Y (hover + roll > 0)", ::ScenarioMoveY},
+        sim::test::ScenarioEntry{'f', "Combine (RPM > hover, pitch > 0, roll < 0)", ::ScenarioCombined},
+    };
 }
 
-const std::array<ScenarioEntry, 6>& GetScenarios()
+namespace sim::test {
+
+std::span<const ScenarioEntry> get_scenarios() noexcept
 {
     return kScenarios;
 }
 
-const ScenarioEntry* FindScenario(char argument)
+const ScenarioEntry* find_scenario(char argument) noexcept
 {
     char normalizedKey = argument;
 
@@ -47,7 +50,7 @@ const ScenarioEntry* FindScenario(char argument)
     return nullptr;
 }
 
-void PrintUsage(const char* executableName)
+void print_usage(std::string_view executableName)
 {
     std::cout << "Validation du simulateur physique (Heliblade-like)." << std::endl;
     std::cout << "Utilisation : " << executableName << " [scenario ...]" << std::endl;
@@ -64,3 +67,5 @@ void PrintUsage(const char* executableName)
         std::cout << "  " << entry.key << " : " << entry.description << std::endl;
     }
 }
+
+} // namespace sim::test

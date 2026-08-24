@@ -12,13 +12,18 @@ import std;
 
 import TestHarness;
 
-export struct ScenarioEntry
-{
+export namespace sim::test {
+
+using ScenarioFn = std::function<void(TestRunner&, double)>;
+
+struct ScenarioEntry {
     char key;
-    const char* description;
-    void (*run)(sim::test::TestRunner&, double);
+    std::string_view description;
+    ScenarioFn run;
 };
 
-export [[nodiscard]] const std::array<ScenarioEntry, 6>& GetScenarios();
-export [[nodiscard]] const ScenarioEntry* FindScenario(char argument);
-export void PrintUsage(const char* executableName);
+[[nodiscard]] std::span<const ScenarioEntry> get_scenarios() noexcept;
+[[nodiscard]] const ScenarioEntry* find_scenario(char argument) noexcept;
+void print_usage(std::string_view executable_name);
+
+} // namespace sim::test

@@ -15,29 +15,29 @@ import TestHarness;
 namespace
 {
     // Resout la selection de scenarios ; retourne un code >= 0 pour terminer immediatement.
-    int SelectScenarios(int argc, char* argv[], const char* executableName,
-                        std::vector<const ScenarioEntry*>& selected)
+    int SelectScenarios(int argc, char* argv[], std::string_view executableName,
+                        std::vector<const sim::test::ScenarioEntry*>& selected)
     {
         for (int i = 1; i < argc; ++i) {
             const std::string argument = argv[i] != nullptr ? argv[i] : "";
 
             if (argument == "-h" || argument == "--help") {
-                PrintUsage(executableName);
+                sim::test::print_usage(executableName);
                 return 0;
             }
 
-            if (argument.size() != 1 || FindScenario(argument[0]) == nullptr) {
+            if (argument.size() != 1 || sim::test::find_scenario(argument[0]) == nullptr) {
                 std::cout << "Erreur : argument invalide \"" << argument << "\"." << std::endl;
                 std::cout << std::endl;
-                PrintUsage(executableName);
+                sim::test::print_usage(executableName);
                 return 2;
             }
 
-            selected.push_back(FindScenario(argument[0]));
+            selected.push_back(sim::test::find_scenario(argument[0]));
         }
 
         if (selected.empty()) {
-            for (const ScenarioEntry& entry : GetScenarios()) {
+            for (const sim::test::ScenarioEntry& entry : sim::test::get_scenarios()) {
                 selected.push_back(&entry);
             }
         }
@@ -48,9 +48,9 @@ namespace
 
 int main(int argc, char* argv[])
 {
-    const char* executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
+    const std::string executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
 
-    std::vector<const ScenarioEntry*> selected;
+    std::vector<const sim::test::ScenarioEntry*> selected;
     const int earlyStatus = SelectScenarios(argc, argv, executableName, selected);
     if (earlyStatus >= 0) {
         return earlyStatus;
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
               << std::fixed << std::setprecision(1) << hoverRpm << " tr/min" << std::endl;
     std::cout << "Boucle mono-thread deterministic a 100 Hz (dt = 0.01 s)." << std::endl;
 
-    for (const ScenarioEntry* entry : selected) {
+    for (const sim::test::ScenarioEntry* entry : selected) {
         entry->run(runner, hoverRpm);
     }
 

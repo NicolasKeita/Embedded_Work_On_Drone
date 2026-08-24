@@ -8,10 +8,17 @@ set(SIMULATION_FILES
     Src/Simulation/Aircraft.cpp
 )
 
+# Sources du module de controle de vol (.cppm + .cpp conserves ensemble).
+set(CONTROL_FILES
+    Src/Control/FlightController.cppm
+    Src/Control/FlightController.cpp
+)
+
 set(SRC_FILES
     Src/App/Application.cppm
     Src/App/Application.cpp
     ${SIMULATION_FILES}
+    ${CONTROL_FILES}
 )
 
 add_executable(HelloWorld Src/main.cpp)
