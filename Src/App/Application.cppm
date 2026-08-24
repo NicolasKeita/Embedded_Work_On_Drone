@@ -10,9 +10,6 @@ export module App;
 
 import std;
 
-import PhysicsModel;
-import Sensors;
-import Actuators;
 import Aircraft;
 
 export class Application

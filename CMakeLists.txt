@@ -2,18 +2,18 @@ cmake_minimum_required(VERSION 4.1)
 
 project(HelloWorld VERSION 1.0.0 LANGUAGES CXX)
 
-set(SRC_FILES
-    Src/App/Application.cppm
-    Src/App/Application.cpp
-    Src/Simulation/PhysicsModel.cppm
-    Src/Simulation/PhysicsModel.cpp
-    Src/Simulation/Actuators.cppm
-    Src/Simulation/Actuators.cpp
-    Src/Simulation/Sensors.cppm
-    Src/Simulation/Sensors.cpp
+# Sources du module de simulation (.cppm + .cpp conserves ensemble).
+set(SIMULATION_FILES
     Src/Simulation/Aircraft.cppm
     Src/Simulation/Aircraft.cpp
 )
+
+set(SRC_FILES
+    Src/App/Application.cppm
+    Src/App/Application.cpp
+    ${SIMULATION_FILES}
+)
+
 add_executable(HelloWorld Src/main.cpp)
 target_sources(HelloWorld
     PUBLIC
@@ -23,16 +23,28 @@ target_sources(HelloWorld
             ${SRC_FILES}
 )
 
-if(MSVC)
-    target_compile_options(HelloWorld PRIVATE
-        /W4
-        /external:W0
-        /external:anglebrackets
-    )
-else()
-    target_compile_options(HelloWorld PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+# Exercice de validation des scenarios A a F (etape 5).
+add_executable(test_simulation Tests/test_simulation.cpp)
+target_sources(test_simulation
+    PRIVATE
+        FILE_SET CXX_MODULES
+        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
+        FILES
+            ${SIMULATION_FILES}
+)
 
-target_compile_features(HelloWorld PRIVATE cxx_std_23)
+foreach(target HelloWorld test_simulation)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE
+            /W4
+            /external:W0
+            /external:anglebrackets
+        )
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    target_compile_features(${target} PRIVATE cxx_std_23)
+endforeach()
 
 install(TARGETS HelloWorld RUNTIME DESTINATION bin)
