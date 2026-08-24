@@ -16,6 +16,14 @@ All rights reserved.
 
 `Filename` must match the actual file path. `Description` must describe the file's purpose.
 
+## Comments
+
+* No comments inside function bodies. If code needs explanation, prefer clearer naming, smaller functions, or move the explanation into the documentation block above the function.
+* Document functions with a `/* ... */` block placed directly above the function signature.
+* Trailing comments on closing braces (e.g. `} // namespace sim::control`) are not used either.
+
+This matches what the linter enforces: any comment that is not directly above a function signature is reported as a style issue.
+
 ## C++ Modules
 
 * Use C++ modules for all new C++ code.
