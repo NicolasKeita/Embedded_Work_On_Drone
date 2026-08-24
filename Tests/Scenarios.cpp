@@ -117,4 +117,4 @@ void combined(TestRunner& runner, double hover_rpm)
     runner.check(s.vy < 0.0 && s.y < 0.0, "F4 : deplacement Y negatif");
 }
 
-} // namespace sim::test::scenarios
+}

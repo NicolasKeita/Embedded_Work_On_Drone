@@ -12,15 +12,25 @@ import std;
 
 import Aircraft;
 
+namespace {
+
+constexpr double kDegreesPerRadian = 180.0 / std::numbers::pi;
+constexpr int kTimePrecision = 1;
+constexpr int kValuePrecision = 2;
+
+}
+
 void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
 {
     const AircraftState& state = aircraft.state();
+    const double pitchDegrees = state.pitch * kDegreesPerRadian;
+    const double rollDegrees = state.roll * kDegreesPerRadian;
 
-    std::cout << "t = " << std::fixed << std::setprecision(1) << timeSeconds
-              << "s   z = " << std::setprecision(2) << state.z
+    std::cout << "t = " << std::fixed << std::setprecision(kTimePrecision) << timeSeconds
+              << "s   z = " << std::setprecision(kValuePrecision) << state.z
               << "m   vz = " << state.vz
-              << "m/s   pitch = " << state.pitch * 180.0 / 3.14159265358979323846
-              << "deg   roll = " << state.roll * 180.0 / 3.14159265358979323846
+              << "m/s   pitch = " << pitchDegrees
+              << "deg   roll = " << rollDegrees
               << "deg   rpm = " << state.actual_rpm << std::endl;
 }
 
