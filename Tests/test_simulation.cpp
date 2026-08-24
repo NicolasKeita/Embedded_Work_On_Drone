@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     const Aircraft reference;
     const double hoverRpm = reference.hover_rpm();
 
-    sim::test::TestRunner runner{sim::test::HarnessConfig{.dt = 0.01, .log_interval_steps = 100}};
+    sim::test::TestHarness runner{sim::test::HarnessConfig{.dt = 0.01, .log_interval_steps = 100}};
 
     std::cout << "=== Validation simulateur physique (Heliblade-like) ===" << std::endl;
     std::cout << "RPM de stationnaire theorique : "

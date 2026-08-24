@@ -21,7 +21,7 @@ namespace sim::test {
 Verifie une condition et journalise explicitement le succes ou l'echec ;
 l'echec est compte dans l'etat d'instance du runner (failures_).
 */
-void TestRunner::check(bool condition, std::string_view label)
+void TestHarness::check(bool condition, std::string_view label)
 {
     if (condition) {
         std::cout << "  [PASS] " << label << std::endl;
@@ -32,7 +32,7 @@ void TestRunner::check(bool condition, std::string_view label)
     }
 }
 
-void TestRunner::log_header() const
+void TestHarness::log_header() const
 {
     std::cout << "      t(s)";
     std::cout << std::setw(11) << "x(m)" << std::setw(11) << "y(m)"
@@ -42,7 +42,7 @@ void TestRunner::log_header() const
               << std::setw(11) << "rpm" << std::endl;
 }
 
-void TestRunner::log_step(const Aircraft& aircraft) const
+void TestHarness::log_step(const Aircraft& aircraft) const
 {
     const AircraftState& s = aircraft.state();
 
@@ -66,7 +66,7 @@ l'etat au rythme defini par HarnessConfig::log_interval_steps. Un log final est
 emis uniquement si le dernier pas n'a pas deja ete logge par la periodicite
 (sinon la derniere ligne du tableau serait dupliquee).
 */
-void TestRunner::run(Aircraft& aircraft, double duration_seconds)
+void TestHarness::run(Aircraft& aircraft, double duration_seconds)
 {
     const int steps = static_cast<int>(duration_seconds / config_.dt + 0.5);
 
@@ -93,14 +93,14 @@ Phase commune aux scenarios aeriens : montee rapide pour prendre de l'altitude.
 Le temps simule est suivi en interne par le runner (current_time_), la phase
 n'a donc plus besoin de retourner son instant de fin.
 */
-void TestRunner::take_off(Aircraft& aircraft, double target_rpm)
+void TestHarness::take_off(Aircraft& aircraft, double target_rpm)
 {
     aircraft.set_command({1.3 * target_rpm, 0.0, 0.0});
     run(aircraft, kTakeOffDurationSeconds);
 }
 
 // Reinitialise completement l'etat du runner : compteur d'echecs, temps et pas simules.
-void TestRunner::reset()
+void TestHarness::reset()
 {
     failures_ = 0;
     current_time_ = 0.0;

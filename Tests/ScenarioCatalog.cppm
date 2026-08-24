@@ -14,7 +14,7 @@ import TestHarness;
 
 export namespace sim::test {
 
-using ScenarioFn = std::function<void(TestRunner&, double)>;
+using ScenarioFn = std::function<void(TestHarness&, double)>;
 
 struct ScenarioEntry {
     char key;

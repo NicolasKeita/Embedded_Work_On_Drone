@@ -19,9 +19,9 @@ struct HarnessConfig {
     std::size_t log_interval_steps{100};
 };
 
-class TestRunner {
+class TestHarness {
 public:
-    explicit TestRunner(HarnessConfig config = {}) : config_(config) {}
+    explicit TestHarness(HarnessConfig config = {}) : config_(config) {}
 
     // Assertions.
     void check(bool condition, std::string_view label);
