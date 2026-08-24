@@ -46,6 +46,10 @@ namespace
     }
 }
 
+/*
+Point d'entree : un seul runner est partage par tous les scenarios afin que le
+compteur d'echecs soit cumule sur l'ensemble de la validation.
+*/
 int main(int argc, char* argv[])
 {
     const std::string executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
@@ -59,7 +63,6 @@ int main(int argc, char* argv[])
     const Aircraft reference;
     const double hoverRpm = reference.hover_rpm();
 
-    // Un seul runner partage par tous les scenarios : le compteur d'echecs est cumule.
     sim::test::TestRunner runner{sim::test::HarnessConfig{.dt = 0.01, .log_interval_steps = 100}};
 
     std::cout << "=== Validation simulateur physique (Heliblade-like) ===" << std::endl;

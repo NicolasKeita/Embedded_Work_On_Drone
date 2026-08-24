@@ -87,4 +87,4 @@ ControlCommand FlightController::compute_command(const AircraftState&    state,
     return cmd;
 }
 
-} // namespace sim::control
+}

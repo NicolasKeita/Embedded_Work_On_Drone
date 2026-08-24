@@ -15,7 +15,6 @@ import TestHarness;
 
 namespace
 {
-    // CTAD deduit la taille : ajouter une entree ici ne casse plus l'interface.
     const std::array kScenarios{
         sim::test::ScenarioEntry{'a', "Repos (RPM = 0, servos = 0)", ::ScenarioRest},
         sim::test::ScenarioEntry{'b', "Montee (RPM > hover)", ::ScenarioClimb},
@@ -68,4 +67,4 @@ void print_usage(std::string_view executableName)
     }
 }
 
-} // namespace sim::test
+}

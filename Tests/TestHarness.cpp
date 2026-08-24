@@ -62,14 +62,14 @@ void TestRunner::log_step(const Aircraft& aircraft) const
 /*
 Avance la simulation de durationSecondes sur l'aeronef passe, en suivant le temps
 simule et le nombre de pas dans l'etat d'instance, et en loggant periodiquement
-l'etat au rythme defini par HarnessConfig::log_interval_steps.
+l'etat au rythme defini par HarnessConfig::log_interval_steps. Un log final est
+emis uniquement si le dernier pas n'a pas deja ete logge par la periodicite
+(sinon la derniere ligne du tableau serait dupliquee).
 */
 void TestRunner::run(Aircraft& aircraft, double duration_seconds)
 {
     const int steps = static_cast<int>(duration_seconds / config_.dt + 0.5);
 
-    // Un log final est emis uniquement si le dernier pas n'a pas deja ete logge
-    // par la periodicite (sinon la derniere ligne du tableau serait dupliquee).
     bool last_step_logged = false;
 
     for (int i = 0; i < steps; ++i) {
@@ -107,4 +107,4 @@ void TestRunner::reset()
     step_count_ = 0;
 }
 
-} // namespace sim::test
+}
