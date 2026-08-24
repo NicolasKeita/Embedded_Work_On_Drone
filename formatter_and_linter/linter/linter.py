@@ -13,6 +13,7 @@ import sys
 from shared.comment_utils import detect_comments_and_functions, check_comment_placement
 
 from linter.style_checks import (
+    MAX_FILE_LENGTH,
     MAX_FUNCTION_LENGTH,
     check_line_length,
     check_file_length,
@@ -37,16 +38,21 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     is_module_interface = file_path.lower().endswith('.cppm')
     if is_module_interface:
         cppm_violations = check_cppm_interface_implementations(code)
-        if cppm_violations:
+        file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
+
+        has_issues = len(cppm_violations) > 0 or file_too_long
+        if has_issues:
             print_issue_header(file_path)
+
         print_cppm_interface_warnings(cppm_violations, file_path)
-        return len(cppm_violations) > 0
+        print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
+        return has_issues
 
     long_lines = check_line_length(code, max_length)
     comments, function_lines = detect_comments_and_functions(code)
     invalid_comments = check_comment_placement(comments, function_lines)
     long_functions = check_function_length(code, max_lines=MAX_FUNCTION_LENGTH)
-    file_too_long, file_line_count = check_file_length(code, max_lines=120)
+    file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
@@ -58,13 +64,14 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_line_length_warnings(long_lines, max_length)
         print_comment_placement_warnings(invalid_comments)
         print_function_length_warnings(long_functions, max_lines=MAX_FUNCTION_LENGTH)
-        print_file_length_warning(file_too_long, file_line_count, max_lines=120)
+        print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
 
     return has_issues
 
 
 __all__ = [
     "MAX_FUNCTION_LENGTH",
+    "MAX_FILE_LENGTH",
     "MAX_CPPM_INLINE_BODY_LINES",
     "check_line_length",
     "check_file_length",

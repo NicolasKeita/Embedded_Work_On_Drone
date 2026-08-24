@@ -10,6 +10,7 @@ import re
 from typing import List, Tuple
 
 MAX_FUNCTION_LENGTH = 35
+MAX_FILE_LENGTH = 120
 
 
 def check_line_length(code: str, max_length: int = 120) -> List[Tuple[int, int]]:
@@ -21,7 +22,7 @@ def check_line_length(code: str, max_length: int = 120) -> List[Tuple[int, int]]
     return long_lines
 
 
-def check_file_length(code: str, max_lines: int = 120) -> Tuple[bool, int]:
+def check_file_length(code: str, max_lines: int = MAX_FILE_LENGTH) -> Tuple[bool, int]:
     line_count = len(code.splitlines())
     return (line_count > max_lines, line_count)
 

@@ -8,7 +8,7 @@ Warning message rendering for the C++ code linter.
 import sys
 from typing import List, Tuple
 
-from linter.style_checks import MAX_FUNCTION_LENGTH
+from linter.style_checks import MAX_FILE_LENGTH, MAX_FUNCTION_LENGTH
 
 
 def _get_path_label(file_path: str) -> str:
@@ -39,7 +39,7 @@ def print_comment_placement_warnings(invalid_comments: List[Tuple[int, str]]) ->
             print(f"⚠️  Line {line_num}: Multiline comment content not above a function", file=sys.stderr)
 
 
-def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: int = 120) -> None:
+def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: int = MAX_FILE_LENGTH) -> None:
     if exceeds_limit:
         print(f"⚠️  File exceeds {max_lines} lines: {line_count} lines", file=sys.stderr)
 
