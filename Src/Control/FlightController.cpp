@@ -26,7 +26,9 @@ namespace
 
 namespace sim::control {
 
-FlightController::FlightController(ControllerConfig config) : config_(config) {}
+FlightController::FlightController(ControllerConfig config) : config_(config)
+{
+}
 
 /*
 Boucle verticale : correction proportionnelle de l'erreur de vitesse verticale
@@ -34,7 +36,7 @@ autour du stationnaire. La portance etant quadratique en RPM, ce gain n'est
 valide qu'autour du point de stationnaire (lineairisation locale).
 Point d'extension : ajouter une integrale (PI) ou un terme derive.
 */
-double FlightController::vertical_rpm(const AircraftState& state,
+double FlightController::vertical_rpm(const AircraftState&    state,
                                       const VelocitySetpoint& setpoint) const
 {
     const double vzError = setpoint.target_vz - state.vz;
@@ -50,9 +52,9 @@ le modele physique (cf. Aircraft::update_attitude) :
   moyenne   (left + right) / 2 -> tangage (donc vitesse X)
   differentiel left - right    -> roulis  (donc vitesse Y)
 */
-ControlCommand FlightController::horizontal_servos(const AircraftState& state,
+ControlCommand FlightController::horizontal_servos(const AircraftState&    state,
                                                    const VelocitySetpoint& setpoint) const
-{
+  {
     const double tiltLimit = config_.max_tilt_deg;
 
     const double pitchDeg =
@@ -76,9 +78,9 @@ ControlCommand FlightController::horizontal_servos(const AircraftState& state,
 Cascade complete : la boucle verticale fixe le RPM, les boucles horizontales
 fixent le melange servo ; les deux sont recombinees en une seule commande.
 */
-ControlCommand FlightController::compute_command(const AircraftState& state,
+ControlCommand FlightController::compute_command(const AircraftState&    state,
                                                  const VelocitySetpoint& setpoint) const
-{
+  {
     ControlCommand cmd = horizontal_servos(state, setpoint);
     cmd.wing_rpm = vertical_rpm(state, setpoint);
 
