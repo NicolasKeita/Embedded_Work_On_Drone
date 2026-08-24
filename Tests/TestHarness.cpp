@@ -68,6 +68,10 @@ void TestRunner::run(Aircraft& aircraft, double duration_seconds)
 {
     const int steps = static_cast<int>(duration_seconds / config_.dt + 0.5);
 
+    // Un log final est emis uniquement si le dernier pas n'a pas deja ete logge
+    // par la periodicite (sinon la derniere ligne du tableau serait dupliquee).
+    bool last_step_logged = false;
+
     for (int i = 0; i < steps; ++i) {
         aircraft.update(config_.dt);
         ++step_count_;
@@ -75,10 +79,13 @@ void TestRunner::run(Aircraft& aircraft, double duration_seconds)
 
         if (config_.log_interval_steps > 0 && step_count_ % config_.log_interval_steps == 0) {
             log_step(aircraft);
+            last_step_logged = true;
         }
     }
 
-    log_step(aircraft);
+    if (!last_step_logged) {
+        log_step(aircraft);
+    }
 }
 
 /*
