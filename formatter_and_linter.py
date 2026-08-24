@@ -115,22 +115,24 @@ def main() -> NoReturn:
 
     if check_only:
         input_files = file_handler.find_source_files("Src", include_hpp=False, include_cppm=True)
+        input_files += file_handler.find_source_files("Tests", include_hpp=False, include_cppm=True)
         if not input_files:
-            print("No source files found in Src/", file=sys.stderr)
+            print("No source files found in Src/ or Tests/", file=sys.stderr)
             sys.exit(1)
-        print(f"Checking {len(input_files)} files in Src/...")
+        print(f"Checking {len(input_files)} files in Src/ and Tests/...")
     elif recursive:
         input_files = file_handler.find_source_files("Src", include_hpp=False, include_cppm=True)
+        input_files += file_handler.find_source_files("Tests", include_hpp=False, include_cppm=True)
         if not input_files:
-            print("No .cpp/.cppm files found in Src/", file=sys.stderr)
+            print("No .cpp/.cppm files found in Src/ or Tests/", file=sys.stderr)
             sys.exit(1)
-        print(f"Found {len(input_files)} .cpp/.cppm files in Src/...")
+        print(f"Found {len(input_files)} .cpp/.cppm files in Src/ and Tests/...")
     elif not input_files:
         print("Usage: python formatter_and_linter.py [-i] [-r/--recursive] <input_file.cpp> ...", file=sys.stderr)
         print("       python formatter_and_linter.py --check", file=sys.stderr)
         print("  -i, --in-place    : Modify the file in place (otherwise create output.cpp)", file=sys.stderr)
-        print("  -r, --recursive   : Process all .cpp files in Src/ recursively", file=sys.stderr)
-        print("  --check           : Check all files in Src/ without modifying", file=sys.stderr)
+        print("  -r, --recursive   : Process all .cpp/.cppm files in Src/ and Tests/ recursively", file=sys.stderr)
+        print("  --check           : Check all files in Src/ and Tests/ without modifying", file=sys.stderr)
         sys.exit(1)
 
     has_any_long_lines = False

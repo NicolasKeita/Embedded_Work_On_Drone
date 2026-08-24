@@ -23,6 +23,16 @@ target_sources(HelloWorld
             ${SRC_FILES}
 )
 
+# Harness et scenarios du programme de validation (.cppm + .cpp conserves ensemble).
+set(TEST_SIMULATION_FILES
+    Tests/TestHarness.cppm
+    Tests/TestHarness.cpp
+    Tests/Scenarios.cppm
+    Tests/Scenarios.cpp
+    Tests/ScenarioCatalog.cppm
+    Tests/ScenarioCatalog.cpp
+)
+
 # Exercice de validation des scenarios A a F (etape 5).
 add_executable(test_simulation Tests/test_simulation.cpp)
 target_sources(test_simulation
@@ -31,6 +41,7 @@ target_sources(test_simulation
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
         FILES
             ${SIMULATION_FILES}
+            ${TEST_SIMULATION_FILES}
 )
 
 foreach(target HelloWorld test_simulation)
