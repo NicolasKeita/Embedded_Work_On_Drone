@@ -59,20 +59,24 @@ int main(int argc, char* argv[])
     const Aircraft reference;
     const double hoverRpm = reference.hover_rpm();
 
+    // Un seul runner partage par tous les scenarios : le compteur d'echecs est cumule.
+    sim::test::TestRunner runner{sim::test::HarnessConfig{.dt = 0.01, .log_interval_steps = 100}};
+
     std::cout << "=== Validation simulateur physique (Heliblade-like) ===" << std::endl;
     std::cout << "RPM de stationnaire theorique : "
               << std::fixed << std::setprecision(1) << hoverRpm << " tr/min" << std::endl;
     std::cout << "Boucle mono-thread deterministic a 100 Hz (dt = 0.01 s)." << std::endl;
 
     for (const ScenarioEntry* entry : selected) {
-        entry->run(hoverRpm);
+        entry->run(runner, hoverRpm);
     }
 
-    if (FailureCount() == 0) {
+    if (runner.passed()) {
         std::cout << "\n>>> Tous les scenarios lances sont valides (PASS)." << std::endl;
         return 0;
     }
 
-    std::cout << "\n>>> " << FailureCount() << " verification(s) ont echoue (FAIL)." << std::endl;
+    std::cout << "\n>>> " << runner.failure_count()
+              << " verification(s) ont echoue (FAIL)." << std::endl;
     return 1;
 }

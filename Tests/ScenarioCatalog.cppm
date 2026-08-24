@@ -10,11 +10,13 @@ export module ScenarioCatalog;
 
 import std;
 
+import TestHarness;
+
 export struct ScenarioEntry
 {
     char key;
     const char* description;
-    void (*run)(double);
+    void (*run)(sim::test::TestRunner&, double);
 };
 
 export [[nodiscard]] const std::array<ScenarioEntry, 6>& GetScenarios();

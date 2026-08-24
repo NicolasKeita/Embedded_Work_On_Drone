@@ -1,6 +1,6 @@
 /*
 Filename: Tests/TestHarness.cppm
-Description: Public interface of the shared validation harness (checks, logging, run loop).
+Description: Encapsulated test harness for aircraft simulation scenarios.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,13 +12,36 @@ import std;
 
 import Aircraft;
 
-export constexpr double kPi = 3.14159265358979323846;
-export constexpr double kDt = 0.01;
-export constexpr int kLogLevelEverySteps = 100;
+export namespace sim::test {
 
-export void Check(bool condition, const std::string& label);
-export [[nodiscard]] int FailureCount();
-export void LogHeader();
-export void LogStep(double timeSeconds, const Aircraft& aircraft);
-export void Run(Aircraft& aircraft, double startTimeSeconds, double durationSeconds);
-export double TakeOff(Aircraft& aircraft, double hoverRpm);
+struct HarnessConfig {
+    double dt{0.01};
+    std::size_t log_interval_steps{100};
+};
+
+class TestRunner {
+public:
+    explicit TestRunner(HarnessConfig config = {}) : config_(config) {}
+
+    // Assertions.
+    void check(bool condition, std::string_view label);
+    [[nodiscard]] int failure_count() const noexcept { return failures_; }
+    [[nodiscard]] bool passed() const noexcept { return failures_ == 0; }
+
+    // Logging & execution.
+    void log_header() const;
+    void log_step(const Aircraft& aircraft) const;
+    void run(Aircraft& aircraft, double duration_seconds);
+
+    // Contextual helpers / scenarios.
+    void take_off(Aircraft& aircraft, double target_rpm);
+    void reset();
+
+private:
+    HarnessConfig config_;
+    int failures_{0};
+    double current_time_{0.0};
+    std::size_t step_count_{0};
+};
+
+} // namespace sim::test

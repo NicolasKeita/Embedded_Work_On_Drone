@@ -11,6 +11,7 @@ module ScenarioCatalog;
 import std;
 
 import Scenarios;
+import TestHarness;
 
 namespace
 {
