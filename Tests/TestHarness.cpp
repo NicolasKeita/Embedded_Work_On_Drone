@@ -34,12 +34,13 @@ void TestHarness::check(bool condition, std::string_view label)
 
 void TestHarness::log_header() const
 {
-    std::cout << "      t(s)";
-    std::cout << std::setw(11) << "x(m)" << std::setw(11) << "y(m)"
-              << std::setw(11) << "z(m)" << std::setw(11) << "vx(m/s)"
-              << std::setw(11) << "vy(m/s)" << std::setw(11) << "vz(m/s)"
-              << std::setw(11) << "pitch(d)" << std::setw(11) << "roll(d)"
-              << std::setw(11) << "rpm" << std::endl;
+    std::cout << "     t(s)";
+    std::cout << "   " << std::setw(11) << "x(m)" << std::setw(11) << "y(m)"
+              << std::setw(11) << "z(m)";
+    std::cout << "   " << std::setw(11) << "vx(m/s)" << std::setw(11) << "vy(m/s)"
+              << std::setw(11) << "vz(m/s)";
+    std::cout << "   " << std::setw(11) << "pitch(d)" << std::setw(11) << "roll(d)";
+    std::cout << "   " << std::setw(11) << "rpm" << std::endl;
 }
 
 void TestHarness::log_step(const Aircraft& aircraft) const
@@ -55,16 +56,16 @@ void TestHarness::log_step(const Aircraft& aircraft, double time_seconds) const
 {
     const AircraftState& s = aircraft.state();
 
-    std::cout << std::fixed << std::setw(9) << std::setprecision(2) << time_seconds
-              << std::setw(11) << std::setprecision(3) << s.x
+    std::cout << std::fixed << std::setw(9) << std::setprecision(2) << time_seconds;
+    std::cout << "   " << std::setprecision(3) << std::setw(11) << s.x
               << std::setw(11) << s.y
-              << std::setw(11) << s.z
-              << std::setw(11) << s.vx
+              << std::setw(11) << s.z;
+    std::cout << "   " << std::setw(11) << s.vx
               << std::setw(11) << s.vy
-              << std::setw(11) << s.vz
-              << std::setw(11) << std::setprecision(2) << s.pitch * 180.0 / std::numbers::pi
-              << std::setw(11) << s.roll * 180.0 / std::numbers::pi
-              << std::setw(11) << std::setprecision(0) << s.actual_rpm
+              << std::setw(11) << s.vz;
+    std::cout << "   " << std::setprecision(2) << std::setw(11) << s.pitch * 180.0 / std::numbers::pi
+              << std::setw(11) << s.roll * 180.0 / std::numbers::pi;
+    std::cout << "   " << std::setprecision(0) << std::setw(11) << s.actual_rpm
               << std::defaultfloat << std::endl;
 }
 
