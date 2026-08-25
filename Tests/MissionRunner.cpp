@@ -46,7 +46,7 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
 {
     constexpr double kDt = 0.01;
     constexpr double kSteadyWindowSeconds = 10.0;
-    constexpr int kLogIntervalSteps = 500;
+    constexpr int kLogIntervalSteps = 250;
 
     MissionRunTrace trace;
     const double targetValue = component_value(run.target, run.axis);
@@ -62,6 +62,8 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
     double steadyErrorSum = 0.0;
     double steadySamples = 0.0;
     int stepIndex = 0;
+
+    print_state_row(craft, time);
 
     while (time < run.duration) {
         craft.set_command(ctrl.update(run.target, craft.state(), kDt));
