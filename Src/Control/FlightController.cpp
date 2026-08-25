@@ -1,6 +1,6 @@
 /*
 Filename: Src/Control/FlightController.cpp
-Description: Implementation of the velocity-level flight control cascade (RPM and servo mixing).
+Description: Core of the autonomous flight controller : PID machinery and mission state helpers.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -14,9 +14,7 @@ import Aircraft;
 
 namespace
 {
-    constexpr double kMinRpm = 0.0;
-    constexpr double kMinServoDeg = -30.0;
-    constexpr double kMaxServoDeg = 30.0;
+    constexpr double kAltitudeIntegralErrorBandM = 5.0;
 
     double Clamp(double value, double minValue, double maxValue)
     {
@@ -28,63 +26,88 @@ namespace sim::control {
 
 FlightController::FlightController(ControllerConfig config) : config_(config)
 {
+    altitude_pid_.kp = config.kp_altitude;
+    altitude_pid_.ki = config.ki_altitude;
+    altitude_pid_.kd = config.kd_altitude;
+    altitude_pid_.integral_limit =
+        config.max_integral_rpm / std::max(config.ki_altitude, 1e-9);
+    altitude_pid_.integral_error_band = kAltitudeIntegralErrorBandM;
+
+    x_position_pid_.kp = config.kp_position;
+    x_position_pid_.kd = config.kd_position;
+    y_position_pid_.kp = config.kp_position;
+    y_position_pid_.kd = config.kd_position;
 }
 
 /*
-Boucle verticale : correction proportionnelle de l'erreur de vitesse verticale
-autour du stationnaire. La portance etant quadratique en RPM, ce gain n'est
-valide qu'autour du point de stationnaire (lineairisation locale).
-Point d'extension : ajouter une integrale (PI) ou un terme derive.
+Retourne l'etat courant de la machine a etats de mission.
 */
-double FlightController::vertical_rpm(const AircraftState&    state,
-                                      const VelocitySetpoint& setpoint) const
+MissionState FlightController::state() const
 {
-    const double vzError = setpoint.target_vz - state.vz;
-    const double rpm = config_.hover_rpm + config_.kp_vertical * vzError;
-
-    return Clamp(rpm, kMinRpm, std::numeric_limits<double>::max());
+    return mission_state_;
 }
 
 /*
-Boucles horizontales : chaque erreur de vitesse est convertie en angle de
-consigne (degres), saturee a max_tilt_deg, puis melangee sur les servos selon
-le modele physique (cf. Aircraft::update_attitude) :
-  moyenne   (left + right) / 2 -> tangage (donc vitesse X)
-  differentiel left - right    -> roulis  (donc vitesse Y)
+Reinitialise l'etat des PIDs (integrale et memoire de derivee) sans toucher aux
+gains, afin d'eviter tout coup de derivee ou windup residuel au changement de
+phase de mission.
 */
-ControlCommand FlightController::horizontal_servos(const AircraftState&    state,
-                                                   const VelocitySetpoint& setpoint) const
+void FlightController::reset_pids()
 {
-    const double tiltLimit = config_.max_tilt_deg;
-
-    const double pitchDeg =
-        Clamp(config_.kp_horizontal * (setpoint.target_vx - state.vx),
-              -tiltLimit, tiltLimit);
-    const double rollDeg =
-        Clamp(config_.kp_horizontal * (setpoint.target_vy - state.vy),
-              -tiltLimit, tiltLimit);
-
-    ControlCommand cmd;
-    cmd.wing_rpm = config_.hover_rpm;
-    cmd.left_servo_angle =
-        Clamp(pitchDeg + rollDeg, kMinServoDeg, kMaxServoDeg);
-    cmd.right_servo_angle =
-        Clamp(pitchDeg - rollDeg, kMinServoDeg, kMaxServoDeg);
-
-    return cmd;
+    altitude_pid_.integral = 0.0;
+    altitude_pid_.previous_error = 0.0;
+    altitude_pid_.primed = false;
+    x_position_pid_.integral = 0.0;
+    x_position_pid_.previous_error = 0.0;
+    x_position_pid_.primed = false;
+    y_position_pid_.integral = 0.0;
+    y_position_pid_.previous_error = 0.0;
+    y_position_pid_.primed = false;
 }
 
 /*
-Cascade complete : la boucle verticale fixe le RPM, les boucles horizontales
-fixent le melange servo ; les deux sont recombinees en une seule commande.
+Reinitialise les PIDs puis bascule la machine a etats en CLIMB.
 */
-ControlCommand FlightController::compute_command(const AircraftState&    state,
-                                                 const VelocitySetpoint& setpoint) const
+void FlightController::enter_climb()
 {
-    ControlCommand cmd = horizontal_servos(state, setpoint);
-    cmd.wing_rpm = vertical_rpm(state, setpoint);
-
-    return cmd;
+    reset_pids();
+    mission_state_ = MissionState::CLIMB;
 }
 
+/*
+Pas PID generique : derivee numerique de l'erreur, integrale bridee (anti-
+windup) qui n'accumule qu'a proximite de la cible (bande configuree). La
+structure reste identique pour un regulateur P pur (ki = kd = 0), PI ou PID.
+*/
+double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
+{
+    if (!pid.primed) {
+        pid.previous_error = error;
+        pid.primed = true;
+    }
+
+    const double errorDerivative = (error - pid.previous_error) / dt;
+    pid.previous_error = error;
+
+    const bool inBand =
+        pid.integral_error_band == 0.0 || std::abs(error) <= pid.integral_error_band;
+    if (inBand) {
+        pid.integral =
+            Clamp(pid.integral + error * dt, -pid.integral_limit, pid.integral_limit);
+    }
+
+    return pid.kp * error + pid.ki * pid.integral + pid.kd * errorDerivative;
 }
+
+/*
+Boucle d'altitude : erreur de position verticale convertie en correction RPM
+autour du point d'equilibre hover_rpm (la portance y compense exactement le
+poids). Kp agit sur l'erreur, Kd amortit la vitesse verticale (evite les
+oscillations du P pur sur ce systeme a double integrateur), Ki elimine
+l'erreur statique residuelle. Correction saturee entre min_rpm et max_rpm.
+*/
+double FlightController::updateAltitudeControl(double target_z, double actual_z, double dt)
+{
+    const double correction = AxisPidStep(altitude_pid_, target_z - actual_z, dt);
+    return Clamp(config_.hover_rpm + correction, config_.min_rpm, config_.max_rpm);
+}}

@@ -10,18 +10,24 @@ module ScenarioCatalog;
 
 import std;
 
+import FlightMission;
+import FlightScenarios;
 import Scenarios;
 import TestHarness;
 
 namespace sim::test {
 
-const std::array<ScenarioEntry, 6> ScenarioCatalog::scenarios_{{
+const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
     {'a', "Repos (RPM = 0, servos = 0)", scenarios::rest},
     {'b', "Montee (RPM > hover)", scenarios::climb},
     {'c', "Descente (RPM < hover)", scenarios::descent},
     {'d', "Deplacement X (hover + pitch > 0)", scenarios::move_x},
     {'e', "Deplacement Y (hover + roll > 0)", scenarios::move_y},
     {'f', "Combine (RPM > hover, pitch > 0, roll < 0)", scenarios::combined},
+    {'g', "Autonomie : altitude pure (z -> 100 m)", flight_scenarios::autonomous_altitude},
+    {'h', "Autonomie : axe X en cascade (x 20 -> 0)", flight_scenarios::autonomous_position_x},
+    {'i', "Autonomie : axe Y en cascade (y -15 -> 0)", flight_scenarios::autonomous_position_y},
+    {'j', "Autonomie : mission complete (TAKEOFF a COMPLETE)", flight_scenarios::autonomous_mission},
 }};
 
 std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept
@@ -64,4 +70,4 @@ void ScenarioCatalog::print_usage(std::string_view executableName)
     }
 }
 
-} // namespace sim::test
+}

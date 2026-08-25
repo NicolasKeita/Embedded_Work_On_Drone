@@ -8,10 +8,12 @@ set(SIMULATION_FILES
     Src/Simulation/Aircraft.cpp
 )
 
-# Sources du module de controle de vol (.cppm + .cpp conserves ensemble).
+# Sources du module de controle de vol (.cppm + .cpp conserves ensemble dans la meme variable).
 set(CONTROL_FILES
     Src/Control/FlightController.cppm
     Src/Control/FlightController.cpp
+    Src/Control/FlightControllerLoops.cpp
+    Src/Control/FlightControllerMission.cpp
 )
 
 set(SRC_FILES
@@ -30,7 +32,8 @@ target_sources(HelloWorld
             ${SRC_FILES}
 )
 
-# Harness et scenarios du programme de validation (.cppm + .cpp conserves ensemble).
+# Harness, scenarios physiques et scenarios autonomes du programme de validation
+# (.cppm + .cpp conserves ensemble dans la meme variable).
 set(TEST_SIMULATION_FILES
     Tests/TestHarness.cppm
     Tests/TestHarness.cpp
@@ -38,9 +41,17 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios.cpp
     Tests/ScenarioCatalog.cppm
     Tests/ScenarioCatalog.cpp
+    Tests/MissionSupport.cppm
+    Tests/MissionSupport.cpp
+    Tests/MissionRunner.cppm
+    Tests/MissionRunner.cpp
+    Tests/FlightScenarios.cppm
+    Tests/FlightScenarios.cpp
+    Tests/FlightMission.cppm
+    Tests/FlightMission.cpp
 )
 
-# Exercice de validation des scenarios A a F (etape 5).
+# Exercice de validation des scenarios A a J (etapes 5 et 6).
 add_executable(test_simulation Tests/test_simulation.cpp)
 target_sources(test_simulation
     PRIVATE
@@ -48,6 +59,7 @@ target_sources(test_simulation
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
         FILES
             ${SIMULATION_FILES}
+            ${CONTROL_FILES}
             ${TEST_SIMULATION_FILES}
 )
 

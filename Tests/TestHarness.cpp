@@ -44,9 +44,18 @@ void TestHarness::log_header() const
 
 void TestHarness::log_step(const Aircraft& aircraft) const
 {
+    log_step(aircraft, current_time_);
+}
+
+/*
+Variante a horodatage explicite : utilisee par les scenarios autonomes qui
+avancent leur boucle de controle manuellement, sans passer par run().
+*/
+void TestHarness::log_step(const Aircraft& aircraft, double time_seconds) const
+{
     const AircraftState& s = aircraft.state();
 
-    std::cout << std::fixed << std::setw(9) << std::setprecision(2) << current_time_
+    std::cout << std::fixed << std::setw(9) << std::setprecision(2) << time_seconds
               << std::setw(11) << std::setprecision(3) << s.x
               << std::setw(11) << s.y
               << std::setw(11) << s.z

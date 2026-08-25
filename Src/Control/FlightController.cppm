@@ -1,6 +1,6 @@
 /*
 Filename: Src/Control/FlightController.cppm
-Description: Public interface of the velocity-level flight controller producing actuator commands.
+Description: Public interface of the autonomous flight controller : mission state machine and cascaded position, altitude and attitude loops.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -14,40 +14,91 @@ import Aircraft;
 
 export namespace sim::control {
 
-// Gains et limites du regulateur ; hover_rpm doit etre fourni par l'aeronef de reference.
-struct ControllerConfig {
-    double hover_rpm{0.0};      // Stationnaire theorique (Aircraft::hover_rpm()).
-    double kp_vertical{120.0};  // tr/min par (m/s) d'erreur verticale.
-    double kp_horizontal{2.0};  // degres par (m/s) d'erreur horizontale.
-    double max_tilt_deg{15.0};  // Consigne d'inclinaison maximale envoyee aux servos.
+struct TargetState {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
 };
 
-// Consigne de vol exprimee en vitesses cibles (m/s).
-struct VelocitySetpoint {
-    double target_vz = 0.0;
-    double target_vx = 0.0;
-    double target_vy = 0.0;
+enum class MissionState {
+    TAKEOFF,
+    CLIMB,
+    STATION_KEEPING,
+    COMPLETE
+};
+
+struct ControllerConfig {
+    double hover_rpm{0.0};
+    double kp_altitude{5.0};
+    double ki_altitude{0.05};
+    double kd_altitude{24.0};
+    double max_integral_rpm{60.0};
+    double kp_position{1.0};
+    double kd_position{5.1};
+    double kp_attitude{0.8};
+    double max_tilt_deg{15.0};
+    double min_rpm{300.0};
+    double max_rpm{12000.0};
+    double takeoff_rpm_factor{1.3};
+    double takeoff_altitude_m{2.0};
+    double altitude_tolerance_m{0.5};
+    double position_tolerance_m{1.0};
+    double station_hold_seconds{5.0};
+};
+
+// Consignes d'inclinaison produites par la boucle de position (boucle externe).
+struct TiltTargets {
+    double pitch_deg = 0.0;
+    double roll_deg = 0.0;
+};
+
+// Melange servo produit par la boucle d'attitude (boucle interne).
+struct ServoMix {
+    double left_deg = 0.0;
+    double right_deg = 0.0;
 };
 
 class FlightController {
 public:
     explicit FlightController(ControllerConfig config);
 
+    [[nodiscard]] MissionState state() const;
+
     /*
-    Calcule la commande actionneurs (RPM aile + angles servos gauche/droit)
-    a partir de l'etat mesuré et de la consigne de vitesse. Methode pure :
-    aucun etat interne, compatible avec un appel periodique deterministe.
+    Avance la machine a etats de mission d'un pas de temps dt et retourne la
+    commande actionneurs (RPM aile + angles servos gauche/droit) calculee par
+    les boucles en cascade a partir de la consigne cible et de l'etat mesure.
     */
-    [[nodiscard]] ControlCommand compute_command(const AircraftState& state,
-                                                 const VelocitySetpoint& setpoint) const;
+    ControlCommand update(const TargetState& target, const AircraftState& actual, double dt);
 
 private:
-    [[nodiscard]] double vertical_rpm(const AircraftState& state,
-                                      const VelocitySetpoint& setpoint) const;
-    [[nodiscard]] ControlCommand horizontal_servos(const AircraftState& state,
-                                                   const VelocitySetpoint& setpoint) const;
+    struct AxisPid {
+        double kp = 0.0;
+        double ki = 0.0;
+        double kd = 0.0;
+        double integral = 0.0;
+        double integral_limit = 0.0;
+        double integral_error_band = 0.0;
+        double previous_error = 0.0;
+        bool primed = false;
+    };
+
+    void enter_climb();
+    void reset_pids();
+    static double AxisPidStep(AxisPid& pid, double error, double dt);
+    double updateAltitudeControl(double target_z, double actual_z, double dt);
+    TiltTargets updatePositionControl(const TargetState& t, const AircraftState& a, double dt);
+    ServoMix updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const;
+    ControlCommand station_keeping_command(const TargetState& t, const AircraftState& a,
+                                           double dt);
+    [[nodiscard]] bool inside_target_zone(const TargetState& t, const AircraftState& a) const;
 
     ControllerConfig config_;
+    MissionState mission_state_{MissionState::TAKEOFF};
+    AxisPid altitude_pid_{};
+    AxisPid x_position_pid_{};
+    AxisPid y_position_pid_{};
+    double station_hold_timer_{0.0};
 };
 
-} // namespace sim::control
+}

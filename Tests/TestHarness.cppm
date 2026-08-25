@@ -31,6 +31,7 @@ public:
     // Logging & execution.
     void log_header() const;
     void log_step(const Aircraft& aircraft) const;
+    void log_step(const Aircraft& aircraft, double time_seconds) const;
     void run(Aircraft& aircraft, double duration_seconds);
 
     // Contextual helpers / scenarios.
