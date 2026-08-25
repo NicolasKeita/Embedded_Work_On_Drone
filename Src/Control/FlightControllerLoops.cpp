@@ -38,8 +38,9 @@ position produit une consigne d'inclinaison saturee a max_tilt_deg ; le terme
 derive amortit la vitesse horizontale pour eviter le depassement typique d'un
 systeme a double integrateur.
 */
-TiltTargets FlightController::updatePositionControl(const TargetState& t,
-                                                    const AircraftState& a, double dt)
+TiltTargets FlightController::updatePositionControl(const TargetState&   t,
+                                                    const AircraftState& a,
+                                                    double               dt)
 {
     TiltTargets targets;
     targets.pitch_deg =
@@ -76,8 +77,9 @@ ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const Aircraf
 Commande de tenue de station : cascade complete, altitude -> RPM et position ->
 attitude -> servos, recombinees en une seule commande actionneurs.
 */
-ControlCommand FlightController::station_keeping_command(const TargetState& t,
-                                                         const AircraftState& a, double dt)
+ControlCommand FlightController::station_keeping_command(const TargetState&   t,
+                                                         const AircraftState& a,
+                                                         double               dt)
 {
     ControlCommand cmd;
     cmd.wing_rpm = updateAltitudeControl(t.z, a.z, dt);

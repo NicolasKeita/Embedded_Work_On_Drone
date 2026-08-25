@@ -45,7 +45,8 @@ namespace
 
 namespace sim::test {
 
-MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
+MissionRunTrace run_mission(FlightController&        ctrl,
+                            Aircraft&                craft,
                             const MissionRunRequest& run)
 {
     constexpr double kDt = 0.01;

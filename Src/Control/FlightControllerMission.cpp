@@ -32,8 +32,9 @@ Machine a etats de mission :
                   station_hold_seconds consecutives dans la zone cible ;
   COMPLETE        la tenue de station continue pour maintenir la position.
 */
-ControlCommand FlightController::update(const TargetState& target,
-                                        const AircraftState& actual, double dt)
+ControlCommand FlightController::update(const TargetState&   target,
+                                        const AircraftState& actual,
+                                        double               dt)
 {
     switch (mission_state_) {
     case MissionState::TAKEOFF: {
