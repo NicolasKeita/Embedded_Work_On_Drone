@@ -26,6 +26,7 @@ import formatter.short_if_formatter as short_if_formatter
 import formatter.brace_formatter as brace_formatter
 import formatter.module_formatter as module_formatter
 import formatter.prototype_spacing as prototype_spacing
+from formatter.join_lines import join_lines
 
 
 def to_pascal_case(name: str) -> str:
@@ -97,6 +98,8 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
         formatted_code = module_formatter.format_module_import_spacing(formatted_code)
 
         formatted_code = prototype_spacing.clean_code(formatted_code)
+
+    formatted_code = join_lines(formatted_code)
 
     has_long_lines = linter.lint_code(formatted_code, file_path=input_file)
 

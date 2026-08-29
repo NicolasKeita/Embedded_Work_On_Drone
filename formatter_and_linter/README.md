@@ -40,6 +40,8 @@ Automatically formats C++ code according to defined rules.
 - If statements on multiple lines
 - Function braces on new line
 - Proper spacing between functions
+- Line joining: merges statements wrapped over several lines back onto a single
+  line when the combined line fits within 120 characters
 
 ### Examples
 
