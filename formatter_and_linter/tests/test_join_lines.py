@@ -53,12 +53,268 @@ def test_operator_at_start_of_next_line_is_joined():
     assert join_lines(code) == "    int total = a + b - c;\n"
 
 
-def test_stream_operator_continuation_is_joined():
+def test_stream_output_continuation_is_not_joined():
     code = (
         '    std::cout << "value: "\n'
         "              << value << std::endl;\n"
     )
-    assert join_lines(code) == '    std::cout << "value: " << value << std::endl;\n'
+    assert join_lines(code) == code
+
+
+def test_stream_output_with_trailing_operator_is_not_joined():
+    code = (
+        '    std::cout << "t = " << timeSeconds <<\n'
+        '              "s   z = " << state.z << std::endl;\n'
+    )
+    assert join_lines(code) == code
+
+
+def test_stream_output_block_stays_split():
+    code = (
+        '    std::cout << "t = " << std::fixed << std::setprecision(kTimePrecision) << timeSeconds\n'
+        '              << "s   z = " << std::setprecision(kValuePrecision) << state.z\n'
+        '              << "m/s   pitch = " << pitchDegrees\n'
+        '              << "deg   rpm = " << state.actual_rpm << std::endl;\n'
+    )
+    assert join_lines(code) == code
+
+
+def test_multiline_function_signature_params_are_kept():
+    code = (
+        "TiltTargets FlightController::updatePositionControl(const TargetState&   t,\n"
+        "                                                    const AircraftState& a,\n"
+        "                                                    double               dt)\n"
+        "{\n"
+        "    return TiltTargets{};\n"
+        "}\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_multiline_prototype_params_are_kept():
+    code = (
+        "    void compute(const Config&        cfg,\n"
+        "                  std::vector<double>& out);\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_call_after_multiline_signature_is_still_joined():
+    code = (
+        "TiltTargets FlightController::updatePositionControl(const TargetState&   t,\n"
+        "                                                    const AircraftState& a,\n"
+        "                                                    double               dt)\n"
+        "{\n"
+        "    int result = compute(first_arg,\n"
+        "                         second_arg,\n"
+        "                         third_arg);\n"
+        "    return TiltTargets{};\n"
+        "}\n"
+    )
+    expected = (
+        "TiltTargets FlightController::updatePositionControl(const TargetState&   t,\n"
+        "                                                    const AircraftState& a,\n"
+        "                                                    double               dt)\n"
+        "{\n"
+        "    int result = compute(first_arg, second_arg, third_arg);\n"
+        "    return TiltTargets{};\n"
+        "}\n"
+    )
+    assert join_lines(code) == expected
+
+
+def test_signature_stream_and_call_together_are_handled():
+    code = (
+        "TiltTargets FlightController::updatePositionControl(const TargetState&   t,\n"
+        "                                                    const AircraftState& a,\n"
+        "                                                    double               dt)\n"
+        "{\n"
+        '    std::cout << "t = " << timeSeconds\n'
+        "              << \"s   z = \" << state.z << std::endl;\n"
+        "    int result = compute(first_arg,\n"
+        "                         second_arg);\n"
+        "    return TiltTargets{};\n"
+        "}\n"
+    )
+    expected = (
+        "TiltTargets FlightController::updatePositionControl(const TargetState&   t,\n"
+        "                                                    const AircraftState& a,\n"
+        "                                                    double               dt)\n"
+        "{\n"
+        '    std::cout << "t = " << timeSeconds\n'
+        "              << \"s   z = \" << state.z << std::endl;\n"
+        "    int result = compute(first_arg, second_arg);\n"
+        "    return TiltTargets{};\n"
+        "}\n"
+    )
+    assert join_lines(code) == expected
+
+
+def test_access_specifier_does_not_swallow_next_line():
+    code = (
+        "class Application\n"
+        "{\n"
+        "public:\n"
+        "    int Run() const;\n"
+        "private:\n"
+        "    void Helper();\n"
+        "};\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_case_and_default_labels_do_not_swallow_next_line():
+    code = (
+        "    switch (mode) {\n"
+        "    case 1:\n"
+        "        do_one();\n"
+        "        break;\n"
+        "    default:\n"
+        "        do_default();\n"
+        "    }\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_enum_declaration_is_preserved():
+    code = (
+        "enum class MissionState {\n"
+        "    TAKEOFF,\n"
+        "    CLIMB,\n"
+        "    STATION_KEEPING,\n"
+        "    COMPLETE\n"
+        "};\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_enum_with_underlying_type_is_preserved():
+    code = (
+        "enum class Axis : std::uint8_t {\n"
+        "    x_axis,\n"
+        "    y_axis,\n"
+        "    z_axis\n"
+        "};\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_enum_with_brace_on_next_line_is_preserved():
+    code = (
+        "enum class MissionState\n"
+        "{\n"
+        "    TAKEOFF,\n"
+        "    CLIMB\n"
+        "};\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_plain_enum_after_code_is_preserved():
+    code = (
+        "    int value = 5;\n"
+        "    enum Color {\n"
+        "        RED,\n"
+        "        GREEN,\n"
+        "        BLUE\n"
+        "    };\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_single_logical_condition_in_if_is_joined():
+    code = (
+        "        if (last_received >= 0.0\n"
+        "            && current_time - last_received > config_.heartbeat_timeout_s) {\n"
+        "            is_healthy = false;\n"
+        "        }\n"
+    )
+    expected = (
+        "        if (last_received >= 0.0 && current_time - last_received > config_.heartbeat_timeout_s) {\n"
+        "            is_healthy = false;\n"
+        "        }\n"
+    )
+    assert join_lines(code) == expected
+
+
+def test_single_logical_condition_in_return_is_joined():
+    code = (
+        "    return last_received >= 0.0\n"
+        "        && current_time - last_received > timeout;\n"
+    )
+    expected = "    return last_received >= 0.0 && current_time - last_received > timeout;\n"
+    assert join_lines(code) == expected
+
+
+def test_single_logical_or_condition_is_joined():
+    code = (
+        "    if (state == MissionState::COMPLETE\n"
+        "        || state == MissionState::CLIMB) {\n"
+        "        proceed();\n"
+        "    }\n"
+    )
+    expected = (
+        "    if (state == MissionState::COMPLETE || state == MissionState::CLIMB) {\n"
+        "        proceed();\n"
+        "    }\n"
+    )
+    assert join_lines(code) == expected
+
+
+def test_single_condition_trailing_operator_is_joined():
+    code = (
+        "    if (a &&\n"
+        "        b) {\n"
+        "        handle();\n"
+        "    }\n"
+    )
+    expected = (
+        "    if (a && b) {\n"
+        "        handle();\n"
+        "    }\n"
+    )
+    assert join_lines(code) == expected
+
+
+def test_multiple_logical_conditions_stay_split():
+    code = (
+        "    return std::abs(t.z - a.z) <= config_.altitude_tolerance_m\n"
+        "        && std::abs(t.x - a.x) <= config_.position_tolerance_m\n"
+        "        && std::abs(t.y - a.y) <= config_.position_tolerance_m;\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_multiple_logical_conditions_in_if_stay_split():
+    code = (
+        "        if (altitude_error < kMaxError\n"
+        "            && speed_error < kMaxSpeed\n"
+        "            && turn_rate < kMaxTurn) {\n"
+        "            proceed();\n"
+        "        }\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_multiple_logical_conditions_after_equal_stay_split():
+    code = (
+        "    bool healthy =\n"
+        "        voltage > kMinVolt\n"
+        "        && current < kMaxCurrent\n"
+        "        && temperature < kMaxTemp;\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_multi_condition_trailing_operator_stays_split():
+    code = (
+        "    if (a &&\n"
+        "        b &&\n"
+        "        c) {\n"
+        "        handle();\n"
+        "    }\n"
+    )
+    assert join_lines(code) == code
 
 
 def _merged_pair(total):

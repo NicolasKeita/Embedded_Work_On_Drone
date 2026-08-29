@@ -23,15 +23,38 @@ structure, namespace, class, struct, union, enum or lambda header never
 swallows the following statement, so the brace style produced by the rest of
 the pipeline (Allman for function bodies, K&R for control structures) is
 preserved.
+
+Multi-line function signatures (return type + name, e.g. a definition or a
+prototype whose parameters are aligned by the parameter formatter) are left
+untouched: the parameters are never joined back onto a single line. Access
+specifiers ('public:', 'private:', 'protected:') and case/default/goto labels
+that end a line with ':' never swallow the following statement. Finally, stream
+statements (std::cout, std::cerr, ...) written across several lines with '<<'
+or '>>' continuations are never joined.
+
+Enum declarations (enum, enum class, enum struct) are never compacted: every
+enumerator stays on its own line. A logical chain written with '&&' / '||'
+across several lines is joined only when it holds a single operator (e.g.
+'if (a\n    && b) {'); when it holds several operators each condition keeps its
+own line.
 """
 
 import re
 from typing import List
 
+from shared.brace_utils import CONTROL_KEYWORDS
+from shared.function_analysis import has_stream_operators
+
 _CONTROL_HEADER = re.compile(r"^\s*(?:if|else|for|while|switch|catch|do|try)\b")
 _CONTROL_HEADER_LINE = re.compile(r"^\s*(?:if|else|for|while|switch|catch|do|try)\b(?:.*\))?\s*$")
 _TYPE_HEADER = re.compile(r"^\s*(?:namespace|class|struct|union|enum)\b")
 _OPEN_BRACE_HEADER = re.compile(r"(?:\)|\]|else|do|try)\s*\{$")
+_ENUM_START = re.compile(r"^\s*enum\b")
+
+_FUNC_DEF_START = re.compile(r"^\s*(?:(?:static|inline|virtual|explicit|constexpr|const)\s+)*[\w:<>]+(?:\s*[*&])*\s+([\w:<>]+)\s*\(")
+_ACCESS_SPECIFIER = re.compile(r"^\s*(?:public|private|protected)\s*:\s*$")
+_CASE_LABEL = re.compile(r"^\s*(?:case\b.*|default)\s*:\s*$")
+_LABEL = re.compile(r"^\s*[A-Za-z_]\w*\s*:\s*$")
 
 _END_TOKENS = ("&&", "||", "<<", ">>", "->")
 _END_SINGLE = set("=,([{+-*/:.")
@@ -124,17 +147,162 @@ def _block_comment_mask(lines: List[str]) -> List[bool]:
     return mask
 
 
-def _can_join_line(line_n: str, line_next: str, n_in_block: bool, next_in_block: bool, max_length: int) -> bool:
+def _signature_mask(lines: List[str]) -> List[bool]:
+    """
+    Return a mask marking every line belonging to a multi-line function
+    signature (definition or prototype). Such lines are never joined, so the
+    aligned parameters produced by the parameter formatter are preserved.
+    """
+    mask = [False] * len(lines)
+    total = len(lines)
+    i = 0
+    while i < total:
+        match = _FUNC_DEF_START.match(lines[i])
+        name = match.group(1).split("::")[-1] if match else ""
+        if match and name not in CONTROL_KEYWORDS:
+            depth = lines[i].count("(") - lines[i].count(")")
+            if depth > 0:
+                while i < total and depth > 0:
+                    mask[i] = True
+                    i += 1
+                    if i < total:
+                        depth += lines[i].count("(") - lines[i].count(")")
+                if i < total:
+                    mask[i] = True
+                continue
+        i += 1
+    return mask
+
+
+def _count_logical_operators(line: str) -> int:
+    """Count '&&' and '||' operators outside string/char literals."""
+    in_string = False
+    string_char = ""
+    count = 0
+    i = 0
+    length = len(line)
+    while i < length:
+        char = line[i]
+        if in_string:
+            if char == "\\":
+                i += 2
+                continue
+            if char == string_char:
+                in_string = False
+            i += 1
+            continue
+        if char in ('"', "'"):
+            in_string = True
+            string_char = char
+            i += 1
+            continue
+        if line[i:i + 2] in ("&&", "||"):
+            count += 1
+            i += 2
+            continue
+        i += 1
+    return count
+
+
+def _starts_logical_chain(line: str) -> bool:
+    return line.lstrip().startswith(("&&", "||"))
+
+
+def _ends_logical_chain(line: str) -> bool:
+    return line.rstrip().endswith(("&&", "||"))
+
+
+def _logical_chain_mask(lines: List[str]) -> List[bool]:
+    """
+    Mark every line belonging to a '&&' / '||' chain that holds more than one
+    operator. A single operator may be joined back onto one line; a
+    multi-condition chain keeps each condition on its own line.
+    """
+    mask = [False] * len(lines)
+    counts = [_count_logical_operators(line) for line in lines]
+    total = len(lines)
+    i = 0
+    while i < total:
+        if not _starts_logical_chain(lines[i]) and not _ends_logical_chain(lines[i]):
+            i += 1
+            continue
+        j = i
+        chain_sum = 0
+        while j < total and (
+            j == i
+            or _starts_logical_chain(lines[j])
+            or _ends_logical_chain(lines[j - 1])
+        ):
+            chain_sum += counts[j]
+            j += 1
+        if chain_sum > 1:
+            start = i
+            while start > 0:
+                above = lines[start - 1].rstrip()
+                if not above:
+                    break
+                if _starts_logical_chain(lines[start]) or _ends_with_trigger(above):
+                    start -= 1
+                else:
+                    break
+            for k in range(start, j):
+                mask[k] = True
+        i = j
+    return mask
+
+
+def _enum_mask(lines: List[str]) -> List[bool]:
+    """
+    Mark every line of an enum declaration, from the 'enum' keyword up to the
+    closing '};', so those lines are never joined.
+    """
+    mask = [False] * len(lines)
+    total = len(lines)
+    i = 0
+    while i < total:
+        if not _ENUM_START.match(lines[i]):
+            i += 1
+            continue
+        j = i
+        depth = 0
+        seen_open = False
+        while j < total:
+            if not seen_open and j > i:
+                if not lines[j].lstrip().startswith("{"):
+                    break
+            mask[j] = True
+            opens = lines[j].count("{")
+            closes = lines[j].count("}")
+            if not seen_open:
+                if opens:
+                    seen_open = True
+                    depth = opens - closes
+            else:
+                depth += opens - closes
+            if seen_open and depth <= 0:
+                break
+            j += 1
+        i = j + 1
+    return mask
+
+
+def _can_join_line(line_n: str, line_next: str, n_protected: bool, m_protected: bool, max_length: int) -> bool:
     n = line_n.rstrip()
     m = line_next.strip()
 
     if not n or not m:
         return False
-    if n_in_block or next_in_block:
+    if n_protected or m_protected:
         return False
     if n.lstrip().startswith("#") or m.startswith("#"):
         return False
     if _has_line_comment(n) or _has_line_comment(m):
+        return False
+    if has_stream_operators(n):
+        return False
+    if m.startswith("<<") or m.startswith(">>"):
+        return False
+    if _ACCESS_SPECIFIER.match(n) or _CASE_LABEL.match(n) or _LABEL.match(n):
         return False
     if len(n) + 1 + len(m) > max_length:
         return False
@@ -168,13 +336,21 @@ def _can_join_line(line_n: str, line_next: str, n_in_block: bool, next_in_block:
 
 def _join_lines_pass(lines: List[str], max_length: int) -> List[str]:
     block_mask = _block_comment_mask(lines)
+    signature_mask = _signature_mask(lines)
+    logical_mask = _logical_chain_mask(lines)
+    enum_mask = _enum_mask(lines)
     result: List[str] = []
     i = 0
     total = len(lines)
     while i < total:
+        n_protected = block_mask[i] or signature_mask[i] or logical_mask[i] or enum_mask[i]
+        m_protected = (
+            i + 1 < total
+            and (block_mask[i + 1] or signature_mask[i + 1] or logical_mask[i + 1] or enum_mask[i + 1])
+        )
         if (
             i + 1 < total
-            and _can_join_line(lines[i], lines[i + 1], block_mask[i], block_mask[i + 1], max_length)
+            and _can_join_line(lines[i], lines[i + 1], n_protected, m_protected, max_length)
         ):
             result.append(lines[i].rstrip() + " " + lines[i + 1].strip())
             i += 2
