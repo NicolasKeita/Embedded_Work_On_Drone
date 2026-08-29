@@ -31,7 +31,7 @@ set(SAFETY_FILES
 # conserves ensemble dans la meme variable).
 set(SIL_FILES
     Src/SIL/SilRunner.cppm
-    Src/SIL/SilRunner.cpp
+    Src/SIL/SilRunner-Context.cpp
     Src/SIL/SilRunner-Loop.cpp
     Src/SIL/SilRunner-Run.cpp
     Src/SIL/Core/SilTypes.cppm
@@ -101,7 +101,7 @@ target_sources(test_simulation
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp
-    Tests/Sil/SilScenariosSafety.cpp
+    Tests/Sil/SilScenarios-Safety.cpp
 )
 
 add_executable(test_sil Tests/test_sil.cpp)

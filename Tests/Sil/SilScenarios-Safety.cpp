@@ -1,5 +1,5 @@
 /*
-Filename: Tests/Sil/SilScenariosSafety.cpp
+Filename: Tests/Sil/SilScenarios-Safety.cpp
 Description: SIL scenarios 004 and 005, report generation and suite orchestration.
 
 Copyright (c) 2026 Nicolas K.
