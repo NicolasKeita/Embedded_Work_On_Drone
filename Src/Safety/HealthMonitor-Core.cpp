@@ -1,5 +1,5 @@
 /*
-Filename: Src/Safety/HealthMonitor.cpp
+Filename: Src/Safety/HealthMonitor-Core.cpp
 Description: Health evaluation logic of the FC2 monitor.
 
 Copyright (c) 2026 Nicolas K.

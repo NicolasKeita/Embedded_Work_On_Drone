@@ -1,5 +1,5 @@
 /*
-Filename: Tests/Sil/SilScenarios.cpp
+Filename: Tests/Sil/SilScenarios-Core.cpp
 Description: SIL scenarios 001 to 003 : nominal, FC1 failure and communication loss.
 
 Copyright (c) 2026 Nicolas K.

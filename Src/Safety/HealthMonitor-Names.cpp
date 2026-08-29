@@ -1,5 +1,5 @@
 /*
-Filename: Src/Safety/HealthMonitorNames.cpp
+Filename: Src/Safety/HealthMonitor-Names.cpp
 Description: Readable naming helpers for health states and fault domains.
 
 Copyright (c) 2026 Nicolas K.

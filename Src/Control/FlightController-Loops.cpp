@@ -1,5 +1,5 @@
 /*
-Filename: Src/Control/FlightControllerLoops.cpp
+Filename: Src/Control/FlightController-Loops.cpp
 Description: Cascaded horizontal position and attitude control loops of the flight controller.
 
 Copyright (c) 2026 Nicolas K.

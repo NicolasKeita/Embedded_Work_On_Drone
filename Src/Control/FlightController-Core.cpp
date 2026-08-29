@@ -1,5 +1,5 @@
 /*
-Filename: Src/Control/FlightController.cpp
+Filename: Src/Control/FlightController-Core.cpp
 Description: Core of the autonomous flight controller : PID machinery and mission state helpers.
 
 Copyright (c) 2026 Nicolas K.

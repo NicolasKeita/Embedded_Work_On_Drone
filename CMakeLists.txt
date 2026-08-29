@@ -11,18 +11,18 @@ set(SIMULATION_FILES
 # Sources du module de controle de vol (.cppm + .cpp conserves ensemble dans la meme variable).
 set(CONTROL_FILES
     Src/Control/FlightController.cppm
-    Src/Control/FlightController.cpp
-    Src/Control/FlightControllerLoops.cpp
-    Src/Control/FlightControllerMission.cpp
+    Src/Control/FlightController-Core.cpp
+    Src/Control/FlightController-Loops.cpp
+    Src/Control/FlightController-Mission.cpp
 )
 
 # Sources du sous-systeme de surete FC2 (.cppm + .cpp conserves ensemble).
 set(SAFETY_FILES
     Src/Safety/HealthMonitor.cppm
-    Src/Safety/HealthMonitor.cpp
+    Src/Safety/HealthMonitor-Core.cpp
     Src/Safety/HealthMonitor-Evaluate.cpp
-    Src/Safety/HealthMonitorReport.cpp
-    Src/Safety/HealthMonitorNames.cpp
+    Src/Safety/HealthMonitor-Report.cpp
+    Src/Safety/HealthMonitor-Names.cpp
     Src/Safety/SafetyManager.cppm
     Src/Safety/SafetyManager.cpp
 )
@@ -32,8 +32,8 @@ set(SAFETY_FILES
 set(SIL_FILES
     Src/SIL/SilRunner.cppm
     Src/SIL/SilRunner.cpp
-    Src/SIL/SilRunnerLoop.cpp
-    Src/SIL/SilRunnerRun.cpp
+    Src/SIL/SilRunner-Loop.cpp
+    Src/SIL/SilRunner-Run.cpp
     Src/SIL/Core/SilTypes.cppm
     Src/SIL/Core/SilTypes.cpp
     Src/SIL/Core/Telemetry.cppm
@@ -100,7 +100,7 @@ target_sources(test_simulation
 # Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11).
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
-    Tests/Sil/SilScenarios.cpp
+    Tests/Sil/SilScenarios-Core.cpp
     Tests/Sil/SilScenariosSafety.cpp
 )
 
