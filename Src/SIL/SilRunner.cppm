@@ -15,9 +15,9 @@ import FlightController;
 import Telemetry;
 
 import CommsBus;
+import FaultInjectors;
 import HealthMonitor;
 import SafetyManager;
-import IFaultInjector;
 import SilTypes;
 
 export namespace sim::sil {

@@ -1,5 +1,5 @@
 /*
-Filename: Tests/Mission/MissionRunner.cpp
+Filename: Tests/Mission/MissionRunner-Runner.cpp
 Description: Implementation of the step-by-step autonomous mission run loop.
 
 Copyright (c) 2026 Nicolas K.
@@ -12,7 +12,6 @@ import std;
 
 import Aircraft;
 import FlightController;
-import MissionSupport;
 
 using sim::control::FlightController;
 using sim::control::MissionState;

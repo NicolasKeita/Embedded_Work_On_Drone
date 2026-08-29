@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Mission/MissionSupport.cpp
-Description: Implementation of tracking metrics and reporting helpers for autonomous flight scenarios.
+Filename: Tests/Mission/MissionRunner-Support.cpp
+Description: Tracking metrics and reporting helpers for autonomous flight scenarios.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module MissionSupport;
+module MissionRunner;
 
 import std;
 

@@ -1,20 +1,18 @@
 /*
-Filename: Tests/Mission/FlightMission.cpp
+Filename: Tests/Scenarios/FlightScenarios-Mission.cpp
 Description: Implementation of the autonomous full-mission scenario J.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module FlightMission;
+module FlightScenarios;
 
 import std;
 
 import Aircraft;
 import FlightController;
-import FlightScenarios;
 import MissionRunner;
-import MissionSupport;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {

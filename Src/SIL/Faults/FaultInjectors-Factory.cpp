@@ -1,20 +1,15 @@
 /*
-Filename: Src/SIL/FaultInjectorFactory.cpp
+Filename: Src/SIL/Faults/FaultInjectors-Factory.cpp
 Description: Scenario-to-injector dispatch implementation (single dispatch point).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module FaultInjectorFactory;
+module FaultInjectors;
 
 import std;
 
-import ActuatorFaultInjector;
-import CommunicationFaultInjector;
-import FCFailureInjector;
-import IFaultInjector;
-import SensorFaultInjector;
 import SilTypes;
 
 namespace sim::sil {

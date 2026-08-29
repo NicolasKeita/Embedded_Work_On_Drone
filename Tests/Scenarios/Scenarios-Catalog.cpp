@@ -1,18 +1,16 @@
 /*
-Filename: Tests/Scenarios/ScenarioCatalog.cpp
+Filename: Tests/Scenarios/Scenarios-Catalog.cpp
 Description: Definition of the ScenarioCatalog static members and methods.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module ScenarioCatalog;
+module Scenarios;
 
 import std;
 
-import FlightMission;
 import FlightScenarios;
-import Scenarios;
 import TestHarness;
 
 namespace sim::test {

@@ -1,5 +1,5 @@
 /*
-Filename: Tests/Scenarios/Scenarios.cpp
+Filename: Tests/Scenarios/Scenarios-Cases.cpp
 Description: Implementation of the deterministic validation scenarios (A to F).
 
 Copyright (c) 2026 Nicolas K.

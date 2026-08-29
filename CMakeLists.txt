@@ -39,23 +39,14 @@ set(SIL_FILES
     Src/SIL/Core/Telemetry.cpp
     Src/SIL/Core/CommsBus.cppm
     Src/SIL/Core/CommsBus.cpp
-    Src/SIL/Faults/IFaultInjector.cppm
-    Src/SIL/Faults/IFaultInjector.cpp
-    Src/SIL/Faults/FCFailureInjector.cppm
-    Src/SIL/Faults/FCFailureInjector.cpp
-    Src/SIL/Faults/CommunicationFaultInjector.cppm
-    Src/SIL/Faults/CommunicationFaultInjector.cpp
-    Src/SIL/Hardware/SensorFaultInjector.cppm
-    Src/SIL/Hardware/SensorFaultInjector.cpp
-    Src/SIL/Hardware/ActuatorFaultInjector.cppm
-    Src/SIL/Hardware/ActuatorFaultInjector.cpp
-    Src/SIL/FaultInjectorFactory.cppm
-    Src/SIL/FaultInjectorFactory.cpp
-    Src/SIL/Reporting/SilReportFormat.cppm
-    Src/SIL/Reporting/SilReportFormat.cpp
+    Src/SIL/Faults/FaultInjectors.cppm
+    Src/SIL/Faults/FaultInjectors-Base.cpp
+    Src/SIL/Faults/FaultInjectors-Injectors.cpp
+    Src/SIL/Faults/FaultInjectors-Factory.cpp
     Src/SIL/Reporting/SilReporting.cppm
-    Src/SIL/Reporting/SilReporting.cpp
-    Src/SIL/Reporting/SilReportingExport.cpp
+    Src/SIL/Reporting/SilReporting-Report.cpp
+    Src/SIL/Reporting/SilReporting-Export.cpp
+    Src/SIL/Reporting/SilReporting-Format.cpp
 )
 
 set(SRC_FILES
@@ -82,17 +73,14 @@ set(TEST_SIMULATION_FILES
     Tests/TestHarness.cppm
     Tests/TestHarness.cpp
     Tests/Scenarios/Scenarios.cppm
-    Tests/Scenarios/Scenarios.cpp
-    Tests/Scenarios/ScenarioCatalog.cppm
-    Tests/Scenarios/ScenarioCatalog.cpp
-    Tests/Mission/MissionSupport.cppm
-    Tests/Mission/MissionSupport.cpp
+    Tests/Scenarios/Scenarios-Cases.cpp
+    Tests/Scenarios/Scenarios-Catalog.cpp
     Tests/Mission/MissionRunner.cppm
-    Tests/Mission/MissionRunner.cpp
+    Tests/Mission/MissionRunner-Runner.cpp
+    Tests/Mission/MissionRunner-Support.cpp
     Tests/Scenarios/FlightScenarios.cppm
-    Tests/Scenarios/FlightScenarios.cpp
-    Tests/Mission/FlightMission.cppm
-    Tests/Mission/FlightMission.cpp
+    Tests/Scenarios/FlightScenarios-Axes.cpp
+    Tests/Scenarios/FlightScenarios-Mission.cpp
 )
 
 # Exercice de validation des scenarios A a J (etapes 5 et 6).

@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Reporting/SilReportingExport.cpp
+Filename: Src/SIL/Reporting/SilReporting-Export.cpp
 Description: JSON and CSV builders for SIL simulation results export.
 
 Copyright (c) 2026 Nicolas K.
@@ -13,7 +13,6 @@ import std;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
-import SilReportFormat;
 import SilTypes;
 
 namespace sim::sil {

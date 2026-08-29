@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Reporting/SilReporting.cpp
+Filename: Src/SIL/Reporting/SilReporting-Report.cpp
 Description: Markdown report builders and SIL validation artifact orchestration.
 
 Copyright (c) 2026 Nicolas K.
@@ -13,7 +13,6 @@ import std;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
-import SilReportFormat;
 import SilTypes;
 
 namespace sim::sil {

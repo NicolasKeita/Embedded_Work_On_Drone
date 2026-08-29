@@ -9,7 +9,7 @@ All rights reserved.
 import std;
 
 import Aircraft;
-import ScenarioCatalog;
+import Scenarios;
 import TestHarness;
 
 namespace

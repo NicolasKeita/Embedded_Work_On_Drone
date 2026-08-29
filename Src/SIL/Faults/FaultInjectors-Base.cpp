@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Faults/IFaultInjector.cpp
-Description: Temporal activation window implementation shared by fault injectors.
+Filename: Src/SIL/Faults/FaultInjectors-Base.cpp
+Description: Timed activation window implementation shared by fault injectors.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module IFaultInjector;
+module FaultInjectors;
 
 import std;
 

@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/SilReportFormat.cpp
+Filename: Src/SIL/Reporting/SilReporting-Format.cpp
 Description: Formatting and file writing implementations for SIL reports.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReportFormat;
+module SilReporting;
 
 import std;
 

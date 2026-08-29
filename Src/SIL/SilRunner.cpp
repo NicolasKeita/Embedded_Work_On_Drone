@@ -12,10 +12,9 @@ import std;
 
 import Aircraft;
 import CommsBus;
-import FaultInjectorFactory;
+import FaultInjectors;
 import FlightController;
 import HealthMonitor;
-import IFaultInjector;
 import SafetyManager;
 import SilTypes;
 import Telemetry;

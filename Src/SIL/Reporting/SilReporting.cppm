@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Reporting/SilReporting.cppm
-Description: Export of SIL simulation results as Markdown, JSON and CSV artifacts.
+Description: SIL validation artifacts export : Markdown, JSON and CSV builders plus shared formatting and file-writing helpers.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -13,6 +13,18 @@ import std;
 import SilTypes;
 
 export namespace sim::sil {
+
+[[nodiscard]] std::string format_seconds(double value);
+
+[[nodiscard]] std::string format_metric(double value);
+
+[[nodiscard]] std::string json_escape(std::string_view text);
+
+[[nodiscard]] std::string csv_escape(std::string_view text);
+
+[[nodiscard]] std::string_view yes_no(bool value);
+
+void write_file(const std::filesystem::path& path, std::string_view content);
 
 struct ScenarioRecord {
     std::string name;
@@ -39,3 +51,4 @@ sil.csv) et retourne le rapport Markdown.
 [[nodiscard]] std::string csv_payload(const std::vector<ScenarioRecord>& records);
 
 }
+
