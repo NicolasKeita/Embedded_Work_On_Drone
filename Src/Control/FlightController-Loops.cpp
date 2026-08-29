@@ -43,12 +43,8 @@ TiltTargets FlightController::updatePositionControl(const TargetState&   t,
                                                     double               dt)
 {
     TiltTargets targets;
-    targets.pitch_deg =
-        Clamp(AxisPidStep(x_position_pid_, t.x - a.x, dt),
-              -config_.max_tilt_deg, config_.max_tilt_deg);
-    targets.roll_deg =
-        Clamp(AxisPidStep(y_position_pid_, t.y - a.y, dt),
-              -config_.max_tilt_deg, config_.max_tilt_deg);
+    targets.pitch_deg = Clamp(AxisPidStep(x_position_pid_, t.x - a.x, dt), -config_.max_tilt_deg, config_.max_tilt_deg);
+    targets.roll_deg = Clamp(AxisPidStep(y_position_pid_, t.y - a.y, dt), -config_.max_tilt_deg, config_.max_tilt_deg);
     return targets;
 }
 
@@ -60,14 +56,11 @@ pitch, difference -> roll.
 */
 ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const
 {
-    const double pitchErrorDeg =
-        (DegToRad(tilt.pitch_deg) - s.pitch) / kServoRadPerDeg;
-    const double rollErrorDeg =
-        (DegToRad(tilt.roll_deg) - s.roll) / kServoRadPerDeg;
+    const double pitchErrorDeg = (DegToRad(tilt.pitch_deg) - s.pitch) / kServoRadPerDeg;
+    const double rollErrorDeg = (DegToRad(tilt.roll_deg) - s.roll) / kServoRadPerDeg;
 
     const double meanServoDeg = tilt.pitch_deg + config_.kp_attitude * pitchErrorDeg;
-    const double halfRollServoDeg =
-        (tilt.roll_deg + config_.kp_attitude * rollErrorDeg) / 2.0;
+    const double halfRollServoDeg = (tilt.roll_deg + config_.kp_attitude * rollErrorDeg) / 2.0;
 
     return {Clamp(meanServoDeg + halfRollServoDeg, kMinServoDeg, kMaxServoDeg),
             Clamp(meanServoDeg - halfRollServoDeg, kMinServoDeg, kMaxServoDeg)};

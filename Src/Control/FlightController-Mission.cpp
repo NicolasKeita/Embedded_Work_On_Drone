@@ -29,8 +29,7 @@ switches to CLIMB as soon as takeoff_altitude_m is reached.
 ControlCommand FlightController::takeoff_command(const AircraftState& actual)
 {
     ControlCommand cmd;
-    cmd.wing_rpm = Clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm,
-                         config_.max_rpm);
+    cmd.wing_rpm = Clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
 
     if (actual.z >= config_.takeoff_altitude_m) {
         enter_climb();

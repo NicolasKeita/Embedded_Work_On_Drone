@@ -53,8 +53,7 @@ public:
     about fault injectors.
     */
     [[nodiscard]] HealthReport evaluate(double current_time, const sim::sil::CommsBus& comms,
-                                        const sim::sil::SensorTelemetry& telemetry,
-                                        double commanded_rpm);
+                                        const sim::sil::SensorTelemetry& telemetry, double commanded_rpm);
 
     [[nodiscard]] HealthState state() const noexcept;
 

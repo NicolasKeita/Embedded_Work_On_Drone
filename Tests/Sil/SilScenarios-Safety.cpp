@@ -38,10 +38,8 @@ void communication_loss_scenario(TestHarness& runner, std::vector<ScenarioRecord
 void sensor_fault_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records)
 {
     std::cout << "\n=== SIL-004 : capteur d'altitude corrompu a t = 20.0 s ===" << std::endl;
-    const FaultScenario scenario{
-        .start_time = 20.0, .duration = 10.0, .fault_type = FaultType::SensorFault,
-        .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange,
-                       .corrupted_altitude_m = 99999.0}};
+    const FaultScenario scenario{ .start_time = 20.0, .duration = 10.0, .fault_type = FaultType::SensorFault,
+        .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange, .corrupted_altitude_m = 99999.0}};
     SimulationResult r = run_case({scenario});
     r.passed = r.compute_verdict(true);
     runner.check(r.fault_detected && r.first_fault_domain == FaultDomain::Sensor,
@@ -57,8 +55,7 @@ void sensor_fault_scenario(TestHarness& runner, std::vector<ScenarioRecord>& rec
 void actuator_degradation_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records)
 {
     std::cout << "\n=== SIL-005 : rendement actionneur 0.6 a t = 15.0 s ===" << std::endl;
-    const FaultScenario scenario{.start_time = 15.0, .duration = 0.0,
-                                 .fault_type = FaultType::ActuatorDegradation,
+    const FaultScenario scenario{.start_time = 15.0, .duration = 0.0, .fault_type = FaultType::ActuatorDegradation,
                                  .parameters = {.efficiency = 0.6}};
     SimulationResult r = run_case({scenario});
     r.passed = r.compute_verdict(true);

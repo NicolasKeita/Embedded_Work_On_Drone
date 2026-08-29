@@ -28,8 +28,7 @@ using sim::safety::fault_domain_name;
 
 void SILRunner::update_monitoring(RunContext& ctx)
 {
-    const HealthReport report =
-        ctx.health.evaluate(ctx.time, ctx.comms, ctx.telemetry, ctx.commanded_rpm);
+    const HealthReport report = ctx.health.evaluate(ctx.time, ctx.comms, ctx.telemetry, ctx.commanded_rpm);
     ctx.safety_command = ctx.safety.update(ctx.time, report);
     const double detection = report.first_detection_time();
     if (detection >= 0.0 && ctx.result.detection_time < 0.0) {
@@ -37,16 +36,12 @@ void SILRunner::update_monitoring(RunContext& ctx)
         ctx.result.first_fault_domain = report.first_fault_domain();
         ctx.result.fault_detected = true;
     }
-    if (ctx.result.detection_time >= 0.0 && report.state == HealthState::HEALTHY
-        && ctx.result.recovery_time < 0.0) {
+    if (ctx.result.detection_time >= 0.0 && report.state == HealthState::HEALTHY && ctx.result.recovery_time < 0.0) {
         ctx.result.recovery_time = ctx.time;
     }
-    ctx.result.degraded_reached =
-        ctx.result.degraded_reached || report.state == HealthState::DEGRADED;
-    ctx.result.compensated_reached = ctx.result.compensated_reached
-        || ctx.safety.mode() == SafetyMode::COMPENSATED;
-    ctx.result.safe_mode_reached =
-        ctx.result.safe_mode_reached || ctx.safety.mode() == SafetyMode::SAFE_MODE;
+    ctx.result.degraded_reached = ctx.result.degraded_reached || report.state == HealthState::DEGRADED;
+    ctx.result.compensated_reached = ctx.result.compensated_reached || ctx.safety.mode() == SafetyMode::COMPENSATED;
+    ctx.result.safe_mode_reached = ctx.result.safe_mode_reached || ctx.safety.mode() == SafetyMode::SAFE_MODE;
     ctx.result.final_health = report.state;
     ctx.result.final_safety_mode = ctx.safety.mode();
 }
@@ -102,8 +97,7 @@ void SILRunner::finalize(RunContext& ctx)
     if (result.detection_time >= 0.0 && ctx.safety.response_time() >= 0.0) {
         result.response_latency = ctx.safety.response_time() - result.detection_time;
     }
-    result.mission_success =
-        result.final_state == sim::control::MissionState::COMPLETE && !result.mission_aborted;
+    result.mission_success = result.final_state == sim::control::MissionState::COMPLETE && !result.mission_aborted;
 }
 
 }

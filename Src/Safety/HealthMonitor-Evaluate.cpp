@@ -27,8 +27,7 @@ void HealthMonitor::update_comms_flags(double current_time, const sim::sil::Comm
     }
     else {
         const double last_received = comms.last_received_time();
-        if (last_received >= 0.0
-            && current_time - last_received > config_.heartbeat_timeout_s) {
+        if (last_received >= 0.0 && current_time - last_received > config_.heartbeat_timeout_s) {
             raise(FaultDomain::FC1Heartbeat, current_time);
         }
     }
@@ -58,16 +57,14 @@ void HealthMonitor::update_actuator_flags(double                           curre
                                           double                           commanded_rpm)
 {
     const double mismatch = std::abs(commanded_rpm - telemetry.actual_rpm);
-    const bool mismatching =
-        commanded_rpm > 0.0 && mismatch > config_.actuator_mismatch_rpm;
+    const bool mismatching = commanded_rpm > 0.0 && mismatch > config_.actuator_mismatch_rpm;
     if (mismatching && mismatch_since_ < 0.0) {
         mismatch_since_ = current_time;
     }
     if (!mismatching) {
         mismatch_since_ = -1.0;
     }
-    const bool sustained = mismatching
-        && current_time - mismatch_since_ >= config_.actuator_mismatch_hold_s;
+    const bool sustained = mismatching && current_time - mismatch_since_ >= config_.actuator_mismatch_hold_s;
     if (sustained) {
         raise(FaultDomain::Actuator, current_time);
     }

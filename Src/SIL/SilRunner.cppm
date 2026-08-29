@@ -72,8 +72,7 @@ private:
         SimulationResult result{};
     };
 
-    [[nodiscard]] static RunContext make_context(const SilConfig& config,
-                                                 const std::vector<FaultScenario>& scenarios);
+    [[nodiscard]] static RunContext make_context(const SilConfig& config, const std::vector<FaultScenario>& scenarios);
     static void apply_injectors(RunContext& ctx);
     static void update_fc1(RunContext& ctx);
     static void update_monitoring(RunContext& ctx);

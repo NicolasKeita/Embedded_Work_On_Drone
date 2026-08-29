@@ -79,8 +79,7 @@ void SILRunner::update_fc1(RunContext& ctx)
     const SilConfig& cfg = ctx.config;
     ctx.telemetry = make_telemetry(ctx.aircraft.state());
     if (ctx.env.sensor_corruption != SensorCorruptionMode::None) {
-        ctx.telemetry =
-            apply_corruption(ctx.telemetry, ctx.env.sensor_corruption, ctx.env.corrupted_altitude_m);
+        ctx.telemetry = apply_corruption(ctx.telemetry, ctx.env.sensor_corruption, ctx.env.corrupted_altitude_m);
     }
     if (validate(ctx.telemetry, cfg.sensor_limits).all_valid()) {
         ctx.fc1_view = ctx.aircraft.state();

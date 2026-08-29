@@ -28,8 +28,7 @@ namespace
 
         void update(MissionMetrics& metrics, double time, double error, double tolerance)
         {
-            metrics.overshoot_units =
-                std::max(metrics.overshoot_units, std::max(-direction * error, 0.0));
+            metrics.overshoot_units = std::max(metrics.overshoot_units, std::max(-direction * error, 0.0));
             if (metrics.time_within_tolerance < 0.0 && std::abs(error) <= tolerance) {
                 metrics.time_within_tolerance = time;
             }

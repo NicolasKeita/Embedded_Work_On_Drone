@@ -37,16 +37,13 @@ void autonomous_mission(TestHarness& runner, double hover_rpm)
     Aircraft aircraft;
 
     std::cout << "-- Phase 1 : mise en station au point (20, -15, 100) --" << std::endl;
-    const MissionRunTrace approach =
-        run_mission(controller, aircraft,
+    const MissionRunTrace approach = run_mission(controller, aircraft,
                     {.target = {.x = 20.0, .y = -15.0, .z = 100.0}, .duration = 240.0,
                      .axis = TrackingAxis::z_axis, .tolerance = 1.0, .stop_on_zone = true});
 
     std::cout << "-- Phase 2 : station keeping sur la cible (0, 0, 100) --" << std::endl;
-    const MissionRunTrace trace =
-        run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 180.0,
-                     .axis = TrackingAxis::z_axis, .tolerance = 0.5});
+    const MissionRunTrace trace = run_mission(controller, aircraft,
+                    {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 0.5});
 
     print_metrics_report("altitude", trace.metrics);
     const AircraftState& finalState = aircraft.state();
@@ -54,12 +51,10 @@ void autonomous_mission(TestHarness& runner, double hover_rpm)
     std::vector<MissionState> visited = approach.visited_states;
     visited.insert(visited.end(), trace.visited_states.begin(), trace.visited_states.end());
 
-    runner.check(contains_mission_sequence(visited),
-                 "J1 : sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
+    runner.check(contains_mission_sequence(visited), "J1 : sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
     runner.check(std::abs(finalState.x) <= 1.0 && std::abs(finalState.y) <= 1.0,
                  "J2 : position horizontale dans la zone cible (+/- 1 m)");
-    runner.check(std::abs(finalState.z - 100.0) <= 1.0,
-                 "J3 : altitude tenue autour de 100 m (+/- 1 m)");
+    runner.check(std::abs(finalState.z - 100.0) <= 1.0, "J3 : altitude tenue autour de 100 m (+/- 1 m)");
 }
 
 }

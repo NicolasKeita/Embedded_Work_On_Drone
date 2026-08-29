@@ -38,8 +38,7 @@ struct SensorValidity {
 };
 
 [[nodiscard]] SensorTelemetry make_telemetry(const AircraftState& state);
-[[nodiscard]] SensorValidity validate(const SensorTelemetry& telemetry,
-                                      const SensorValidationLimits& limits);
+[[nodiscard]] SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidationLimits& limits);
 SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
                                  SensorCorruptionMode mode, double corrupted_altitude_m);
 

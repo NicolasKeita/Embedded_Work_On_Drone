@@ -53,10 +53,8 @@ kAttitudeTauS.
 */
 void Aircraft::update_attitude(double dt)
 {
-    const double pitchTarget =
-        kPitchTargetGainRadPerDeg * (state_.actual_left_servo + state_.actual_right_servo) / 2.0;
-    const double rollTarget =
-        kRollTargetGainRadPerDeg * (state_.actual_left_servo - state_.actual_right_servo);
+    const double pitchTarget = kPitchTargetGainRadPerDeg * (state_.actual_left_servo + state_.actual_right_servo) / 2.0;
+    const double rollTarget = kRollTargetGainRadPerDeg * (state_.actual_left_servo - state_.actual_right_servo);
 
     state_.pitch_rate = (pitchTarget - state_.pitch) / kAttitudeTauS;
     state_.roll_rate = (rollTarget - state_.roll) / kAttitudeTauS;

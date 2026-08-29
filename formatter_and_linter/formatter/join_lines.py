@@ -32,6 +32,12 @@ that end a line with ':' never swallow the following statement. Finally, stream
 statements (std::cout, std::cerr, ...) written across several lines with '<<'
 or '>>' continuations are never joined.
 
+Consecutive declarations ending with ';' or '}' are never merged together, and
+a line starting with an attribute specifier ('[[nodiscard]]', ...) is never
+joined onto the previous line. Constructor member initializer lists (the
+continuation lines starting with ':' or ',' that follow a constructor
+signature) are kept untouched as well.
+
 Enum declarations (enum, enum class, enum struct) are never compacted: every
 enumerator stays on its own line. A logical chain written with '&&' / '||'
 across several lines is joined only when it holds a single operator (e.g.
@@ -52,6 +58,7 @@ _OPEN_BRACE_HEADER = re.compile(r"(?:\)|\]|else|do|try)\s*\{$")
 _ENUM_START = re.compile(r"^\s*enum\b")
 
 _FUNC_DEF_START = re.compile(r"^\s*(?:(?:static|inline|virtual|explicit|constexpr|const)\s+)*[\w:<>]+(?:\s*[*&])*\s+([\w:<>]+)\s*\(")
+_QUALIFIED_SIG_START = re.compile(r"^\s*[\w:<>,]+::~?[\w:]+\s*\(")
 _ACCESS_SPECIFIER = re.compile(r"^\s*(?:public|private|protected)\s*:\s*$")
 _CASE_LABEL = re.compile(r"^\s*(?:case\b.*|default)\s*:\s*$")
 _LABEL = re.compile(r"^\s*[A-Za-z_]\w*\s*:\s*$")
@@ -160,6 +167,17 @@ def _signature_mask(lines: List[str]) -> List[bool]:
         match = _FUNC_DEF_START.match(lines[i])
         name = match.group(1).split("::")[-1] if match else ""
         if match and name not in CONTROL_KEYWORDS:
+            depth = lines[i].count("(") - lines[i].count(")")
+            if depth > 0:
+                while i < total and depth > 0:
+                    mask[i] = True
+                    i += 1
+                    if i < total:
+                        depth += lines[i].count("(") - lines[i].count(")")
+                if i < total:
+                    mask[i] = True
+                continue
+        if _QUALIFIED_SIG_START.match(lines[i]):
             depth = lines[i].count("(") - lines[i].count(")")
             if depth > 0:
                 while i < total and depth > 0:
@@ -286,6 +304,35 @@ def _enum_mask(lines: List[str]) -> List[bool]:
     return mask
 
 
+def _init_list_mask(lines: List[str]) -> List[bool]:
+    """
+    Mark every line of a constructor member initializer list (the lines
+    starting with ':' or ',' that follow a constructor signature ending with
+    ')'), so those lines are never joined together or onto the signature.
+    """
+    mask = [False] * len(lines)
+    total = len(lines)
+    i = 0
+    while i < total:
+        if not lines[i].lstrip().startswith(":"):
+            i += 1
+            continue
+        prev = i - 1
+        while prev >= 0 and not lines[prev].strip():
+            prev -= 1
+        if prev < 0 or not lines[prev].rstrip().endswith(")"):
+            i += 1
+            continue
+        j = i
+        while j < total:
+            mask[j] = True
+            if not lines[j].rstrip().endswith(","):
+                break
+            j += 1
+        i = j + 1
+    return mask
+
+
 def _can_join_line(line_n: str, line_next: str, n_protected: bool, m_protected: bool, max_length: int) -> bool:
     n = line_n.rstrip()
     m = line_next.strip()
@@ -297,6 +344,10 @@ def _can_join_line(line_n: str, line_next: str, n_protected: bool, m_protected: 
     if n.lstrip().startswith("#") or m.startswith("#"):
         return False
     if _has_line_comment(n) or _has_line_comment(m):
+        return False
+    if m.startswith("[["):
+        return False
+    if n.endswith((";", "}")):
         return False
     if has_stream_operators(n):
         return False
@@ -339,14 +390,15 @@ def _join_lines_pass(lines: List[str], max_length: int) -> List[str]:
     signature_mask = _signature_mask(lines)
     logical_mask = _logical_chain_mask(lines)
     enum_mask = _enum_mask(lines)
+    init_list_mask = _init_list_mask(lines)
     result: List[str] = []
     i = 0
     total = len(lines)
     while i < total:
-        n_protected = block_mask[i] or signature_mask[i] or logical_mask[i] or enum_mask[i]
+        n_protected = block_mask[i] or signature_mask[i] or logical_mask[i] or enum_mask[i] or init_list_mask[i]
         m_protected = (
             i + 1 < total
-            and (block_mask[i + 1] or signature_mask[i + 1] or logical_mask[i + 1] or enum_mask[i + 1])
+            and (block_mask[i + 1] or signature_mask[i + 1] or logical_mask[i + 1] or enum_mask[i + 1] or init_list_mask[i + 1])
         )
         if (
             i + 1 < total

@@ -29,8 +29,7 @@ FlightController::FlightController(ControllerConfig config) : config_(config)
     altitude_pid_.kp = config.kp_altitude;
     altitude_pid_.ki = config.ki_altitude;
     altitude_pid_.kd = config.kd_altitude;
-    altitude_pid_.integral_limit =
-        config.max_integral_rpm / std::max(config.ki_altitude, 1e-9);
+    altitude_pid_.integral_limit = config.max_integral_rpm / std::max(config.ki_altitude, 1e-9);
     altitude_pid_.integral_error_band = kAltitudeIntegralErrorBandM;
 
     x_position_pid_.kp = config.kp_position;
@@ -89,11 +88,9 @@ double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
     const double errorDerivative = (error - pid.previous_error) / dt;
     pid.previous_error = error;
 
-    const bool inBand =
-        pid.integral_error_band == 0.0 || std::abs(error) <= pid.integral_error_band;
+    const bool inBand = pid.integral_error_band == 0.0 || std::abs(error) <= pid.integral_error_band;
     if (inBand) {
-        pid.integral =
-            Clamp(pid.integral + error * dt, -pid.integral_limit, pid.integral_limit);
+        pid.integral = Clamp(pid.integral + error * dt, -pid.integral_limit, pid.integral_limit);
     }
 
     return pid.kp * error + pid.ki * pid.integral + pid.kd * errorDerivative;

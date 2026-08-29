@@ -62,8 +62,7 @@ SafetyCommand SafetyManager::update(double current_time, const HealthReport& rep
     else if (mode_ != SafetyMode::SAFE_MODE) {
         if (report.state == HealthState::DEGRADED) {
             const bool actuator_fault = report.flag(FaultDomain::Actuator).raised;
-            engage(current_time, SafetyMode::COMPENSATED,
-                   actuator_fault ? config_.degraded_thrust_margin : 1.0, false);
+            engage(current_time, SafetyMode::COMPENSATED, actuator_fault ? config_.degraded_thrust_margin : 1.0, false);
         }
         else {
             engage(current_time, SafetyMode::NORMAL, 1.0, false);
