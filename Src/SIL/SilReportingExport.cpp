@@ -10,11 +10,11 @@ module SilReporting;
 
 import std;
 
-import SilTypes;
-import SilReportFormat;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
+import SilReportFormat;
+import SilTypes;
 
 namespace sim::sil {
 

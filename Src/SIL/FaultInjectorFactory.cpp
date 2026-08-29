@@ -10,11 +10,11 @@ module FaultInjectorFactory;
 
 import std;
 
-import IFaultInjector;
-import FCFailureInjector;
-import CommunicationFaultInjector;
-import SensorFaultInjector;
 import ActuatorFaultInjector;
+import CommunicationFaultInjector;
+import FCFailureInjector;
+import IFaultInjector;
+import SensorFaultInjector;
 import SilTypes;
 
 namespace sim::sil {

@@ -10,11 +10,11 @@ module SilReporting;
 
 import std;
 
-import SilTypes;
-import SilReportFormat;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
+import SilReportFormat;
+import SilTypes;
 
 namespace sim::sil {
 
@@ -82,7 +82,7 @@ std::string build_markdown(const std::vector<ScenarioRecord>& records)
 }
 
 std::string write_sil_report(const std::vector<ScenarioRecord>& records,
-                             const SilReportOptions& options)
+                             const SilReportOptions&            options)
 {
     std::error_code ec;
     std::filesystem::create_directories(options.docs_dir, ec);

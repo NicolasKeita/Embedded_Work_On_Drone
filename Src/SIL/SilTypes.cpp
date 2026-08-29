@@ -11,9 +11,9 @@ module SilTypes;
 import std;
 
 import FlightController;
-import Telemetry;
 import HealthMonitor;
 import SafetyManager;
+import Telemetry;
 
 namespace sim::sil {
 

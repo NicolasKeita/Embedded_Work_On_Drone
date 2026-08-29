@@ -51,7 +51,8 @@ consommateurs du bus) : altitude NaN, altitude forcee hors plage ou bruit
 extreme deterministe superpose a la mesure vraie.
 */
 SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
-                                 SensorCorruptionMode mode, double corrupted_altitude_m)
+                                 SensorCorruptionMode   mode,
+                                 double                 corrupted_altitude_m)
 {
     SensorTelemetry corrupted = telemetry;
     switch (mode) {

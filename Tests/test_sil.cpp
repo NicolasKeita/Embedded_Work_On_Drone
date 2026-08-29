@@ -8,8 +8,8 @@ All rights reserved.
 
 import std;
 
-import TestHarness;
 import SilScenarios;
+import TestHarness;
 
 int main()
 {

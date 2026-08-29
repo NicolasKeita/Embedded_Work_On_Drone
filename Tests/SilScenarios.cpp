@@ -12,13 +12,13 @@ import std;
 
 import Aircraft;
 import FlightController;
-import TestHarness;
-import Telemetry;
 import HealthMonitor;
 import SafetyManager;
-import SilTypes;
-import SilRunner;
 import SilReporting;
+import SilRunner;
+import SilTypes;
+import Telemetry;
+import TestHarness;
 
 namespace sim::test::sil {
 

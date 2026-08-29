@@ -86,9 +86,10 @@ HealthState HealthMonitor::compute_state(const std::array<FaultFlag, 4>& flags)
 Les faultes FC1/communication sont latches (evenements physiques) ; les faultes
 capteur/actionneur sont re-evaluees en continu (la condition peut disparaitre).
 */
-HealthReport HealthMonitor::evaluate(double current_time, const sim::sil::CommsBus& comms,
+HealthReport HealthMonitor::evaluate(double                           current_time,
+                                     const sim::sil::CommsBus&        comms,
                                      const sim::sil::SensorTelemetry& telemetry,
-                                     double commanded_rpm)
+                                     double                           commanded_rpm)
 {
     if (!comms.link_up()) {
         raise(FaultDomain::Communication, current_time);

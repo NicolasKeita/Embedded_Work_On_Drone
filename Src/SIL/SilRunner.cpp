@@ -11,15 +11,14 @@ module SilRunner;
 import std;
 
 import Aircraft;
-import FlightController;
-import Telemetry;
-
 import CommsBus;
-import HealthMonitor;
-import SafetyManager;
-import IFaultInjector;
 import FaultInjectorFactory;
+import FlightController;
+import HealthMonitor;
+import IFaultInjector;
+import SafetyManager;
 import SilTypes;
+import Telemetry;
 
 namespace sim::sil {
 
@@ -38,7 +37,7 @@ SILRunner::RunContext::RunContext(const SilConfig& cfg)
                                  .sensor_limits = cfg.sensor_limits}},
       safety{SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}} {}
 
-SILRunner::RunContext SILRunner::make_context(const SilConfig& config,
+SILRunner::RunContext SILRunner::make_context(const SilConfig&                  config,
                                               const std::vector<FaultScenario>& scenarios)
 {
     RunContext ctx{config};
