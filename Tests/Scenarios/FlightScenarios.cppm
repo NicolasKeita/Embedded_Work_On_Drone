@@ -25,4 +25,3 @@ void autonomous_position_y(TestHarness& runner, double hover_rpm);
 void autonomous_mission(TestHarness& runner, double hover_rpm);
 
 }
-

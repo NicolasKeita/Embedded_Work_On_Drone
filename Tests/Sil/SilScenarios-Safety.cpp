@@ -31,11 +31,8 @@ using sim::sil::ScenarioRecord;
 using sim::sil::SimulationResult;
 
 SimulationResult run_case(const std::vector<FaultScenario>& scenarios);
-
 void nominal_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records);
-
 void fc1_failure_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records);
-
 void communication_loss_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records);
 
 void sensor_fault_scenario(TestHarness& runner, std::vector<ScenarioRecord>& records)

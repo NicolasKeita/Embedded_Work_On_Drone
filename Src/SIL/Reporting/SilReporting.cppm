@@ -15,15 +15,10 @@ import SilTypes;
 export namespace sim::sil {
 
 [[nodiscard]] std::string format_seconds(double value);
-
 [[nodiscard]] std::string format_metric(double value);
-
 [[nodiscard]] std::string json_escape(std::string_view text);
-
 [[nodiscard]] std::string csv_escape(std::string_view text);
-
 [[nodiscard]] std::string_view yes_no(bool value);
-
 void write_file(const std::filesystem::path& path, std::string_view content);
 
 struct ScenarioRecord {
@@ -45,10 +40,7 @@ sil.csv) et retourne le rapport Markdown.
 */
 [[nodiscard]] std::string write_sil_report(const std::vector<ScenarioRecord>& records,
                                            const SilReportOptions& options = {});
-
 [[nodiscard]] std::string json_payload(const std::vector<ScenarioRecord>& records);
-
 [[nodiscard]] std::string csv_payload(const std::vector<ScenarioRecord>& records);
 
 }
-

@@ -79,7 +79,6 @@ private:
 };
 
 [[nodiscard]] std::string_view fault_domain_name(FaultDomain domain);
-
 [[nodiscard]] std::string_view health_state_name(HealthState state);
 
 }

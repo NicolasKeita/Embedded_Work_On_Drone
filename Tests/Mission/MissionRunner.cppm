@@ -87,4 +87,3 @@ void run_control_loop(FlightController& ctrl, Aircraft& craft, const MissionRunR
                       MissionRunTrace& trace, double direction, double target_value);
 
 }
-

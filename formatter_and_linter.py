@@ -25,6 +25,7 @@ import linter.linter as linter
 import formatter.short_if_formatter as short_if_formatter
 import formatter.brace_formatter as brace_formatter
 import formatter.module_formatter as module_formatter
+import formatter.prototype_spacing as prototype_spacing
 
 
 def to_pascal_case(name: str) -> str:
@@ -69,7 +70,7 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
 
     is_module_interface = input_file.lower().endswith('.cppm')
     if is_module_interface:
-        formatted_code = code
+        formatted_code = prototype_spacing.clean_code(code)
     else:
         code_without_comments, comments = comment_utils.remove_comments(code)
 
@@ -94,6 +95,8 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
         formatted_code = module_formatter.format_import_order(formatted_code)
 
         formatted_code = module_formatter.format_module_import_spacing(formatted_code)
+
+        formatted_code = prototype_spacing.clean_code(formatted_code)
 
     has_long_lines = linter.lint_code(formatted_code, file_path=input_file)
 

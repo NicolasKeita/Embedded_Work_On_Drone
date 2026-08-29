@@ -55,4 +55,3 @@ void move_y(TestHarness& runner, double hover_rpm);
 void combined(TestHarness& runner, double hover_rpm);
 
 }
-
