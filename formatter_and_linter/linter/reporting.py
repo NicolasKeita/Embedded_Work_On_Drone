@@ -9,6 +9,7 @@ import sys
 from typing import List, Tuple
 
 from linter.style_checks import MAX_FILE_LENGTH, MAX_FUNCTION_LENGTH
+from linter.comment_language_checks import LINGUA_AVAILABLE
 
 
 def _get_path_label(file_path: str) -> str:
@@ -47,6 +48,11 @@ def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: i
 def print_function_length_warnings(long_functions: List[Tuple[str, int, int]], max_lines: int = MAX_FUNCTION_LENGTH) -> None:
     for func_name, start_line, line_count in long_functions:
         print(f"⚠️  Function '{func_name}' at line {start_line} exceeds {max_lines} lines: {line_count} lines", file=sys.stderr)
+
+
+def print_comment_language_warnings(violations: List[Tuple[int, str]]) -> None:
+    for line_num, detected_language in violations:
+        print(f"⚠️  Line {line_num}: Comment must be written in English (detected: {detected_language})", file=sys.stderr)
 
 
 def print_cppm_interface_warnings(
