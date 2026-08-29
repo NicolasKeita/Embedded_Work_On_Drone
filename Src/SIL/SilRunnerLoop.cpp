@@ -12,8 +12,8 @@ import std;
 
 import Aircraft;
 import CommsBus;
-import FlightController;
 import FaultInjectors;
+import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilTypes;
