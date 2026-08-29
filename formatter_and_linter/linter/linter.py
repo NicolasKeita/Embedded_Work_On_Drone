@@ -24,7 +24,7 @@ from linter.cppm_checks import (
     MAX_CPPM_INLINE_BODY_LINES,
     check_cppm_interface_implementations,
 )
-from linter.comment_language_checks import check_comment_language
+from linter.comment_language_checks import check_code_comments_language
 from linter.reporting import (
     _get_path_label,
     print_issue_header,
@@ -42,7 +42,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     if is_module_interface:
         cppm_violations = check_cppm_interface_implementations(code)
         file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
-        language_violations = check_comment_language(code)
+        language_violations = check_code_comments_language(code)
 
         has_issues = (
             len(cppm_violations) > 0
@@ -62,7 +62,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     invalid_comments = check_comment_placement(comments, function_lines)
     long_functions = check_function_length(code, max_lines=MAX_FUNCTION_LENGTH)
     file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
-    language_violations = check_comment_language(code)
+    language_violations = check_code_comments_language(code)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
