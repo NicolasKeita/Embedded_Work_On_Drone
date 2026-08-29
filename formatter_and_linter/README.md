@@ -9,7 +9,7 @@ Checks for style violations and code quality issues.
 ### Features
 - **Line length** : Ensures lines don't exceed 120 characters
 - **Comment placement** : Comments only above functions
-- **Comment language** : Comments must be written in English, detected with `lingua-language-detector` (cleaning of syntax/tags, short-comment tolerance, confidence margin)
+- **Comment language** : Comments must be written in English
 - **Function length** : Functions must not exceed 35 lines
 - **File length** : 120 lines max per file
 
