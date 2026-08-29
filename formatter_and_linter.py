@@ -119,7 +119,11 @@ def check_directory_structure() -> bool:
         directory_violations,
         linter.MAX_FILES_PER_DIRECTORY,
     )
-    return len(directory_violations) > 0
+
+    module_filename_violations = linter.check_module_filename_convention(["Src", "Tests"])
+    linter.print_module_filename_warnings(module_filename_violations)
+
+    return len(directory_violations) > 0 or len(module_filename_violations) > 0
 
 
 def main() -> NoReturn:

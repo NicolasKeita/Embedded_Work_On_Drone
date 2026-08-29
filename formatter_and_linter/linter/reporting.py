@@ -67,6 +67,11 @@ def print_directory_file_count_warnings(
         )
 
 
+def print_module_filename_warnings(violations: List[Tuple[str, str]]) -> None:
+    for file_path, message in violations:
+        print(f"⚠️  '{file_path}': {message}", file=sys.stderr)
+
+
 def print_cppm_interface_warnings(
     violations: List[Tuple[str, int, int]],
     file_path: str

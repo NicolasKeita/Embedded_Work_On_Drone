@@ -30,6 +30,7 @@ from linter.directory_checks import (
     MAX_FILES_PER_DIRECTORY,
     check_directory_file_counts,
 )
+from linter.module_filename_checks import check_module_filename_convention
 from linter.reporting import (
     _get_path_label,
     print_issue_header,
@@ -40,6 +41,7 @@ from linter.reporting import (
     print_function_length_warnings,
     print_cppm_interface_warnings,
     print_directory_file_count_warnings,
+    print_module_filename_warnings,
 )
 
 
@@ -97,6 +99,7 @@ __all__ = [
     "check_function_length",
     "check_cppm_interface_implementations",
     "check_directory_file_counts",
+    "check_module_filename_convention",
     "_get_path_label",
     "print_issue_header",
     "print_line_length_warnings",
@@ -106,6 +109,7 @@ __all__ = [
     "print_function_length_warnings",
     "print_cppm_interface_warnings",
     "print_directory_file_count_warnings",
+    "print_module_filename_warnings",
     "lint_code",
 ]
 
