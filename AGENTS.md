@@ -39,6 +39,19 @@ Src/App/Application.cppm
 Src/App/Application.cpp
 ```
 
+Large or medium classes may live in a single `.cppm` interface file with their
+implementation split across several `.cpp` files.
+
+When split across multiple files, **every** implementation `.cpp` file must include a hyphen (`-`) followed by a suffix describing its responsibility (e.g., `-Core.cpp`). For small classes with a single implementation file, use the base module name without a hyphen.
+
+Example (split implementation):
+
+```text
+Src/Control/FlightController.cppm
+Src/Control/FlightController-Core.cpp
+Src/Control/FlightController-Loops.cpp
+Src/Control/FlightController-Mission.cpp
+
 ## Imports
 
 * Prefer `import` over `#include`.
