@@ -31,8 +31,8 @@ using sim::sil::SimulationResult;
 using sim::sil::SILRunner;
 
 /*
-Cas de test : mission de montee vers 10 m avec la configuration SIL par defaut
-(dt = 10 ms, duree 90 s), faultes optionnelles appliquees par le moteur.
+Test case: climb mission towards 10 m with the default SIL configuration
+(dt = 10 ms, duration 90 s), optional faults applied by the engine.
 */
 SimulationResult run_case(const std::vector<FaultScenario>& scenarios)
 {

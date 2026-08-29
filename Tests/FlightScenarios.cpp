@@ -22,8 +22,8 @@ using sim::control::ControllerConfig;
 using sim::control::FlightController;
 
 /*
-Scenario G : boucle d'altitude autonome depuis le sol jusqu'a 100 m ; mesure du
-temps d'entree en tolerance, du depassement et de l'erreur residuelle.
+Scenario G: autonomous altitude loop from the ground up to 100 m; measures the
+time to enter tolerance, the overshoot and the residual error.
 */
 void autonomous_altitude(TestHarness& runner, double hover_rpm)
 {
@@ -52,8 +52,8 @@ void autonomous_altitude(TestHarness& runner, double hover_rpm)
 }
 
 /*
-Test 2 : cascade position X -> tangage -> servos. Phase 1 : ralliement du point
-(20, 0, 100), phase 2 : retour de x vers 0 avec suivi des metriques.
+Test 2: cascaded X position -> pitch -> servos. Phase 1: rendezvous with point
+(20, 0, 100), phase 2: return of x to 0 with metrics tracking.
 */
 void autonomous_position_x(TestHarness& runner, double hover_rpm)
 {
@@ -85,8 +85,8 @@ void autonomous_position_x(TestHarness& runner, double hover_rpm)
 }
 
 /*
-Test 3 : cascade position Y -> roulis -> servos. Phase 1 : ralliement du point
-(0, -15, 100), phase 2 : retour de y vers 0 avec suivi des metriques.
+Test 3: cascaded Y position -> roll -> servos. Phase 1: rendezvous with point
+(0, -15, 100), phase 2: return of y to 0 with metrics tracking.
 */
 void autonomous_position_y(TestHarness& runner, double hover_rpm)
 {

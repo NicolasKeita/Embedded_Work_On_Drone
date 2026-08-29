@@ -74,8 +74,8 @@ void actuator_degradation_scenario(TestHarness& runner, std::vector<ScenarioReco
 }
 
 /*
-Orchestration : execution des cinq scenarios, consolidation des verdicts dans
-les records puis generation des artefacts docs/validation/sil.md, .json, .csv.
+Orchestration: runs the five scenarios, consolidates the verdicts into the
+records then generates the docs/validation/sil.md, .json, .csv artifacts.
 */
 void run_all_sil_scenarios(TestHarness& runner)
 {

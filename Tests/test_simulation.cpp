@@ -14,7 +14,7 @@ import TestHarness;
 
 namespace
 {
-    // Resout la selection de scenarios ; retourne un code >= 0 pour terminer immediatement.
+    // Resolves scenario selection; returns a code >= 0 to terminate immediately.
     int SelectScenarios(int argc, char* argv[], std::string_view executableName,
                         std::vector<const sim::test::ScenarioEntry*>& selected)
     {
@@ -47,8 +47,8 @@ namespace
 }
 
 /*
-Point d'entree : un seul runner est partage par tous les scenarios afin que le
-compteur d'echecs soit cumule sur l'ensemble de la validation.
+Entry point: a single runner is shared by all scenarios so that the failure
+counter is accumulated over the whole validation.
 */
 int main(int argc, char* argv[])
 {

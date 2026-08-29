@@ -23,14 +23,14 @@ namespace
 }
 
 /*
-Machine a etats de mission :
-  TAKEOFF         armement a RPM fixe (takeoff_rpm_factor x hover_rpm), puis
-                  bascule en CLIMB des que takeoff_altitude_m est atteinte ;
-  CLIMB           montee pilotee par la boucle d'altitude vers target.z, puis
-                  STATION_KEEPING des que la tolerance altitude est tenue ;
-  STATION_KEEPING asservissement simultane X/Y/Z ; COMPLETE apres
-                  station_hold_seconds consecutives dans la zone cible ;
-  COMPLETE        la tenue de station continue pour maintenir la position.
+Mission state machine:
+  TAKEOFF         arming at fixed RPM (takeoff_rpm_factor x hover_rpm), then
+                  switching to CLIMB as soon as takeoff_altitude_m is reached;
+  CLIMB           climb driven by the altitude loop towards target.z, then
+                  STATION_KEEPING as soon as the altitude tolerance is held;
+  STATION_KEEPING simultaneous X/Y/Z control; COMPLETE after
+                  station_hold_seconds consecutively inside the target zone;
+  COMPLETE        continuous station keeping to maintain the position.
 */
 ControlCommand FlightController::update(const TargetState&   target,
                                         const AircraftState& actual,

@@ -52,9 +52,9 @@ void SILRunner::update_monitoring(RunContext& ctx)
 }
 
 /*
-Pas actionneurs : commande FC1 (ou commande de descente conservee en SAFE_MODE),
-marge de poussee generique en mode COMPENSATED, puis rendement actionneur
-applique par l'environnement avant integration de la physique.
+Actuator step: FC1 command (or descent command kept in SAFE_MODE), generic
+thrust margin in COMPENSATED mode, then actuator efficiency applied by the
+environment before physics integration.
 */
 void SILRunner::apply_actuators(RunContext& ctx)
 {
@@ -104,21 +104,6 @@ void SILRunner::finalize(RunContext& ctx)
     }
     result.mission_success =
         result.final_state == sim::control::MissionState::COMPLETE && !result.mission_aborted;
-}
-
-SimulationResult SILRunner::run(const std::vector<FaultScenario>& scenarios)
-{
-    RunContext ctx = make_context(config_, scenarios);
-    const double dt = ctx.config.dt;
-    for (ctx.time = 0.0; ctx.time <= ctx.config.duration_s + 0.5 * dt; ctx.time += dt) {
-        apply_injectors(ctx);
-        update_fc1(ctx);
-        update_monitoring(ctx);
-        apply_actuators(ctx);
-        update_metrics(ctx);
-    }
-    finalize(ctx);
-    return ctx.result;
 }
 
 }

@@ -46,13 +46,13 @@ struct ControllerConfig {
     double station_hold_seconds{5.0};
 };
 
-// Consignes d'inclinaison produites par la boucle de position (boucle externe).
+// Tilt setpoints produced by the position loop (outer loop).
 struct TiltTargets {
     double pitch_deg = 0.0;
     double roll_deg = 0.0;
 };
 
-// Melange servo produit par la boucle d'attitude (boucle interne).
+// Servo mix produced by the attitude loop (inner loop).
 struct ServoMix {
     double left_deg = 0.0;
     double right_deg = 0.0;
@@ -65,9 +65,9 @@ public:
     [[nodiscard]] MissionState state() const;
 
     /*
-    Avance la machine a etats de mission d'un pas de temps dt et retourne la
-    commande actionneurs (RPM aile + angles servos gauche/droit) calculee par
-    les boucles en cascade a partir de la consigne cible et de l'etat mesure.
+    Advances the mission state machine by one time step dt and returns the
+    actuator command (wing RPM + left/right servo angles) computed by the
+    cascaded loops from the target setpoint and the measured state.
     */
     ControlCommand update(const TargetState& target, const AircraftState& actual, double dt);
 
@@ -101,7 +101,7 @@ private:
     double station_hold_timer_{0.0};
 };
 
-// Nom lisible d'un etat de mission pour la journalisation.
+// Human-readable name of a mission state for logging.
 [[nodiscard]] std::string_view mission_state_name(MissionState state);
 
 }

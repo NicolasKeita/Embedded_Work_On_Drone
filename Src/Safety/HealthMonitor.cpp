@@ -18,36 +18,6 @@ namespace sim::safety {
 
 HealthMonitor::HealthMonitor(HealthMonitorConfig config) : config_{config} {}
 
-const FaultFlag& HealthReport::flag(FaultDomain domain) const
-{
-    return flags[static_cast<std::size_t>(domain)];
-}
-
-double HealthReport::first_detection_time() const
-{
-    double first = -1.0;
-    for (const FaultFlag& item : flags) {
-        if (item.raised_time >= 0.0 && (first < 0.0 || item.raised_time < first)) {
-            first = item.raised_time;
-        }
-    }
-    return first;
-}
-
-FaultDomain HealthReport::first_fault_domain() const
-{
-    FaultDomain best = FaultDomain::FC1Heartbeat;
-    double best_time = -1.0;
-    for (std::size_t index = 0; index < flags.size(); ++index) {
-        const FaultFlag& item = flags[index];
-        if (item.raised_time >= 0.0 && (best_time < 0.0 || item.raised_time < best_time)) {
-            best_time = item.raised_time;
-            best = static_cast<FaultDomain>(index);
-        }
-    }
-    return best;
-}
-
 std::size_t HealthMonitor::domain_index(FaultDomain domain)
 {
     return static_cast<std::size_t>(domain);
@@ -83,8 +53,8 @@ HealthState HealthMonitor::compute_state(const std::array<FaultFlag, 4>& flags)
 }
 
 /*
-Les faultes FC1/communication sont latches (evenements physiques) ; les faultes
-capteur/actionneur sont re-evaluees en continu (la condition peut disparaitre).
+FC1/communication faults are latched (physical events); sensor/actuator faults
+are re-evaluated continuously (the condition may disappear).
 */
 HealthReport HealthMonitor::evaluate(double                           current_time,
                                      const sim::sil::CommsBus&        comms,

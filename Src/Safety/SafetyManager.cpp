@@ -49,10 +49,10 @@ void SafetyManager::engage(double current_time, SafetyMode mode, double margin, 
 }
 
 /*
-Transitions de surete : SAFE -> SAFE_MODE (abandon de mission, conservateur),
-DEGRADED -> COMPENSATED avec marge de poussee uniquement en cas de desaccord
-actionneur averee (sinon la faulte est capteur et la poussee doit rester
-nominale), HEALTHY -> NORMAL. Le passage en SAFE_MODE est irreversible.
+Safety transitions: SAFE -> SAFE_MODE (mission abort, conservative),
+DEGRADED -> COMPENSATED with a thrust margin only on proven actuator mismatch
+(otherwise the fault is a sensor one and thrust must stay nominal),
+HEALTHY -> NORMAL. The SAFE_MODE transition is irreversible.
 */
 SafetyCommand SafetyManager::update(double current_time, const HealthReport& report)
 {

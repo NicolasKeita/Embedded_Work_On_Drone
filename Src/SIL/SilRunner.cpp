@@ -52,9 +52,9 @@ SILRunner::RunContext SILRunner::make_context(const SilConfig&                  
 }
 
 /*
-Pas d'injection : l'environnement repart d'un etat nominal a chaque pas, puis
-chaque injecteur polymorphe altere le domaine qu'il possede. Le moment de la
-premiere faulte active est consigne dans le resultat.
+Injection step: the environment restarts from a nominal state at each step, then
+each polymorphic injector alters the domain it owns. The time of the first
+active fault is recorded in the result.
 */
 void SILRunner::apply_injectors(RunContext& ctx)
 {
@@ -71,9 +71,9 @@ void SILRunner::apply_injectors(RunContext& ctx)
 }
 
 /*
-Pas FC1 : acquisition capteurs avec validation (l'estimateur secondaire de FC1
-conserve la derniere valeur valide), calcul de la commande de vol puis emission
-du heartbeat et des messages d'etat sur le bus, uniquement si FC1 est vivant.
+FC1 step: sensor acquisition with validation (the FC1 secondary estimator keeps
+the last valid value), flight command computation, then heartbeat and status
+message emission on the bus, only while FC1 is alive.
 */
 void SILRunner::update_fc1(RunContext& ctx)
 {

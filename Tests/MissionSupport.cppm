@@ -27,22 +27,21 @@ struct MissionMetrics {
     [[nodiscard]] double overshoot_percent() const noexcept;
 };
 
-// Composante de l'etat mesure associee a l'axe de suivi demande.
+// Component of the measured state associated with the requested tracking axis.
 [[nodiscard]] double component_value(const AircraftState& state, TrackingAxis axis);
 
-// Composante de la consigne cible associee a l'axe de suivi demande.
+// Component of the target setpoint associated with the requested tracking axis.
 [[nodiscard]] double component_value(const sim::control::TargetState& target, TrackingAxis axis);
 
 /*
-Affiche les indicateurs de poursuite : temps d'entree dans la tolerance,
-depassement maximal rapporte a l'ecart initial, erreur en regime permanent et
-erreur finale.
+Prints the tracking indicators: time to enter tolerance, maximum overshoot
+relative to the initial gap, steady-state error and final error.
 */
 void print_metrics_report(std::string_view label, const MissionMetrics& metrics);
 
 /*
-Verifie que les etats visites contiennent le deroulement attendu de la mission,
-dans l'ordre : TAKEOFF puis CLIMB puis STATION_KEEPING puis COMPLETE.
+Checks that the visited states contain the expected mission flow, in order:
+TAKEOFF then CLIMB then STATION_KEEPING then COMPLETE.
 */
 bool contains_mission_sequence(const std::vector<sim::control::MissionState>& visited);
 

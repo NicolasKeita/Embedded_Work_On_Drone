@@ -19,9 +19,9 @@ public:
     virtual ~IFaultInjector() = default;
 
     /*
-    Altere uniquement l'environnement simule (SimulationState). L'injecteur ne
-    communique jamais directement avec le HealthMonitor ni avec le
-    SafetyManager : la detection des faultes reste agnostique.
+    Alters only the simulated environment (SimulationState). The injector never
+    communicates directly with the HealthMonitor nor the SafetyManager: fault
+    detection stays agnostic.
     */
     virtual void inject(SimulationState& state, double current_time) = 0;
 
@@ -31,9 +31,9 @@ public:
 };
 
 /*
-Base commune aux injecteurs specialises : fenetre d'activation temporelle
-[start_time, start_time + duration), une duration <= 0 signifiant actif
-jusqu'a la fin de la simulation.
+Common base for specialized injectors: timed activation window
+[start_time, start_time + duration), a duration <= 0 meaning active until the
+end of the simulation.
 */
 class TimedFaultInjector : public IFaultInjector {
 public:

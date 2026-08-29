@@ -33,10 +33,10 @@ namespace
 namespace sim::control {
 
 /*
-Boucles de position horizontale en cascade (boucle externe) : chaque erreur de
-position produit une consigne d'inclinaison saturee a max_tilt_deg ; le terme
-derive amortit la vitesse horizontale pour eviter le depassement typique d'un
-systeme a double integrateur.
+Cascaded horizontal position loops (outer loop): each position error produces a
+tilt setpoint saturated at max_tilt_deg; the derivative term damps the
+horizontal velocity to avoid the typical overshoot of a double-integrator
+system.
 */
 TiltTargets FlightController::updatePositionControl(const TargetState&   t,
                                                     const AircraftState& a,
@@ -53,10 +53,10 @@ TiltTargets FlightController::updatePositionControl(const TargetState&   t,
 }
 
 /*
-Boucle d'attitude en cascade (boucle interne) : suit chaque consigne
-d'inclinaison avec un gain proportionnel exprime en degres servo equivalents
-(1 degre servo = kServoRadPerDeg rad d'inclinaison). Le melange respecte le
-modele physique : moyenne des servos -> tangage, difference -> roulis.
+Cascaded attitude loop (inner loop): tracks each tilt setpoint with a
+proportional gain expressed in equivalent servo degrees (1 servo degree =
+kServoRadPerDeg rad of tilt). The mix follows the physical model: servo mean ->
+pitch, difference -> roll.
 */
 ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const
 {
@@ -74,8 +74,8 @@ ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const Aircraf
 }
 
 /*
-Commande de tenue de station : cascade complete, altitude -> RPM et position ->
-attitude -> servos, recombinees en une seule commande actionneurs.
+Station keeping command: full cascade, altitude -> RPM and position ->
+attitude -> servos, recombined into a single actuator command.
 */
 ControlCommand FlightController::station_keeping_command(const TargetState&   t,
                                                          const AircraftState& a,
@@ -92,8 +92,8 @@ ControlCommand FlightController::station_keeping_command(const TargetState&   t,
 }
 
 /*
-Zone cible : l'appareil est considere en station des que les trois ecarts sont
-inferieurs aux tolerances configurees.
+Target zone: the vehicle is considered in station as soon as all three errors
+are below the configured tolerances.
 */
 bool FlightController::inside_target_zone(const TargetState& t, const AircraftState& a) const
 {

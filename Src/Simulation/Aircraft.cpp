@@ -35,9 +35,9 @@ namespace
 }
 
 /*
-Actionneurs parfaits (etat effectif = consigne).
-Point d'extension : ajouter ici une dynamique du premier ordre
-(inertie moteur / servo) entre command_ et state_.
+Perfect actuators (effective state = command).
+Extension point: add a first-order dynamics here (motor / servo inertia)
+between command_ and state_.
 */
 void Aircraft::update_actuators()
 {
@@ -47,9 +47,9 @@ void Aircraft::update_actuators()
 }
 
 /*
-Dynamique lissee du premier ordre : pas de saut instantane d'attitude,
-la consigne moyenne (pitch) et le differentiel (roll) des servos sont suivis
-avec une constante de temps kAttitudeTauS.
+Smooth first-order dynamics: no instantaneous attitude jump, the servo mean
+(pitch) and differential (roll) commands are tracked with the time constant
+kAttitudeTauS.
 */
 void Aircraft::update_attitude(double dt)
 {
@@ -66,10 +66,10 @@ void Aircraft::update_attitude(double dt)
 }
 
 /*
-Translation : bilan des forces verticales (portance vs poids), accelerations
-horizontales induites par l'attitude, puis integration d'Euler explicite :
-force -> acceleration -> vitesse -> position.
-Contact sol : blocage a z = 0 tant que la vitesse verticale est descendante.
+Translation: vertical force balance (lift vs weight), attitude-induced
+horizontal accelerations, then explicit Euler integration:
+force -> acceleration -> velocity -> position.
+Ground contact: locked at z = 0 while the vertical velocity is downward.
 */
 void Aircraft::update_translation(double dt)
 {

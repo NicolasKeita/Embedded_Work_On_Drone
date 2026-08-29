@@ -40,7 +40,7 @@ FlightController::FlightController(ControllerConfig config) : config_(config)
 }
 
 /*
-Retourne l'etat courant de la machine a etats de mission.
+Returns the current state of the mission state machine.
 */
 MissionState FlightController::state() const
 {
@@ -48,9 +48,9 @@ MissionState FlightController::state() const
 }
 
 /*
-Reinitialise l'etat des PIDs (integrale et memoire de derivee) sans toucher aux
-gains, afin d'eviter tout coup de derivee ou windup residuel au changement de
-phase de mission.
+Resets the PID states (integral and derivative memory) without touching the
+gains, to avoid any derivative kick or residual windup when switching mission
+phase.
 */
 void FlightController::reset_pids()
 {
@@ -66,7 +66,7 @@ void FlightController::reset_pids()
 }
 
 /*
-Reinitialise les PIDs puis bascule la machine a etats en CLIMB.
+Resets the PIDs then switches the mission state machine to CLIMB.
 */
 void FlightController::enter_climb()
 {
@@ -75,9 +75,9 @@ void FlightController::enter_climb()
 }
 
 /*
-Pas PID generique : derivee numerique de l'erreur, integrale bridee (anti-
-windup) qui n'accumule qu'a proximite de la cible (bande configuree). La
-structure reste identique pour un regulateur P pur (ki = kd = 0), PI ou PID.
+Generic PID step: numerical derivative of the error, clamped integral (anti-
+windup) accumulating only near the target (configured band). The structure
+remains identical for a pure P controller (ki = kd = 0), PI or PID.
 */
 double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
 {
@@ -100,11 +100,11 @@ double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
 }
 
 /*
-Boucle d'altitude : erreur de position verticale convertie en correction RPM
-autour du point d'equilibre hover_rpm (la portance y compense exactement le
-poids). Kp agit sur l'erreur, Kd amortit la vitesse verticale (evite les
-oscillations du P pur sur ce systeme a double integrateur), Ki elimine
-l'erreur statique residuelle. Correction saturee entre min_rpm et max_rpm.
+Altitude loop: vertical position error converted into an RPM correction around
+the equilibrium point hover_rpm (where lift exactly compensates weight). Kp acts
+on the error, Kd damps the vertical velocity (avoids the pure P oscillations on
+this double-integrator system), Ki removes the residual steady-state error.
+Correction saturated between min_rpm and max_rpm.
 */
 double FlightController::updateAltitudeControl(double target_z, double actual_z, double dt)
 {

@@ -20,39 +20,49 @@ namespace sim::sil {
 
 namespace {
 
+/*
+JSON record writer for the SIL results export.
+*/
+void append_record_json(std::ostringstream&   out,
+                        const ScenarioRecord& record,
+                        std::size_t           index,
+                        std::size_t           record_count)
+{
+    const SimulationResult& r = record.result;
+    out << "  {\n";
+    out << "    \"name\": \"" << json_escape(record.name) << "\",\n";
+    out << "    \"fault_type\": \"" << fault_type_name(record.scenario.fault_type)
+        << "\",\n";
+    out << "    \"start_time\": " << format_seconds(record.scenario.start_time) << ",\n";
+    out << "    \"duration\": " << format_seconds(record.scenario.duration) << ",\n";
+    out << "    \"mission_success\": " << (r.mission_success ? "true" : "false") << ",\n";
+    out << "    \"mission_aborted\": " << (r.mission_aborted ? "true" : "false") << ",\n";
+    out << "    \"final_state\": \""
+        << json_escape(sim::control::mission_state_name(r.final_state)) << "\",\n";
+    out << "    \"final_health\": \"" << health_state_name(r.final_health) << "\",\n";
+    out << "    \"final_safety_mode\": \"" << safety_mode_name(r.final_safety_mode)
+        << "\",\n";
+    out << "    \"fault_detected\": " << (r.fault_detected ? "true" : "false") << ",\n";
+    out << "    \"fault_injected_time\": " << format_seconds(r.fault_injected_time)
+        << ",\n";
+    out << "    \"detection_time\": " << format_seconds(r.detection_time) << ",\n";
+    out << "    \"recovery_time\": " << format_seconds(r.recovery_time) << ",\n";
+    out << "    \"detection_latency\": " << format_seconds(r.detection_latency) << ",\n";
+    out << "    \"response_latency\": " << format_seconds(r.response_latency) << ",\n";
+    out << "    \"max_position_error\": " << format_metric(r.max_position_error_m) << ",\n";
+    out << "    \"max_altitude_error\": " << format_metric(r.max_altitude_error_m) << ",\n";
+    out << "    \"final_altitude\": " << format_metric(r.final_altitude_m) << ",\n";
+    out << "    \"failure_reason\": \"" << json_escape(r.failure_reason) << "\",\n";
+    out << "    \"passed\": " << (r.passed ? "true" : "false") << "\n";
+    out << "  }" << (index + 1 < record_count ? "," : "") << "\n";
+}
+
 std::string build_json(const std::vector<ScenarioRecord>& records)
 {
     std::ostringstream out;
     out << "[\n";
     for (std::size_t index = 0; index < records.size(); ++index) {
-        const ScenarioRecord& record = records[index];
-        const SimulationResult& r = record.result;
-        out << "  {\n";
-        out << "    \"name\": \"" << json_escape(record.name) << "\",\n";
-        out << "    \"fault_type\": \"" << fault_type_name(record.scenario.fault_type)
-            << "\",\n";
-        out << "    \"start_time\": " << format_seconds(record.scenario.start_time) << ",\n";
-        out << "    \"duration\": " << format_seconds(record.scenario.duration) << ",\n";
-        out << "    \"mission_success\": " << (r.mission_success ? "true" : "false") << ",\n";
-        out << "    \"mission_aborted\": " << (r.mission_aborted ? "true" : "false") << ",\n";
-        out << "    \"final_state\": \""
-            << json_escape(sim::control::mission_state_name(r.final_state)) << "\",\n";
-        out << "    \"final_health\": \"" << health_state_name(r.final_health) << "\",\n";
-        out << "    \"final_safety_mode\": \"" << safety_mode_name(r.final_safety_mode)
-            << "\",\n";
-        out << "    \"fault_detected\": " << (r.fault_detected ? "true" : "false") << ",\n";
-        out << "    \"fault_injected_time\": " << format_seconds(r.fault_injected_time)
-            << ",\n";
-        out << "    \"detection_time\": " << format_seconds(r.detection_time) << ",\n";
-        out << "    \"recovery_time\": " << format_seconds(r.recovery_time) << ",\n";
-        out << "    \"detection_latency\": " << format_seconds(r.detection_latency) << ",\n";
-        out << "    \"response_latency\": " << format_seconds(r.response_latency) << ",\n";
-        out << "    \"max_position_error\": " << format_metric(r.max_position_error_m) << ",\n";
-        out << "    \"max_altitude_error\": " << format_metric(r.max_altitude_error_m) << ",\n";
-        out << "    \"final_altitude\": " << format_metric(r.final_altitude_m) << ",\n";
-        out << "    \"failure_reason\": \"" << json_escape(r.failure_reason) << "\",\n";
-        out << "    \"passed\": " << (r.passed ? "true" : "false") << "\n";
-        out << "  }" << (index + 1 < records.size() ? "," : "") << "\n";
+        append_record_json(out, records[index], index, records.size());
     }
     out << "]\n";
     return out.str();

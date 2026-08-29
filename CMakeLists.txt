@@ -20,6 +20,7 @@ set(CONTROL_FILES
 set(SAFETY_FILES
     Src/Safety/HealthMonitor.cppm
     Src/Safety/HealthMonitor.cpp
+    Src/Safety/HealthMonitorReport.cpp
     Src/Safety/HealthMonitorNames.cpp
     Src/Safety/SafetyManager.cppm
     Src/Safety/SafetyManager.cpp
@@ -49,6 +50,7 @@ set(SIL_FILES
     Src/SIL/SilRunner.cppm
     Src/SIL/SilRunner.cpp
     Src/SIL/SilRunnerLoop.cpp
+    Src/SIL/SilRunnerRun.cpp
     Src/SIL/SilReportFormat.cppm
     Src/SIL/SilReportFormat.cpp
     Src/SIL/SilReporting.cppm

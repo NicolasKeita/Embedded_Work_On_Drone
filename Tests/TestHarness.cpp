@@ -18,8 +18,8 @@ namespace
 namespace sim::test {
 
 /*
-Verifie une condition et journalise explicitement le succes ou l'echec ;
-l'echec est compte dans l'etat d'instance du runner (failures_).
+Checks a condition and explicitly logs the success or failure; the failure is
+counted in the runner instance state (failures_).
 */
 void TestHarness::check(bool condition, std::string_view label)
 {
@@ -49,8 +49,8 @@ void TestHarness::log_step(const Aircraft& aircraft) const
 }
 
 /*
-Variante a horodatage explicite : utilisee par les scenarios autonomes qui
-avancent leur boucle de controle manuellement, sans passer par run().
+Variant with an explicit timestamp: used by the autonomous scenarios which
+advance their control loop manually, without going through run().
 */
 void TestHarness::log_step(const Aircraft& aircraft, double time_seconds) const
 {
@@ -70,11 +70,11 @@ void TestHarness::log_step(const Aircraft& aircraft, double time_seconds) const
 }
 
 /*
-Avance la simulation de durationSecondes sur l'aeronef passe, en suivant le temps
-simule et le nombre de pas dans l'etat d'instance, et en loggant periodiquement
-l'etat au rythme defini par HarnessConfig::log_interval_steps. Un log final est
-emis uniquement si le dernier pas n'a pas deja ete logge par la periodicite
-(sinon la derniere ligne du tableau serait dupliquee).
+Advances the simulation by durationSeconds on the given aircraft, tracking the
+simulated time and step count in the instance state, and periodically logging
+the state at the rate defined by HarnessConfig::log_interval_steps. A final log
+is emitted only if the last step was not already logged by the periodicity
+(otherwise the last table row would be duplicated).
 */
 void TestHarness::run(Aircraft& aircraft, double duration_seconds)
 {
@@ -99,9 +99,9 @@ void TestHarness::run(Aircraft& aircraft, double duration_seconds)
 }
 
 /*
-Phase commune aux scenarios aeriens : montee rapide pour prendre de l'altitude.
-Le temps simule est suivi en interne par le runner (current_time_), la phase
-n'a donc plus besoin de retourner son instant de fin.
+Phase common to the aerial scenarios: fast climb to gain altitude. The simulated
+time is tracked internally by the runner (current_time_), so the phase no longer
+needs to return its end instant.
 */
 void TestHarness::take_off(Aircraft& aircraft, double target_rpm)
 {
@@ -109,7 +109,7 @@ void TestHarness::take_off(Aircraft& aircraft, double target_rpm)
     run(aircraft, kTakeOffDurationSeconds);
 }
 
-// Reinitialise completement l'etat du runner : compteur d'echecs, temps et pas simules.
+// Fully resets the runner state: failure counter, simulated time and steps.
 void TestHarness::reset()
 {
     failures_ = 0;

@@ -32,10 +32,10 @@ struct MissionRunTrace {
 };
 
 /*
-Avance une mission autonome pas a pas : applique le controleur, integre la
-physique, journalise periodiquement l'etat, trace les transitions de la machine
-a etats et accumule les metriques de poursuite sur l'axe demande. Avec
-stop_on_zone, la boucle s'arrete des que l'appareil tient la zone cible.
+Advances an autonomous mission step by step: applies the controller, integrates
+the physics, periodically logs the state, traces the state machine transitions
+and accumulates tracking metrics on the requested axis. With stop_on_zone, the
+loop stops as soon as the vehicle holds the target zone.
 */
 MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
                             const MissionRunRequest& run);

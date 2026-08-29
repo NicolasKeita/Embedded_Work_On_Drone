@@ -26,9 +26,8 @@ void CommsBus::set_link(bool up, double loss_probability)
 }
 
 /*
-Livraison d'un message : echec si la liaison physique est coupee ou si le tirage
-aleatoire (seede, pour la reproductibilite Monte Carlo) tombe sous le taux de
-perte configure.
+Message delivery: fails if the physical link is down or if the random draw
+(seeded, for Monte Carlo reproducibility) falls below the configured loss rate.
 */
 bool CommsBus::publish(double time)
 {

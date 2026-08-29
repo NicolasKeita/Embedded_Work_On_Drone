@@ -48,9 +48,9 @@ public:
     explicit HealthMonitor(HealthMonitorConfig config = {});
 
     /*
-    Evaluation de sante cote FC2 : timeout heartbeat/comms, validation capteurs
-    et desaccord commande/reponse actionneur. La detection est agnostique : elle
-    ne sait rien des injecteurs de faultes.
+    FC2-side health evaluation: heartbeat/comms timeout, sensor validation and
+    commanded/actual actuator mismatch. Detection is agnostic: it knows nothing
+    about fault injectors.
     */
     [[nodiscard]] HealthReport evaluate(double current_time, const sim::sil::CommsBus& comms,
                                         const sim::sil::SensorTelemetry& telemetry,

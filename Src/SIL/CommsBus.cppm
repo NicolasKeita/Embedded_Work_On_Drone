@@ -20,7 +20,7 @@ public:
 
     void set_link(bool up, double loss_probability);
 
-    // Tente la livraison d'un message horodate ; retourne true si recu par FC2.
+    // Attempts delivery of a timestamped message; returns true when received by FC2.
     [[nodiscard]] bool publish(double time);
 
     [[nodiscard]] bool link_up() const noexcept;

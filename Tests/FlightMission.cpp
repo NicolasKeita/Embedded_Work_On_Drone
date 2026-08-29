@@ -24,9 +24,9 @@ using sim::control::FlightController;
 using sim::control::MissionState;
 
 /*
-Test 4 : mission complete depuis (20, -15, 0) vers (0, 0, 100). Phase 1 : mise
-en station au point (20, -15, 100), phase 2 : station keeping sur la cible
-finale. Valide la sequence d'etats et la convergence globale dans la zone.
+Test 4: full mission from (20, -15, 0) to (0, 0, 100). Phase 1: station keeping
+at point (20, -15, 100), phase 2: station keeping on the final target. Validates
+the state sequence and the overall convergence inside the zone.
 */
 void autonomous_mission(TestHarness& runner, double hover_rpm)
 {

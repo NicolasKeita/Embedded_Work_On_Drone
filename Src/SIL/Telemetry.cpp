@@ -32,8 +32,8 @@ SensorTelemetry make_telemetry(const AircraftState& state)
 }
 
 /*
-Validation de plage (Range Check) : rejet des valeurs NaN et des grandeurs hors
-limites physiques ; c'est cette couche qui invalide un capteur derange.
+Range check: rejection of NaN values and physical out-of-range quantities; this
+layer is what invalidates a disturbed sensor.
 */
 SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidationLimits& limits)
 {
@@ -46,9 +46,9 @@ SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidation
 }
 
 /*
-Corruption capteur cote environnement (effet de l'injecteur vu par les
-consommateurs du bus) : altitude NaN, altitude forcee hors plage ou bruit
-extreme deterministe superpose a la mesure vraie.
+Environment-side sensor corruption (injector effect as seen by bus consumers):
+NaN altitude, forced out-of-range altitude or extreme deterministic noise
+superimposed on the true measurement.
 */
 SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
                                  SensorCorruptionMode   mode,

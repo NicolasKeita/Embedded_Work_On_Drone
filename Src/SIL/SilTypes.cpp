@@ -18,10 +18,10 @@ import Telemetry;
 namespace sim::sil {
 
 /*
-Bilan d'assertion synthetique : succes de la mission, reaction de surete coherente
-avec la faulte (SAFE_MODE pour les faultes critiques, COMPENSATED pour les
-faultes degradantes) et latence de detection bornee, hors faulte actionneur dont
-la detection depend de la dynamique de vol.
+Synthetic assertion summary: mission success, safety reaction consistent with
+the fault (SAFE_MODE for critical faults, COMPENSATED for degrading faults) and
+bounded detection latency, except for the actuator fault whose detection depends
+on the flight dynamics.
 */
 bool SimulationResult::compute_verdict(bool fault_expected) const
 {

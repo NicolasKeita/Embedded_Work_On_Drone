@@ -19,12 +19,12 @@ export struct ControlCommand
 
 export struct AircraftState
 {
-    // Position (metres).
+    // Position (meters).
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
 
-    // Vitesse lineaire (m/s).
+    // Linear velocity (m/s).
     double vx = 0.0;
     double vy = 0.0;
     double vz = 0.0;
@@ -33,11 +33,11 @@ export struct AircraftState
     double pitch = 0.0;
     double roll = 0.0;
 
-    // Vitesse angulaire (rad/s).
+    // Angular velocity (rad/s).
     double pitch_rate = 0.0;
     double roll_rate = 0.0;
 
-    // Etat effectif des actionneurs.
+    // Effective actuator state.
     double actual_rpm = 0.0;
     double actual_left_servo = 0.0;
     double actual_right_servo = 0.0;

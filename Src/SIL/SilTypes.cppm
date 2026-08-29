@@ -40,7 +40,7 @@ struct FaultScenario {
     FaultParameters parameters{};
 };
 
-// Environnement simule que les injecteurs de faultes sont autorises a alterer.
+// Simulated environment that fault injectors are allowed to alter.
 struct SimulationState {
     bool fc1_alive = true;
     bool comms_link_up = true;
@@ -78,7 +78,7 @@ struct SimulationResult {
     [[nodiscard]] bool compute_verdict(bool fault_expected) const;
 };
 
-// Nom lisible d'un type de faulte pour les rapports.
+// Human-readable name of a fault type for reports.
 [[nodiscard]] std::string_view fault_type_name(FaultType type);
 
 }
