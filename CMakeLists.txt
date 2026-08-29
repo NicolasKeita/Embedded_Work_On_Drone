@@ -29,33 +29,33 @@ set(SAFETY_FILES
 # Sources du moteur de fault injection et de simulation SIL (.cppm + .cpp
 # conserves ensemble dans la meme variable).
 set(SIL_FILES
-    Src/SIL/SilTypes.cppm
-    Src/SIL/SilTypes.cpp
-    Src/SIL/Telemetry.cppm
-    Src/SIL/Telemetry.cpp
-    Src/SIL/CommsBus.cppm
-    Src/SIL/CommsBus.cpp
-    Src/SIL/IFaultInjector.cppm
-    Src/SIL/IFaultInjector.cpp
-    Src/SIL/FCFailureInjector.cppm
-    Src/SIL/FCFailureInjector.cpp
-    Src/SIL/CommunicationFaultInjector.cppm
-    Src/SIL/CommunicationFaultInjector.cpp
-    Src/SIL/SensorFaultInjector.cppm
-    Src/SIL/SensorFaultInjector.cpp
-    Src/SIL/ActuatorFaultInjector.cppm
-    Src/SIL/ActuatorFaultInjector.cpp
-    Src/SIL/FaultInjectorFactory.cppm
-    Src/SIL/FaultInjectorFactory.cpp
     Src/SIL/SilRunner.cppm
     Src/SIL/SilRunner.cpp
     Src/SIL/SilRunnerLoop.cpp
     Src/SIL/SilRunnerRun.cpp
-    Src/SIL/SilReportFormat.cppm
-    Src/SIL/SilReportFormat.cpp
-    Src/SIL/SilReporting.cppm
-    Src/SIL/SilReporting.cpp
-    Src/SIL/SilReportingExport.cpp
+    Src/SIL/Core/SilTypes.cppm
+    Src/SIL/Core/SilTypes.cpp
+    Src/SIL/Core/Telemetry.cppm
+    Src/SIL/Core/Telemetry.cpp
+    Src/SIL/Core/CommsBus.cppm
+    Src/SIL/Core/CommsBus.cpp
+    Src/SIL/Faults/IFaultInjector.cppm
+    Src/SIL/Faults/IFaultInjector.cpp
+    Src/SIL/Faults/FCFailureInjector.cppm
+    Src/SIL/Faults/FCFailureInjector.cpp
+    Src/SIL/Faults/CommunicationFaultInjector.cppm
+    Src/SIL/Faults/CommunicationFaultInjector.cpp
+    Src/SIL/Hardware/SensorFaultInjector.cppm
+    Src/SIL/Hardware/SensorFaultInjector.cpp
+    Src/SIL/Hardware/ActuatorFaultInjector.cppm
+    Src/SIL/Hardware/ActuatorFaultInjector.cpp
+    Src/SIL/FaultInjectorFactory.cppm
+    Src/SIL/FaultInjectorFactory.cpp
+    Src/SIL/Reporting/SilReportFormat.cppm
+    Src/SIL/Reporting/SilReportFormat.cpp
+    Src/SIL/Reporting/SilReporting.cppm
+    Src/SIL/Reporting/SilReporting.cpp
+    Src/SIL/Reporting/SilReportingExport.cpp
 )
 
 set(SRC_FILES
@@ -81,18 +81,18 @@ target_sources(HelloWorld
 set(TEST_SIMULATION_FILES
     Tests/TestHarness.cppm
     Tests/TestHarness.cpp
-    Tests/Scenarios.cppm
-    Tests/Scenarios.cpp
-    Tests/ScenarioCatalog.cppm
-    Tests/ScenarioCatalog.cpp
-    Tests/MissionSupport.cppm
-    Tests/MissionSupport.cpp
-    Tests/MissionRunner.cppm
-    Tests/MissionRunner.cpp
-    Tests/FlightScenarios.cppm
-    Tests/FlightScenarios.cpp
-    Tests/FlightMission.cppm
-    Tests/FlightMission.cpp
+    Tests/Scenarios/Scenarios.cppm
+    Tests/Scenarios/Scenarios.cpp
+    Tests/Scenarios/ScenarioCatalog.cppm
+    Tests/Scenarios/ScenarioCatalog.cpp
+    Tests/Mission/MissionSupport.cppm
+    Tests/Mission/MissionSupport.cpp
+    Tests/Mission/MissionRunner.cppm
+    Tests/Mission/MissionRunner.cpp
+    Tests/Scenarios/FlightScenarios.cppm
+    Tests/Scenarios/FlightScenarios.cpp
+    Tests/Mission/FlightMission.cppm
+    Tests/Mission/FlightMission.cpp
 )
 
 # Exercice de validation des scenarios A a J (etapes 5 et 6).
@@ -109,9 +109,9 @@ target_sources(test_simulation
 
 # Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11).
 set(TEST_SIL_FILES
-    Tests/SilScenarios.cppm
-    Tests/SilScenarios.cpp
-    Tests/SilScenariosSafety.cpp
+    Tests/Sil/SilScenarios.cppm
+    Tests/Sil/SilScenarios.cpp
+    Tests/Sil/SilScenariosSafety.cpp
 )
 
 add_executable(test_sil Tests/test_sil.cpp)
