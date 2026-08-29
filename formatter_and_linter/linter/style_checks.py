@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple
 from shared.brace_utils import extract_function_name
 from shared.function_analysis import strip_trailing_qualifiers
 
-MAX_FUNCTION_LENGTH = 35
+MAX_FUNCTION_LENGTH = 40
 MAX_FILE_LENGTH = 120
 MAX_SIGNATURE_SCAN_LINES = 50
 

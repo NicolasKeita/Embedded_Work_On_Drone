@@ -20,6 +20,7 @@ set(CONTROL_FILES
 set(SAFETY_FILES
     Src/Safety/HealthMonitor.cppm
     Src/Safety/HealthMonitor.cpp
+    Src/Safety/HealthMonitor-Evaluate.cpp
     Src/Safety/HealthMonitorReport.cpp
     Src/Safety/HealthMonitorNames.cpp
     Src/Safety/SafetyManager.cppm
@@ -77,6 +78,7 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/Scenarios-Catalog.cpp
     Tests/Mission/MissionRunner.cppm
     Tests/Mission/MissionRunner-Runner.cpp
+    Tests/Mission/MissionRunner-Loop.cpp
     Tests/Mission/MissionRunner-Support.cpp
     Tests/Scenarios/FlightScenarios.cppm
     Tests/Scenarios/FlightScenarios-Axes.cpp

@@ -91,6 +91,10 @@ private:
     ServoMix updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const;
     ControlCommand station_keeping_command(const TargetState& t, const AircraftState& a,
                                            double dt);
+    ControlCommand takeoff_command(const AircraftState& actual);
+    ControlCommand climb_command(const TargetState& target, const AircraftState& actual, double dt);
+    ControlCommand station_keeping_step(const TargetState& target, const AircraftState& actual,
+                                        double dt);
     [[nodiscard]] bool inside_target_zone(const TargetState& t, const AircraftState& a) const;
 
     ControllerConfig config_;

@@ -61,6 +61,13 @@ public:
 private:
     void raise(FaultDomain domain, double time);
 
+    void update_comms_flags(double current_time, const sim::sil::CommsBus& comms);
+
+    void update_sensor_flags(double current_time, const sim::sil::SensorTelemetry& telemetry);
+
+    void update_actuator_flags(double current_time, const sim::sil::SensorTelemetry& telemetry,
+                               double commanded_rpm);
+
     [[nodiscard]] static std::size_t domain_index(FaultDomain domain);
 
     [[nodiscard]] static HealthState compute_state(const std::array<FaultFlag, 4>& flags);

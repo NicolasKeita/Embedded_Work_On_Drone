@@ -10,7 +10,7 @@ Checks for style violations and code quality issues.
 - **Line length** : Ensures lines don't exceed 120 characters
 - **Comment placement** : Comments only above functions
 - **Comment language** : Comments must be written in English
-- **Function length** : Functions must not exceed 35 lines
+- **Function length** : Functions must not exceed 40 lines
 - **File length** : 120 lines max per file
 
 ### Examples

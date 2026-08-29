@@ -71,3 +71,20 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
 
 }
 
+namespace sim::test {
+
+/*
+Prints one timestamped state row of the aircraft during mission runs.
+*/
+void print_state_row(const Aircraft& aircraft, double timeSeconds);
+
+/*
+Executes the step-by-step simulation loop: applies the controller, integrates
+the physics, periodically logs the state, traces the transitions and accumulates
+the tracking metrics on the requested axis. Closes the metrics when finished.
+*/
+void run_control_loop(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run,
+                      MissionRunTrace& trace, double direction, double target_value);
+
+}
+

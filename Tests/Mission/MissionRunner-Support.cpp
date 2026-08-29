@@ -15,6 +15,21 @@ import FlightController;
 
 namespace sim::test {
 
+// Prints one timestamped state row of the aircraft during mission runs.
+void print_state_row(const Aircraft& aircraft, double timeSeconds)
+{
+    const AircraftState& s = aircraft.state();
+    std::cout << std::fixed << std::setw(9) << std::setprecision(2) << timeSeconds;
+    std::cout << "   " << std::setprecision(3) << std::setw(11) << s.x
+              << std::setw(11) << s.y << std::setw(11) << s.z;
+    std::cout << "   " << std::setw(11) << s.vx << std::setw(11) << s.vy
+              << std::setw(11) << s.vz;
+    std::cout << "   " << std::setprecision(2) << std::setw(11) << s.pitch * 180.0 / std::numbers::pi
+              << std::setw(11) << s.roll * 180.0 / std::numbers::pi;
+    std::cout << "   " << std::setprecision(0) << std::setw(11) << s.actual_rpm
+              << std::defaultfloat << std::endl;
+}
+
 double MissionMetrics::overshoot_percent() const noexcept
 {
     return initial_gap > 0.0 ? 100.0 * overshoot_units / initial_gap : 0.0;
