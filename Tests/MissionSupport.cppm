@@ -1,6 +1,6 @@
 /*
 Filename: Tests/MissionSupport.cppm
-Description: Tracking metrics, state naming and reporting helpers for autonomous flight scenarios.
+Description: Tracking metrics and reporting helpers for autonomous flight scenarios.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -32,9 +32,6 @@ struct MissionMetrics {
 
 // Composante de la consigne cible associee a l'axe de suivi demande.
 [[nodiscard]] double component_value(const sim::control::TargetState& target, TrackingAxis axis);
-
-// Nom lisible d'un etat de mission pour la journalisation.
-[[nodiscard]] std::string_view mission_state_name(sim::control::MissionState state);
 
 /*
 Affiche les indicateurs de poursuite : temps d'entree dans la tolerance,

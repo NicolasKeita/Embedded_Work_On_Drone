@@ -40,17 +40,6 @@ double component_value(const sim::control::TargetState& target, TrackingAxis axi
     return 0.0;
 }
 
-std::string_view mission_state_name(sim::control::MissionState state)
-{
-    switch (state) {
-    case sim::control::MissionState::TAKEOFF: return "TAKEOFF";
-    case sim::control::MissionState::CLIMB: return "CLIMB";
-    case sim::control::MissionState::STATION_KEEPING: return "STATION_KEEPING";
-    case sim::control::MissionState::COMPLETE: return "COMPLETE";
-    }
-    return "UNKNOWN";
-}
-
 void print_metrics_report(std::string_view label, const MissionMetrics& metrics)
 {
     std::cout << "  Metriques de poursuite (" << label << ") :" << std::endl;

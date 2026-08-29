@@ -101,4 +101,7 @@ private:
     double station_hold_timer_{0.0};
 };
 
+// Nom lisible d'un etat de mission pour la journalisation.
+[[nodiscard]] std::string_view mission_state_name(MissionState state);
+
 }

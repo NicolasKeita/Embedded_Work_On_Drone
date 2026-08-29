@@ -1,0 +1,6 @@
+name;fault_type;start_time;duration;mission_success;mission_aborted;final_state;final_health;final_safety_mode;fault_detected;fault_injected_time;detection_time;recovery_time;detection_latency;response_latency;max_position_error;max_altitude_error;final_altitude;failure_reason;passed
+SIL-001;NOMINAL;0;0;1;0;COMPLETE;HEALTHY;NORMAL;0;-1;-1;-1;-1;-1;0;9.99932;9.9021;;1
+SIL-002;FC1_FAILURE;30;0;0;1;COMPLETE;SAFE;SAFE_MODE;1;30;30.09;-1;0.09;0;0;10;0;Safe mode engage : FC1_HEARTBEAT_TIMEOUT;1
+SIL-003;COMMUNICATION_LOSS;30;0;0;1;COMPLETE;SAFE;SAFE_MODE;1;30;30;-1;0;0;0;10;0;Safe mode engage : COMMUNICATION_LOST;1
+SIL-004;SENSOR_FAULT;20;10;1;0;COMPLETE;HEALTHY;NORMAL;1;20;20;30;0;0;0;9.99932;9.90144;;1
+SIL-005;ACTUATOR_DEGRADATION;15;0;0;0;STATION_KEEPING;DEGRADED;COMPENSATED;1;15.01;15.53;-1;0.52;0;0;9.99932;12.3276;;1

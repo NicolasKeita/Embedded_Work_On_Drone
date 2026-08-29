@@ -77,4 +77,21 @@ ControlCommand FlightController::update(const TargetState&   target,
     }
 
     return ControlCommand{};
-}}
+}
+
+std::string_view mission_state_name(MissionState state)
+{
+    switch (state) {
+    case MissionState::TAKEOFF:
+        return "TAKEOFF";
+    case MissionState::CLIMB:
+        return "CLIMB";
+    case MissionState::STATION_KEEPING:
+        return "STATION_KEEPING";
+    case MissionState::COMPLETE:
+        return "COMPLETE";
+    }
+    return "UNKNOWN";
+}
+
+}
