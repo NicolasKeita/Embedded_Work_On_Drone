@@ -55,6 +55,18 @@ def print_comment_language_warnings(violations: List[Tuple[int, str]]) -> None:
         print(f"⚠️  Line {line_num}: Comment must be written in English (detected: {detected_language})", file=sys.stderr)
 
 
+def print_directory_file_count_warnings(
+    violations: List[Tuple[str, int]],
+    max_files: int
+) -> None:
+    for directory, file_count in violations:
+        print(
+            f"⚠️  Directory '{directory}' contains {file_count} source files (max: {max_files}). "
+            "Split it into subdirectories.",
+            file=sys.stderr
+        )
+
+
 def print_cppm_interface_warnings(
     violations: List[Tuple[str, int, int]],
     file_path: str

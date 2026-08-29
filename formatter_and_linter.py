@@ -110,6 +110,18 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
     return has_long_lines
 
 
+def check_directory_structure() -> bool:
+    directory_violations = linter.check_directory_file_counts(
+        ["Src", "Tests"],
+        max_files=linter.MAX_FILES_PER_DIRECTORY,
+    )
+    linter.print_directory_file_count_warnings(
+        directory_violations,
+        linter.MAX_FILES_PER_DIRECTORY,
+    )
+    return len(directory_violations) > 0
+
+
 def main() -> NoReturn:
     in_place, check_only, recursive, input_files = file_handler.parse_arguments()
 
@@ -137,6 +149,11 @@ def main() -> NoReturn:
 
     has_any_long_lines = False
 
+    if check_only or recursive:
+        has_directory_violations = check_directory_structure()
+    else:
+        has_directory_violations = False
+
     if not check_only and not recursive:
         print("Renaming files to PascalCase...")
         rename_files_to_pascal_case("Src")
@@ -146,12 +163,12 @@ def main() -> NoReturn:
         if has_long_lines:
             has_any_long_lines = True
 
-    if has_any_long_lines:
+    if has_any_long_lines or has_directory_violations:
         print("\n[FAIL] Style issues detected!")
     else:
         print("\n[PASS] All files pass style checks!")
 
-    exit_code = 1 if has_any_long_lines else 0
+    exit_code = 1 if (has_any_long_lines or has_directory_violations) else 0
     sys.exit(exit_code)
 
 
