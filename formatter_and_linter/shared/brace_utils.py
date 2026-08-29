@@ -26,9 +26,39 @@ def is_control_structure(line: str) -> bool:
     return False
 
 
+def _find_first_outer_paren(text: str) -> int:
+    """
+    Return the index of the first '(' that is not inside a string or char
+    literal, or -1 when the text has none.
+    """
+    in_string = False
+    string_char = ''
+    i = 0
+    length = len(text)
+    while i < length:
+        char = text[i]
+        if in_string:
+            if char == '\\':
+                i += 2
+                continue
+            if char == string_char:
+                in_string = False
+            i += 1
+            continue
+        if char in ('"', "'"):
+            in_string = True
+            string_char = char
+            i += 1
+            continue
+        if char == '(':
+            return i
+        i += 1
+    return -1
+
+
 def extract_function_name(line: str) -> Optional[str]:
     stripped = line.strip()
-    paren_pos = stripped.find('(')
+    paren_pos = _find_first_outer_paren(stripped)
     if paren_pos == -1:
         return None
     before_paren = stripped[:paren_pos].rstrip()

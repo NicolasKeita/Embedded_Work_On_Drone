@@ -42,7 +42,9 @@ Enum declarations (enum, enum class, enum struct) are never compacted: every
 enumerator stays on its own line. A logical chain written with '&&' / '||'
 across several lines is joined only when it holds a single operator (e.g.
 'if (a\n    && b) {'); when it holds several operators each condition keeps its
-own line.
+own line. A statement wrapped over several lines (e.g. a std::array initialized
+with '{{ ... }}' or a long call) is left completely untouched when the whole
+statement, joined back onto one line, would exceed max_length.
 """
 
 import re
@@ -333,6 +335,55 @@ def _init_list_mask(lines: List[str]) -> List[bool]:
     return mask
 
 
+def _is_statement_continuation(line_a: str, line_b: str) -> bool:
+    """Return True when two consecutive lines belong to the same wrapped statement."""
+    a = line_a.rstrip()
+    b = line_b.strip()
+    if not a or not b:
+        return False
+    if a.lstrip().startswith("#") or b.startswith("#"):
+        return False
+    if _has_line_comment(a) or _has_line_comment(b):
+        return False
+    return _ends_with_trigger(a) or _starts_with_trigger(b)
+
+
+def _oversized_statement_mask(
+    lines: List[str],
+    max_length: int,
+    protected_base: List[bool],
+    stream_mask: List[bool],
+) -> List[bool]:
+    """
+    Mark every line of a multi-line statement whose fully-joined length exceeds
+    max_length (e.g. a std::array '{{ ... }}' block or a long call). Such
+    statements are left completely untouched: neither the individual lines nor
+    partial prefixes are joined. Statements that fit within max_length when
+    joined are left free so the usual per-line merging applies.
+    """
+    mask = [False] * len(lines)
+    total = len(lines)
+    i = 0
+    while i < total:
+        if protected_base[i] or stream_mask[i]:
+            i += 1
+            continue
+        j = i
+        while j + 1 < total and not protected_base[j + 1] and not stream_mask[j + 1]:
+            if not _is_statement_continuation(lines[j], lines[j + 1]):
+                break
+            j += 1
+        if j > i:
+            joined = lines[i].rstrip()
+            for k in range(i + 1, j + 1):
+                joined += " " + lines[k].strip()
+            if len(joined) > max_length:
+                for k in range(i, j + 1):
+                    mask[k] = True
+        i = j + 1
+    return mask
+
+
 def _can_join_line(line_n: str, line_next: str, n_protected: bool, m_protected: bool, max_length: int) -> bool:
     n = line_n.rstrip()
     m = line_next.strip()
@@ -391,14 +442,20 @@ def _join_lines_pass(lines: List[str], max_length: int) -> List[str]:
     logical_mask = _logical_chain_mask(lines)
     enum_mask = _enum_mask(lines)
     init_list_mask = _init_list_mask(lines)
+    protected_base_mask = [
+        block_mask[i] or signature_mask[i] or logical_mask[i] or enum_mask[i] or init_list_mask[i]
+        for i in range(len(lines))
+    ]
+    stream_mask = [has_stream_operators(line) for line in lines]
+    oversized_mask = _oversized_statement_mask(lines, max_length, protected_base_mask, stream_mask)
     result: List[str] = []
     i = 0
     total = len(lines)
     while i < total:
-        n_protected = block_mask[i] or signature_mask[i] or logical_mask[i] or enum_mask[i] or init_list_mask[i]
+        n_protected = protected_base_mask[i] or stream_mask[i] or oversized_mask[i]
         m_protected = (
             i + 1 < total
-            and (block_mask[i + 1] or signature_mask[i + 1] or logical_mask[i + 1] or enum_mask[i + 1] or init_list_mask[i + 1])
+            and (protected_base_mask[i + 1] or stream_mask[i + 1] or oversized_mask[i + 1])
         )
         if (
             i + 1 < total

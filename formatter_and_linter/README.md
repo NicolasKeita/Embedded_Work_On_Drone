@@ -41,9 +41,7 @@ Automatically formats C++ code according to defined rules.
 - Function braces on new line
 - Proper spacing between functions
 - Line joining: merges statements wrapped over several lines back onto a single
-  line when the combined line fits within 120 characters. Multi-line function
-  signatures, enum declarations, stream statements ('std::cout' chained with
-  '<<') and multi-condition '&&' / '||' chains are kept as-is.
+  line when the combined line fits within 120 characters.
 
 ### Examples
 

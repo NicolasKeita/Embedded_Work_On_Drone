@@ -274,6 +274,54 @@ def test_single_member_constructor_initializer_is_kept():
     assert join_lines(code) == code
 
 
+def test_braced_array_statement_over_limit_is_kept_whole():
+    code = (
+        "const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{\n"
+        "    {'a', \"Repos (RPM = 0, servos = 0)\", scenarios::rest},\n"
+        "    {'b', \"Montee (RPM > hover)\", scenarios::climb},\n"
+        "    {'c', \"Descente (RPM < hover)\", scenarios::descent},\n"
+        "    {'d', \"Deplacement X (hover + pitch > 0)\", scenarios::move_x},\n"
+        "    {'e', \"Deplacement Y (hover + roll > 0)\", scenarios::move_y},\n"
+        "    {'f', \"Combine (RPM > hover, pitch > 0, roll < 0)\", scenarios::combined},\n"
+        "    {'g', \"Autonomie : altitude pure (z -> 100 m)\", flight_scenarios::autonomous_altitude},\n"
+        "    {'h', \"Autonomie : axe X en cascade (x 20 -> 0)\", flight_scenarios::autonomous_position_x},\n"
+        "    {'i', \"Autonomie : axe Y en cascade (y -15 -> 0)\", flight_scenarios::autonomous_position_y},\n"
+        "    {'j', \"Autonomie : mission complete (TAKEOFF a COMPLETE)\", flight_scenarios::autonomous_mission},\n"
+        "}};\n"
+    )
+    assert join_lines(code) == code
+
+
+def test_braced_statement_whose_whole_join_exceeds_limit_is_kept():
+    code = (
+        "std::vector<std::string> labels = {\n"
+        "    \"alpha beta gamma delta epsilon zeta eta theta iota kappa lambda\",\n"
+        "    \"one two three four five six seven eight nine ten eleven twelve\",\n"
+        '    "final entry with some extra padding to be sure OK"};\n'
+    )
+    assert join_lines(code) == code
+
+
+def test_braced_statement_within_limit_is_joined():
+    code = (
+        "const std::array<int, 3> values = {\n"
+        "    10,\n"
+        "    20,\n"
+        "    30};\n"
+    )
+    expected = "const std::array<int, 3> values = { 10, 20, 30};\n"
+    assert join_lines(code) == expected
+
+
+def test_braced_call_with_inner_braced_init_above_limit_is_kept():
+    code = (
+        "    run_mission(controller, aircraft,\n"
+        "                {.target = {.z = 100.0}, .duration = 90.0,\n"
+        "                 .axis = TrackingAxis::z_axis, .tolerance = 2.0});\n"
+    )
+    assert join_lines(code) == code
+
+
 def test_plain_enum_after_code_is_preserved():
     code = (
         "    int value = 5;\n"
@@ -567,11 +615,7 @@ def test_wrapped_call_above_limit_stays_split():
         "                    {.target = {.z = 100.0}, .duration = 90.0,\n"
         "                     .axis = TrackingAxis::z_axis, .tolerance = 2.0});\n"
     )
-    out = join_lines(code)
-    first = out.splitlines()[0]
-    assert first == "    const MissionRunTrace trace = run_mission(controller, aircraft,"
-    assert len(out.splitlines()[1]) <= 120
-    assert len(out.splitlines()) == 2
+    assert join_lines(code) == code
 
 
 def test_semicolon_only_on_next_line_is_joined():
