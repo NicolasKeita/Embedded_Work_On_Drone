@@ -45,8 +45,8 @@ struct SilConfig {
 };
 
 /*
-Orchestrateur SIL : boucle temporelle synchrone a pas constant reliant toute la
-chaine Aircraft -> FaultInjector -> Sensors/Comms -> FC1/FC2 -> HealthMonitor ->
+SIL orchestrator: synchronous fixed-time-step loop linking the whole chain
+Aircraft -> FaultInjector -> Sensors/Comms -> FC1/FC2 -> HealthMonitor ->
 SafetyManager -> Actuators.
 */
 class SILRunner {
