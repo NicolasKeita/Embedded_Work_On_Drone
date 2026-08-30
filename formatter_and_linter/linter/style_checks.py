@@ -6,6 +6,7 @@ Checks for style violations in C++ code: line length, file length and
 function length.
 """
 
+import re
 from typing import List, Optional, Tuple
 
 from shared.brace_utils import extract_function_name
@@ -23,6 +24,166 @@ def check_line_length(code: str, max_length: int = 120) -> List[Tuple[int, int]]
         if len(line) > max_length:
             long_lines.append((i, len(line)))
     return long_lines
+
+
+_NON_DECLARATION_KEYWORD_RE = re.compile(
+    r'^(?:return|throw|break|continue|goto|case|default|'
+    r'delete|new|sizeof|static_assert|'
+    r'using|typedef|namespace|class|struct|enum|union|'
+    r'import|module|'
+    r'if|for|while|switch|catch|else|do|try)\b'
+)
+
+_COMPOUND_ASSIGN_RE = re.compile(r'(?:[-+*/%&|^]=|<<=|>>=)')
+
+
+def _find_head(line: str) -> str:
+    """
+    Return the part of the line before the first top-level '=' (standalone,
+    not comparison or compound assignment), '{' or ';'. Parenthesis depth is
+    tracked so that '=' or '{' inside function calls or nested initializers
+    are ignored.
+    """
+    depth = 0
+    i = 0
+    length = len(line)
+    while i < length:
+        char = line[i]
+        if char == '(':
+            depth += 1
+        elif char == ')':
+            if depth > 0:
+                depth -= 1
+        elif depth == 0:
+            if char == '=':
+                if i + 1 < length and line[i + 1] == '=':
+                    i += 2
+                    continue
+                if i > 0 and line[i - 1] in '!<>':
+                    i += 1
+                    continue
+                return line[:i].strip()
+            if char == '{':
+                return line[:i].strip()
+            if char == ';':
+                return line[:i].strip()
+        i += 1
+    return line.strip()
+
+
+def _is_declaration_line(masked_stripped: str) -> bool:
+    """
+    Check whether a code line (strings/comments already masked, whitespace
+    stripped) is a local variable declaration or initialisation.
+    """
+    if _NON_DECLARATION_KEYWORD_RE.match(masked_stripped):
+        return False
+
+    if '<<' in masked_stripped or '>>' in masked_stripped:
+        return False
+
+    if _COMPOUND_ASSIGN_RE.search(masked_stripped):
+        return False
+
+    head = _find_head(masked_stripped)
+    tokens = head.split()
+    if len(tokens) < 2:
+        return False
+
+    first_token = tokens[0]
+    if '.' in first_token or '[' in first_token or '(' in first_token:
+        return False
+
+    return True
+
+
+def _scan_body_for_declaration_block(
+    lines: List[str],
+    brace_line_index: int,
+    in_block_comment: bool,
+) -> Optional[int]:
+    """
+    Scan the function body starting after the opening brace at brace_line_index.
+    Return the 0-based line index of the last declaration in the first block
+    when a blank line is missing after it, or None when the rule is satisfied
+    or no declaration block is present.
+    """
+    body_idx = brace_line_index + 1
+
+    while body_idx < len(lines):
+        masked, in_block_comment = _mask_strings_and_comments(lines[body_idx], in_block_comment)
+        if masked.strip() == '':
+            body_idx += 1
+            continue
+        break
+
+    if body_idx >= len(lines):
+        return None
+
+    first_masked, in_block_comment = _mask_strings_and_comments(lines[body_idx], in_block_comment)
+    if not _is_declaration_line(first_masked.strip()):
+        return None
+
+    group_end = body_idx + 1
+    while group_end < len(lines):
+        next_masked, in_block_comment = _mask_strings_and_comments(lines[group_end], in_block_comment)
+        next_stripped = next_masked.strip()
+        if not next_stripped:
+            break
+        if not _is_declaration_line(next_stripped):
+            break
+        group_end += 1
+
+    if group_end >= len(lines):
+        return None
+
+    if lines[group_end].strip() == '':
+        return None
+
+    return group_end - 1
+
+
+def check_blank_line_after_initialization(code: str) -> List[Tuple[str, int, int]]:
+    """
+    Detect functions where the first block of local variable declarations is not
+    separated from the following statements by a blank line.
+
+    Returns a list of (function_name, function_start_line, last_declaration_line)
+    tuples (1-based line numbers).
+    """
+    lines = code.splitlines()
+    violations: List[Tuple[str, int, int]] = []
+    in_block_comment = False
+    paren_depth = 0
+    scope_depth = 0
+
+    for line_index, raw_line in enumerate(lines):
+        masked_line, in_block_comment = _mask_strings_and_comments(raw_line, in_block_comment)
+        if masked_line.strip().startswith('#'):
+            continue
+
+        for char_index, char in enumerate(masked_line):
+            if char == '(':
+                paren_depth += 1
+            elif char == ')':
+                if paren_depth > 0:
+                    paren_depth -= 1
+            elif char == '{' and paren_depth == 0:
+                opening = _find_function_opening(lines, line_index, masked_line[:char_index])
+                scope_depth += 1
+                if opening is not None:
+                    func_name, start_line = opening
+                    last_decl = _scan_body_for_declaration_block(
+                        lines, line_index, in_block_comment
+                    )
+                    if last_decl is not None:
+                        violations.append((func_name, start_line + 1, last_decl + 1))
+            elif char == '}' and paren_depth == 0:
+                if scope_depth > 0:
+                    scope_depth -= 1
+
+    return violations
+
 
 
 def check_file_length(code: str, max_lines: int = MAX_FILE_LENGTH) -> Tuple[bool, int]:

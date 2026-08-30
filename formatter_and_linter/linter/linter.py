@@ -20,6 +20,7 @@ from linter.style_checks import (
     check_line_length,
     check_file_length,
     check_function_length,
+    check_blank_line_after_initialization,
 )
 from linter.cppm_checks import (
     MAX_CPPM_INLINE_BODY_LINES,
@@ -39,6 +40,7 @@ from linter.reporting import (
     print_comment_language_warnings,
     print_file_length_warning,
     print_function_length_warnings,
+    print_blank_line_after_initialization_warnings,
     print_cppm_interface_warnings,
     print_directory_file_count_warnings,
     print_module_filename_warnings,
@@ -59,22 +61,24 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         )
         if has_issues:
             print_issue_header(file_path)
-
         print_cppm_interface_warnings(cppm_violations, file_path)
         print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
         print_comment_language_warnings(language_violations)
+
         return has_issues
 
     long_lines = check_line_length(code, max_length)
     comments, function_lines = detect_comments_and_functions(code)
     invalid_comments = check_comment_placement(comments, function_lines)
     long_functions = check_function_length(code, max_lines=MAX_FUNCTION_LENGTH)
+    blank_line_violations = check_blank_line_after_initialization(code)
     file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
     language_violations = check_code_comments_language(code)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
         or len(long_functions) > 0
+        or len(blank_line_violations) > 0
         or file_too_long
         or len(language_violations) > 0
     )
@@ -83,6 +87,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_line_length_warnings(long_lines, max_length)
         print_comment_placement_warnings(invalid_comments)
         print_function_length_warnings(long_functions, max_lines=MAX_FUNCTION_LENGTH)
+        print_blank_line_after_initialization_warnings(blank_line_violations)
         print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
         print_comment_language_warnings(language_violations)
 
@@ -97,6 +102,7 @@ __all__ = [
     "check_line_length",
     "check_file_length",
     "check_function_length",
+    "check_blank_line_after_initialization",
     "check_cppm_interface_implementations",
     "check_directory_file_counts",
     "check_module_filename_convention",
@@ -107,6 +113,7 @@ __all__ = [
     "print_comment_language_warnings",
     "print_file_length_warning",
     "print_function_length_warnings",
+    "print_blank_line_after_initialization_warnings",
     "print_cppm_interface_warnings",
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",

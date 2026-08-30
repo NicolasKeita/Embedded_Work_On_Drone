@@ -26,6 +26,7 @@ import formatter.short_if_formatter as short_if_formatter
 import formatter.brace_formatter as brace_formatter
 import formatter.module_formatter as module_formatter
 import formatter.prototype_spacing as prototype_spacing
+import formatter.initialization_block_formatter as initialization_block_formatter
 from formatter.join_lines import join_lines
 
 
@@ -88,6 +89,8 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
         formatted_code = brace_formatter.format_control_structure_braces(formatted_code)
 
         formatted_code = brace_formatter.format_function_braces(formatted_code)
+
+        formatted_code = initialization_block_formatter.format_initialization_blocks(formatted_code)
 
         formatted_code = module_formatter.reorder_using_after_prototypes(formatted_code)
 

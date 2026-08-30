@@ -72,6 +72,17 @@ def print_module_filename_warnings(violations: List[Tuple[str, str]]) -> None:
         print(f"⚠️  '{file_path}': {message}", file=sys.stderr)
 
 
+def print_blank_line_after_initialization_warnings(
+    violations: List[Tuple[str, int, int]],
+) -> None:
+    for func_name, func_start, last_decl_line in violations:
+        print(
+            f"⚠️  Function '{func_name}' at line {func_start}: missing blank line "
+            f"after first declaration block (last declaration at line {last_decl_line})",
+            file=sys.stderr,
+        )
+
+
 def print_cppm_interface_warnings(
     violations: List[Tuple[str, int, int]],
     file_path: str
