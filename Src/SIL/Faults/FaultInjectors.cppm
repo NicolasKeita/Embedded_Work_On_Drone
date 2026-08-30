@@ -62,11 +62,8 @@ fault types and out-of-range scenario parameters yield typed errors.
 namespace sim::sil {
 
 void inject_fc1_failure(const FaultScenario& scenario, SimulationState& state);
-
 void inject_communication_fault(const FaultScenario& scenario, SimulationState& state);
-
 void inject_sensor_fault(const FaultScenario& scenario, SimulationState& state);
-
 void inject_actuator_fault(const FaultScenario& scenario, SimulationState& state);
 
 }

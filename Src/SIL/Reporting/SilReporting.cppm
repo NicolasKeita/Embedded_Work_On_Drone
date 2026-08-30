@@ -34,19 +34,12 @@ struct SilReportOptions {
 };
 
 [[nodiscard]] std::string_view yes_no(bool value) noexcept;
-
 void write_seconds(std::ostream& out, double value);
-
 void write_metric(std::ostream& out, double value);
-
 void write_json_escaped(std::ostream& out, std::string_view text);
-
 void write_csv_escaped(std::ostream& out, std::string_view text);
-
 void write_markdown_report(std::ostream& out, std::span<const ScenarioRecord> records);
-
 void write_json_payload(std::ostream& out, std::span<const ScenarioRecord> records);
-
 void write_csv_payload(std::ostream& out, std::span<const ScenarioRecord> records);
 
 /*

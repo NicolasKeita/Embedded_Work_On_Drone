@@ -57,6 +57,13 @@ class TestCheckCommentLanguage(unittest.TestCase):
             "Description: Actuator fault injection implementation.\n*/"
         ))
 
+    def test_french_comment_dominated_by_technical_identifiers_is_invalid(self):
+        self.assertFalse(check_comment_language(
+            "/*\nOrchestrateur SIL : boucle temporelle synchrone a pas constant reliant toute la\n"
+            "chaine Aircraft -> FaultInjector -> Sensors/Comms -> FC1/FC2 -> HealthMonitor ->\n"
+            "SafetyManager -> Actuators.\n*/"
+        ))
+
     def test_paths_and_underscores_are_split(self):
         self.assertTrue(check_comment_language("// See helpers/scenarios for details"))
 

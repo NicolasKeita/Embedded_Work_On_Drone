@@ -3,8 +3,11 @@
 Comment Language Check
 
 Detects non-English comments in C++ code using the lingua language
-detector. Comments are cleaned before detection, comments with fewer
-than three significant words are accepted by default, and a confidence
+detector. Comments are cleaned before detection: identifier-like
+tokens (camelCase class names, all-caps acronyms and tokens carrying
+digits) are removed because they are not natural language and would
+otherwise skew the statistics. Comments with fewer than three
+significant words are accepted by default, and a confidence
 margin tolerates technical or mixed-language wording. Short comments
 use a relaxed margin because language statistics are weaker on short
 texts. The detector is restricted to the team's common languages and
@@ -39,7 +42,9 @@ _DOC_KEYWORD_PATTERN = re.compile(
     r'@note|@warning|@see|@file|@class|@struct|@function|@throws)\b[:]?'
 )
 _SEPARATOR_CHARS_PATTERN = re.compile(r'[/\\_\-]+')
-_CAMEL_CASE_PATTERN = re.compile(r'(?<=[a-z])(?=[A-Z])')
+_CAMEL_CASE_WORD_PATTERN = re.compile(r'[a-z][A-Z]')
+_ACRONYM_PATTERN = re.compile(r'^[A-Z0-9]+$')
+_DIGIT_PATTERN = re.compile(r'\d')
 _NON_WORD_PATTERN = re.compile(r'[^A-Za-z0-9\s]+')
 _WHITESPACE_PATTERN = re.compile(r'\s+')
 
@@ -117,13 +122,21 @@ def extract_comment_texts(code: str) -> List[Tuple[int, str]]:
     return comments
 
 
+def _is_natural_language_word(token: str) -> bool:
+    return (
+        not _DIGIT_PATTERN.search(token)
+        and not _ACRONYM_PATTERN.match(token)
+        and not _CAMEL_CASE_WORD_PATTERN.search(token)
+    )
+
+
 def _clean_comment_text(comment_text: str) -> str:
     text = _COMMENT_SYNTAX_PATTERN.sub(' ', comment_text)
     text = _DOC_KEYWORD_PATTERN.sub(' ', text)
     text = _SEPARATOR_CHARS_PATTERN.sub(' ', text)
-    text = _CAMEL_CASE_PATTERN.sub(' ', text)
     text = _NON_WORD_PATTERN.sub(' ', text)
-    return _WHITESPACE_PATTERN.sub(' ', text).strip()
+    tokens = [token for token in text.split() if _is_natural_language_word(token)]
+    return _WHITESPACE_PATTERN.sub(' ', ' '.join(tokens)).strip()
 
 
 def _count_significant_words(cleaned_text: str) -> int:
