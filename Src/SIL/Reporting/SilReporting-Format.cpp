@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Reporting/SilReporting-Format.cpp
-Description: Formatting and file writing implementations for SIL reports.
+Description: Allocation-free formatting and file writing implementations for SIL reports.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,69 +12,83 @@ import std;
 
 namespace sim::sil {
 
-std::string format_seconds(double value)
-{
-    std::ostringstream stream;
+namespace {
+constexpr std::streamsize kSecondsPrecision = 3;
+constexpr std::streamsize kMetricPrecision = 2;
 
-    stream << std::fixed << std::setprecision(3) << value;
-    return stream.str();
+/*
+Writes a double into the stream with the requested fixed precision, restoring
+the stream flags afterwards (no dynamic allocation).
+*/
+void write_number(std::ostream& out, double value, std::streamsize precision)
+{
+    const std::ios_base::fmtflags flags = out.flags();
+
+    out << std::fixed << std::setprecision(precision) << value;
+    out.flags(flags);
+}
 }
 
-std::string format_metric(double value)
+/*
+Writes a timestamp value with three decimals into the stream.
+*/
+void write_seconds(std::ostream& out, double value)
 {
-    std::ostringstream stream;
-
-    stream << std::fixed << std::setprecision(2) << value;
-    return stream.str();
+    write_number(out, value, kSecondsPrecision);
 }
 
-std::string json_escape(std::string_view text)
+/*
+Writes a metric value with two decimals into the stream.
+*/
+void write_metric(std::ostream& out, double value)
 {
-    std::string escaped;
+    write_number(out, value, kMetricPrecision);
+}
 
-    escaped.reserve(text.size());
+/*
+Streams the JSON-escaped text (double quotes and backslashes) without building
+any intermediate string.
+*/
+void write_json_escaped(std::ostream& out, std::string_view text)
+{
     for (const char item : text) {
         if (item == '"') {
-            escaped += "\\\"";
+            out << "\\\"";
         }
         else if (item == '\\') {
-            escaped += "\\\\";
+            out << "\\\\";
         }
         else {
-            escaped += item;
+            out << item;
         }
     }
-    return escaped;
 }
 
-std::string csv_escape(std::string_view text)
+/*
+Streams the CSV-escaped text: raw when no separator is present, otherwise
+wrapped in double quotes with internal quotes doubled.
+*/
+void write_csv_escaped(std::ostream& out, std::string_view text)
 {
     if (text.find_first_of(";\"\n") == std::string_view::npos) {
-        return std::string{text};
+        out << text;
+        return;
     }
-    std::string escaped{"\""};
+    out << '"';
     for (const char item : text) {
         if (item == '"') {
-            escaped += "\"\"";
+            out << "\"\"";
         }
         else {
-            escaped += item;
+            out << item;
         }
     }
-    escaped += '"';
-    return escaped;
+    out << '"';
 }
 
-std::string_view yes_no(bool value)
+std::string_view yes_no(bool value) noexcept
 {
     return value ? "oui" : "non";
-}
-
-void write_file(const std::filesystem::path& path, std::string_view content)
-{
-    std::ofstream file{path};
-
-    file << content;
 }
 
 }

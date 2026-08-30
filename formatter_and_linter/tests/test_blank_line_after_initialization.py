@@ -89,6 +89,9 @@ class TestBlankLineAfterInitialization(unittest.TestCase):
             '    int a = 1;',
             '    int b = 2;',
             '',
+            '    return a + b;',
+            '}',
+        ]
         self.assertEqual(check_code(code), [])
 
     def test_mixed_declarations_and_assignments(self):
@@ -119,6 +122,17 @@ class TestBlankLineAfterInitialization(unittest.TestCase):
 
     def test_multiline_signature_with_violation(self):
         code = [
+            'FlightController::Result run(',
+            '    FlightController& ctrl,',
+            '    Aircraft& aircraft)',
+            '{',
+            '    ControlCommand cmd;',
+            '    cmd.wing_rpm = 100;',
+            '    return Result::Success;',
+            '}',
+        ]
+        violations = check_code(code)
+        self.assertEqual(len(violations), 1)
         self.assertEqual(violations[0][0], 'run')
 
     def test_multiline_signature_with_blank_line(self):

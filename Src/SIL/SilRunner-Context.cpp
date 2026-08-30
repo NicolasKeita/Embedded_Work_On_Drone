@@ -36,33 +36,46 @@ SILRunner::RunContext::RunContext(const SilConfig& cfg)
                                  .sensor_limits = cfg.sensor_limits}},
       safety{SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}} {}
 
-SILRunner::RunContext SILRunner::make_context(const SilConfig&                  config,
-                                              const std::vector<FaultScenario>& scenarios)
+/*
+Builds the run context and converts each declarative scenario into a value
+injector inside the fixed-capacity array. Nominal scenarios (None) are skipped,
+unknown or invalid scenarios are rejected with a typed error.
+*/
+std::expected<SILRunner::RunContext, SilError> SILRunner::make_context(const SilConfig&               config,
+                                                                       std::span<const FaultScenario> scenarios)
 {
+    if (scenarios.size() > kMaxFaultInjectors) {
+        return std::unexpected(SilError::TooManyScenarios);
+    }
+
     RunContext ctx{config};
 
-    ctx.injectors.reserve(scenarios.size());
     for (const FaultScenario& scenario : scenarios) {
-        std::unique_ptr<IFaultInjector> injector = make_fault_injector(scenario);
-        if (injector) {
-            ctx.injectors.push_back(std::move(injector));
+        const std::expected<FaultInjector, InjectorError> injector = make_fault_injector(scenario);
+        if (!injector.has_value()) {
+            if (injector.error() == InjectorError::NoFault) {
+                continue;
+            }
+            return std::unexpected(SilError::FaultScenarioRejected);
         }
+        ctx.injectors[ctx.injector_count] = injector.value();
+        ++ctx.injector_count;
     }
     return ctx;
 }
 
 /*
 Injection step: the environment restarts from a nominal state at each step, then
-each polymorphic injector alters the domain it owns. The time of the first
-active fault is recorded in the result.
+each value injector alters the domain it owns. The time of the first active
+fault is recorded in the result.
 */
 void SILRunner::apply_injectors(RunContext& ctx)
 {
     ctx.env = SimulationState{};
     bool injected = false;
-    for (const std::unique_ptr<IFaultInjector>& injector : ctx.injectors) {
-        injector->inject(ctx.env, ctx.time);
-        injected = injected || injector->is_active(ctx.time);
+    for (std::size_t index = 0; index < ctx.injector_count; ++index) {
+        ctx.injectors[index].inject(ctx.env, ctx.time);
+        injected = injected || ctx.injectors[index].is_active(ctx.time);
     }
     if (injected && ctx.result.fault_injected_time < 0.0) {
         ctx.result.fault_injected_time = ctx.time;

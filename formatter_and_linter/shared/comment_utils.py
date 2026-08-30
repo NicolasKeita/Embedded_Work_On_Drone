@@ -42,13 +42,14 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
     function_lines = set()
 
     scoped_name = r'(?:\w+::)*\w+'
+    template_type = r'[\w:]+(?:<[^<>]*>)?'
     function_patterns = [
         r'^\s*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'[\w:]+\s+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
+        + template_type + r'\s+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
         r'^\s*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'(?:[\w:]+\s*[*&]\s+)+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
+        r'(?:' + template_type + r'\s*[*&]\s+)+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
         r'^\s*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'(?:[\w:]+\s*[*&]?\s+)+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
+        r'(?:' + template_type + r'\s*[*&]?\s+)+' + scoped_name + r'\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
         r'^\s*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
         r'\w+\s*::\s*\w+\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)',
         r'^\s*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'

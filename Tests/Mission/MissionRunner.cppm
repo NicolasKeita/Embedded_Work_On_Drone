@@ -19,6 +19,9 @@ export namespace sim::test {
 
 enum class TrackingAxis { x_axis, y_axis, z_axis };
 
+// Fixed capacity of the visited-state trace (no dynamic allocation).
+inline constexpr std::size_t kMaxVisitedStates = 16;
+
 struct MissionMetrics {
     double initial_gap = 0.0;
     double time_within_tolerance = -1.0;
@@ -45,7 +48,7 @@ void print_metrics_report(std::string_view label, const MissionMetrics& metrics)
 Checks that the visited states contain the expected mission flow, in order:
 TAKEOFF then CLIMB then STATION_KEEPING then COMPLETE.
 */
-bool contains_mission_sequence(const std::vector<sim::control::MissionState>& visited);
+bool contains_mission_sequence(std::span<const sim::control::MissionState> visited);
 
 struct MissionRunRequest {
     sim::control::TargetState target;
@@ -56,8 +59,11 @@ struct MissionRunRequest {
 };
 
 struct MissionRunTrace {
-    std::vector<sim::control::MissionState> visited_states;
+    std::array<sim::control::MissionState, kMaxVisitedStates> visited_states{};
+    std::size_t visited_count = 0;
     MissionMetrics metrics;
+
+    void record(sim::control::MissionState state);
 };
 
 /*

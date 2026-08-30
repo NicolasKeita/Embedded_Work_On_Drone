@@ -48,10 +48,20 @@ void autonomous_mission(TestHarness& runner, double hover_rpm)
     print_metrics_report("altitude", trace.metrics);
     const AircraftState& finalState = aircraft.state();
 
-    std::vector<MissionState> visited = approach.visited_states;
-    visited.insert(visited.end(), trace.visited_states.begin(), trace.visited_states.end());
+    std::array<MissionState, kMaxVisitedStates> visited{};
+    std::size_t visitedCount = 0;
 
-    runner.check(contains_mission_sequence(visited), "J1 : sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
+    for (std::size_t i = 0; i < approach.visited_count && visitedCount < visited.size(); ++i) {
+        visited[visitedCount] = approach.visited_states[i];
+        ++visitedCount;
+    }
+    for (std::size_t i = 0; i < trace.visited_count && visitedCount < visited.size(); ++i) {
+        visited[visitedCount] = trace.visited_states[i];
+        ++visitedCount;
+    }
+
+    runner.check(contains_mission_sequence(std::span<const MissionState>{visited.data(), visitedCount}),
+                 "J1 : sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
     runner.check(std::abs(finalState.x) <= 1.0 && std::abs(finalState.y) <= 1.0,
                  "J2 : position horizontale dans la zone cible (+/- 1 m)");
     runner.check(std::abs(finalState.z - 100.0) <= 1.0, "J3 : altitude tenue autour de 100 m (+/- 1 m)");

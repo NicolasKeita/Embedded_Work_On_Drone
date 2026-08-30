@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Faults/FaultInjectors.cppm
-Description: Fault injection family : common interface, timed base, concrete injectors and factory.
+Description: Fault injection family : value-semantic injector, timed activation and validated factory.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -14,75 +14,59 @@ import SilTypes;
 
 export namespace sim::sil {
 
-class IFaultInjector {
+/*
+Typed reasons why a declarative scenario cannot be turned into an injector.
+NoFault is a benign outcome (nominal scenario skipped by callers), the other
+values are real configuration errors.
+*/
+enum class InjectorError {
+    NoFault,
+    UnknownFaultType,
+    InvalidLossProbability,
+    InvalidSensorCorruption,
+    InvalidEfficiency
+};
+
+/*
+Value-semantic fault injector owning one declarative scenario. It replaces the
+former polymorphic hierarchy so that no dynamic allocation is required.
+*/
+class FaultInjector {
 public:
-    virtual ~IFaultInjector() = default;
+    FaultInjector() = default;
+    explicit FaultInjector(const FaultScenario& scenario);
 
     /*
-    Alters only the simulated environment (SimulationState). The injector never
-    communicates directly with the HealthMonitor nor the SafetyManager: fault
-    detection stays agnostic.
+    Alters only the simulated environment (SimulationState) while the timed
+    activation window of the owned scenario is open. The injector never
+    communicates with the HealthMonitor nor the SafetyManager: fault detection
+    stays agnostic.
     */
-    virtual void inject(SimulationState& state, double current_time) = 0;
+    void inject(SimulationState& state, double current_time) const;
 
-    [[nodiscard]] virtual bool is_active(double current_time) const = 0;
+    [[nodiscard]] bool is_active(double current_time) const;
 
-    [[nodiscard]] virtual FaultType fault_type() const = 0;
+private:
+    FaultScenario scenario_{};
 };
 
 /*
-Common base for specialized injectors: timed activation window
-[start_time, start_time + duration), a duration <= 0 meaning active until the
-end of the simulation.
+Single dispatch point turning declarative fault scenarios into value injectors:
+FaultType::None yields InjectorError::NoFault (skipped by callers), unknown
+fault types and out-of-range scenario parameters yield typed errors.
 */
-class TimedFaultInjector : public IFaultInjector {
-public:
-    explicit TimedFaultInjector(const FaultScenario& scenario);
+[[nodiscard]] std::expected<FaultInjector, InjectorError> make_fault_injector(const FaultScenario& scenario);
 
-    [[nodiscard]] bool is_active(double current_time) const override;
+}
 
-    [[nodiscard]] FaultType fault_type() const override;
+namespace sim::sil {
 
-protected:
-    FaultScenario scenario_;
-};
+void inject_fc1_failure(const FaultScenario& scenario, SimulationState& state);
 
-// Fault injector interrupting FC1 heartbeat and status emission (crash / silence).
-class FCFailureInjector final : public TimedFaultInjector {
-public:
-    using TimedFaultInjector::TimedFaultInjector;
+void inject_communication_fault(const FaultScenario& scenario, SimulationState& state);
 
-    void inject(SimulationState& state, double current_time) override;
-};
+void inject_sensor_fault(const FaultScenario& scenario, SimulationState& state);
 
-// Fault injector for total communication cutoff or random packet loss rate.
-class CommunicationFaultInjector final : public TimedFaultInjector {
-public:
-    using TimedFaultInjector::TimedFaultInjector;
-
-    void inject(SimulationState& state, double current_time) override;
-};
-
-// Fault injector corrupting sensor telemetry (out-of-range, NaN or extreme noise).
-class SensorFaultInjector final : public TimedFaultInjector {
-public:
-    using TimedFaultInjector::TimedFaultInjector;
-
-    void inject(SimulationState& state, double current_time) override;
-};
-
-// Fault injector altering actuator dynamics (efficiency loss, thrust reduction).
-class ActuatorFaultInjector final : public TimedFaultInjector {
-public:
-    using TimedFaultInjector::TimedFaultInjector;
-
-    void inject(SimulationState& state, double current_time) override;
-};
-
-/*
-Single dispatch point turning declarative fault scenarios into polymorphic
-injectors; returns nullptr for FaultType::None.
-*/
-[[nodiscard]] std::unique_ptr<IFaultInjector> make_fault_injector(const FaultScenario& scenario);
+void inject_actuator_fault(const FaultScenario& scenario, SimulationState& state);
 
 }

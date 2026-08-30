@@ -20,7 +20,7 @@
     "final_altitude": 9.90,
     "failure_reason": "",
     "passed": true
-  },
+  }
   {
     "name": "SIL-002",
     "fault_type": "FC1_FAILURE",
@@ -42,7 +42,7 @@
     "final_altitude": 0.00,
     "failure_reason": "Safe mode engage : FC1_HEARTBEAT_TIMEOUT",
     "passed": true
-  },
+  }
   {
     "name": "SIL-003",
     "fault_type": "COMMUNICATION_LOSS",
@@ -64,7 +64,7 @@
     "final_altitude": 0.00,
     "failure_reason": "Safe mode engage : COMMUNICATION_LOST",
     "passed": true
-  },
+  }
   {
     "name": "SIL-004",
     "fault_type": "SENSOR_FAULT",
@@ -86,7 +86,7 @@
     "final_altitude": 9.90,
     "failure_reason": "",
     "passed": true
-  },
+  }
   {
     "name": "SIL-005",
     "fault_type": "ACTUATOR_DEGRADATION",
@@ -108,5 +108,5 @@
     "final_altitude": 12.33,
     "failure_reason": "",
     "passed": true
-  }
+  },
 ]

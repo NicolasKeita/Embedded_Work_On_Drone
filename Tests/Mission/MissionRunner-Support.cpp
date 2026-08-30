@@ -15,7 +15,9 @@ import FlightController;
 
 namespace sim::test {
 
-// Prints one timestamped state row of the aircraft during mission runs.
+/*
+Prints one timestamped state row of the aircraft during mission runs.
+*/
 void print_state_row(const Aircraft& aircraft, double timeSeconds)
 {
     const AircraftState& s = aircraft.state();
@@ -73,7 +75,19 @@ void print_metrics_report(std::string_view label, const MissionMetrics& metrics)
     std::cout << std::defaultfloat;
 }
 
-bool contains_mission_sequence(const std::vector<sim::control::MissionState>& visited)
+/*
+Records a visited mission state in the fixed-capacity trace; states beyond the
+capacity are dropped (harness mission flows never exceed it).
+*/
+void MissionRunTrace::record(sim::control::MissionState state)
+{
+    if (visited_count < visited_states.size()) {
+        visited_states[visited_count] = state;
+        ++visited_count;
+    }
+}
+
+bool contains_mission_sequence(std::span<const sim::control::MissionState> visited)
 {
     constexpr std::array<sim::control::MissionState, 4> expected{
         sim::control::MissionState::TAKEOFF, sim::control::MissionState::CLIMB,

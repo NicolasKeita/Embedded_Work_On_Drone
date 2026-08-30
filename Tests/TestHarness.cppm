@@ -25,7 +25,7 @@ public:
 
     // Assertions.
     void check(bool condition, std::string_view label);
-    [[nodiscard]] int failure_count() const noexcept { return failures_; }
+    [[nodiscard]] std::uint32_t failure_count() const noexcept { return failures_; }
     [[nodiscard]] bool passed() const noexcept { return failures_ == 0; }
 
     // Logging & execution.
@@ -40,9 +40,9 @@ public:
 
 private:
     HarnessConfig config_;
-    int failures_{0};
+    std::uint32_t failures_{0};
     double current_time_{0.0};
     std::size_t step_count_{0};
 };
 
-} // namespace sim::test
+}

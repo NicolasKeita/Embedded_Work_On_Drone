@@ -25,6 +25,12 @@ export namespace sim::sil {
 using sim::safety::HealthMonitor;
 using sim::safety::SafetyManager;
 
+// Typed failures of a SIL run (no exception is ever thrown).
+enum class SilError { TooManyScenarios, FaultScenarioRejected };
+
+// Maximum number of fault scenarios a single run can carry (fixed capacity).
+inline constexpr std::size_t kMaxFaultInjectors = 8;
+
 struct SilConfig {
     double dt = 0.01;
     double duration_s = 60.0;
@@ -47,7 +53,11 @@ class SILRunner {
 public:
     explicit SILRunner(SilConfig config = {});
 
-    [[nodiscard]] SimulationResult run(const std::vector<FaultScenario>& scenarios);
+    /*
+    Runs the full simulation for the given fault scenarios and returns the
+    result, or a typed error when the scenario batch cannot be set up.
+    */
+    [[nodiscard]] std::expected<SimulationResult, SilError> run(std::span<const FaultScenario> scenarios);
 
 private:
     struct RunContext {
@@ -60,7 +70,8 @@ private:
         HealthMonitor health;
         SafetyManager safety;
         sim::safety::SafetyCommand safety_command{};
-        std::vector<std::unique_ptr<IFaultInjector>> injectors;
+        std::array<FaultInjector, kMaxFaultInjectors> injectors{};
+        std::size_t injector_count = 0;
         SimulationState env{};
         ControlCommand command{};
         AircraftState fc1_view{};
@@ -72,7 +83,9 @@ private:
         SimulationResult result{};
     };
 
-    [[nodiscard]] static RunContext make_context(const SilConfig& config, const std::vector<FaultScenario>& scenarios);
+    [[nodiscard]] static std::expected<RunContext, SilError> make_context(const SilConfig&                     config,
+                                                                          std::span<const FaultScenario> scenarios);
+    static void execute(RunContext& ctx);
     static void apply_injectors(RunContext& ctx);
     static void update_fc1(RunContext& ctx);
     static void update_monitoring(RunContext& ctx);

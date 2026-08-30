@@ -47,7 +47,7 @@ int Application::RunSimulationDemo() const
     Aircraft aircraft;
     aircraft.set_command({1.2 * hoverRpm, 0.0, 0.0});
 
-    for (int step = 0; step < 300; ++step) {
+    for (std::uint32_t step = 0; step < 300; ++step) {
         aircraft.update(0.01);
 
         if (step % 50 == 0) {
@@ -58,7 +58,7 @@ int Application::RunSimulationDemo() const
     std::cout << "--- Descente : RPM = 0.6 x hover ---" << std::endl;
     aircraft.set_command({0.6 * hoverRpm, 0.0, 0.0});
 
-    for (int step = 0; step < 600; ++step) {
+    for (std::uint32_t step = 0; step < 600; ++step) {
         aircraft.update(0.01);
 
         if (step % 100 == 0) {

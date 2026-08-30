@@ -14,31 +14,59 @@ import TestHarness;
 
 namespace
 {
-    // Resolves scenario selection; returns a code >= 0 to terminate immediately.
-    int SelectScenarios(int argc, char* argv[], std::string_view executableName,
-                        std::vector<const sim::test::ScenarioEntry*>& selected)
+    constexpr std::size_t kMaxSelectedScenarios = 10;
+
+    struct ScenarioSelection {
+        std::array<const sim::test::ScenarioEntry*, kMaxSelectedScenarios> entries{};
+        std::size_t count = 0;
+    };
+
+    /*
+    Reports an invalid scenario argument and prints the usage; returns the
+    matching exit code.
+    */
+    int reject_argument(std::string_view argument, std::string_view executableName)
     {
-        for (int i = 1; i < argc; ++i) {
-            const std::string argument = argv[i] != nullptr ? argv[i] : "";
+        std::cout << "Erreur : argument invalide \"" << argument << "\"." << std::endl;
+        std::cout << std::endl;
+        sim::test::ScenarioCatalog::print_usage(executableName);
+        return 2;
+    }
+
+    /*
+    Resolves scenario selection from the command line; returns a code >= 0 to
+    terminate immediately, -1 to continue with the selected scenarios.
+    */
+    int SelectScenarios(int argc, char* argv[], std::string_view executableName,
+                        ScenarioSelection& selected)
+    {
+        for (int index = 1; index < argc; ++index) {
+            const char* rawArgument = argv[index] != nullptr ? argv[index] : "";
+            const std::string_view argument{rawArgument};
 
             if (argument == "-h" || argument == "--help") {
                 sim::test::ScenarioCatalog::print_usage(executableName);
                 return 0;
             }
 
-            if (argument.size() != 1 || sim::test::ScenarioCatalog::find(argument[0]) == nullptr) {
-                std::cout << "Erreur : argument invalide \"" << argument << "\"." << std::endl;
-                std::cout << std::endl;
-                sim::test::ScenarioCatalog::print_usage(executableName);
+            const sim::test::ScenarioEntry* entry =
+                argument.size() == 1 ? sim::test::ScenarioCatalog::find(argument[0]) : nullptr;
+            if (entry == nullptr) {
+                return reject_argument(argument, executableName);
+            }
+            if (selected.count >= selected.entries.size()) {
+                std::cout << "Erreur : trop de scenarios demandes." << std::endl;
                 return 2;
             }
 
-            selected.push_back(sim::test::ScenarioCatalog::find(argument[0]));
+            selected.entries[selected.count] = entry;
+            ++selected.count;
         }
 
-        if (selected.empty()) {
+        if (selected.count == 0) {
             for (const sim::test::ScenarioEntry& entry : sim::test::ScenarioCatalog::all()) {
-                selected.push_back(&entry);
+                selected.entries[selected.count] = &entry;
+                ++selected.count;
             }
         }
 
@@ -52,9 +80,9 @@ counter is accumulated over the whole validation.
 */
 int main(int argc, char* argv[])
 {
-    const std::string executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
+    const std::string_view executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
 
-    std::vector<const sim::test::ScenarioEntry*> selected;
+    ScenarioSelection selected;
     const int earlyStatus = SelectScenarios(argc, argv, executableName, selected);
     if (earlyStatus >= 0) {
         return earlyStatus;
@@ -70,8 +98,8 @@ int main(int argc, char* argv[])
               << std::fixed << std::setprecision(1) << hoverRpm << " tr/min" << std::endl;
     std::cout << "Boucle mono-thread deterministic a 100 Hz (dt = 0.01 s)." << std::endl;
 
-    for (const sim::test::ScenarioEntry* entry : selected) {
-        entry->run(runner, hoverRpm);
+    for (std::size_t index = 0; index < selected.count; ++index) {
+        selected.entries[index]->run(runner, hoverRpm);
     }
 
     if (runner.passed()) {

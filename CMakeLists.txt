@@ -46,7 +46,10 @@ set(SIL_FILES
     Src/SIL/Faults/FaultInjectors-Factory.cpp
     Src/SIL/Reporting/SilReporting.cppm
     Src/SIL/Reporting/SilReporting-Report.cpp
+    Src/SIL/Reporting/SilReporting-File.cpp
     Src/SIL/Reporting/SilReporting-Export.cpp
+    Src/SIL/Reporting/SilReporting-Json.cpp
+    Src/SIL/Reporting/SilReporting-Json-Records.cpp
     Src/SIL/Reporting/SilReporting-Format.cpp
 )
 

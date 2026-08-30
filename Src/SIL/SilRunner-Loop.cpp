@@ -24,7 +24,6 @@ namespace sim::sil {
 using sim::safety::HealthState;
 using sim::safety::HealthReport;
 using sim::safety::SafetyMode;
-using sim::safety::fault_domain_name;
 
 void SILRunner::update_monitoring(RunContext& ctx)
 {
@@ -86,8 +85,6 @@ void SILRunner::update_metrics(RunContext& ctx)
     ctx.result.final_state = ctx.fc1.state();
     if (!ctx.result.mission_aborted && ctx.safety.mode() == SafetyMode::SAFE_MODE) {
         ctx.result.mission_aborted = true;
-        ctx.result.failure_reason = std::string{"Safe mode engage : "}
-            + std::string{fault_domain_name(ctx.result.first_fault_domain)};
     }
 }
 

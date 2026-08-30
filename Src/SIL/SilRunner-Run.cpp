@@ -15,13 +15,11 @@ import SilTypes;
 namespace sim::sil {
 
 /*
-Runs the full SIL simulation for the given fault scenarios: builds the run
-context, executes the per-step pipeline (injection, FC1, monitoring, actuators,
-metrics) until the configured duration is reached, then finalizes the result.
+Executes the per-step pipeline (injection, FC1, monitoring, actuators, metrics)
+until the configured duration is reached, then finalizes the result.
 */
-SimulationResult SILRunner::run(const std::vector<FaultScenario>& scenarios)
+void SILRunner::execute(RunContext& ctx)
 {
-    RunContext ctx = make_context(config_, scenarios);
     const double dt = ctx.config.dt;
 
     for (ctx.time = 0.0; ctx.time <= ctx.config.duration_s + 0.5 * dt; ctx.time += dt) {
@@ -32,7 +30,18 @@ SimulationResult SILRunner::run(const std::vector<FaultScenario>& scenarios)
         update_metrics(ctx);
     }
     finalize(ctx);
-    return ctx.result;
+}
+
+/*
+Runs the full SIL simulation for the given fault scenarios: builds the run
+context then executes the per-step pipeline, chaining both stages monadically.
+*/
+std::expected<SimulationResult, SilError> SILRunner::run(std::span<const FaultScenario> scenarios)
+{
+    return make_context(config_, scenarios).and_then([](RunContext&& ctx) {
+        execute(ctx);
+        return std::expected<SimulationResult, SilError>{ctx.result};
+    });
 }
 
 }

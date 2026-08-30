@@ -29,7 +29,7 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const Missi
     const double direction = target_value >= initial_value ? 1.0 : -1.0;
 
     trace.metrics.initial_gap = std::abs(target_value - initial_value);
-    trace.visited_states.push_back(ctrl.state());
+    trace.record(ctrl.state());
 
     run_control_loop(ctrl, craft, run, trace, direction, target_value);
 

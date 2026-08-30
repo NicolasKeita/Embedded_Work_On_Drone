@@ -78,11 +78,11 @@ is emitted only if the last step was not already logged by the periodicity
 */
 void TestHarness::run(Aircraft& aircraft, double duration_seconds)
 {
-    const int steps = static_cast<int>(duration_seconds / config_.dt + 0.5);
+    const std::uint32_t steps = static_cast<std::uint32_t>(duration_seconds / config_.dt + 0.5);
 
     bool last_step_logged = false;
 
-    for (int i = 0; i < steps; ++i) {
+    for (std::uint32_t i = 0; i < steps; ++i) {
         aircraft.update(config_.dt);
         ++step_count_;
         current_time_ += config_.dt;

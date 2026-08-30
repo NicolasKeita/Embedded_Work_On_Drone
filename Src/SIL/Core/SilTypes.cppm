@@ -61,7 +61,6 @@ struct SimulationResult {
     bool compensated_reached = false;
     bool safe_mode_reached = false;
     sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
-    std::string failure_reason;
 
     double max_position_error_m = 0.0;
     double max_altitude_error_m = 0.0;

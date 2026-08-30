@@ -51,7 +51,7 @@ namespace
             return;
         }
         previous = current;
-        trace.visited_states.push_back(current);
+        trace.record(current);
         std::cout << "  [MISSION] t = " << std::fixed << std::setprecision(1) << time
                   << " s -> " << mission_state_name(current) << std::endl;
     }
@@ -82,12 +82,12 @@ void run_control_loop(FlightController&        ctrl,
 {
     constexpr double kDt = 0.01;
     constexpr double kSteadyWindowSeconds = 10.0;
-    constexpr int kLogIntervalSteps = 250;
+    constexpr std::uint32_t kLogIntervalSteps = 250;
     const double steady_start = std::max(0.0, run.duration - kSteadyWindowSeconds);
     StepMetrics step{direction, steady_start};
     MissionState previous_state = ctrl.state();
     double time = 0.0;
-    int step_index = 0;
+    std::uint32_t step_index = 0;
 
     print_state_row(craft, time);
     while (time < run.duration) {
