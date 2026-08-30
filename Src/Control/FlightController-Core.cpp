@@ -106,5 +106,6 @@ Correction saturated between min_rpm and max_rpm.
 double FlightController::updateAltitudeControl(double target_z, double actual_z, double dt)
 {
     const double correction = AxisPidStep(altitude_pid_, target_z - actual_z, dt);
+
     return Clamp(config_.hover_rpm + correction, config_.min_rpm, config_.max_rpm);
 }}

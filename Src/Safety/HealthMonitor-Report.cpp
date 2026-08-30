@@ -20,6 +20,7 @@ const FaultFlag& HealthReport::flag(FaultDomain domain) const
 double HealthReport::first_detection_time() const
 {
     double first = -1.0;
+
     for (const FaultFlag& item : flags) {
         if (item.raised_time >= 0.0 && (first < 0.0 || item.raised_time < first)) {
             first = item.raised_time;
@@ -32,6 +33,7 @@ FaultDomain HealthReport::first_fault_domain() const
 {
     FaultDomain best = FaultDomain::FC1Heartbeat;
     double best_time = -1.0;
+
     for (std::size_t index = 0; index < flags.size(); ++index) {
         const FaultFlag& item = flags[index];
         if (item.raised_time >= 0.0 && (best_time < 0.0 || item.raised_time < best_time)) {

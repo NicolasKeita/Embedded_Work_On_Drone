@@ -19,6 +19,7 @@ namespace sim::test {
 void print_state_row(const Aircraft& aircraft, double timeSeconds)
 {
     const AircraftState& s = aircraft.state();
+
     std::cout << std::fixed << std::setw(9) << std::setprecision(2) << timeSeconds;
     std::cout << "   " << std::setprecision(3) << std::setw(11) << s.x
               << std::setw(11) << s.y << std::setw(11) << s.z;

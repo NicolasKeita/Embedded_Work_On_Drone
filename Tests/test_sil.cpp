@@ -14,6 +14,7 @@ import TestHarness;
 int main()
 {
     sim::test::TestHarness runner;
+
     sim::test::sil::run_all_sil_scenarios(runner);
 
     if (runner.passed()) {

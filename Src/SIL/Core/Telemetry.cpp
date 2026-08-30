@@ -22,6 +22,7 @@ bool SensorValidity::all_valid() const noexcept
 SensorTelemetry make_telemetry(const AircraftState& state)
 {
     SensorTelemetry telemetry;
+
     telemetry.x = state.x;
     telemetry.y = state.y;
     telemetry.z = state.z;
@@ -38,6 +39,7 @@ layer is what invalidates a disturbed sensor.
 SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidationLimits& limits)
 {
     SensorValidity validity;
+
     validity.altitude_valid = !std::isnan(telemetry.z) && telemetry.z >= 0.0 && telemetry.z <= limits.max_altitude_m;
     const double horizontal = std::hypot(telemetry.x, telemetry.y);
     validity.position_valid = !std::isnan(horizontal) && horizontal <= limits.max_position_m;
@@ -54,6 +56,7 @@ SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
                                  double                 corrupted_altitude_m)
 {
     SensorTelemetry corrupted = telemetry;
+
     switch (mode) {
     case SensorCorruptionMode::AltitudeNaN:
         corrupted.z = std::numeric_limits<double>::quiet_NaN();

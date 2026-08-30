@@ -23,6 +23,7 @@ std::string scenario_body(const ScenarioRecord& record)
 {
     const SimulationResult& r = record.result;
     std::ostringstream out;
+
     out << "### " << record.name << "\n\n";
     out << "| Propriete | Valeur |\n|---|---|\n";
     out << "| Type de faulte | `" << fault_type_name(record.scenario.fault_type) << "` |\n";
@@ -50,6 +51,7 @@ std::string scenario_body(const ScenarioRecord& record)
 std::string summary_table(const std::vector<ScenarioRecord>& records)
 {
     std::ostringstream out;
+
     out << "| Scenario | Faulte | Detectee | Latence det. (ms) | Latence rep. (ms) | Mode "
            "final | Verdict |\n";
     out << "|---|---|---|---|---|---|---|\n";
@@ -68,6 +70,7 @@ std::string summary_table(const std::vector<ScenarioRecord>& records)
 std::string build_markdown(const std::vector<ScenarioRecord>& records)
 {
     std::ostringstream out;
+
     out << "# Rapport de validation SIL\n\n";
     out << "Validation Software-in-the-Loop du systeme de fault injection.\n\n";
     out << "## Synthese\n\n" << summary_table(records) << "\n";
@@ -84,6 +87,7 @@ std::string write_sil_report(const std::vector<ScenarioRecord>& records,
                              const SilReportOptions&            options)
 {
     std::error_code ec;
+
     std::filesystem::create_directories(options.docs_dir, ec);
     std::string markdown;
     if (options.write_markdown) {

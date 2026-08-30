@@ -29,6 +29,7 @@ switches to CLIMB as soon as takeoff_altitude_m is reached.
 ControlCommand FlightController::takeoff_command(const AircraftState& actual)
 {
     ControlCommand cmd;
+
     cmd.wing_rpm = Clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
 
     if (actual.z >= config_.takeoff_altitude_m) {
@@ -44,6 +45,7 @@ transition to STATION_KEEPING resets the PIDs and the hold timer.
 ControlCommand FlightController::climb_command(const TargetState& target, const AircraftState& actual, double dt)
 {
     ControlCommand cmd;
+
     cmd.wing_rpm = updateAltitudeControl(target.z, actual.z, dt);
 
     if (std::abs(target.z - actual.z) <= config_.altitude_tolerance_m) {

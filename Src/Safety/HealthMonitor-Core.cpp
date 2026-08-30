@@ -31,6 +31,7 @@ HealthState HealthMonitor::state() const noexcept
 void HealthMonitor::raise(FaultDomain domain, double time)
 {
     FaultFlag& item = flags_[domain_index(domain)];
+
     if (!item.raised) {
         item.raised = true;
         item.raised_time = time;
@@ -41,6 +42,7 @@ HealthState HealthMonitor::compute_state(const std::array<FaultFlag, 4>& flags)
 {
     const bool critical = flags[domain_index(FaultDomain::FC1Heartbeat)].raised
         || flags[domain_index(FaultDomain::Communication)].raised;
+
     if (critical) {
         return HealthState::SAFE;
     }

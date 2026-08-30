@@ -28,6 +28,7 @@ void append_record_json(std::ostringstream&   out,
                         std::size_t           record_count)
 {
     const SimulationResult& r = record.result;
+
     out << "  {\n";
     out << "    \"name\": \"" << json_escape(record.name) << "\",\n";
     out << "    \"fault_type\": \"" << fault_type_name(record.scenario.fault_type)
@@ -59,6 +60,7 @@ void append_record_json(std::ostringstream&   out,
 std::string build_json(const std::vector<ScenarioRecord>& records)
 {
     std::ostringstream out;
+
     out << "[\n";
     for (std::size_t index = 0; index < records.size(); ++index) {
         append_record_json(out, records[index], index, records.size());
@@ -70,6 +72,7 @@ std::string build_json(const std::vector<ScenarioRecord>& records)
 std::string build_csv(const std::vector<ScenarioRecord>& records)
 {
     std::ostringstream out;
+
     out << "name;fault_type;start_time;duration;mission_success;mission_aborted;"
            "final_state;final_health;final_safety_mode;fault_detected;fault_injected_time;"
            "detection_time;recovery_time;detection_latency;response_latency;"

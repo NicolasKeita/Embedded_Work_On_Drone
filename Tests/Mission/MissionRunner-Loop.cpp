@@ -63,6 +63,7 @@ namespace
         const bool inside = std::abs(run.target.x - s.x) <= run.tolerance
             && std::abs(run.target.y - s.y) <= run.tolerance
             && std::abs(run.target.z - s.z) <= run.tolerance;
+
         return run.stop_on_zone && airborne && inside;
     }
 }

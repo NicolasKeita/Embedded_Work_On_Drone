@@ -11,5 +11,6 @@ import App;
 int main()
 {
     Application app;
+
     return app.Run();
 }

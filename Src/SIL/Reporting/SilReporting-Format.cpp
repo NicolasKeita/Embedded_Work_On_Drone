@@ -15,6 +15,7 @@ namespace sim::sil {
 std::string format_seconds(double value)
 {
     std::ostringstream stream;
+
     stream << std::fixed << std::setprecision(3) << value;
     return stream.str();
 }
@@ -22,6 +23,7 @@ std::string format_seconds(double value)
 std::string format_metric(double value)
 {
     std::ostringstream stream;
+
     stream << std::fixed << std::setprecision(2) << value;
     return stream.str();
 }
@@ -29,6 +31,7 @@ std::string format_metric(double value)
 std::string json_escape(std::string_view text)
 {
     std::string escaped;
+
     escaped.reserve(text.size());
     for (const char item : text) {
         if (item == '"') {
@@ -70,6 +73,7 @@ std::string_view yes_no(bool value)
 void write_file(const std::filesystem::path& path, std::string_view content)
 {
     std::ofstream file{path};
+
     file << content;
 }
 

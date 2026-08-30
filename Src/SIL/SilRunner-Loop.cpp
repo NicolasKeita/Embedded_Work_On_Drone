@@ -29,6 +29,7 @@ using sim::safety::fault_domain_name;
 void SILRunner::update_monitoring(RunContext& ctx)
 {
     const HealthReport report = ctx.health.evaluate(ctx.time, ctx.comms, ctx.telemetry, ctx.commanded_rpm);
+
     ctx.safety_command = ctx.safety.update(ctx.time, report);
     const double detection = report.first_detection_time();
     if (detection >= 0.0 && ctx.result.detection_time < 0.0) {
@@ -55,6 +56,7 @@ void SILRunner::apply_actuators(RunContext& ctx)
 {
     const SilConfig& cfg = ctx.config;
     ControlCommand effective = ctx.command;
+
     if (ctx.safety.mode() == SafetyMode::SAFE_MODE) {
         ctx.safe_rpm = std::max(0.0, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt);
         effective.wing_rpm = ctx.safe_rpm;
@@ -77,6 +79,7 @@ void SILRunner::update_metrics(RunContext& ctx)
     const AircraftState& state = ctx.aircraft.state();
     const double position_error = std::hypot(state.x - cfg.target.x, state.y - cfg.target.y);
     const double altitude_error = std::abs(state.z - cfg.target.z);
+
     ctx.result.max_position_error_m = std::max(ctx.result.max_position_error_m, position_error);
     ctx.result.max_altitude_error_m = std::max(ctx.result.max_altitude_error_m, altitude_error);
     ctx.result.final_altitude_m = state.z;
@@ -91,6 +94,7 @@ void SILRunner::update_metrics(RunContext& ctx)
 void SILRunner::finalize(RunContext& ctx)
 {
     SimulationResult& result = ctx.result;
+
     if (result.fault_injected_time >= 0.0 && result.detection_time >= 0.0) {
         result.detection_latency = result.detection_time - result.fault_injected_time;
     }

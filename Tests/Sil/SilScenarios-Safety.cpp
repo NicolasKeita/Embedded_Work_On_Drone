@@ -74,6 +74,7 @@ records then generates the docs/validation/sil.md, .json, .csv artifacts.
 void run_all_sil_scenarios(TestHarness& runner)
 {
     std::vector<ScenarioRecord> records;
+
     nominal_scenario(runner, records);
     fc1_failure_scenario(runner, records);
     communication_loss_scenario(runner, records);

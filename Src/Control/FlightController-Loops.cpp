@@ -43,6 +43,7 @@ TiltTargets FlightController::updatePositionControl(const TargetState&   t,
                                                     double               dt)
 {
     TiltTargets targets;
+
     targets.pitch_deg = Clamp(AxisPidStep(x_position_pid_, t.x - a.x, dt), -config_.max_tilt_deg, config_.max_tilt_deg);
     targets.roll_deg = Clamp(AxisPidStep(y_position_pid_, t.y - a.y, dt), -config_.max_tilt_deg, config_.max_tilt_deg);
     return targets;
@@ -75,6 +76,7 @@ ControlCommand FlightController::station_keeping_command(const TargetState&   t,
                                                          double               dt)
 {
     ControlCommand cmd;
+
     cmd.wing_rpm = updateAltitudeControl(t.z, a.z, dt);
 
     const ServoMix servos = updateAttitudeControl(updatePositionControl(t, a, dt), a);

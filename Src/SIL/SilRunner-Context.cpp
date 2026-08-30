@@ -40,6 +40,7 @@ SILRunner::RunContext SILRunner::make_context(const SilConfig&                  
                                               const std::vector<FaultScenario>& scenarios)
 {
     RunContext ctx{config};
+
     ctx.injectors.reserve(scenarios.size());
     for (const FaultScenario& scenario : scenarios) {
         std::unique_ptr<IFaultInjector> injector = make_fault_injector(scenario);
@@ -77,6 +78,7 @@ message emission on the bus, only while FC1 is alive.
 void SILRunner::update_fc1(RunContext& ctx)
 {
     const SilConfig& cfg = ctx.config;
+
     ctx.telemetry = make_telemetry(ctx.aircraft.state());
     if (ctx.env.sensor_corruption != SensorCorruptionMode::None) {
         ctx.telemetry = apply_corruption(ctx.telemetry, ctx.env.sensor_corruption, ctx.env.corrupted_altitude_m);

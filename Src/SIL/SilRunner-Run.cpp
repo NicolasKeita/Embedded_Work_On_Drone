@@ -23,6 +23,7 @@ SimulationResult SILRunner::run(const std::vector<FaultScenario>& scenarios)
 {
     RunContext ctx = make_context(config_, scenarios);
     const double dt = ctx.config.dt;
+
     for (ctx.time = 0.0; ctx.time <= ctx.config.duration_s + 0.5 * dt; ctx.time += dt) {
         apply_injectors(ctx);
         update_fc1(ctx);
