@@ -33,7 +33,7 @@ std::expected<void, ReportError> write_section_file(const std::filesystem::path&
 
 /*
 Generates the SIL validation artifacts (docs/validation/sil.md, sil.json,
-sil.csv); returns the first typed error encountered.
+sil.csv, sil_trace.jsonl); returns the first typed error encountered.
 */
 std::expected<void, ReportError> write_sil_report(std::span<const ScenarioRecord> records,
                                                   const SilReportOptions&         options)
@@ -61,6 +61,13 @@ std::expected<void, ReportError> write_sil_report(std::span<const ScenarioRecord
     if (options.write_csv) {
         const std::expected<void, ReportError> outcome =
             write_section_file(options.docs_dir / "sil.csv", &write_csv_payload, records);
+        if (!outcome.has_value()) {
+            return outcome;
+        }
+    }
+    if (options.write_trace) {
+        const std::expected<void, ReportError> outcome =
+            write_section_file(options.docs_dir / "sil_trace.jsonl", &write_jsonl_trace, records);
         if (!outcome.has_value()) {
             return outcome;
         }

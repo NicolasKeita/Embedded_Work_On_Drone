@@ -24,7 +24,9 @@ enum class MissionState {
     TAKEOFF,
     CLIMB,
     STATION_KEEPING,
-    COMPLETE
+    COMPLETE,
+    ABORTED,
+    FAILED
 };
 
 struct ControllerConfig {

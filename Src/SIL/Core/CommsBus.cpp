@@ -25,23 +25,67 @@ void CommsBus::set_link(bool up, double loss_probability)
     loss_probability_ = loss_probability;
 }
 
+void CommsBus::set_transport_latency(double latency_s) noexcept
+{
+    transport_latency_s_ = std::max(0.0, latency_s);
+}
+
+/*
+Aggregate statistics: counts one delivery outcome and updates the running
+latency mean incrementally (no stored sample buffer).
+*/
+void CommsStats::record(const CommsDelivery& delivery)
+{
+    ++sent;
+    if (!delivery.delivered) {
+        ++dropped;
+        return;
+    }
+    ++delivered;
+    if (latency_min_s < 0.0 || delivery.latency_s < latency_min_s) {
+        latency_min_s = delivery.latency_s;
+    }
+    latency_max_s = std::max(latency_max_s, delivery.latency_s);
+    if (latency_mean_s < 0.0) {
+        latency_mean_s = delivery.latency_s;
+        return;
+    }
+    latency_mean_s += (delivery.latency_s - latency_mean_s) / static_cast<double>(delivered);
+}
+
+void CommsStats::record_timeout() noexcept
+{
+    ++timeouts;
+}
+
 /*
 Message delivery: fails if the physical link is down or if the random draw
 (seeded, for Monte Carlo reproducibility) falls below the configured loss rate.
+The receive timestamp carries the simulated transport latency as an
+observational attribute; FC2-side detection keeps using the send tick, so the
+delivery semantics are unchanged.
 */
-bool CommsBus::publish(double time)
+CommsDelivery CommsBus::publish(double time)
 {
+    CommsDelivery delivery;
+
+    delivery.sequence = ++sequence_;
+    delivery.send_time = time;
+    delivery.latency_s = transport_latency_s_;
+
     if (!link_up_) {
-        return false;
+        return delivery;
     }
     if (loss_probability_ > 0.0) {
         const double draw = std::uniform_real_distribution<double>{0.0, 1.0}(generator_);
         if (draw < loss_probability_) {
-            return false;
+            return delivery;
         }
     }
+    delivery.delivered = true;
+    delivery.receive_time = time + transport_latency_s_;
     last_received_time_ = time;
-    return true;
+    return delivery;
 }
 
 bool CommsBus::link_up() const noexcept

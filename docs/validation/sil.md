@@ -4,13 +4,13 @@ Validation Software-in-the-Loop du systeme de fault injection.
 
 ## Synthese
 
-| Scenario | Faulte | Detectee | Latence det. (ms) | Latence rep. (ms) | Mode final | Verdict |
+| Scenario | Faulte | Detectee | Latence det. (ms) | Latence rep. (ms) | Etat mission | Verdict |
 |---|---|---|---|---|---|---|
-| SIL-001 | `NOMINAL` | non | -1000.00 | -1000.00 | `NORMAL` | PASS |
-| SIL-002 | `FC1_FAILURE` | oui | 90.00 | 0.00 | `SAFE_MODE` | PASS |
-| SIL-003 | `COMMUNICATION_LOSS` | oui | 0.00 | 0.00 | `SAFE_MODE` | PASS |
-| SIL-004 | `SENSOR_FAULT` | oui | 0.00 | 0.00 | `NORMAL` | PASS |
-| SIL-005 | `ACTUATOR_DEGRADATION` | oui | 520.00 | 0.00 | `COMPENSATED` | PASS |
+| SIL-001 | `NOMINAL` | non | -1000.00 | -1000.00 | `COMPLETE` | PASS |
+| SIL-002 | `FC1_FAILURE` | oui | 90.00 | 0.00 | `ABORTED` | PASS |
+| SIL-003 | `COMMUNICATION_LOSS` | oui | 0.00 | 0.00 | `ABORTED` | PASS |
+| SIL-004 | `SENSOR_FAULT` | oui | 0.00 | 0.00 | `COMPLETE` | PASS |
+| SIL-005 | `ACTUATOR_DEGRADATION` | oui | 520.00 | 0.00 | `FAILED` | PASS |
 
 ## Resultats detailles
 
@@ -30,8 +30,13 @@ Validation Software-in-the-Loop du systeme de fault injection.
 | Erreur de position max (m) | 0.00 |
 | Erreur d'altitude max (m) | 10.00 |
 | Altitude finale (m) | 9.90 |
+| Watchdog declenche | non |
+| Messages envoyes / recus / perdus | 6001 / 6001 / 0 |
+| Latence max (ms) | 4.00 |
 | Mission reussie | oui |
 | Verdict | **PASS** |
+
+> Verdict : Mission nominale completee sans comportement anormal
 
 ### SIL-002
 
@@ -45,14 +50,17 @@ Validation Software-in-the-Loop du systeme de fault injection.
 | Latence de reponse (ms) | 0.00 |
 | Sante finale | `SAFE` |
 | Mode de surete final | `SAFE_MODE` |
-| Etat de mission final | `COMPLETE` |
+| Etat de mission final | `ABORTED` |
 | Erreur de position max (m) | 0.00 |
 | Erreur d'altitude max (m) | 10.00 |
 | Altitude finale (m) | 0.00 |
+| Watchdog declenche | oui |
+| Messages envoyes / recus / perdus | 3000 / 3000 / 0 |
+| Latence max (ms) | 4.00 |
 | Mission reussie | non |
 | Verdict | **PASS** |
 
-> Safe mode engage : FC1_HEARTBEAT_TIMEOUT
+> Verdict : Defaillance detectee et SAFE_MODE engage dans les limites requises
 
 ### SIL-003
 
@@ -66,14 +74,17 @@ Validation Software-in-the-Loop du systeme de fault injection.
 | Latence de reponse (ms) | 0.00 |
 | Sante finale | `SAFE` |
 | Mode de surete final | `SAFE_MODE` |
-| Etat de mission final | `COMPLETE` |
+| Etat de mission final | `ABORTED` |
 | Erreur de position max (m) | 0.00 |
 | Erreur d'altitude max (m) | 10.00 |
 | Altitude finale (m) | 0.00 |
+| Watchdog declenche | oui |
+| Messages envoyes / recus / perdus | 6001 / 3000 / 3001 |
+| Latence max (ms) | 4.00 |
 | Mission reussie | non |
 | Verdict | **PASS** |
 
-> Safe mode engage : COMMUNICATION_LOST
+> Verdict : Defaillance detectee et SAFE_MODE engage dans les limites requises
 
 ### SIL-004
 
@@ -91,8 +102,13 @@ Validation Software-in-the-Loop du systeme de fault injection.
 | Erreur de position max (m) | 0.00 |
 | Erreur d'altitude max (m) | 10.00 |
 | Altitude finale (m) | 9.90 |
+| Watchdog declenche | non |
+| Messages envoyes / recus / perdus | 6001 / 6001 / 0 |
+| Latence max (ms) | 4.00 |
 | Mission reussie | oui |
 | Verdict | **PASS** |
+
+> Verdict : Mission nominale completee sans comportement anormal
 
 ### SIL-005
 
@@ -106,10 +122,15 @@ Validation Software-in-the-Loop du systeme de fault injection.
 | Latence de reponse (ms) | 0.00 |
 | Sante finale | `DEGRADED` |
 | Mode de surete final | `COMPENSATED` |
-| Etat de mission final | `STATION_KEEPING` |
+| Etat de mission final | `FAILED` |
 | Erreur de position max (m) | 0.00 |
 | Erreur d'altitude max (m) | 10.00 |
 | Altitude finale (m) | 12.33 |
+| Watchdog declenche | non |
+| Messages envoyes / recus / perdus | 6001 / 6001 / 0 |
+| Latence max (ms) | 4.00 |
 | Mission reussie | non |
 | Verdict | **PASS** |
+
+> Verdict : Defaillance degradee compensee, mission poursuivie
 

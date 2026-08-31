@@ -30,27 +30,37 @@ set(SAFETY_FILES
 # Sources du moteur de fault injection et de simulation SIL (.cppm + .cpp
 # conserves ensemble dans la meme variable).
 set(SIL_FILES
-    Src/SIL/SilRunner.cppm
-    Src/SIL/SilRunner-Context.cpp
-    Src/SIL/SilRunner-Loop.cpp
-    Src/SIL/SilRunner-Run.cpp
+    Src/SIL/Runner/SilRunner.cppm
+    Src/SIL/Runner/SilRunner-Context.cpp
+    Src/SIL/Runner/SilRunner-Events.cpp
+    Src/SIL/Runner/SilRunner-Faults.cpp
+    Src/SIL/Runner/SilRunner-Fc1.cpp
+    Src/SIL/Runner/SilRunner-Loop.cpp
+    Src/SIL/Runner/SilRunner-Run.cpp
+    Src/SIL/Runner/SilRunner-Transitions.cpp
     Src/SIL/Core/SilTypes.cppm
     Src/SIL/Core/SilTypes.cpp
     Src/SIL/Core/Telemetry.cppm
     Src/SIL/Core/Telemetry.cpp
     Src/SIL/Core/CommsBus.cppm
     Src/SIL/Core/CommsBus.cpp
+    Src/SIL/Core/Events/SilEvents.cppm
+    Src/SIL/Core/Events/SilEvents-Names.cpp
+    Src/SIL/Core/Events/SilEvents-Recorder.cpp
     Src/SIL/Faults/FaultInjectors.cppm
     Src/SIL/Faults/FaultInjectors-Base.cpp
     Src/SIL/Faults/FaultInjectors-Injectors.cpp
     Src/SIL/Faults/FaultInjectors-Factory.cpp
     Src/SIL/Reporting/SilReporting.cppm
-    Src/SIL/Reporting/SilReporting-Report.cpp
-    Src/SIL/Reporting/SilReporting-File.cpp
     Src/SIL/Reporting/SilReporting-Export.cpp
-    Src/SIL/Reporting/SilReporting-Json.cpp
-    Src/SIL/Reporting/SilReporting-Json-Records.cpp
+    Src/SIL/Reporting/SilReporting-File.cpp
     Src/SIL/Reporting/SilReporting-Format.cpp
+    Src/SIL/Reporting/SilReporting-Report.cpp
+    Src/SIL/Reporting/SilReporting-Report-Sections.cpp
+    Src/SIL/Reporting/Json/SilReporting-Json.cpp
+    Src/SIL/Reporting/Json/SilReporting-Json-Records.cpp
+    Src/SIL/Reporting/Trace/SilReporting-Trace.cpp
+    Src/SIL/Reporting/Trace/SilReporting-Trace-Text.cpp
 )
 
 set(SRC_FILES
@@ -100,11 +110,20 @@ target_sources(test_simulation
             ${TEST_SIMULATION_FILES}
 )
 
-# Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11).
+# Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11) et scenarios
+# d'observabilite.
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp
     Tests/Sil/SilScenarios-Safety.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Support.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Heartbeat.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Dropped.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Faults.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Comms.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Fields.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Neutrality.cpp
+    Tests/Sil/Observability/SilScenarios-Observability-Trace.cpp
 )
 
 add_executable(test_sil Tests/test_sil.cpp)

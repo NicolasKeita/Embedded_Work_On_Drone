@@ -10,6 +10,8 @@ module SilTypes;
 
 import std;
 
+import Aircraft;
+import CommsBus;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
@@ -32,7 +34,7 @@ bool SimulationResult::compute_verdict(bool fault_expected) const
         && first_fault_domain != sim::safety::FaultDomain::Actuator && detection_latency > 0.5) {
         return false;
     }
-    if (mission_aborted) {
+    if (final_state == sim::control::MissionState::ABORTED) {
         return final_safety_mode == sim::safety::SafetyMode::SAFE_MODE;
     }
     if (final_safety_mode == sim::safety::SafetyMode::COMPENSATED) {
@@ -61,4 +63,23 @@ std::string_view fault_type_name(FaultType type)
     return "UNKNOWN";
 }
 
+/*
+Human-readable verdict reason: explains the PASS/FAIL decision independently
+from the mission outcome (an aborted mission can still be a PASS).
+*/
+std::string_view verdict_reason(const SimulationResult& result)
+{
+    if (!result.test_verdict) {
+        return "Comportement non conforme aux attendus du scenario";
+    }
+    if (result.final_state == sim::control::MissionState::ABORTED) {
+        return "Defaillance detectee et SAFE_MODE engage dans les limites requises";
+    }
+    if (result.final_safety_mode == sim::safety::SafetyMode::COMPENSATED) {
+        return "Defaillance degradee compensee, mission poursuivie";
+    }
+    return "Mission nominale completee sans comportement anormal";
 }
+
+}
+

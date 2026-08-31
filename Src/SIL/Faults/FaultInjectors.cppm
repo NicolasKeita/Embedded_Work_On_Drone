@@ -46,6 +46,8 @@ public:
 
     [[nodiscard]] bool is_active(double current_time) const;
 
+    [[nodiscard]] const FaultScenario& scenario() const noexcept;
+
 private:
     FaultScenario scenario_{};
 };

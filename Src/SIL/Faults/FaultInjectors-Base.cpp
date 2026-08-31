@@ -32,6 +32,11 @@ bool FaultInjector::is_active(double current_time) const
     return scenario_.duration <= 0.0 || current_time < scenario_.start_time + scenario_.duration;
 }
 
+const FaultScenario& FaultInjector::scenario() const noexcept
+{
+    return scenario_;
+}
+
 /*
 Dispatches the owned scenario to the domain-specific injection helper.
 */

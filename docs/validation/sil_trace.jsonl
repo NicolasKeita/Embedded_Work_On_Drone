@@ -1,0 +1,69 @@
+{"scenario":"SIL-001","timestamp":0.000,"source":"SIL","event":"SIMULATION_START","severity":"INFO","details":{"reason":"SIL run started"}}
+{"scenario":"SIL-001","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
+{"scenario":"SIL-001","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
+{"scenario":"SIL-001","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
+{"scenario":"SIL-001","timestamp":17.750,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"STATION_KEEPING","new_state":"COMPLETE","reason":"station hold completed"}}
+{"scenario":"SIL-001","timestamp":60.010,"source":"FC1","event":"FC_SHUTDOWN","severity":"INFO","details":{"reason":"simulation end"}}
+{"scenario":"SIL-001","timestamp":60.010,"source":"SIL","event":"SIMULATION_END","severity":"INFO","details":{"detail":"COMPLETE","reason":"mission completed"}}
+{"scenario":"SIL-002","timestamp":0.000,"source":"SIL","event":"SIMULATION_START","severity":"INFO","details":{"reason":"SIL run started"}}
+{"scenario":"SIL-002","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
+{"scenario":"SIL-002","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
+{"scenario":"SIL-002","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
+{"scenario":"SIL-002","timestamp":17.750,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"STATION_KEEPING","new_state":"COMPLETE","reason":"station hold completed"}}
+{"scenario":"SIL-002","timestamp":30.000,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"FC1_FAILURE"}}
+{"scenario":"SIL-002","timestamp":30.000,"source":"FC1","event":"FC_FAILURE","severity":"WARNING","details":{"detail":"FC1_FAILURE"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"WATCHDOG_TIMEOUT","severity":"WARNING","details":{"detail":"FC1_HEARTBEAT_TIMEOUT","reason":"supervised link silent"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"MESSAGE_TIMEOUT","severity":"WARNING","details":{"detail":"FC1_HEARTBEAT_TIMEOUT"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"FC1_HEARTBEAT_TIMEOUT"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"FC1_HEARTBEAT_TIMEOUT","reason":"fault domain classification"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"HEALTHY","new_state":"SAFE","reason":"fault flags raised"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"NORMAL","new_state":"SAFE_MODE","reason":"FC1_HEARTBEAT_TIMEOUT"}}
+{"scenario":"SIL-002","timestamp":30.090,"source":"FC2","event":"SAFETY_RESPONSE","severity":"INFO","details":{"detail":"ENTER_SAFE_MODE"}}
+{"scenario":"SIL-002","timestamp":60.010,"source":"SIL","event":"SIMULATION_END","severity":"INFO","details":{"detail":"ABORTED","reason":"mission not completed"}}
+{"scenario":"SIL-003","timestamp":0.000,"source":"SIL","event":"SIMULATION_START","severity":"INFO","details":{"reason":"SIL run started"}}
+{"scenario":"SIL-003","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
+{"scenario":"SIL-003","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
+{"scenario":"SIL-003","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
+{"scenario":"SIL-003","timestamp":17.750,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"STATION_KEEPING","new_state":"COMPLETE","reason":"station hold completed"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"COMMUNICATION_LOSS"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"WATCHDOG_TIMEOUT","severity":"WARNING","details":{"detail":"COMMUNICATION_LOST","reason":"supervised link silent"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"MESSAGE_TIMEOUT","severity":"WARNING","details":{"detail":"COMMUNICATION_LOST"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"COMMUNICATION_LOST"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"COMMUNICATION_LOST","reason":"fault domain classification"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"HEALTHY","new_state":"SAFE","reason":"fault flags raised"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"NORMAL","new_state":"SAFE_MODE","reason":"COMMUNICATION_LOST"}}
+{"scenario":"SIL-003","timestamp":30.000,"source":"FC2","event":"SAFETY_RESPONSE","severity":"INFO","details":{"detail":"ENTER_SAFE_MODE"}}
+{"scenario":"SIL-003","timestamp":60.010,"source":"FC1","event":"FC_SHUTDOWN","severity":"INFO","details":{"reason":"simulation end"}}
+{"scenario":"SIL-003","timestamp":60.010,"source":"SIL","event":"SIMULATION_END","severity":"INFO","details":{"detail":"ABORTED","reason":"mission not completed"}}
+{"scenario":"SIL-004","timestamp":0.000,"source":"SIL","event":"SIMULATION_START","severity":"INFO","details":{"reason":"SIL run started"}}
+{"scenario":"SIL-004","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
+{"scenario":"SIL-004","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
+{"scenario":"SIL-004","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
+{"scenario":"SIL-004","timestamp":17.750,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"STATION_KEEPING","new_state":"COMPLETE","reason":"station hold completed"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"SENSOR_FAULT"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"ENV","event":"SENSOR_FAULT","severity":"WARNING","details":{"value":99999.00}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"SENSOR_INVALID"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"SENSOR_INVALID","reason":"fault domain classification"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"HEALTHY","new_state":"DEGRADED","reason":"fault flags raised"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"NORMAL","new_state":"COMPENSATED","reason":"SENSOR_INVALID"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_RESPONSE","severity":"INFO","details":{"detail":"ENTER_COMPENSATED"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"RECOVERY_START","severity":"INFO","details":{"detail":"SENSOR_INVALID","reason":"fault flag cleared"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"DEGRADED","new_state":"HEALTHY","reason":"all flags clear"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"COMPENSATED","new_state":"NORMAL","reason":"health restored"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"RECOVERY_END","severity":"INFO","details":{"reason":"health restored"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"WATCHDOG_RECOVERY","severity":"INFO","details":{"reason":"health restored"}}
+{"scenario":"SIL-004","timestamp":60.010,"source":"FC1","event":"FC_SHUTDOWN","severity":"INFO","details":{"reason":"simulation end"}}
+{"scenario":"SIL-004","timestamp":60.010,"source":"SIL","event":"SIMULATION_END","severity":"INFO","details":{"detail":"COMPLETE","reason":"mission completed"}}
+{"scenario":"SIL-005","timestamp":0.000,"source":"SIL","event":"SIMULATION_START","severity":"INFO","details":{"reason":"SIL run started"}}
+{"scenario":"SIL-005","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
+{"scenario":"SIL-005","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
+{"scenario":"SIL-005","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
+{"scenario":"SIL-005","timestamp":15.010,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"ACTUATOR_DEGRADATION"}}
+{"scenario":"SIL-005","timestamp":15.010,"source":"ENV","event":"ACTUATOR_FAULT","severity":"WARNING","details":{"value":0.60}}
+{"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"ACTUATOR_MISMATCH"}}
+{"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"ACTUATOR_MISMATCH","reason":"fault domain classification"}}
+{"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"HEALTHY","new_state":"DEGRADED","reason":"fault flags raised"}}
+{"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"NORMAL","new_state":"COMPENSATED","reason":"ACTUATOR_MISMATCH"}}
+{"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"SAFETY_RESPONSE","severity":"INFO","details":{"detail":"ENTER_COMPENSATED"}}
+{"scenario":"SIL-005","timestamp":60.010,"source":"FC1","event":"FC_SHUTDOWN","severity":"INFO","details":{"reason":"simulation end"}}
+{"scenario":"SIL-005","timestamp":60.010,"source":"SIL","event":"SIMULATION_END","severity":"INFO","details":{"detail":"FAILED","reason":"mission not completed"}}

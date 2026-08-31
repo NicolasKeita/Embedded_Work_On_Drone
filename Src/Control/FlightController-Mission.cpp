@@ -14,14 +14,6 @@ import Aircraft;
 
 namespace sim::control {
 
-namespace
-{
-    double Clamp(double value, double minValue, double maxValue)
-    {
-        return std::max(minValue, std::min(value, maxValue));
-    }
-}
-
 /*
 Takeoff phase: arms the wing at a fixed RPM (takeoff_rpm_factor x hover_rpm) and
 switches to CLIMB as soon as takeoff_altitude_m is reached.
@@ -30,7 +22,7 @@ ControlCommand FlightController::takeoff_command(const AircraftState& actual)
 {
     ControlCommand cmd;
 
-    cmd.wing_rpm = Clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
+    cmd.wing_rpm = std::clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
 
     if (actual.z >= config_.takeoff_altitude_m) {
         enter_climb();
@@ -78,12 +70,7 @@ ControlCommand FlightController::station_keeping_step(const TargetState&   targe
     return cmd;
 }
 
-/*
-Mission state machine: TAKEOFF (fixed RPM) then CLIMB (altitude loop towards
-target.z) then STATION_KEEPING (simultaneous X/Y/Z control, COMPLETE after
-station_hold_seconds consecutively inside the target zone) then COMPLETE
-(continuous station keeping to maintain the position).
-*/
+/* Mission state machine: TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE. */
 ControlCommand FlightController::update(const TargetState&   target,
                                         const AircraftState& actual,
                                         double               dt)
@@ -102,6 +89,11 @@ ControlCommand FlightController::update(const TargetState&   target,
     return ControlCommand{};
 }
 
+/*
+Mission state names. ABORTED and FAILED are SIL-level terminal states produced
+by the simulation engine (safety abort, mission window exhausted); the onboard
+controller itself never enters them.
+*/
 std::string_view mission_state_name(MissionState state)
 {
     switch (state) {
@@ -113,6 +105,10 @@ std::string_view mission_state_name(MissionState state)
         return "STATION_KEEPING";
     case MissionState::COMPLETE:
         return "COMPLETE";
+    case MissionState::ABORTED:
+        return "ABORTED";
+    case MissionState::FAILED:
+        return "FAILED";
     }
     return "UNKNOWN";
 }

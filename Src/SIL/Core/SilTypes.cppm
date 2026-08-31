@@ -10,10 +10,12 @@ export module SilTypes;
 
 import std;
 
+import Aircraft;
+import CommsBus;
 import FlightController;
-import Telemetry;
 import HealthMonitor;
 import SafetyManager;
+import Telemetry;
 
 export namespace sim::sil {
 
@@ -50,29 +52,57 @@ struct SimulationState {
     double corrupted_altitude_m = 0.0;
 };
 
+/*
+Full structured outcome of one SIL run. Mission, fault, aircraft, communication,
+watchdog and verdict groups are kept independent so that automated validation
+(and future Monte Carlo campaigns) can consume every field individually.
+*/
 struct SimulationResult {
+    // Mission (COMPLETE means success; ABORTED/FAILED are documented terminal states).
     bool mission_success = false;
-    bool mission_aborted = false;
     sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
+    double mission_duration_s = -1.0;
+
+    // Safety.
     sim::safety::HealthState final_health = sim::safety::HealthState::HEALTHY;
     sim::safety::SafetyMode final_safety_mode = sim::safety::SafetyMode::NORMAL;
-    bool fault_detected = false;
     bool degraded_reached = false;
     bool compensated_reached = false;
     bool safe_mode_reached = false;
     sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
 
-    double max_position_error_m = 0.0;
-    double max_altitude_error_m = 0.0;
-    double final_altitude_m = 0.0;
-
+    // Fault chain: injection -> detection -> response -> recovery.
+    FaultType fault_type = FaultType::None;
+    bool fault_detected = false;
     double fault_injected_time = -1.0;
     double detection_time = -1.0;
-    double recovery_time = -1.0;
+    double safety_response_time = -1.0;
     double detection_latency = -1.0;
     double response_latency = -1.0;
+    bool recovery_attempted = false;
+    bool recovery_successful = false;
+    double recovery_time = -1.0;
 
-    bool passed = false;
+    // Aircraft.
+    double max_position_error_m = 0.0;
+    double mean_position_error_m = 0.0;
+    double max_altitude_error_m = 0.0;
+    double mean_altitude_error_m = 0.0;
+    double final_x_m = 0.0;
+    double final_y_m = 0.0;
+    double final_altitude_m = 0.0;
+    double max_pitch_rad = 0.0;
+    double max_roll_rad = 0.0;
+
+    // Communication (FC1 <-> FC2).
+    CommsStats comms{};
+
+    // Watchdog (heartbeat/comms supervision on FC2).
+    bool watchdog_triggered = false;
+    double watchdog_trigger_time = -1.0;
+
+    // Test verdict: did the system behave as the scenario requires.
+    bool test_verdict = false;
 
     [[nodiscard]] bool compute_verdict(bool fault_expected) const;
 };
@@ -80,4 +110,8 @@ struct SimulationResult {
 // Human-readable name of a fault type for reports.
 [[nodiscard]] std::string_view fault_type_name(FaultType type);
 
+// Human-readable reason of the test verdict for reports.
+[[nodiscard]] std::string_view verdict_reason(const SimulationResult& result);
+
 }
+

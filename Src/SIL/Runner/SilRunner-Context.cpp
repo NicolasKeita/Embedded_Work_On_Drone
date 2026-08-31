@@ -1,6 +1,6 @@
 /*
-Filename: Src/SIL/SilRunner-Context.cpp
-Description: SIL run context assembly, environment injection and FC1 pipeline step.
+Filename: Src/SIL/Runner/SilRunner-Context.cpp
+Description: Run context assembly and environment fault injection step.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -21,7 +21,6 @@ import Telemetry;
 
 namespace sim::sil {
 
-using sim::safety::SafetyMode;
 using sim::safety::HealthMonitorConfig;
 using sim::safety::SafetyManagerConfig;
 
@@ -34,15 +33,20 @@ SILRunner::RunContext::RunContext(const SilConfig& cfg)
       health{HealthMonitorConfig{.heartbeat_timeout_s = cfg.heartbeat_timeout_s,
                                  .actuator_mismatch_rpm = cfg.actuator_mismatch_rpm,
                                  .sensor_limits = cfg.sensor_limits}},
-      safety{SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}} {}
+      safety{SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}},
+      trace{SilTraceConfig{.level = cfg.trace_level}}
+{
+    telemetry_recorder.interval_s = cfg.telemetry_rate_hz > 0.0 ? 1.0 / cfg.telemetry_rate_hz : 0.0;
+    comms.set_transport_latency(cfg.transport_latency_s);
+}
 
 /*
 Builds the run context and converts each declarative scenario into a value
-injector inside the fixed-capacity array. Nominal scenarios (None) are skipped,
-unknown or invalid scenarios are rejected with a typed error.
+injector inside the fixed-capacity array. Nominal scenarios are skipped and
+invalid ones are rejected with a typed error.
 */
 std::expected<SILRunner::RunContext, SilError> SILRunner::make_context(const SilConfig&               config,
-                                                                       std::span<const FaultScenario> scenarios)
+                                                            std::span<const FaultScenario> scenarios)
 {
     if (scenarios.size() > kMaxFaultInjectors) {
         return std::unexpected(SilError::TooManyScenarios);
@@ -65,46 +69,40 @@ std::expected<SILRunner::RunContext, SilError> SILRunner::make_context(const Sil
 }
 
 /*
-Injection step: the environment restarts from a nominal state at each step, then
-each value injector alters the domain it owns. The time of the first active
-fault is recorded in the result.
+Injection step: the environment restarts from a nominal state then each value
+injector alters the domain it owns. Activation and FC1 failure edges become
+structured events; the first activation time and type are stored in the result.
 */
 void SILRunner::apply_injectors(RunContext& ctx)
 {
     ctx.env = SimulationState{};
     bool injected = false;
+    const FaultScenario* active_scenario = nullptr;
+
     for (std::size_t index = 0; index < ctx.injector_count; ++index) {
         ctx.injectors[index].inject(ctx.env, ctx.time);
-        injected = injected || ctx.injectors[index].is_active(ctx.time);
+        if (ctx.injectors[index].is_active(ctx.time)) {
+            injected = true;
+            active_scenario = &ctx.injectors[index].scenario();
+        }
     }
-    if (injected && ctx.result.fault_injected_time < 0.0) {
+    if (injected && !ctx.fault_active && active_scenario != nullptr) {
+        ctx.fault_active = true;
+        record_fault_activation(ctx, *active_scenario);
+    }
+    else if (!injected) {
+        ctx.fault_active = false;
+    }
+    if (injected && !ctx.fault_recorded && active_scenario != nullptr) {
+        ctx.fault_recorded = true;
         ctx.result.fault_injected_time = ctx.time;
+        ctx.result.fault_type = active_scenario->fault_type;
     }
+    if (ctx.fc1_was_alive && !ctx.env.fc1_alive) {
+        record_fc1_failure(ctx);
+    }
+    ctx.fc1_was_alive = ctx.env.fc1_alive;
     ctx.comms.set_link(ctx.env.comms_link_up, ctx.env.comms_loss_probability);
-}
-
-/*
-FC1 step: sensor acquisition with validation (the FC1 secondary estimator keeps
-the last valid value), flight command computation, then heartbeat and status
-message emission on the bus, only while FC1 is alive.
-*/
-void SILRunner::update_fc1(RunContext& ctx)
-{
-    const SilConfig& cfg = ctx.config;
-
-    ctx.telemetry = make_telemetry(ctx.aircraft.state());
-    if (ctx.env.sensor_corruption != SensorCorruptionMode::None) {
-        ctx.telemetry = apply_corruption(ctx.telemetry, ctx.env.sensor_corruption, ctx.env.corrupted_altitude_m);
-    }
-    if (validate(ctx.telemetry, cfg.sensor_limits).all_valid()) {
-        ctx.fc1_view = ctx.aircraft.state();
-    }
-    if (ctx.env.fc1_alive && ctx.safety.mode() != SafetyMode::SAFE_MODE) {
-        ctx.command = ctx.fc1.update(cfg.target, ctx.fc1_view, cfg.dt);
-    }
-    if (ctx.env.fc1_alive) {
-        static_cast<void>(ctx.comms.publish(ctx.time));
-    }
 }
 
 }

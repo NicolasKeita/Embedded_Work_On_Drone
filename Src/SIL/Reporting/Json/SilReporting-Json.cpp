@@ -30,7 +30,7 @@ void write_record_json(std::ostream&         out,
 {
     out << "  {\n";
     write_record_mission(out, record);
-    write_record_metrics(out, record, index + 1 < record_count);
+    write_record_metrics(out, record, index + 1 == record_count);
 }
 
 }
