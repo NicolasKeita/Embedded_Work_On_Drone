@@ -22,7 +22,6 @@ All rights reserved.
 * Document functions with a `/* ... */` block placed directly above the function signature.
 * Trailing comments on closing braces (e.g. `} // namespace sim::control`) are not used either.
 
-This matches what the linter enforces: any comment that is not directly above a function signature is reported as a style issue.
 
 ## C++ Modules
 
