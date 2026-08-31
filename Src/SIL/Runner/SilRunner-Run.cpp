@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Runner/SilRunner-Run.cpp
-Description: Top-level simulation loop, metrics aggregation and result finalization.
+Description: Top-level simulation loop, metrics aggregation and telemetry sampling.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -14,7 +14,9 @@ import Aircraft;
 import FlightController;
 import SafetyManager;
 import SilEvents;
+import SilTelemetry;
 import SilTypes;
+import Telemetry;
 
 namespace sim::sil {
 
@@ -51,13 +53,15 @@ std::expected<SilRunOutput, SilError> SILRunner::run(std::span<const FaultScenar
         output.result = ctx.result;
         output.events = ctx.trace.take_events();
         output.telemetry = std::move(ctx.telemetry_recorder.samples);
+        output.ground_truth = std::move(ctx.telemetry_recorder.truth_samples);
         return std::expected<SilRunOutput, SilError>{std::move(output)};
     });
 }
 
 /*
 Metrics step: aircraft error aggregation, mission transition recording, abort
-timestamping and fixed-rate telemetry sampling.
+timestamping and fixed-rate dual telemetry sampling (sensor path for the
+controller view, physics state for the ground-truth stream).
 */
 void SILRunner::update_metrics(RunContext& ctx)
 {
@@ -84,37 +88,13 @@ void SILRunner::update_metrics(RunContext& ctx)
             ctx.mission_end_time = ctx.time;
         }
     }
-    ctx.telemetry_recorder.maybe_record(ctx.time, state, ctx.command, ctx.commanded_rpm);
-}
-
-/*
-Finalizes the result: latencies, terminal mission semantics (ABORTED on safety
-abort, FAILED when the window is exhausted, COMPLETE on success), duration,
-running means and communication statistics.
-*/
-void SILRunner::finalize(RunContext& ctx)
-{
-    SimulationResult& result = ctx.result;
-
-    if (result.fault_injected_time >= 0.0 && result.detection_time >= 0.0) {
-        result.detection_latency = result.detection_time - result.fault_injected_time;
-    }
-    if (result.detection_time >= 0.0 && result.safety_response_time >= 0.0) {
-        result.response_latency = result.safety_response_time - result.detection_time;
-    }
-    if (ctx.mission_abort_recorded) {
-        result.final_state = sim::control::MissionState::ABORTED;
-    }
-    else if (result.final_state != sim::control::MissionState::COMPLETE) {
-        result.final_state = sim::control::MissionState::FAILED;
-    }
-    result.mission_success = result.final_state == sim::control::MissionState::COMPLETE;
-    result.mission_duration_s = ctx.mission_end_time >= 0.0 ? ctx.mission_end_time : ctx.time;
-    if (ctx.metric_samples > 0) {
-        result.mean_position_error_m = ctx.position_error_sum / static_cast<double>(ctx.metric_samples);
-        result.mean_altitude_error_m = ctx.altitude_error_sum / static_cast<double>(ctx.metric_samples);
-    }
-    result.comms = ctx.comms_stats;
+    const TelemetryControl control{.target_x = cfg.target.x,
+                                   .target_y = cfg.target.y,
+                                   .target_z = cfg.target.z,
+                                   .mission_state = static_cast<int>(ctx.fc1.state()),
+                                   .safety_state = static_cast<int>(ctx.safety.mode())};
+    ctx.telemetry_recorder.maybe_record(ctx.time, ctx.sampled_truth, ctx.telemetry, ctx.command,
+                                        ctx.commanded_rpm, control);
 }
 
 }

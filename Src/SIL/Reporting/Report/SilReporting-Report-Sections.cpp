@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Reporting/SilReporting-Report-Sections.cpp
+Filename: Src/SIL/Reporting/Report/SilReporting-Report-Sections.cpp
 Description: Markdown row writers of the detailed scenario sections.
 
 Copyright (c) 2026 Nicolas K.
@@ -62,7 +62,13 @@ void write_scenario_outcome_rows(std::ostream& out, const SimulationResult& r)
     out << "| Watchdog declenche | " << yes_no(r.watchdog_triggered) << " |\n";
     out << "| Messages envoyes / recus / perdus | " << r.comms.sent << " / " << r.comms.delivered << " / "
         << r.comms.dropped << " |\n";
-    out << "| Latence max (ms) | ";
+    out << "| Derniere sequence recue | " << r.comms.last_sequence << " |\n";
+    out << "| Timeouts de communication | " << r.comms.timeouts << " |\n";
+    out << "| Latence min / moyenne / max (ms) | ";
+    write_metric(out, 1000.0 * r.comms.latency_min_s);
+    out << " / ";
+    write_metric(out, 1000.0 * r.comms.latency_mean_s);
+    out << " / ";
     write_metric(out, 1000.0 * r.comms.latency_max_s);
     out << " |\n";
     out << "| Mission reussie | " << yes_no(r.mission_success) << " |\n";

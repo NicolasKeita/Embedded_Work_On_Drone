@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Runner/SilRunner-Faults.cpp
+Filename: Src/SIL/Runner/Events/SilRunner-Faults.cpp
 Description: Watchdog timeout and recovery event recording.
 
 Copyright (c) 2026 Nicolas K.

@@ -44,4 +44,10 @@ void structured_fields_test(TestHarness& runner);
 void logging_neutrality_test(TestHarness& runner);
 void trace_reconstruction_test(TestHarness& runner);
 
+// Telemetry-path suite (sensor chain observability).
+void telemetry_sampling_test(TestHarness& runner);
+void telemetry_sensor_fault_path_test(TestHarness& runner);
+void telemetry_sensor_hold_and_clear_test(TestHarness& runner);
+void telemetry_rate_neutrality_test(TestHarness& runner);
+
 }

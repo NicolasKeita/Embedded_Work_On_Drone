@@ -29,6 +29,7 @@ struct CommsStats {
     std::uint64_t duplicated = 0;
     std::uint64_t reordered = 0;
     std::uint64_t timeouts = 0;
+    std::uint64_t last_sequence = 0;
     double latency_min_s = -1.0;
     double latency_max_s = -1.0;
     double latency_mean_s = -1.0;

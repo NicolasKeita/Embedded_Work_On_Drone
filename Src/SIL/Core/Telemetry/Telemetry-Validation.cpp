@@ -1,6 +1,6 @@
 /*
-Filename: Src/SIL/Core/Telemetry.cpp
-Description: Telemetry building, range validation and corruption implementations.
+Filename: Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
+Description: Range validation, environment-side corruption and corruption naming.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -13,24 +13,6 @@ import std;
 import Aircraft;
 
 namespace sim::sil {
-
-bool SensorValidity::all_valid() const noexcept
-{
-    return altitude_valid && position_valid;
-}
-
-SensorTelemetry make_telemetry(const AircraftState& state)
-{
-    SensorTelemetry telemetry;
-
-    telemetry.x = state.x;
-    telemetry.y = state.y;
-    telemetry.z = state.z;
-    telemetry.actual_rpm = state.actual_rpm;
-    telemetry.actual_left_servo = state.actual_left_servo;
-    telemetry.actual_right_servo = state.actual_right_servo;
-    return telemetry;
-}
 
 /*
 Range check: rejection of NaN values and physical out-of-range quantities; this
@@ -71,6 +53,24 @@ SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
         break;
     }
     return corrupted;
+}
+
+/*
+Human-readable name of a sensor corruption mode for fault event reports.
+*/
+std::string_view corruption_mode_name(SensorCorruptionMode mode)
+{
+    switch (mode) {
+    case SensorCorruptionMode::None:
+        return "NONE";
+    case SensorCorruptionMode::AltitudeNaN:
+        return "ALTITUDE_NAN";
+    case SensorCorruptionMode::AltitudeOutOfRange:
+        return "ALTITUDE_OUT_OF_RANGE";
+    case SensorCorruptionMode::ExtremeNoise:
+        return "EXTREME_NOISE";
+    }
+    return "UNKNOWN";
 }
 
 }

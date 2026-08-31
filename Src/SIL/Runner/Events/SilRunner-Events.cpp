@@ -1,6 +1,6 @@
 /*
-Filename: Src/SIL/Runner/SilRunner-Events.cpp
-Description: Lifecycle and fault activation event recording.
+Filename: Src/SIL/Runner/Events/SilRunner-Events.cpp
+Description: Simulation lifecycle and FC1 failure event recording.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -13,6 +13,7 @@ import std;
 import FlightController;
 import SilEvents;
 import SilTypes;
+import Telemetry;
 
 namespace sim::sil {
 
@@ -80,41 +81,6 @@ void SILRunner::record_fc1_failure(RunContext& ctx)
     failure.severity = EventSeverity::Warning;
     failure.detail = "FC1_FAILURE";
     ctx.trace.record(failure);
-}
-
-/*
-Emits the fault injection chain: the generic injection marker plus the typed
-sensor/actuator events carrying their parameters. Called on a rising edge.
-*/
-void SILRunner::record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
-{
-    SilEvent injected;
-
-    injected.timestamp = ctx.time;
-    injected.source = "ENV";
-    injected.type = SilEventType::FaultInjected;
-    injected.severity = EventSeverity::Info;
-    injected.detail = fault_type_name(scenario.fault_type);
-    ctx.trace.record(injected);
-
-    const auto record_typed = [&ctx, &scenario](SilEventType type, double value) {
-        SilEvent event;
-
-        event.timestamp = ctx.time;
-        event.source = "ENV";
-        event.type = type;
-        event.severity = EventSeverity::Warning;
-        event.value = value;
-        event.has_value = true;
-        ctx.trace.record(event);
-    };
-
-    if (scenario.fault_type == FaultType::SensorFault) {
-        record_typed(SilEventType::SensorFault, scenario.parameters.corrupted_altitude_m);
-    }
-    if (scenario.fault_type == FaultType::ActuatorDegradation) {
-        record_typed(SilEventType::ActuatorFault, scenario.parameters.efficiency);
-    }
 }
 
 }

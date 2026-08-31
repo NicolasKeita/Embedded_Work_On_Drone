@@ -24,6 +24,8 @@ std::string_view event_type_name(SilEventType type)
         return "SIMULATION_END";
     case SilEventType::FaultInjected:
         return "FAULT_INJECTED";
+    case SilEventType::FaultCleared:
+        return "FAULT_CLEARED";
     case SilEventType::FaultDetected:
         return "FAULT_DETECTED";
     case SilEventType::FaultClassified:
@@ -80,41 +82,6 @@ std::string_view event_type_name_tail(SilEventType type)
         return "RECOVERY_END";
     }
     return "UNKNOWN";
-}
-
-std::string_view event_severity_name(EventSeverity severity)
-{
-    switch (severity) {
-    case EventSeverity::Info:
-        return "INFO";
-    case EventSeverity::Warning:
-        return "WARNING";
-    case EventSeverity::Error:
-        return "ERROR";
-    case EventSeverity::Debug:
-        return "DEBUG";
-    case EventSeverity::Trace:
-        return "TRACE";
-    }
-    return "UNKNOWN";
-}
-
-/*
-Verbosity level an event belongs to: warnings and errors are always kept.
-*/
-SilLogLevel event_log_level(EventSeverity severity)
-{
-    switch (severity) {
-    case EventSeverity::Debug:
-        return SilLogLevel::Debug;
-    case EventSeverity::Trace:
-        return SilLogLevel::Trace;
-    case EventSeverity::Info:
-    case EventSeverity::Warning:
-    case EventSeverity::Error:
-    default:
-        return SilLogLevel::Info;
-    }
 }
 
 }

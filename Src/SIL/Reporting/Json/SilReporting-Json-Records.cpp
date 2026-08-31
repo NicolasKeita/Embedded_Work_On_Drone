@@ -17,6 +17,8 @@ import SilTypes;
 
 namespace sim::sil {
 
+void write_record_failure_reason(std::ostream& out, const SimulationResult& r);
+
 /* Writes the identity, mission and fault fields of one JSON record. */
 void write_record_mission(std::ostream& out, const ScenarioRecord& record)
 {
@@ -62,21 +64,6 @@ void write_metric_field(std::ostream& out, std::string_view name, double value)
     out << ",\n";
 }
 
-/* Writes the failure_reason field derived from the terminal mission state. */
-void write_record_failure_reason(std::ostream& out, const SimulationResult& r)
-{
-    out << "    \"failure_reason\": ";
-    if (r.final_state == sim::control::MissionState::ABORTED) {
-        out << "\"Safe mode engage : ";
-        write_json_escaped(out, fault_domain_name(r.first_fault_domain));
-        out << "\"";
-    }
-    else {
-        out << "\"\"";
-    }
-    out << ",\n";
-}
-
 }
 
 /* Writes timing, metric, comms, watchdog and verdict fields, closing the object. */
@@ -101,6 +88,8 @@ void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool 
     write_metric_field(out, "max_roll_rad", r.max_roll_rad);
     out << "    \"watchdog_triggered\": " << (r.watchdog_triggered ? "true" : "false") << ",\n";
     write_seconds_field(out, "watchdog_trigger_time", r.watchdog_trigger_time);
+    out << "    \"telemetry_samples\": " << record.telemetry.size() << ",\n";
+    out << "    \"ground_truth_samples\": " << record.ground_truth.size() << ",\n";
     out << "    \"comms\": {\"sent\": " << r.comms.sent << ", \"delivered\": " << r.comms.delivered
         << ", \"dropped\": " << r.comms.dropped << ", \"duplicated\": " << r.comms.duplicated
         << ", \"reordered\": " << r.comms.reordered << ", \"timeouts\": " << r.comms.timeouts

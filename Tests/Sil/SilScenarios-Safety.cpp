@@ -64,7 +64,7 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     runner.check(r.compensated_reached, "SIL-004 : mode COMPENSATED engage");
     runner.check(r.final_state != sim::control::MissionState::ABORTED, "SIL-004 : mission non annulee");
     record = {.name = "SIL-004", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry};
+              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
@@ -91,7 +91,7 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
     runner.check(r.compensated_reached, "SIL-005 : consigne de compensation engagee");
     runner.check(r.final_state != sim::control::MissionState::ABORTED, "SIL-005 : mission non annulee");
     record = {.name = "SIL-005", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry};
+              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 /* Runs the five scenarios, the observability suite and the report artifacts. */
@@ -114,7 +114,7 @@ void run_all_sil_scenarios(TestHarness& runner)
         runner.check(false, "generation des artefacts SIL impossible");
         return;
     }
-    std::cout << "Artefacts generes : sil.md, sil.json, sil.csv, sil_trace.jsonl" << std::endl;
+    std::cout << "Artefacts generes : sil.md, json, csv, trace jsonl, telemetry csv, truth csv" << std::endl;
     sim::sil::write_markdown_report(std::cout, records);
 }
 }

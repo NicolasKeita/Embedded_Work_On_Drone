@@ -37,6 +37,7 @@ latency mean incrementally (no stored sample buffer).
 void CommsStats::record(const CommsDelivery& delivery)
 {
     ++sent;
+    last_sequence = delivery.sequence;
     if (!delivery.delivered) {
         ++dropped;
         return;

@@ -32,20 +32,27 @@ set(SAFETY_FILES
 set(SIL_FILES
     Src/SIL/Runner/SilRunner.cppm
     Src/SIL/Runner/SilRunner-Context.cpp
-    Src/SIL/Runner/SilRunner-Events.cpp
-    Src/SIL/Runner/SilRunner-Faults.cpp
+    Src/SIL/Runner/Events/SilRunner-Events.cpp
+    Src/SIL/Runner/Events/SilRunner-FaultEvents.cpp
+    Src/SIL/Runner/Events/SilRunner-Faults.cpp
     Src/SIL/Runner/SilRunner-Fc1.cpp
+    Src/SIL/Runner/Events/SilRunner-Heartbeats.cpp
     Src/SIL/Runner/SilRunner-Loop.cpp
     Src/SIL/Runner/SilRunner-Run.cpp
-    Src/SIL/Runner/SilRunner-Transitions.cpp
+    Src/SIL/Runner/SilRunner-Finalize.cpp
+    Src/SIL/Runner/Events/SilRunner-Transitions.cpp
     Src/SIL/Core/SilTypes.cppm
     Src/SIL/Core/SilTypes.cpp
-    Src/SIL/Core/Telemetry.cppm
-    Src/SIL/Core/Telemetry.cpp
+    Src/SIL/Core/Telemetry/Telemetry.cppm
+    Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
+    Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
+    Src/SIL/Core/Telemetry/SilTelemetry.cppm
+    Src/SIL/Core/Telemetry/SilTelemetry.cpp
     Src/SIL/Core/CommsBus.cppm
     Src/SIL/Core/CommsBus.cpp
     Src/SIL/Core/Events/SilEvents.cppm
     Src/SIL/Core/Events/SilEvents-Names.cpp
+    Src/SIL/Core/Events/SilEvents-Levels.cpp
     Src/SIL/Core/Events/SilEvents-Recorder.cpp
     Src/SIL/Faults/FaultInjectors.cppm
     Src/SIL/Faults/FaultInjectors-Base.cpp
@@ -55,8 +62,11 @@ set(SIL_FILES
     Src/SIL/Reporting/SilReporting-Export.cpp
     Src/SIL/Reporting/SilReporting-File.cpp
     Src/SIL/Reporting/SilReporting-Format.cpp
-    Src/SIL/Reporting/SilReporting-Report.cpp
-    Src/SIL/Reporting/SilReporting-Report-Sections.cpp
+    Src/SIL/Reporting/Report/SilReporting-Report.cpp
+    Src/SIL/Reporting/Report/SilReporting-Report-Sections.cpp
+    Src/SIL/Reporting/Report/SilReporting-Report-Telemetry.cpp
+    Src/SIL/Reporting/Report/SilReporting-Report-Events.cpp
+    Src/SIL/Reporting/Report/SilReporting-Streams.cpp
     Src/SIL/Reporting/Json/SilReporting-Json.cpp
     Src/SIL/Reporting/Json/SilReporting-Json-Records.cpp
     Src/SIL/Reporting/Trace/SilReporting-Trace.cpp
@@ -124,6 +134,10 @@ set(TEST_SIL_FILES
     Tests/Sil/Observability/SilScenarios-Observability-Fields.cpp
     Tests/Sil/Observability/SilScenarios-Observability-Neutrality.cpp
     Tests/Sil/Observability/SilScenarios-Observability-Trace.cpp
+    Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Sampling.cpp
+    Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-FaultPath.cpp
+    Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Hold.cpp
+    Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Support.cpp
 )
 
 add_executable(test_sil Tests/test_sil.cpp)

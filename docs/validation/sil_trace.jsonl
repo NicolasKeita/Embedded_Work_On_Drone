@@ -40,13 +40,14 @@
 {"scenario":"SIL-004","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
 {"scenario":"SIL-004","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
 {"scenario":"SIL-004","timestamp":17.750,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"STATION_KEEPING","new_state":"COMPLETE","reason":"station hold completed"}}
-{"scenario":"SIL-004","timestamp":20.000,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"SENSOR_FAULT"}}
+{"scenario":"SIL-004","timestamp":20.000,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"SENSOR_FAULT","reason":"ALTITUDE_OUT_OF_RANGE","value":99999.00}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"ENV","event":"SENSOR_FAULT","severity":"WARNING","details":{"value":99999.00}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"SENSOR_INVALID"}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"SENSOR_INVALID","reason":"fault domain classification"}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"HEALTHY","new_state":"DEGRADED","reason":"fault flags raised"}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"NORMAL","new_state":"COMPENSATED","reason":"SENSOR_INVALID"}}
 {"scenario":"SIL-004","timestamp":20.000,"source":"FC2","event":"SAFETY_RESPONSE","severity":"INFO","details":{"detail":"ENTER_COMPENSATED"}}
+{"scenario":"SIL-004","timestamp":30.000,"source":"ENV","event":"FAULT_CLEARED","severity":"INFO","details":{"detail":"SENSOR_FAULT","reason":"activation window closed","value":10.00}}
 {"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"RECOVERY_START","severity":"INFO","details":{"detail":"SENSOR_INVALID","reason":"fault flag cleared"}}
 {"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"DEGRADED","new_state":"HEALTHY","reason":"all flags clear"}}
 {"scenario":"SIL-004","timestamp":30.000,"source":"FC2","event":"SAFETY_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"COMPENSATED","new_state":"NORMAL","reason":"health restored"}}
@@ -58,7 +59,7 @@
 {"scenario":"SIL-005","timestamp":0.000,"source":"FC1","event":"FC_STARTUP","severity":"INFO","details":{"reason":"FC1 online"}}
 {"scenario":"SIL-005","timestamp":0.770,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"TAKEOFF","new_state":"CLIMB","reason":"controller progression"}}
 {"scenario":"SIL-005","timestamp":2.890,"source":"FC1","event":"MISSION_STATE_TRANSITION","severity":"INFO","details":{"previous_state":"CLIMB","new_state":"STATION_KEEPING","reason":"controller progression"}}
-{"scenario":"SIL-005","timestamp":15.010,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"ACTUATOR_DEGRADATION"}}
+{"scenario":"SIL-005","timestamp":15.010,"source":"ENV","event":"FAULT_INJECTED","severity":"INFO","details":{"detail":"ACTUATOR_DEGRADATION","value":0.60}}
 {"scenario":"SIL-005","timestamp":15.010,"source":"ENV","event":"ACTUATOR_FAULT","severity":"WARNING","details":{"value":0.60}}
 {"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"FAULT_DETECTED","severity":"INFO","details":{"detail":"ACTUATOR_MISMATCH"}}
 {"scenario":"SIL-005","timestamp":15.530,"source":"FC2","event":"FAULT_CLASSIFIED","severity":"INFO","details":{"detail":"ACTUATOR_MISMATCH","reason":"fault domain classification"}}

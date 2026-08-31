@@ -17,6 +17,7 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
+import SilTelemetry;
 import SilTypes;
 import Telemetry;
 
@@ -48,6 +49,7 @@ struct SilRunOutput {
     SimulationResult result{};
     std::vector<SilEvent> events{};
     std::vector<TelemetrySample> telemetry{};
+    std::vector<TrueStateSample> ground_truth{};
 };
 
 // SIL orchestrator: fixed-time-step loop linking Aircraft -> FaultInjector ->
@@ -75,7 +77,7 @@ private:
         std::size_t injector_count = 0;
         SimulationState env{};
         ControlCommand command{};
-        AircraftState fc1_view{};
+        AircraftState fc1_view{}, sampled_truth{};
         SensorTelemetry telemetry{};
         SimulationResult result{};
         SilTrace trace;
@@ -85,13 +87,13 @@ private:
         sim::control::MissionState previous_mission_state = sim::control::MissionState::TAKEOFF;
         sim::safety::SafetyMode previous_safety_mode = sim::safety::SafetyMode::NORMAL;
         sim::safety::HealthState previous_health = sim::safety::HealthState::HEALTHY;
-        bool fc1_was_alive = true;
-        bool fault_active = false, fault_recorded = false, detection_recorded = false;
+        bool fc1_was_alive = true, fault_active = false, fault_recorded = false, detection_recorded = false;
         bool recovery_recorded = false, safety_response_recorded = false;
         bool mission_abort_recorded = false;
+        FaultType last_fault_type = FaultType::None;
+        double last_fault_start = 0.0;
         double commanded_rpm = 0.0, last_effective_rpm = 0.0, safe_rpm = 0.0;
-        double time = 0.0, mission_end_time = -1.0, position_error_sum = 0.0;
-        double altitude_error_sum = 0.0;
+        double time = 0.0, mission_end_time = -1.0, position_error_sum = 0.0, altitude_error_sum = 0.0;
         std::uint64_t metric_samples = 0;
     };
     static std::expected<RunContext, SilError> make_context(const SilConfig&, std::span<const FaultScenario>);
@@ -112,7 +114,7 @@ private:
     static void record_detection(RunContext&, const sim::safety::HealthReport&);
     static void record_health_transition(RunContext&, sim::safety::HealthState), record_recovery_end(RunContext&, sim::safety::HealthState);
     static void record_safety_transitions(RunContext&), record_mission_transition(RunContext&, sim::control::MissionState);
-    static void record_fault_activation(RunContext&, const FaultScenario&);
+    static void record_fault_activation(RunContext&, const FaultScenario&), record_fault_cleared(RunContext&);
 
     SilConfig config_;
 };

@@ -90,6 +90,10 @@ void run_observability_scenarios(TestHarness& runner)
     structured_fields_test(runner);
     logging_neutrality_test(runner);
     trace_reconstruction_test(runner);
+    telemetry_sampling_test(runner);
+    telemetry_sensor_fault_path_test(runner);
+    telemetry_sensor_hold_and_clear_test(runner);
+    telemetry_rate_neutrality_test(runner);
 }
 
 }

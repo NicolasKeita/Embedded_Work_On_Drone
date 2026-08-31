@@ -61,7 +61,7 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
     runner.check(!r.fault_detected, "SIL-001 : aucune faulte detectee");
     runner.check(r.max_altitude_error_m <= 10.5, "SIL-001 : erreur d'altitude maitrisee (<= 10.5 m)");
     record = {.name = "SIL-001", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry};
+              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
@@ -89,7 +89,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
                  "SIL-002 : mission ABORTED par le SafetyManager");
     runner.check(!r.mission_success && r.test_verdict, "SIL-002 : verdict PASS avec mission non reussie");
     record = {.name = "SIL-002", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry};
+              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
@@ -115,7 +115,7 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
     runner.check(r.safe_mode_reached, "SIL-003 : reaction de surete engagee");
     runner.check(r.final_state == sim::control::MissionState::ABORTED, "SIL-003 : mission ABORTED (regle etape 10)");
     record = {.name = "SIL-003", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry};
+              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 }
 

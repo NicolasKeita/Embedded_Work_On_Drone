@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Core/Events/SilEvents.cppm
-Description: Structured SIL events, telemetry sampling and leveled trace recorder.
+Description: Structured SIL events and leveled trace recorder.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -19,6 +19,7 @@ enum class SilEventType {
     SimulationStart,
     SimulationEnd,
     FaultInjected,
+    FaultCleared,
     FaultDetected,
     FaultClassified,
     SafetyResponse,
@@ -63,30 +64,15 @@ struct SilEvent {
     bool has_value = false;
 };
 
-// One sampled flight/control telemetry record (structured, never a log line).
-struct TelemetrySample {
-    double time = 0.0;
-    double x = 0.0;
-    double y = 0.0;
-    double altitude_m = 0.0;
-    double pitch_rad = 0.0;
-    double roll_rad = 0.0;
-    double vx = 0.0;
-    double vy = 0.0;
-    double vz = 0.0;
-    double commanded_rpm = 0.0;
-    double actual_rpm = 0.0;
-    double left_servo_deg = 0.0;
-    double right_servo_deg = 0.0;
-};
-
 enum class SilLogLevel { Info, Debug, Trace };
 
 struct SilTraceConfig {
     SilLogLevel level = SilLogLevel::Info;
     std::size_t max_events = 500000;
 };
-// Leveled in-memory trace recorder: observational only, filtered by verbosity.
+/*
+Verbosity-filtered in-memory trace recorder: observational only.
+*/
 class SilTrace {
 public:
     SilTrace() = default;
@@ -101,15 +87,6 @@ public:
 private:
     SilTraceConfig config_{};
     std::vector<SilEvent> events_;
-};
-// Fixed-rate telemetry sampler (rate configured through interval_s).
-struct TelemetryRecorder {
-    double interval_s = 0.05;
-    double last_sample_time = -1.0e12;
-    std::vector<TelemetrySample> samples;
-
-    void maybe_record(double time, const AircraftState& state, const ControlCommand& command,
-                      double commanded_rpm);
 };
 
 [[nodiscard]] std::string_view event_type_name(SilEventType type);

@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Reporting/SilReporting-Json.cpp
+Filename: Src/SIL/Reporting/Json/SilReporting-Json.cpp
 Description: Streaming JSON writer for SIL simulation results export.
 
 Copyright (c) 2026 Nicolas K.
@@ -33,6 +33,21 @@ void write_record_json(std::ostream&         out,
     write_record_metrics(out, record, index + 1 == record_count);
 }
 
+}
+
+/* Writes the failure_reason field derived from the terminal mission state. */
+void write_record_failure_reason(std::ostream& out, const SimulationResult& r)
+{
+    out << "    \"failure_reason\": ";
+    if (r.final_state == sim::control::MissionState::ABORTED) {
+        out << "\"Safe mode engage : ";
+        write_json_escaped(out, fault_domain_name(r.first_fault_domain));
+        out << "\"";
+    }
+    else {
+        out << "\"\"";
+    }
+    out << ",\n";
 }
 
 /*

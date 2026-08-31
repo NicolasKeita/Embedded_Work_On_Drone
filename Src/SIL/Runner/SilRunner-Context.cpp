@@ -70,8 +70,9 @@ std::expected<SILRunner::RunContext, SilError> SILRunner::make_context(const Sil
 
 /*
 Injection step: the environment restarts from a nominal state then each value
-injector alters the domain it owns. Activation and FC1 failure edges become
-structured events; the first activation time and type are stored in the result.
+injector alters the domain it owns. Rising edges become structured injection
+events, falling edges become fault-cleared events (temporary faults); the first
+activation time and type are stored in the result.
 */
 void SILRunner::apply_injectors(RunContext& ctx)
 {
@@ -88,10 +89,13 @@ void SILRunner::apply_injectors(RunContext& ctx)
     }
     if (injected && !ctx.fault_active && active_scenario != nullptr) {
         ctx.fault_active = true;
+        ctx.last_fault_type = active_scenario->fault_type;
+        ctx.last_fault_start = ctx.time;
         record_fault_activation(ctx, *active_scenario);
     }
-    else if (!injected) {
+    else if (!injected && ctx.fault_active) {
         ctx.fault_active = false;
+        record_fault_cleared(ctx);
     }
     if (injected && !ctx.fault_recorded && active_scenario != nullptr) {
         ctx.fault_recorded = true;
