@@ -55,10 +55,12 @@ Src/App/Application.cppm
 Src/App/Application.cpp
 ```
 
-Large or medium classes may live in a single `.cppm` interface file with their
-implementation split across several `.cpp` files.
+Large or medium namespaces or classes may live in a single `.cppm` interface file with their implementation split across several `.cpp` files.
 
-When split across multiple files, **every** implementation `.cpp` file must include a hyphen (`-`) followed by a suffix describing its responsibility (e.g., `-Core.cpp`). For small classes with a single implementation file, use the base module name without a hyphen.
+When split across multiple files, the following rules apply:
+- **At most one hyphen**: Every implementation `.cpp` file must contain **at most one hyphen (`-`)** separating the base module name and a single suffix describing its responsibility (e.g., `SilScenarios-Core.cpp`). Multiple hyphens (such as `SilScenarios-Observability-Telemetry.cpp`) are prohibited—if deeper grouping is needed, refactor the code into a dedicated sub-module or sub-namespace.
+- **Maximum 8 implementation files**: A module interface (`.cppm`) is limited to a maximum of **8 implementation `.cpp` files**. If a namespace or class requires more than 8 implementation files, it must be split into separate sub-modules or sub-namespaces (e.g., moving `Observability` out into its own `SilScenarios-Observability` sub-module).
+- **Single implementation file**: For small namespaces or classes with only one implementation file, use the base module name without any hyphen (e.g., `SilScenarios.cpp`).
 
 Example (split implementation):
 
