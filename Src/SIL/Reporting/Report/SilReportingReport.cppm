@@ -49,7 +49,7 @@ struct SilReportOptions {
     bool                  write_csv = true;
     bool                  write_trace = true;
     bool                  write_telemetry = true;
-    std::float64_t        telemetry_report_interval_s = 2.5;
+    std::float64_t        telemetry_report_interval_s = 1.0;
 };
 
 }
@@ -61,7 +61,7 @@ void write_seconds(std::ostream& out, std::float64_t value);
 void write_metric(std::ostream& out, std::float64_t value);
 void write_csv_escaped(std::ostream& out, std::string_view text);
 void write_markdown_report(std::ostream& out, std::span<const ScenarioRecord> records,
-                           std::float64_t telemetry_report_interval_s = 2.5);
+                           std::float64_t telemetry_report_interval_s = 1.0);
 
 /*
 Writes the raw structured sensor telemetry of every scenario record into one

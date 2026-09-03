@@ -66,8 +66,8 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
 
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    std::cout << "\n=== SIL-002 : defaillance FC1 a t = 30.0 s ===" << std::endl;
-    const FaultScenario scenario{.start_time = 30.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
+    std::cout << "\n=== SIL-002 : defaillance FC1 a t = 20.0 s ===" << std::endl;
+    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
@@ -94,8 +94,8 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
 
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    std::cout << "\n=== SIL-003 : perte de communication a t = 30.0 s ===" << std::endl;
-    const FaultScenario scenario{.start_time = 30.0, .duration = 0.0, .fault_type = FaultType::CommunicationLoss};
+    std::cout << "\n=== SIL-003 : perte de communication a t = 20.0 s ===" << std::endl;
+    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::CommunicationLoss};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);

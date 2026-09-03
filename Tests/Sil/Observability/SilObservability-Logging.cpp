@@ -32,8 +32,8 @@ aircraft/metric aggregates populated at every run.
 */
 void structured_fields_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 60.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const SilConfig config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
+    const FaultScenario scenario{.start_time = 20.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -43,7 +43,7 @@ void structured_fields_test(TestHarness& runner)
 
     const SimulationResult& result = outcome.value().result;
 
-    runner.check(result.fault_injected_time >= 30.0 && result.fault_detected, "OBS-008 : chaine d'injection detectee");
+    runner.check(result.fault_injected_time >= 20.0 && result.fault_detected, "OBS-008 : chaine d'injection detectee");
     runner.check(result.detection_time >= result.fault_injected_time, "OBS-008 : detection apres injection");
     runner.check(std::abs(result.detection_latency
                           - (result.detection_time - result.fault_injected_time)) < 1.0e-9,

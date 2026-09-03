@@ -36,7 +36,7 @@ enum class SilError { TooManyScenarios, FaultScenarioRejected };
 
 struct SilConfig {
     std::float64_t                 dt = 0.01;
-    std::float64_t                 duration_s = 60.0;
+    std::float64_t                 duration_s = 30.0;
     sim::control::TargetState      target{.z = 10.0};
     sim::control::ControllerConfig controller{.hover_rpm = Aircraft{}.hover_rpm()};
     std::float64_t                 heartbeat_timeout_s = 0.10;
