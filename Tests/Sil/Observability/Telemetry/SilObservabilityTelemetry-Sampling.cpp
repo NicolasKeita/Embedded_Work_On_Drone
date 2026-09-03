@@ -1,17 +1,18 @@
 /*
-Filename: Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Sampling.cpp
+Filename: Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Sampling.cpp
 Description: Telemetry sampling tests: rate, simulation timestamps, determinism and logging neutrality.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservabilityTelemetry;
 
 import std;
 
 import Aircraft;
 import SilEvents;
+import SilObservability;
 import SilRunner;
 import SilTelemetry;
 import SilTypes;

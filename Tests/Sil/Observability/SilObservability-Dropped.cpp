@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Dropped.cpp
+Filename: Tests/Sil/Observability/SilObservability-Dropped.cpp
 Description: Dropped heartbeat observability test.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 

@@ -155,6 +155,29 @@ class TestCheckModuleImplementationCounts(unittest.TestCase):
             ["Aaa::Bbb", "Zzz::Yyy"],
         )
 
+    def test_module_declaration_overrides_filename_prefix(self):
+        directory = os.path.join(self.root, "Tests", "Renamed")
+        for index in range(4):
+            self.write_source_file(
+                directory, "Other-Area-Unit" + str(index) + ".cpp", "module SilScenarios;\n"
+            )
+        self.write_prefixed_implementations(directory, "SilScenarios", 5)
+        violations = check_module_implementation_counts([directory])
+        self.assertEqual(violations, [
+            (
+                "SilScenarios",
+                MAX_IMPLEMENTATION_FILES_PER_MODULE + 1,
+                "SilScenarios::" + SUB_MODULE_PLACEHOLDER,
+            ),
+        ])
+
+    def test_distinct_module_declarations_are_grouped_separately(self):
+        directory = os.path.join(self.root, "Tests", "Split")
+        for index in range(5):
+            self.write_source_file(directory, "Alpha-Area-Unit" + str(index) + ".cpp", "module Alpha;\n")
+            self.write_source_file(directory, "Beta-Area-Unit" + str(index) + ".cpp", "module Beta;\n")
+        self.assertEqual(check_module_implementation_counts([directory]), [])
+
     def test_message_format_matches_specification(self):
         message = format_module_too_large_message(
             "SilScenarios::Observability",

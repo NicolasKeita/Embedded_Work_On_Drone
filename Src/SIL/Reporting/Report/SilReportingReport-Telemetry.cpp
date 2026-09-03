@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/Report/SilReporting-Report-Telemetry.cpp
+Filename: Src/SIL/Reporting/Report/SilReportingReport-Telemetry.cpp
 Description: Periodic telemetry and post-fault sections of the Markdown report.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReporting;
+module SilReportingReport;
 
 import std;
 

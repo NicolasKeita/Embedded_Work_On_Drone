@@ -17,6 +17,7 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
+import SilRunnerEvents;
 import SilTypes;
 import Telemetry;
 
@@ -27,31 +28,13 @@ using sim::safety::SafetyManagerConfig;
 
 SILRunner::SILRunner(SilConfig config) : config_{config} {}
 
-SILRunner::RunContext::RunContext(const SilConfig& cfg)
-    : config{cfg},
-      fc1{cfg.controller},
-      comms{cfg.seed},
-      health{HealthMonitorConfig{.heartbeat_timeout_s = cfg.heartbeat_timeout_s,
-                                 .actuator_mismatch_rpm = cfg.actuator_mismatch_rpm,
-                                 .sensor_limits = cfg.sensor_limits}},
-      safety{SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}},
-      trace{SilTraceConfig{.level = cfg.trace_level}}
-{
-    telemetry_recorder.interval_s = cfg.telemetry_rate_hz > 0.0 ? 1.0 / cfg.telemetry_rate_hz : 0.0;
-    comms.set_transport_latency(cfg.transport_latency_s);
-    const std::size_t expected_samples =
-        static_cast<std::size_t>(cfg.duration_s * std::max(cfg.telemetry_rate_hz, std::float64_t{0.0})) + 2;
-    telemetry_recorder.samples.reserve(expected_samples);
-    telemetry_recorder.truth_samples.reserve(expected_samples);
-}
-
 /*
 Builds the run context and converts each declarative scenario into a value
 injector inside the fixed-capacity array. Nominal scenarios are skipped and
 invalid ones are rejected with a typed error.
 */
-std::expected<SILRunner::RunContext, SilError> SILRunner::make_context(const SilConfig&               config,
-                                                            std::span<const FaultScenario> scenarios)
+std::expected<RunContext, SilError> SILRunner::make_context(const SilConfig&               config,
+                                                             std::span<const FaultScenario> scenarios)
 {
     if (scenarios.size() > kMaxFaultInjectors) {
         return std::unexpected(SilError::TooManyScenarios);

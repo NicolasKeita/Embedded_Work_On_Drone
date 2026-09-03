@@ -10,6 +10,7 @@ module SilReporting;
 
 import std;
 
+import SilReportingReport;
 import SilTypes;
 
 namespace sim::sil {

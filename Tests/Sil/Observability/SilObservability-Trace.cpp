@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Trace.cpp
+Filename: Tests/Sil/Observability/SilObservability-Trace.cpp
 Description: End-to-end scenario reconstruction from the event trace.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 

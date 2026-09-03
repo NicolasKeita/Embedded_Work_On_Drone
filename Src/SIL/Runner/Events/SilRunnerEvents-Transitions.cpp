@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Runner/Events/SilRunner-Transitions.cpp
+Filename: Src/SIL/Runner/Events/SilRunnerEvents-Transitions.cpp
 Description: Fault detection and safety/mission state transition event recording.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilRunner;
+module SilRunnerEvents;
 
 import std;
 
@@ -14,6 +14,7 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
+import SilRunnerContext;
 import SilTypes;
 
 namespace sim::sil {
@@ -31,7 +32,7 @@ static std::string_view safety_command_name(sim::safety::SafetyMode mode)
 }
 
 /* Records the fault detection and classification chain on first detection. */
-void SILRunner::record_detection(RunContext& ctx, const HealthReport& report)
+void record_detection(RunContext& ctx, const HealthReport& report)
 {
     const std::float64_t detection = report.first_detection_time();
 
@@ -60,7 +61,7 @@ void SILRunner::record_detection(RunContext& ctx, const HealthReport& report)
 }
 
 /* Records safety mode transitions and the first safety response command. */
-void SILRunner::record_safety_transitions(RunContext& ctx)
+void record_safety_transitions(RunContext& ctx)
 {
     const sim::safety::SafetyMode current = ctx.safety.mode();
     const std::float64_t response_time = ctx.safety.response_time();
@@ -92,7 +93,7 @@ void SILRunner::record_safety_transitions(RunContext& ctx)
 }
 
 /* Records a mission state transition with its previous/new states and reason. */
-void SILRunner::record_mission_transition(RunContext& ctx, sim::control::MissionState current)
+void record_mission_transition(RunContext& ctx, sim::control::MissionState current)
 {
     if (current == ctx.previous_mission_state) {
         return;

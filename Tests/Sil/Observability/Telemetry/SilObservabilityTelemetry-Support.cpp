@@ -1,15 +1,16 @@
 /*
-Filename: Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Support.cpp
+Filename: Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Support.cpp
 Description: Shared helpers of the telemetry test suite (determinism, sensor path and command divergence).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservabilityTelemetry;
 
 import std;
 
+import SilObservability;
 import SilRunner;
 import SilTelemetry;
 import TestHarness;
@@ -108,5 +109,4 @@ void check_stream_separation(TestHarness&        runner,
     runner.check(pre_fault_identical, "TELE-011 : sans corruption capteur et verite coincident");
     runner.check(sensor_diverged, "TELE-011 : telemetrie capteur ecartee de la verite pendant la faulte");
 }
-
 }

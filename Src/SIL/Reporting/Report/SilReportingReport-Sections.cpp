@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/Report/SilReporting-Report-Sections.cpp
+Filename: Src/SIL/Reporting/Report/SilReportingReport-Sections.cpp
 Description: Markdown row writers of the detailed scenario sections.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReporting;
+module SilReportingReport;
 
 import std;
 

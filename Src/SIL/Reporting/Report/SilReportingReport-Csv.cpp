@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/Report/SilReporting-Streams.cpp
+Filename: Src/SIL/Reporting/Report/SilReportingReport-Csv.cpp
 Description: Raw sensor telemetry and ground-truth CSV stream writers.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReporting;
+module SilReportingReport;
 
 import std;
 

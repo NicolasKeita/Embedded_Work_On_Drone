@@ -1,16 +1,17 @@
 /*
-Filename: Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-FaultPath.cpp
+Filename: Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-FaultPath.cpp
 Description: Sensor-fault data path test: ground truth, sensor telemetry, FC consumption and events.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservabilityTelemetry;
 
 import std;
 
 import SilEvents;
+import SilObservability;
 import SilRunner;
 import SilTelemetry;
 import SilTypes;

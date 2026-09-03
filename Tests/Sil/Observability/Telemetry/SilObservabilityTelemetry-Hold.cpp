@@ -1,18 +1,19 @@
 /*
-Filename: Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Hold.cpp
+Filename: Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Hold.cpp
 Description: Hold-last-valid and fault clearing telemetry tests with an out-of-range altitude fault.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservabilityTelemetry;
 
 import std;
 
 import Aircraft;
 import HealthMonitor;
 import SilEvents;
+import SilObservability;
 import SilRunner;
 import SilTelemetry;
 import SilTypes;

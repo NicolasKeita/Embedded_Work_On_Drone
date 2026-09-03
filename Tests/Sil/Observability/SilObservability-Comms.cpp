@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Comms.cpp
+Filename: Tests/Sil/Observability/SilObservability-Comms.cpp
 Description: Communication statistics and verdict-independence tests.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 

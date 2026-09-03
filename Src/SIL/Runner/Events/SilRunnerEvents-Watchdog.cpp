@@ -1,18 +1,19 @@
 /*
-Filename: Src/SIL/Runner/Events/SilRunner-Faults.cpp
+Filename: Src/SIL/Runner/Events/SilRunnerEvents-Watchdog.cpp
 Description: Watchdog timeout and recovery event recording.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilRunner;
+module SilRunnerEvents;
 
 import std;
 
 import CommsBus;
 import HealthMonitor;
 import SilEvents;
+import SilRunnerContext;
 import SilTypes;
 
 namespace sim::sil {
@@ -23,7 +24,7 @@ using sim::safety::HealthReport;
 /*
 Orchestrates the per-flag watchdog recording chain and the fault detection.
 */
-void SILRunner::record_watchdog_and_detection(RunContext& ctx, const HealthReport& report)
+void record_watchdog_and_detection(RunContext& ctx, const HealthReport& report)
 {
     record_watchdog_events(ctx, report);
     record_recovery_start(ctx, report);
@@ -36,7 +37,7 @@ void SILRunner::record_watchdog_and_detection(RunContext& ctx, const HealthRepor
 /*
 Emits watchdog and message timeout events and updates the statistics.
 */
-void SILRunner::record_watchdog_events(RunContext& ctx, const sim::safety::HealthReport& report)
+void record_watchdog_events(RunContext& ctx, const sim::safety::HealthReport& report)
 {
     for (std::size_t index = 0; index < report.flags.size(); ++index) {
         const bool raised = report.flags[index].raised;
@@ -72,7 +73,7 @@ void SILRunner::record_watchdog_events(RunContext& ctx, const sim::safety::Healt
 /*
 Emits the recovery start event on a fault flag falling edge.
 */
-void SILRunner::record_recovery_start(RunContext& ctx, const HealthReport& report)
+void record_recovery_start(RunContext& ctx, const HealthReport& report)
 {
     for (std::size_t index = 0; index < report.flags.size(); ++index) {
         if (report.flags[index].raised || !ctx.previous_flags[index] || !ctx.result.fault_detected

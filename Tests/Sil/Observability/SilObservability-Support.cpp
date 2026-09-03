@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Support.cpp
+Filename: Tests/Sil/Observability/SilObservability-Support.cpp
 Description: Shared helpers and orchestration of the SIL observability suite.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 
@@ -90,10 +90,6 @@ void run_observability_scenarios(TestHarness& runner)
     structured_fields_test(runner);
     logging_neutrality_test(runner);
     trace_reconstruction_test(runner);
-    telemetry_sampling_test(runner);
-    telemetry_sensor_fault_path_test(runner);
-    telemetry_sensor_hold_and_clear_test(runner);
-    telemetry_rate_neutrality_test(runner);
 }
 
 }

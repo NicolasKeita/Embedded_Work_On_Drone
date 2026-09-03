@@ -15,6 +15,7 @@ import CommsBus;
 import FlightController;
 import SafetyManager;
 import SilEvents;
+import SilRunnerEvents;
 import SilTypes;
 import Telemetry;
 

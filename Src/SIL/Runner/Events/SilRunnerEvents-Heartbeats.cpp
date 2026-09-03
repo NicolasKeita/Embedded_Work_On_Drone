@@ -1,24 +1,25 @@
 /*
-Filename: Src/SIL/Runner/Events/SilRunner-Heartbeats.cpp
+Filename: Src/SIL/Runner/Events/SilRunnerEvents-Heartbeats.cpp
 Description: Heartbeat send/deliver/drop event recording for the detailed trace.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilRunner;
+module SilRunnerEvents;
 
 import std;
 
 import CommsBus;
 import SilEvents;
+import SilRunnerContext;
 
 namespace sim::sil {
 
 /*
 Emits the heartbeat send marker then dispatches the delivery outcome event.
 */
-void SILRunner::record_heartbeat(RunContext& ctx, const CommsDelivery& delivery)
+void record_heartbeat(RunContext& ctx, const CommsDelivery& delivery)
 {
     SilEvent sent;
 
@@ -40,7 +41,7 @@ void SILRunner::record_heartbeat(RunContext& ctx, const CommsDelivery& delivery)
 /*
 Emits the delivery receipt with its latency and the FC2 watchdog kick.
 */
-void SILRunner::record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery)
+void record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery)
 {
     SilEvent delivered;
 
@@ -68,7 +69,7 @@ void SILRunner::record_heartbeat_delivered(RunContext& ctx, const CommsDelivery&
 /*
 Emits the dropped heartbeat marker with its sequence number.
 */
-void SILRunner::record_heartbeat_dropped(RunContext& ctx, const CommsDelivery& delivery)
+void record_heartbeat_dropped(RunContext& ctx, const CommsDelivery& delivery)
 {
     SilEvent dropped;
 

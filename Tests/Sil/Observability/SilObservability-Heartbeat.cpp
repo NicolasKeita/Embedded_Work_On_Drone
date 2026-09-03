@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Heartbeat.cpp
+Filename: Tests/Sil/Observability/SilObservability-Heartbeat.cpp
 Description: Heartbeat sequence and latency observability test.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 

@@ -6,14 +6,15 @@ Warns when a module or functional namespace accumulates too many
 implementation files, mirroring the single responsibility principle applied
 at module scale.
 
-Source files (.cpp / .cppm) are grouped by their filename functional prefix
-(e.g. 'SilScenarios-Observability-*' groups as 'SilScenarios-Observability')
-when the stem carries several hyphen separated segments, otherwise by their
-C++20 module declaration ('module <Name>;' or 'export module <Name>;') or by
-the bare stem when no declaration exists. Files nested under a deeper prefix
-(e.g. 'SilScenarios-Observability-Telemetry-*') are counted in their parent
-group, and only the most specific groups above the threshold are reported so
-the same files are never flagged twice.
+Source files (.cpp / .cppm) are grouped by their C++20 module declaration
+('module <Name>;' or 'export module <Name>;'): every implementation file
+belongs to the module it declares, whatever its filename functional prefix is
+(e.g. 'SilObservabilityTelemetry-*.cpp' declaring 'module SilScenarios;'
+counts for 'SilScenarios'). Partition suffixes ('module <Name>:<Part>;') are
+folded into the base module name. Files without any module declaration fall
+back to their filename functional prefix (e.g. 'Alpha-Beta-*' groups as
+'Alpha-Beta'). Only implementation files (.cpp) are counted, and when a group
+exceeds the threshold a warning suggests splitting it into sub-modules.
 """
 
 import os
@@ -68,13 +69,13 @@ def _extract_module_declaration_name(content: str) -> Optional[str]:
 
 
 def _resolve_group_segments(file_path: str, file_name: str) -> List[str]:
+    module_name = _extract_module_declaration_name(_read_file_text(file_path))
+    if module_name:
+        return [module_name]
     stem = os.path.splitext(file_name)[0]
     segments = stem.split("-")
     if len(segments) >= 2:
         return segments[:-1]
-    module_name = _extract_module_declaration_name(_read_file_text(file_path))
-    if module_name:
-        return [module_name]
     return [stem]
 
 

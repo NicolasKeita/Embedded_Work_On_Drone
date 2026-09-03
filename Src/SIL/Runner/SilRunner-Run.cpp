@@ -14,6 +14,7 @@ import Aircraft;
 import FlightController;
 import SafetyManager;
 import SilEvents;
+import SilRunnerEvents;
 import SilTelemetry;
 import SilTypes;
 import Telemetry;

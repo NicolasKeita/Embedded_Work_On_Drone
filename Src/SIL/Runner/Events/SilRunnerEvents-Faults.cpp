@@ -1,16 +1,17 @@
 /*
-Filename: Src/SIL/Runner/Events/SilRunner-FaultEvents.cpp
+Filename: Src/SIL/Runner/Events/SilRunnerEvents-Faults.cpp
 Description: Fault injection parameter events and fault clearing event recording.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilRunner;
+module SilRunnerEvents;
 
 import std;
 
 import SilEvents;
+import SilRunnerContext;
 import SilTypes;
 import Telemetry;
 
@@ -44,7 +45,7 @@ static void write_fault_parameters(SilEvent& event, const FaultScenario& scenari
 Emits the fault injection chain: the generic injection marker carrying the
 fault parameters plus the typed sensor/actuator events. Called on a rising edge.
 */
-void SILRunner::record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
+void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
 {
     SilEvent injected;
 
@@ -80,7 +81,7 @@ void SILRunner::record_fault_activation(RunContext& ctx, const FaultScenario& sc
 Emits the fault-cleared marker when the activation window of a temporary fault
 closes; permanent faults (duration <= 0) never produce this event.
 */
-void SILRunner::record_fault_cleared(RunContext& ctx)
+void record_fault_cleared(RunContext& ctx)
 {
     SilEvent cleared;
 

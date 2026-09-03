@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/Report/SilReporting-Report.cpp
+Filename: Src/SIL/Reporting/Report/SilReportingReport-Markdown.cpp
 Description: Markdown report writers for the SIL validation artifacts.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReporting;
+module SilReportingReport;
 
 import std;
 

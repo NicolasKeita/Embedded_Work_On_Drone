@@ -15,6 +15,8 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
+import SilObservability;
+import SilObservabilityTelemetry;
 import SilReporting;
 import SilRunner;
 import SilTypes;
@@ -44,7 +46,6 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     const FaultScenario scenario{ .start_time = 20.0, .duration = 10.0, .fault_type = FaultType::SensorFault,
         .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange, .corrupted_altitude_m = 99999.0}};
     const std::array<FaultScenario, 1> scenarios{scenario};
-
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL-004 : moteur SIL en echec");
@@ -52,7 +53,6 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
         record = {.name = "SIL-004", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
-
     output = std::move(outcome).value();
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
@@ -73,7 +73,6 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
     const FaultScenario scenario{.start_time = 15.0, .duration = 0.0, .fault_type = FaultType::ActuatorDegradation,
                                  .parameters = {.efficiency = 0.6}};
     const std::array<FaultScenario, 1> scenarios{scenario};
-
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL-005 : moteur SIL en echec");
@@ -81,7 +80,6 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
         record = {.name = "SIL-005", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
-
     output = std::move(outcome).value();
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
@@ -99,7 +97,6 @@ void run_all_sil_scenarios(TestHarness& runner)
 {
     std::array<SilRunOutput, 5> outputs{};
     std::array<ScenarioRecord, 5> records{};
-
     nominal_scenario(runner, outputs[0], records[0]);
     fc1_failure_scenario(runner, outputs[1], records[1]);
     communication_loss_scenario(runner, outputs[2], records[2]);
@@ -107,6 +104,7 @@ void run_all_sil_scenarios(TestHarness& runner)
     actuator_degradation_scenario(runner, outputs[4], records[4]);
 
     run_observability_scenarios(runner);
+    run_telemetry_scenarios(runner);
 
     std::cout << "\n=== Generation du rapport SIL (docs/validation) ===" << std::endl;
     const std::expected<void, sim::sil::ReportError> outcome = sim::sil::write_sil_report(records);

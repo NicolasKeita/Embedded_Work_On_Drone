@@ -1,12 +1,12 @@
 /*
-Filename: Tests/Sil/Observability/SilScenarios-Observability-Faults.cpp
+Filename: Tests/Sil/Observability/SilObservability-Faults.cpp
 Description: FC1 failure events, detection latency and state transition tests.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilScenarios;
+module SilObservability;
 
 import std;
 

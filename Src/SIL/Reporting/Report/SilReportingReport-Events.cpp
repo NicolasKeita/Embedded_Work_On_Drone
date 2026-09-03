@@ -1,12 +1,12 @@
 /*
-Filename: Src/SIL/Reporting/Report/SilReporting-Report-Events.cpp
+Filename: Src/SIL/Reporting/Report/SilReportingReport-Events.cpp
 Description: Important discrete events section of the Markdown report (no heartbeat noise).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module SilReporting;
+module SilReportingReport;
 
 import std;
 
