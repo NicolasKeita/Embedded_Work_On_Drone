@@ -40,7 +40,8 @@ void check_stream_separation(TestHarness&        runner,
                              std::float64_t      fault_start,
                              std::float64_t      fault_end);
 
-constexpr std::float64_t kFaultStart = 20.0, kFaultEnd = 30.0;
+constexpr std::float64_t kFaultStart = 20.0;
+constexpr std::float64_t kFaultEnd   = 30.0;
 
 /*
 TELE-011: a sensor fault injected in the environment reaches the FC through the

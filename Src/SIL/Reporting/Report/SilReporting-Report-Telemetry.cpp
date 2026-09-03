@@ -21,7 +21,8 @@ namespace sim::sil {
 
 namespace {
 
-constexpr std::float64_t kTimeEpsilon = 1.0e-9, kDegreesPerRadian = 180.0 / std::numbers::pi;
+constexpr std::float64_t kTimeEpsilon      = 1.0e-9;
+constexpr std::float64_t kDegreesPerRadian = 180.0 / std::numbers::pi;
 
 /* Streams the header row of a telemetry table. */
 void write_telemetry_header(std::ostream& out)
