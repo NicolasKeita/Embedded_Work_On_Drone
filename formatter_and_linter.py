@@ -27,6 +27,7 @@ import formatter.brace_formatter as brace_formatter
 import formatter.module_formatter as module_formatter
 import formatter.prototype_spacing as prototype_spacing
 import formatter.initialization_block_formatter as initialization_block_formatter
+import formatter.member_alignment_formatter as member_alignment_formatter
 from formatter.join_lines import join_lines
 
 
@@ -73,6 +74,9 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
     is_module_interface = input_file.lower().endswith('.cppm')
     if is_module_interface:
         formatted_code = prototype_spacing.clean_code(code)
+        formatted_code = member_alignment_formatter.format_member_alignment_for_file(
+            input_file, formatted_code
+        )
     else:
         code_without_comments, comments = comment_utils.remove_comments(code)
 

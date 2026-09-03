@@ -42,6 +42,27 @@ Automatically formats C++ code according to defined rules.
 - Proper spacing between functions
 - Line joining: merges statements wrapped over several lines back onto a single
   line when the combined line fits within 120 characters.
+- Member variable alignment (.cppm only): inside struct / class bodies of
+  C++20 module interface files, variable names of contiguous member
+  declaration blocks are aligned on one column. The column is computed from
+  the longest type of the block plus one space; blank lines, methods, macros
+  and visibility changes start a new block; trailing comments are preserved.
+
+**Before :**
+```cpp
+struct SilConfig {
+    double dt = 0.01;
+    sim::control::TargetState target{.z = 10.0};
+};
+```
+
+**After :**
+```cpp
+struct SilConfig {
+    double                    dt = 0.01;
+    sim::control::TargetState target{.z = 10.0};
+};
+```
 
 ### Examples
 
