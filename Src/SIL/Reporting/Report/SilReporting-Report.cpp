@@ -19,15 +19,17 @@ namespace sim::sil {
 
 void write_scenario_fault_rows(std::ostream& out, const ScenarioRecord& record);
 void write_scenario_outcome_rows(std::ostream& out, const SimulationResult& result);
-void write_scenario_telemetry_sections(std::ostream& out, const ScenarioRecord& record,
-                                       double telemetry_report_interval_s);
+void write_scenario_telemetry_sections(std::ostream&         out,
+                                       const ScenarioRecord& record,
+                                       double                telemetry_report_interval_s);
 
 /*
 Writes one detailed scenario section (concise, no raw trace) followed by the
 periodic telemetry, event and post-fault telemetry subsections.
 */
-void write_scenario_section(std::ostream& out, const ScenarioRecord& record,
-                            double telemetry_report_interval_s)
+void write_scenario_section(std::ostream&         out,
+                            const ScenarioRecord& record,
+                            double                telemetry_report_interval_s)
 {
     const SimulationResult& r = record.result;
 
@@ -62,8 +64,9 @@ void write_summary_table(std::ostream& out, std::span<const ScenarioRecord> reco
 Writes the full Markdown report into the given stream, downsampling the
 telemetry tables at the requested report interval.
 */
-void write_markdown_report(std::ostream& out, std::span<const ScenarioRecord> records,
-                           double telemetry_report_interval_s)
+void write_markdown_report(std::ostream&                   out,
+                           std::span<const ScenarioRecord> records,
+                           double                          telemetry_report_interval_s)
 {
     out << "# Rapport de validation SIL\n\n";
     out << "Validation Software-in-the-Loop du systeme de fault injection.\n\n";

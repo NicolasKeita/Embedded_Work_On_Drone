@@ -118,4 +118,3 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 }
-

@@ -34,8 +34,11 @@ void write_telemetry_header(std::ostream& out)
 Streams downsampled rows: the first sample at or after start_after opens the
 cadence, then one row every interval_s until stop_before.
 */
-void write_telemetry_rows(std::ostream& out, std::span<const TelemetrySample> samples,
-                          double start_after, double stop_before, double interval_s)
+void write_telemetry_rows(std::ostream&                    out,
+                          std::span<const TelemetrySample> samples,
+                          double                           start_after,
+                          double                           stop_before,
+                          double                           interval_s)
 {
     double next_time = start_after;
 
@@ -74,8 +77,9 @@ void write_telemetry_rows(std::ostream& out, std::span<const TelemetrySample> sa
 Writes the full periodic mission telemetry table (used when no fault splits the
 mission into pre/post windows).
 */
-void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> samples,
-                           double interval_s)
+void write_telemetry_table(std::ostream&                    out,
+                           std::span<const TelemetrySample> samples,
+                           double                           interval_s)
 {
     write_telemetry_header(out);
     write_telemetry_rows(out, samples, 0.0, std::numeric_limits<double>::max(), interval_s);
@@ -85,8 +89,9 @@ void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> s
 Appends the telemetry/event/post-fault sections of one detailed scenario
 section: mission telemetry, important events, then the post-fault window.
 */
-void write_scenario_telemetry_sections(std::ostream& out, const ScenarioRecord& record,
-                                       double telemetry_report_interval_s)
+void write_scenario_telemetry_sections(std::ostream&         out,
+                                       const ScenarioRecord& record,
+                                       double                telemetry_report_interval_s)
 {
     const double fault_time = record.result.fault_injected_time;
 

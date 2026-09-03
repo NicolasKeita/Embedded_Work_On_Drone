@@ -20,6 +20,7 @@ namespace sim::sil {
 Enriches the injection marker with the scenario parameters: loss probability,
 actuator efficiency or sensor corruption mode and forced altitude.
 */
+
 static void write_fault_parameters(SilEvent& event, const FaultScenario& scenario)
 {
     if (scenario.fault_type == FaultType::CommunicationLossRate) {

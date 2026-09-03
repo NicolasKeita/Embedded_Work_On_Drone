@@ -43,11 +43,15 @@ Checks that the controller commands match the nominal run before the fault
 window and diverge inside it: the FC consumed the sensor-path data, not the
 ground truth.
 */
-void check_commands_diverge(TestHarness& runner, const SilRunOutput& nominal,
-                            const SilRunOutput& faulted, double fault_start, double fault_end)
+void check_commands_diverge(TestHarness&        runner,
+                            const SilRunOutput& nominal,
+                            const SilRunOutput& faulted,
+                            double              fault_start,
+                            double              fault_end)
 {
     bool pre_commands_identical = true;
     bool post_commands_diverge = false;
+
     for (std::size_t index = 0;
          index < faulted.telemetry.size() && index < nominal.telemetry.size(); ++index) {
         const TelemetrySample& n = nominal.telemetry[index];

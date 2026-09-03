@@ -73,8 +73,7 @@ void verdict_independence_test(TestHarness& runner)
 
     runner.check(!result.mission_success, "OBS-007 : mission non reussie");
     runner.check(verdict, "OBS-007 : verdict PASS pour fault intentional");
-    runner.check(result.mission_success != verdict,
-                 "OBS-007 : verdict et succes de mission independants");
+    runner.check(result.mission_success != verdict, "OBS-007 : verdict et succes de mission independants");
 }
 
 }

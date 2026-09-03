@@ -17,7 +17,7 @@ export namespace sim::safety {
 enum class SafetyMode { NORMAL, COMPENSATED, SAFE_MODE };
 
 struct SafetyCommand {
-    bool mission_abort = false;
+    bool   mission_abort = false;
     double thrust_margin = 1.0;
 };
 
@@ -39,9 +39,9 @@ private:
     void engage(double current_time, SafetyMode mode, double margin, bool abort);
 
     SafetyManagerConfig config_;
-    SafetyMode mode_ = SafetyMode::NORMAL;
-    SafetyCommand command_{};
-    double response_time_ = -1.0;
+    SafetyMode          mode_ = SafetyMode::NORMAL;
+    SafetyCommand       command_{};
+    double              response_time_ = -1.0;
 };
 
 [[nodiscard]] std::string_view safety_mode_name(SafetyMode mode);

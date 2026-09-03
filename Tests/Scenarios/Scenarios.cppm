@@ -17,9 +17,9 @@ export namespace sim::test {
 using ScenarioFn = void (*)(TestHarness&, double);
 
 struct ScenarioEntry {
-    char key;
+    char             key;
     std::string_view description;
-    ScenarioFn run;
+    ScenarioFn       run;
 };
 
 class ScenarioCatalog {

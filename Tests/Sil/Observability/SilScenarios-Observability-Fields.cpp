@@ -43,10 +43,8 @@ void structured_fields_test(TestHarness& runner)
 
     const SimulationResult& result = outcome.value().result;
 
-    runner.check(result.fault_injected_time >= 30.0 && result.fault_detected,
-                 "OBS-008 : chaine d'injection detectee");
-    runner.check(result.detection_time >= result.fault_injected_time,
-                 "OBS-008 : detection apres injection");
+    runner.check(result.fault_injected_time >= 30.0 && result.fault_detected, "OBS-008 : chaine d'injection detectee");
+    runner.check(result.detection_time >= result.fault_injected_time, "OBS-008 : detection apres injection");
     runner.check(std::abs(result.detection_latency
                           - (result.detection_time - result.fault_injected_time)) < 1.0e-9,
                  "OBS-008 : latence de detection coherencee");

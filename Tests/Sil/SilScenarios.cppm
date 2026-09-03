@@ -33,7 +33,6 @@ std::size_t count_events(std::span<const sim::sil::SilEvent> events, sim::sil::S
 const sim::sil::SilEvent* find_first(std::span<const sim::sil::SilEvent> events, sim::sil::SilEventType type);
 const sim::sil::SilEvent* find_first_after(std::span<const sim::sil::SilEvent> events,
                                            sim::sil::SilEventType type, std::size_t index);
-
 void heartbeat_trace_test(TestHarness& runner);
 void dropped_heartbeats_test(TestHarness& runner);
 void fc1_failure_events_test(TestHarness& runner);

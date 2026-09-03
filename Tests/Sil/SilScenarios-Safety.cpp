@@ -118,4 +118,3 @@ void run_all_sil_scenarios(TestHarness& runner)
     sim::sil::write_markdown_report(std::cout, records);
 }
 }
-

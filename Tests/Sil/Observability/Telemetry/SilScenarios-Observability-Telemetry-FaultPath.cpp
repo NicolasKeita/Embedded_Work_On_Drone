@@ -31,8 +31,11 @@ using sim::sil::SILRunner;
 using sim::sil::TelemetrySample;
 using sim::sil::TrueStateSample;
 
-void check_commands_diverge(TestHarness& runner, const SilRunOutput& nominal,
-                            const SilRunOutput& faulted, double fault_start, double fault_end);
+void check_commands_diverge(TestHarness&        runner,
+                            const SilRunOutput& nominal,
+                            const SilRunOutput& faulted,
+                            double              fault_start,
+                            double              fault_end);
 
 namespace {
 
@@ -67,8 +70,7 @@ void check_stream_separation(TestHarness& runner, const SilRunOutput& output, co
         }
     }
     runner.check(truth_finite, "TELE-011 : ground truth toujours finie (jamais corrompue)");
-    runner.check(truth_valid_before_fault,
-                 "TELE-011 : ground truth dans les limites physiques avant la faulte");
+    runner.check(truth_valid_before_fault, "TELE-011 : ground truth dans les limites physiques avant la faulte");
     runner.check(pre_fault_identical, "TELE-011 : sans corruption capteur et verite coincident");
     runner.check(sensor_diverged, "TELE-011 : telemetrie capteur ecartee de la verite pendant la faulte");
 }

@@ -20,10 +20,10 @@ export namespace sim::sil {
 enum class ReportError { DirectoryCreation, FileOpen };
 
 struct ScenarioRecord {
-    std::string_view name;
-    FaultScenario scenario;
-    SimulationResult result;
-    std::span<const SilEvent> events{};
+    std::string_view                 name;
+    FaultScenario                    scenario;
+    SimulationResult                 result;
+    std::span<const SilEvent>        events{};
     std::span<const TelemetrySample> telemetry{};
     std::span<const TrueStateSample> ground_truth{};
 };
@@ -33,12 +33,12 @@ using ReportSectionWriter = void (*)(std::ostream&, std::span<const ScenarioReco
 
 struct SilReportOptions {
     std::filesystem::path docs_dir = "docs/validation";
-    bool write_markdown = true;
-    bool write_json = true;
-    bool write_csv = true;
-    bool write_trace = true;
-    bool write_telemetry = true;
-    double telemetry_report_interval_s = 2.5;
+    bool                  write_markdown = true;
+    bool                  write_json = true;
+    bool                  write_csv = true;
+    bool                  write_trace = true;
+    bool                  write_telemetry = true;
+    double                telemetry_report_interval_s = 2.5;
 };
 
 [[nodiscard]] std::string_view yes_no(bool value) noexcept;

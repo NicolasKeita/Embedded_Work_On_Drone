@@ -57,6 +57,6 @@ private:
     void update_attitude(double dt);
     void update_translation(double dt);
 
-    AircraftState state_{};
+    AircraftState  state_{};
     ControlCommand command_{};
 };

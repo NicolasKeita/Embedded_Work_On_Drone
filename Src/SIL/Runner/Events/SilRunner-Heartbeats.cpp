@@ -81,4 +81,3 @@ void SILRunner::record_heartbeat_dropped(RunContext& ctx, const CommsDelivery& d
     ctx.trace.record(dropped);
 }
 }
-

@@ -15,7 +15,7 @@ import Aircraft;
 export namespace sim::test {
 
 struct HarnessConfig {
-    double dt{0.01};
+    double      dt{0.01};
     std::size_t log_interval_steps{100};
 };
 
@@ -41,8 +41,8 @@ public:
 private:
     HarnessConfig config_;
     std::uint32_t failures_{0};
-    double current_time_{0.0};
-    std::size_t step_count_{0};
+    double        current_time_{0.0};
+    std::size_t   step_count_{0};
 };
 
 }

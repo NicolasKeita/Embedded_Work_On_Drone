@@ -29,27 +29,27 @@ enum class FaultType {
 };
 
 struct FaultParameters {
-    double loss_probability = 0.0;
+    double               loss_probability = 0.0;
     SensorCorruptionMode corruption = SensorCorruptionMode::None;
-    double corrupted_altitude_m = 99999.0;
-    double efficiency = 1.0;
+    double               corrupted_altitude_m = 99999.0;
+    double               efficiency = 1.0;
 };
 
 struct FaultScenario {
-    double start_time = 0.0;
-    double duration = 0.0;
-    FaultType fault_type = FaultType::None;
+    double          start_time = 0.0;
+    double          duration = 0.0;
+    FaultType       fault_type = FaultType::None;
     FaultParameters parameters{};
 };
 
 // Simulated environment that fault injectors are allowed to alter.
 struct SimulationState {
-    bool fc1_alive = true;
-    bool comms_link_up = true;
-    double comms_loss_probability = 0.0;
-    double actuator_efficiency = 1.0;
+    bool                 fc1_alive = true;
+    bool                 comms_link_up = true;
+    double               comms_loss_probability = 0.0;
+    double               actuator_efficiency = 1.0;
     SensorCorruptionMode sensor_corruption = SensorCorruptionMode::None;
-    double corrupted_altitude_m = 0.0;
+    double               corrupted_altitude_m = 0.0;
 };
 
 /*
@@ -59,29 +59,29 @@ watchdog and verdict groups are kept independent so that automated validation
 */
 struct SimulationResult {
     // Mission (COMPLETE means success; ABORTED/FAILED are documented terminal states).
-    bool mission_success = false;
+    bool                       mission_success = false;
     sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
-    double mission_duration_s = -1.0;
+    double                     mission_duration_s = -1.0;
 
     // Safety.
     sim::safety::HealthState final_health = sim::safety::HealthState::HEALTHY;
-    sim::safety::SafetyMode final_safety_mode = sim::safety::SafetyMode::NORMAL;
-    bool degraded_reached = false;
-    bool compensated_reached = false;
-    bool safe_mode_reached = false;
+    sim::safety::SafetyMode  final_safety_mode = sim::safety::SafetyMode::NORMAL;
+    bool                     degraded_reached = false;
+    bool                     compensated_reached = false;
+    bool                     safe_mode_reached = false;
     sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
 
     // Fault chain: injection -> detection -> response -> recovery.
     FaultType fault_type = FaultType::None;
-    bool fault_detected = false;
-    double fault_injected_time = -1.0;
-    double detection_time = -1.0;
-    double safety_response_time = -1.0;
-    double detection_latency = -1.0;
-    double response_latency = -1.0;
-    bool recovery_attempted = false;
-    bool recovery_successful = false;
-    double recovery_time = -1.0;
+    bool      fault_detected = false;
+    double    fault_injected_time = -1.0;
+    double    detection_time = -1.0;
+    double    safety_response_time = -1.0;
+    double    detection_latency = -1.0;
+    double    response_latency = -1.0;
+    bool      recovery_attempted = false;
+    bool      recovery_successful = false;
+    double    recovery_time = -1.0;
 
     // Aircraft.
     double max_position_error_m = 0.0;
@@ -98,7 +98,7 @@ struct SimulationResult {
     CommsStats comms{};
 
     // Watchdog (heartbeat/comms supervision on FC2).
-    bool watchdog_triggered = false;
+    bool   watchdog_triggered = false;
     double watchdog_trigger_time = -1.0;
 
     // Test verdict: did the system behave as the scenario requires.
@@ -114,4 +114,3 @@ struct SimulationResult {
 [[nodiscard]] std::string_view verdict_reason(const SimulationResult& result);
 
 }
-

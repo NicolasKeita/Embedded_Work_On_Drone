@@ -52,16 +52,16 @@ bool contains_mission_sequence(std::span<const sim::control::MissionState> visit
 
 struct MissionRunRequest {
     sim::control::TargetState target;
-    double duration = 0.0;
-    TrackingAxis axis = TrackingAxis::z_axis;
-    double tolerance = 0.0;
-    bool stop_on_zone = false;
+    double                    duration = 0.0;
+    TrackingAxis              axis = TrackingAxis::z_axis;
+    double                    tolerance = 0.0;
+    bool                      stop_on_zone = false;
 };
 
 struct MissionRunTrace {
     std::array<sim::control::MissionState, kMaxVisitedStates> visited_states{};
-    std::size_t visited_count = 0;
-    MissionMetrics metrics;
+    std::size_t                                               visited_count = 0;
+    MissionMetrics                                            metrics;
 
     void record(sim::control::MissionState state);
 };

@@ -38,8 +38,7 @@ void SILRunner::update_monitoring(RunContext& ctx)
     record_recovery_end(ctx, report.state);
 
     ctx.result.degraded_reached = ctx.result.degraded_reached || report.state == HealthState::DEGRADED;
-    ctx.result.compensated_reached =
-        ctx.result.compensated_reached || ctx.safety.mode() == SafetyMode::COMPENSATED;
+    ctx.result.compensated_reached = ctx.result.compensated_reached || ctx.safety.mode() == SafetyMode::COMPENSATED;
     ctx.result.safe_mode_reached = ctx.result.safe_mode_reached || ctx.safety.mode() == SafetyMode::SAFE_MODE;
     ctx.result.final_health = report.state;
     ctx.result.final_safety_mode = ctx.safety.mode();

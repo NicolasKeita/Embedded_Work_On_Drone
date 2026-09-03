@@ -38,8 +38,8 @@ struct TelemetrySample {
     double target_x = 0.0;
     double target_y = 0.0;
     double target_z = 0.0;
-    int mission_state = 0;
-    int safety_state = 0;
+    int    mission_state = 0;
+    int    safety_state = 0;
 };
 
 /*
@@ -66,8 +66,8 @@ struct TelemetryControl {
     double target_x = 0.0;
     double target_y = 0.0;
     double target_z = 0.0;
-    int mission_state = 0;
-    int safety_state = 0;
+    int    mission_state = 0;
+    int    safety_state = 0;
 };
 
 /*
@@ -76,8 +76,8 @@ the FC observes) while the physics state feeds the parallel TrueStateSample
 stream (ground truth). Rate is configured through interval_s.
 */
 struct TelemetryRecorder {
-    double interval_s = 0.05;
-    double last_sample_time = -1.0e12;
+    double                       interval_s = 0.05;
+    double                       last_sample_time = -1.0e12;
     std::vector<TelemetrySample> samples;
     std::vector<TrueStateSample> truth_samples;
 

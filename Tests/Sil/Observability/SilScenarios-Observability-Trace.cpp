@@ -43,6 +43,7 @@ before the injection and completely absent afterwards (FC1 gone silent).
 HeartbeatScan scan_heartbeat_around_fault(std::span<const SilEvent> events)
 {
     HeartbeatScan scan;
+
     scan.injected = find_first(events, SilEventType::FaultInjected);
     const std::size_t fault_index =
         scan.injected == nullptr ? 0u : static_cast<std::size_t>(scan.injected - events.data());
@@ -91,8 +92,7 @@ void trace_reconstruction_test(TestHarness& runner)
                  "OBS-010 : WATCHDOG_TIMEOUT apres injection");
     runner.check(find_first_after(events, SilEventType::SafetyResponse, fault_index) != nullptr,
                  "OBS-010 : SAFETY_RESPONSE apres injection");
-    runner.check(outcome.value().result.final_state == MissionState::ABORTED,
-                 "OBS-010 : mission ABORTED reconstruite");
+    runner.check(outcome.value().result.final_state == MissionState::ABORTED, "OBS-010 : mission ABORTED reconstruite");
 }
 
 }

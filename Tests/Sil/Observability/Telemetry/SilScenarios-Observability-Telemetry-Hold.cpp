@@ -34,8 +34,11 @@ using sim::sil::SILRunner;
 using sim::sil::TelemetrySample;
 using sim::sil::TrueStateSample;
 
-void check_commands_diverge(TestHarness& runner, const SilRunOutput& nominal,
-                            const SilRunOutput& faulted, double fault_start, double fault_end);
+void check_commands_diverge(TestHarness&        runner,
+                            const SilRunOutput& nominal,
+                            const SilRunOutput& faulted,
+                            double              fault_start,
+                            double              fault_end);
 
 namespace {
 
@@ -50,6 +53,7 @@ void check_fault_window(TestHarness& runner, const SilRunOutput& output, const S
 {
     bool faulty_recorded = false;
     bool truth_stays_physical = true;
+
     for (std::size_t index = 0; index < output.telemetry.size(); ++index) {
         const TelemetrySample& sample = output.telemetry[index];
         const TrueStateSample& truth = output.ground_truth[index];

@@ -82,7 +82,7 @@ private:
         double integral_limit = 0.0;
         double integral_error_band = 0.0;
         double previous_error = 0.0;
-        bool primed = false;
+        bool   primed = false;
     };
 
     void enter_climb();
@@ -100,11 +100,11 @@ private:
     [[nodiscard]] bool inside_target_zone(const TargetState& t, const AircraftState& a) const;
 
     ControllerConfig config_;
-    MissionState mission_state_{MissionState::TAKEOFF};
-    AxisPid altitude_pid_{};
-    AxisPid x_position_pid_{};
-    AxisPid y_position_pid_{};
-    double station_hold_timer_{0.0};
+    MissionState     mission_state_{MissionState::TAKEOFF};
+    AxisPid          altitude_pid_{};
+    AxisPid          x_position_pid_{};
+    AxisPid          y_position_pid_{};
+    double           station_hold_timer_{0.0};
 };
 
 // Human-readable name of a mission state for logging.

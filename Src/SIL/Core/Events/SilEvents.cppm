@@ -48,20 +48,20 @@ enum class EventSeverity { Info, Warning, Error, Debug, Trace };
 
 /* One structured simulation event; string fields reference static literals. */
 struct SilEvent {
-    double timestamp = 0.0;
+    double           timestamp = 0.0;
     std::string_view source{};
-    SilEventType type = SilEventType::SimulationStart;
-    EventSeverity severity = EventSeverity::Info;
+    SilEventType     type = SilEventType::SimulationStart;
+    EventSeverity    severity = EventSeverity::Info;
     std::string_view detail{};
     std::string_view previous_state{};
     std::string_view new_state{};
     std::string_view reason{};
-    std::uint64_t sequence = 0;
-    bool has_sequence = false;
-    double latency_s = -1.0;
-    bool has_latency = false;
-    double value = 0.0;
-    bool has_value = false;
+    std::uint64_t    sequence = 0;
+    bool             has_sequence = false;
+    double           latency_s = -1.0;
+    bool             has_latency = false;
+    double           value = 0.0;
+    bool             has_value = false;
 };
 
 enum class SilLogLevel { Info, Debug, Trace };
@@ -85,7 +85,7 @@ public:
     [[nodiscard]] std::vector<SilEvent> take_events() noexcept;
 
 private:
-    SilTraceConfig config_{};
+    SilTraceConfig        config_{};
     std::vector<SilEvent> events_;
 };
 

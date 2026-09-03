@@ -21,12 +21,12 @@ enum class HealthState { HEALTHY, DEGRADED, SAFE, FAILED };
 enum class FaultDomain { FC1Heartbeat, Communication, Sensor, Actuator };
 
 struct FaultFlag {
-    bool raised = false;
+    bool   raised = false;
     double raised_time = -1.0;
 };
 
 struct HealthReport {
-    HealthState state = HealthState::HEALTHY;
+    HealthState              state = HealthState::HEALTHY;
     std::array<FaultFlag, 4> flags{};
 
     [[nodiscard]] const FaultFlag& flag(FaultDomain domain) const;
@@ -37,9 +37,9 @@ struct HealthReport {
 };
 
 struct HealthMonitorConfig {
-    double heartbeat_timeout_s = 0.10;
-    double actuator_mismatch_rpm = 60.0;
-    double actuator_mismatch_hold_s = 0.50;
+    double                           heartbeat_timeout_s = 0.10;
+    double                           actuator_mismatch_rpm = 60.0;
+    double                           actuator_mismatch_hold_s = 0.50;
     sim::sil::SensorValidationLimits sensor_limits{};
 };
 
@@ -71,10 +71,10 @@ private:
 
     [[nodiscard]] static HealthState compute_state(const std::array<FaultFlag, 4>& flags);
 
-    HealthMonitorConfig config_;
-    HealthState state_ = HealthState::HEALTHY;
+    HealthMonitorConfig      config_;
+    HealthState              state_ = HealthState::HEALTHY;
     std::array<FaultFlag, 4> flags_{};
-    double mismatch_since_ = -1.0;
+    double                   mismatch_since_ = -1.0;
 };
 
 [[nodiscard]] std::string_view fault_domain_name(FaultDomain domain);

@@ -20,8 +20,10 @@ namespace {
 /*
 Builds the sensor-path sample of one recording instant.
 */
-TelemetrySample make_sensor_sample(double time, const SensorTelemetry& sensor,
-                                   const ControlCommand& command, double commanded_rpm,
+TelemetrySample make_sensor_sample(double                  time,
+                                   const SensorTelemetry&  sensor,
+                                   const ControlCommand&   command,
+                                   double                  commanded_rpm,
                                    const TelemetryControl& control)
 {
     TelemetrySample sample;
@@ -77,9 +79,12 @@ at the configured interval: simulation-time based, deterministic and
 independent from the internal integration tick. Both streams share the same
 timestamps so that post-run correlation stays trivial.
 */
-void TelemetryRecorder::maybe_record(double time, const AircraftState& truth,
-                                     const SensorTelemetry& sensor, const ControlCommand& command,
-                                     double commanded_rpm, const TelemetryControl& control)
+void TelemetryRecorder::maybe_record(double                  time,
+                                     const AircraftState&    truth,
+                                     const SensorTelemetry&  sensor,
+                                     const ControlCommand&   command,
+                                     double                  commanded_rpm,
+                                     const TelemetryControl& control)
 {
     if (interval_s <= 0.0) {
         return;
