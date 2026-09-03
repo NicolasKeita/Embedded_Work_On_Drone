@@ -46,7 +46,7 @@ struct ControllerConfig {
     std::float64_t max_tilt_deg{15.0};
     std::float64_t min_rpm{300.0};
     std::float64_t max_rpm{12000.0};
-    std::float64_t takeoff_rpm_factor{1.3};
+    std::float64_t takeoff_rpm_factor{1.1};
     std::float64_t takeoff_altitude_m{2.0};
     std::float64_t altitude_tolerance_m{0.5};
     std::float64_t position_tolerance_m{1.0};
