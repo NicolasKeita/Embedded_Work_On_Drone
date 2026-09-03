@@ -23,18 +23,18 @@ export namespace sim::sil {
 enum class SilError { TooManyScenarios, FaultScenarioRejected };
 
 struct SilConfig {
-    double                         dt = 0.01;
-    double                         duration_s = 60.0;
+    std::float64_t                 dt = 0.01;
+    std::float64_t                 duration_s = 60.0;
     sim::control::TargetState      target{.z = 10.0};
     sim::control::ControllerConfig controller{.hover_rpm = Aircraft{}.hover_rpm()};
-    double                         heartbeat_timeout_s = 0.10;
-    double                         actuator_mismatch_rpm = 60.0;
-    double                         thrust_compensation_margin = 1.7;
-    double                         safe_descent_rpm_rate = 4000.0;
+    std::float64_t                 heartbeat_timeout_s = 0.10;
+    std::float64_t                 actuator_mismatch_rpm = 60.0;
+    std::float64_t                 thrust_compensation_margin = 1.7;
+    std::float64_t                 safe_descent_rpm_rate = 4000.0;
     SensorValidationLimits         sensor_limits{};
     std::uint64_t                  seed = 42;
-    double                         transport_latency_s = 0.004;
-    double                         telemetry_rate_hz = 20.0;
+    std::float64_t                 transport_latency_s = 0.004;
+    std::float64_t                 telemetry_rate_hz = 20.0;
     SilLogLevel                    trace_level = SilLogLevel::Info;
 };
 

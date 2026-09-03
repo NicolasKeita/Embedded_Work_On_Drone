@@ -21,8 +21,8 @@ enum class HealthState { HEALTHY, DEGRADED, SAFE, FAILED };
 enum class FaultDomain { FC1Heartbeat, Communication, Sensor, Actuator };
 
 struct FaultFlag {
-    bool   raised = false;
-    double raised_time = -1.0;
+    bool           raised = false;
+    std::float64_t raised_time = -1.0;
 };
 
 struct HealthReport {
@@ -31,15 +31,15 @@ struct HealthReport {
 
     [[nodiscard]] const FaultFlag& flag(FaultDomain domain) const;
 
-    [[nodiscard]] double first_detection_time() const;
+    [[nodiscard]] std::float64_t first_detection_time() const;
 
     [[nodiscard]] FaultDomain first_fault_domain() const;
 };
 
 struct HealthMonitorConfig {
-    double                           heartbeat_timeout_s = 0.10;
-    double                           actuator_mismatch_rpm = 60.0;
-    double                           actuator_mismatch_hold_s = 0.50;
+    std::float64_t                   heartbeat_timeout_s = 0.10;
+    std::float64_t                   actuator_mismatch_rpm = 60.0;
+    std::float64_t                   actuator_mismatch_hold_s = 0.50;
     sim::sil::SensorValidationLimits sensor_limits{};
 };
 
@@ -52,20 +52,20 @@ public:
     commanded/actual actuator mismatch. Detection is agnostic: it knows nothing
     about fault injectors.
     */
-    [[nodiscard]] HealthReport evaluate(double current_time, const sim::sil::CommsBus& comms,
-                                        const sim::sil::SensorTelemetry& telemetry, double commanded_rpm);
+    [[nodiscard]] HealthReport evaluate(std::float64_t current_time, const sim::sil::CommsBus& comms,
+                                        const sim::sil::SensorTelemetry& telemetry, std::float64_t commanded_rpm);
 
     [[nodiscard]] HealthState state() const noexcept;
 
 private:
-    void raise(FaultDomain domain, double time);
+    void raise(FaultDomain domain, std::float64_t time);
 
-    void update_comms_flags(double current_time, const sim::sil::CommsBus& comms);
+    void update_comms_flags(std::float64_t current_time, const sim::sil::CommsBus& comms);
 
-    void update_sensor_flags(double current_time, const sim::sil::SensorTelemetry& telemetry);
+    void update_sensor_flags(std::float64_t current_time, const sim::sil::SensorTelemetry& telemetry);
 
-    void update_actuator_flags(double current_time, const sim::sil::SensorTelemetry& telemetry,
-                               double commanded_rpm);
+    void update_actuator_flags(std::float64_t current_time, const sim::sil::SensorTelemetry& telemetry,
+                               std::float64_t commanded_rpm);
 
     [[nodiscard]] static std::size_t domain_index(FaultDomain domain);
 
@@ -74,7 +74,7 @@ private:
     HealthMonitorConfig      config_;
     HealthState              state_ = HealthState::HEALTHY;
     std::array<FaultFlag, 4> flags_{};
-    double                   mismatch_since_ = -1.0;
+    std::float64_t           mismatch_since_ = -1.0;
 };
 
 [[nodiscard]] std::string_view fault_domain_name(FaultDomain domain);

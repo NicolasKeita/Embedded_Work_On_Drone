@@ -15,7 +15,7 @@ import TestHarness;
 
 namespace sim::test::scenarios {
 
-void rest(TestHarness& runner, double)
+void rest(TestHarness& runner, std::float64_t)
 {
     std::cout << "\n=== Scenario A : repos (RPM = 0, servos = 0) ===" << std::endl;
     runner.log_header();
@@ -30,7 +30,7 @@ void rest(TestHarness& runner, double)
     runner.check(s.actual_rpm == 0.0, "A4 : RPM effectif nul");
 }
 
-void climb(TestHarness& runner, double hover_rpm)
+void climb(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario B : montee (RPM = 1.1 x hover, servos = 0) ===" << std::endl;
     runner.log_header();
@@ -45,14 +45,14 @@ void climb(TestHarness& runner, double hover_rpm)
     runner.check(s.actual_rpm > hover_rpm, "B3 : RPM effectif superieur au stationnaire");
 }
 
-void descent(TestHarness& runner, double hover_rpm)
+void descent(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario C : descente (montee puis RPM = 0.6 x hover) ===" << std::endl;
     runner.log_header();
 
     Aircraft aircraft;
     runner.take_off(aircraft, hover_rpm);
-    const double topAltitude = aircraft.state().z;
+    const std::float64_t topAltitude = aircraft.state().z;
 
     aircraft.set_command({0.6 * hover_rpm, 0.0, 0.0});
     runner.run(aircraft, 10.0);
@@ -63,7 +63,7 @@ void descent(TestHarness& runner, double hover_rpm)
     runner.check(s.z == 0.0, "C3 : retour au sol (blocage a z = 0)");
 }
 
-void move_x(TestHarness& runner, double hover_rpm)
+void move_x(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario D : deplacement X (hover + pitch > 0) ===" << std::endl;
     runner.log_header();
@@ -81,7 +81,7 @@ void move_x(TestHarness& runner, double hover_rpm)
     runner.check(s.y == 0.0 && s.vy == 0.0, "D4 : pas de derivation laterale");
 }
 
-void move_y(TestHarness& runner, double hover_rpm)
+void move_y(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario E : deplacement Y (hover + roll > 0) ===" << std::endl;
     runner.log_header();
@@ -99,7 +99,7 @@ void move_y(TestHarness& runner, double hover_rpm)
     runner.check(s.x == 0.0 && s.vx == 0.0, "E4 : pas de derivation longitudinale");
 }
 
-void combined(TestHarness& runner, double hover_rpm)
+void combined(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario F : combine (RPM > hover, pitch > 0, roll < 0) ===" << std::endl;
     runner.log_header();

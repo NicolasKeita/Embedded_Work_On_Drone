@@ -39,6 +39,10 @@ SILRunner::RunContext::RunContext(const SilConfig& cfg)
 {
     telemetry_recorder.interval_s = cfg.telemetry_rate_hz > 0.0 ? 1.0 / cfg.telemetry_rate_hz : 0.0;
     comms.set_transport_latency(cfg.transport_latency_s);
+    const std::size_t expected_samples =
+        static_cast<std::size_t>(cfg.duration_s * std::max(cfg.telemetry_rate_hz, std::float64_t{0.0})) + 2;
+    telemetry_recorder.samples.reserve(expected_samples);
+    telemetry_recorder.truth_samples.reserve(expected_samples);
 }
 
 /*

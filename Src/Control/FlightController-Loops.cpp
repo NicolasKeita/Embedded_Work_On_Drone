@@ -14,17 +14,17 @@ import Aircraft;
 
 namespace
 {
-    constexpr double kMinServoDeg = -30.0;
-    constexpr double kMaxServoDeg = 30.0;
+    constexpr std::float64_t kMinServoDeg = -30.0;
+    constexpr std::float64_t kMaxServoDeg = 30.0;
 
-    constexpr double kServoRadPerDeg = 0.01;
+    constexpr std::float64_t kServoRadPerDeg = 0.01;
 
-    double Clamp(double value, double minValue, double maxValue)
+    std::float64_t Clamp(std::float64_t value, std::float64_t minValue, std::float64_t maxValue)
     {
         return std::max(minValue, std::min(value, maxValue));
     }
 
-    double DegToRad(double valueDeg)
+    std::float64_t DegToRad(std::float64_t valueDeg)
     {
         return valueDeg * std::numbers::pi / 180.0;
     }
@@ -35,12 +35,12 @@ namespace sim::control {
 /*
 Cascaded horizontal position loops (outer loop): each position error produces a
 tilt setpoint saturated at max_tilt_deg; the derivative term damps the
-horizontal velocity to avoid the typical overshoot of a double-integrator
+horizontal velocity to avoid the typical overshoot of a std::float64_t-integrator
 system.
 */
 TiltTargets FlightController::updatePositionControl(const TargetState&   t,
                                                     const AircraftState& a,
-                                                    double               dt)
+                                                    std::float64_t       dt)
 {
     TiltTargets targets;
 
@@ -57,11 +57,11 @@ pitch, difference -> roll.
 */
 ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const
 {
-    const double pitchErrorDeg = (DegToRad(tilt.pitch_deg) - s.pitch) / kServoRadPerDeg;
-    const double rollErrorDeg = (DegToRad(tilt.roll_deg) - s.roll) / kServoRadPerDeg;
+    const std::float64_t pitchErrorDeg = (DegToRad(tilt.pitch_deg) - s.pitch) / kServoRadPerDeg;
+    const std::float64_t rollErrorDeg = (DegToRad(tilt.roll_deg) - s.roll) / kServoRadPerDeg;
 
-    const double meanServoDeg = tilt.pitch_deg + config_.kp_attitude * pitchErrorDeg;
-    const double halfRollServoDeg = (tilt.roll_deg + config_.kp_attitude * rollErrorDeg) / 2.0;
+    const std::float64_t meanServoDeg = tilt.pitch_deg + config_.kp_attitude * pitchErrorDeg;
+    const std::float64_t halfRollServoDeg = (tilt.roll_deg + config_.kp_attitude * rollErrorDeg) / 2.0;
 
     return {Clamp(meanServoDeg + halfRollServoDeg, kMinServoDeg, kMaxServoDeg),
             Clamp(meanServoDeg - halfRollServoDeg, kMinServoDeg, kMaxServoDeg)};
@@ -73,7 +73,7 @@ attitude -> servos, recombined into a single actuator command.
 */
 ControlCommand FlightController::station_keeping_command(const TargetState&   t,
                                                          const AircraftState& a,
-                                                         double               dt)
+                                                         std::float64_t       dt)
 {
     ControlCommand cmd;
 

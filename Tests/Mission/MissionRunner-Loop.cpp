@@ -21,14 +21,15 @@ namespace sim::test {
 namespace
 {
     struct StepMetrics {
-        double direction = 1.0;
-        double steady_start = 0.0;
-        double error_sum = 0.0;
-        double samples = 0.0;
+        std::float64_t direction = 1.0;
+        std::float64_t steady_start = 0.0;
+        std::float64_t error_sum = 0.0;
+        std::float64_t samples = 0.0;
 
-        void update(MissionMetrics& metrics, double time, double error, double tolerance)
+        void update(MissionMetrics& metrics, std::float64_t time, std::float64_t error, std::float64_t tolerance)
         {
-            metrics.overshoot_units = std::max(metrics.overshoot_units, std::max(-direction * error, 0.0));
+            metrics.overshoot_units =
+                std::max(metrics.overshoot_units, std::max(-direction * error, std::float64_t{0.0}));
             if (metrics.time_within_tolerance < 0.0 && std::abs(error) <= tolerance) {
                 metrics.time_within_tolerance = time;
             }
@@ -38,14 +39,14 @@ namespace
             }
         }
 
-        [[nodiscard]] double steady_state_error(double fallback) const
+        [[nodiscard]] std::float64_t steady_state_error(std::float64_t fallback) const
         {
             return samples > 0.0 ? error_sum / samples : fallback;
         }
     };
 
     /* Records a state machine transition in the trace and reports it on the console. */
-    void log_state_transition(MissionRunTrace& trace, MissionState& previous, MissionState current, double time)
+    void log_state_transition(MissionRunTrace& trace, MissionState& previous, MissionState current, std::float64_t time)
     {
         if (current == previous) {
             return;
@@ -77,16 +78,16 @@ void run_control_loop(FlightController&        ctrl,
                       Aircraft&                craft,
                       const MissionRunRequest& run,
                       MissionRunTrace&         trace,
-                      double                   direction,
-                      double                   target_value)
+                      std::float64_t           direction,
+                      std::float64_t           target_value)
 {
-    constexpr double kDt = 0.01;
-    constexpr double kSteadyWindowSeconds = 10.0;
+    constexpr std::float64_t kDt = 0.01;
+    constexpr std::float64_t kSteadyWindowSeconds = 10.0;
     constexpr std::uint32_t kLogIntervalSteps = 250;
-    const double steady_start = std::max(0.0, run.duration - kSteadyWindowSeconds);
+    const std::float64_t steady_start = std::max(std::float64_t{0.0}, run.duration - kSteadyWindowSeconds);
     StepMetrics step{direction, steady_start};
     MissionState previous_state = ctrl.state();
-    double time = 0.0;
+    std::float64_t time = 0.0;
     std::uint32_t step_index = 0;
 
     print_state_row(craft, time);
@@ -95,7 +96,7 @@ void run_control_loop(FlightController&        ctrl,
         craft.update(kDt);
         time += kDt;
         ++step_index;
-        const double error = target_value - component_value(craft.state(), run.axis);
+        const std::float64_t error = target_value - component_value(craft.state(), run.axis);
         step.update(trace.metrics, time, error, run.tolerance);
         log_state_transition(trace, previous_state, ctrl.state(), time);
         if (step_index % kLogIntervalSteps == 0) {

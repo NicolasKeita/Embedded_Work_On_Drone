@@ -14,9 +14,9 @@ import Aircraft;
 
 namespace
 {
-    constexpr double kAltitudeIntegralErrorBandM = 5.0;
+    constexpr std::float64_t kAltitudeIntegralErrorBandM = 5.0;
 
-    double Clamp(double value, double minValue, double maxValue)
+    std::float64_t Clamp(std::float64_t value, std::float64_t minValue, std::float64_t maxValue)
     {
         return std::max(minValue, std::min(value, maxValue));
     }
@@ -29,7 +29,7 @@ FlightController::FlightController(ControllerConfig config) : config_(config)
     altitude_pid_.kp = config.kp_altitude;
     altitude_pid_.ki = config.ki_altitude;
     altitude_pid_.kd = config.kd_altitude;
-    altitude_pid_.integral_limit = config.max_integral_rpm / std::max(config.ki_altitude, 1e-9);
+    altitude_pid_.integral_limit = config.max_integral_rpm / std::max(config.ki_altitude, std::float64_t{1e-9});
     altitude_pid_.integral_error_band = kAltitudeIntegralErrorBandM;
 
     x_position_pid_.kp = config.kp_position;
@@ -78,14 +78,14 @@ Generic PID step: numerical derivative of the error, clamped integral (anti-
 windup) accumulating only near the target (configured band). The structure
 remains identical for a pure P controller (ki = kd = 0), PI or PID.
 */
-double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
+std::float64_t FlightController::AxisPidStep(AxisPid& pid, std::float64_t error, std::float64_t dt)
 {
     if (!pid.primed) {
         pid.previous_error = error;
         pid.primed = true;
     }
 
-    const double errorDerivative = (error - pid.previous_error) / dt;
+    const std::float64_t errorDerivative = (error - pid.previous_error) / dt;
     pid.previous_error = error;
 
     const bool inBand = pid.integral_error_band == 0.0 || std::abs(error) <= pid.integral_error_band;
@@ -100,12 +100,14 @@ double FlightController::AxisPidStep(AxisPid& pid, double error, double dt)
 Altitude loop: vertical position error converted into an RPM correction around
 the equilibrium point hover_rpm (where lift exactly compensates weight). Kp acts
 on the error, Kd damps the vertical velocity (avoids the pure P oscillations on
-this double-integrator system), Ki removes the residual steady-state error.
+this std::float64_t-integrator system), Ki removes the residual steady-state error.
 Correction saturated between min_rpm and max_rpm.
 */
-double FlightController::updateAltitudeControl(double target_z, double actual_z, double dt)
+std::float64_t FlightController::updateAltitudeControl(std::float64_t target_z,
+                                                       std::float64_t actual_z,
+                                                       std::float64_t dt)
 {
-    const double correction = AxisPidStep(altitude_pid_, target_z - actual_z, dt);
+    const std::float64_t correction = AxisPidStep(altitude_pid_, target_z - actual_z, dt);
 
     return Clamp(config_.hover_rpm + correction, config_.min_rpm, config_.max_rpm);
 }}

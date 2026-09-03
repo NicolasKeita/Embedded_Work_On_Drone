@@ -17,8 +17,8 @@ export namespace sim::sil {
 enum class SensorCorruptionMode { None, AltitudeNaN, AltitudeOutOfRange, ExtremeNoise };
 
 struct SensorValidationLimits {
-    double max_altitude_m = 500.0;
-    double max_position_m = 1000.0;
+    std::float64_t max_altitude_m = 500.0;
+    std::float64_t max_position_m = 1000.0;
 };
 
 /*
@@ -28,17 +28,17 @@ consume: the physics ground truth stays in AircraftState and never reaches the
 FC directly.
 */
 struct SensorTelemetry {
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
-    double vx = 0.0;
-    double vy = 0.0;
-    double vz = 0.0;
-    double pitch = 0.0;
-    double roll = 0.0;
-    double actual_rpm = 0.0;
-    double actual_left_servo = 0.0;
-    double actual_right_servo = 0.0;
+    std::float64_t x = 0.0;
+    std::float64_t y = 0.0;
+    std::float64_t z = 0.0;
+    std::float64_t vx = 0.0;
+    std::float64_t vy = 0.0;
+    std::float64_t vz = 0.0;
+    std::float64_t pitch = 0.0;
+    std::float64_t roll = 0.0;
+    std::float64_t actual_rpm = 0.0;
+    std::float64_t actual_left_servo = 0.0;
+    std::float64_t actual_right_servo = 0.0;
 };
 
 struct SensorValidity {
@@ -52,7 +52,7 @@ struct SensorValidity {
 [[nodiscard]] AircraftState to_aircraft_state(const SensorTelemetry& telemetry);
 [[nodiscard]] SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidationLimits& limits);
 SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
-                                 SensorCorruptionMode mode, double corrupted_altitude_m);
+                                 SensorCorruptionMode mode, std::float64_t corrupted_altitude_m);
 [[nodiscard]] std::string_view corruption_mode_name(SensorCorruptionMode mode);
 
 }

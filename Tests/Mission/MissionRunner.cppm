@@ -23,20 +23,20 @@ enum class TrackingAxis { x_axis, y_axis, z_axis };
 inline constexpr std::size_t kMaxVisitedStates = 16;
 
 struct MissionMetrics {
-    double initial_gap = 0.0;
-    double time_within_tolerance = -1.0;
-    double overshoot_units = 0.0;
-    double steady_state_error = 0.0;
-    double final_error = 0.0;
+    std::float64_t initial_gap = 0.0;
+    std::float64_t time_within_tolerance = -1.0;
+    std::float64_t overshoot_units = 0.0;
+    std::float64_t steady_state_error = 0.0;
+    std::float64_t final_error = 0.0;
 
-    [[nodiscard]] double overshoot_percent() const noexcept;
+    [[nodiscard]] std::float64_t overshoot_percent() const noexcept;
 };
 
 // Component of the measured state associated with the requested tracking axis.
-[[nodiscard]] double component_value(const AircraftState& state, TrackingAxis axis);
+[[nodiscard]] std::float64_t component_value(const AircraftState& state, TrackingAxis axis);
 
 // Component of the target setpoint associated with the requested tracking axis.
-[[nodiscard]] double component_value(const sim::control::TargetState& target, TrackingAxis axis);
+[[nodiscard]] std::float64_t component_value(const sim::control::TargetState& target, TrackingAxis axis);
 
 /*
 Prints the tracking indicators: time to enter tolerance, maximum overshoot
@@ -52,9 +52,9 @@ bool contains_mission_sequence(std::span<const sim::control::MissionState> visit
 
 struct MissionRunRequest {
     sim::control::TargetState target;
-    double                    duration = 0.0;
+    std::float64_t            duration = 0.0;
     TrackingAxis              axis = TrackingAxis::z_axis;
-    double                    tolerance = 0.0;
+    std::float64_t            tolerance = 0.0;
     bool                      stop_on_zone = false;
 };
 
@@ -82,7 +82,7 @@ namespace sim::test {
 /*
 Prints one timestamped state row of the aircraft during mission runs.
 */
-void print_state_row(const Aircraft& aircraft, double timeSeconds);
+void print_state_row(const Aircraft& aircraft, std::float64_t timeSeconds);
 
 /*
 Executes the step-by-step simulation loop: applies the controller, integrates
@@ -90,6 +90,6 @@ the physics, periodically logs the state, traces the transitions and accumulates
 the tracking metrics on the requested axis. Closes the metrics when finished.
 */
 void run_control_loop(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run,
-                      MissionRunTrace& trace, double direction, double target_value);
+                      MissionRunTrace& trace, std::float64_t direction, std::float64_t target_value);
 
 }

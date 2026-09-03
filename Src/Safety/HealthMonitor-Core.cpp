@@ -28,7 +28,7 @@ HealthState HealthMonitor::state() const noexcept
     return state_;
 }
 
-void HealthMonitor::raise(FaultDomain domain, double time)
+void HealthMonitor::raise(FaultDomain domain, std::float64_t time)
 {
     FaultFlag& item = flags_[domain_index(domain)];
 

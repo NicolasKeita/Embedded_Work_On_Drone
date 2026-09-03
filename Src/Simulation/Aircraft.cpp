@@ -12,23 +12,23 @@ import std;
 
 namespace
 {
-    constexpr double kGravityMps2 = 9.81;
-    constexpr double kMassKg = 1.2;
+    constexpr std::float64_t kGravityMps2 = 9.81;
+    constexpr std::float64_t kMassKg = 1.2;
 
-    constexpr double kLiftCoeff = 1.77e-5;
-    constexpr double kPitchTargetGainRadPerDeg = 0.01;
-    constexpr double kRollTargetGainRadPerDeg = 0.01;
-    constexpr double kPitchAccelGainMps2PerRad = 9.81;
-    constexpr double kRollAccelGainMps2PerRad = 9.81;
+    constexpr std::float64_t kLiftCoeff = 1.77e-5;
+    constexpr std::float64_t kPitchTargetGainRadPerDeg = 0.01;
+    constexpr std::float64_t kRollTargetGainRadPerDeg = 0.01;
+    constexpr std::float64_t kPitchAccelGainMps2PerRad = 9.81;
+    constexpr std::float64_t kRollAccelGainMps2PerRad = 9.81;
 
-    constexpr double kAttitudeTauS = 0.25;
+    constexpr std::float64_t kAttitudeTauS = 0.25;
 
-    constexpr double kMinRpm = 0.0;
-    constexpr double kMaxRpm = 12000.0;
-    constexpr double kMinServoDeg = -30.0;
-    constexpr double kMaxServoDeg = 30.0;
+    constexpr std::float64_t kMinRpm = 0.0;
+    constexpr std::float64_t kMaxRpm = 12000.0;
+    constexpr std::float64_t kMinServoDeg = -30.0;
+    constexpr std::float64_t kMaxServoDeg = 30.0;
 
-    double Clamp(double value, double minValue, double maxValue)
+    std::float64_t Clamp(std::float64_t value, std::float64_t minValue, std::float64_t maxValue)
     {
         return std::max(minValue, std::min(value, maxValue));
     }
@@ -51,10 +51,11 @@ Smooth first-order dynamics: no instantaneous attitude jump, the servo mean
 (pitch) and differential (roll) commands are tracked with the time constant
 kAttitudeTauS.
 */
-void Aircraft::update_attitude(double dt)
+void Aircraft::update_attitude(std::float64_t dt)
 {
-    const double pitchTarget = kPitchTargetGainRadPerDeg * (state_.actual_left_servo + state_.actual_right_servo) / 2.0;
-    const double rollTarget = kRollTargetGainRadPerDeg * (state_.actual_left_servo - state_.actual_right_servo);
+    const std::float64_t pitchTarget =
+        kPitchTargetGainRadPerDeg * (state_.actual_left_servo + state_.actual_right_servo) / 2.0;
+    const std::float64_t rollTarget = kRollTargetGainRadPerDeg * (state_.actual_left_servo - state_.actual_right_servo);
 
     state_.pitch_rate = (pitchTarget - state_.pitch) / kAttitudeTauS;
     state_.roll_rate = (rollTarget - state_.roll) / kAttitudeTauS;
@@ -69,14 +70,14 @@ horizontal accelerations, then explicit Euler integration:
 force -> acceleration -> velocity -> position.
 Ground contact: locked at z = 0 while the vertical velocity is downward.
 */
-void Aircraft::update_translation(double dt)
+void Aircraft::update_translation(std::float64_t dt)
 {
-    const double lift = kLiftCoeff * state_.actual_rpm * state_.actual_rpm;
-    const double weight = kMassKg * kGravityMps2;
-    const double az = (lift - weight) / kMassKg;
+    const std::float64_t lift = kLiftCoeff * state_.actual_rpm * state_.actual_rpm;
+    const std::float64_t weight = kMassKg * kGravityMps2;
+    const std::float64_t az = (lift - weight) / kMassKg;
 
-    const double ax = kPitchAccelGainMps2PerRad * state_.pitch;
-    const double ay = kRollAccelGainMps2PerRad * state_.roll;
+    const std::float64_t ax = kPitchAccelGainMps2PerRad * state_.pitch;
+    const std::float64_t ay = kRollAccelGainMps2PerRad * state_.roll;
 
     state_.vz += az * dt;
     state_.vx += ax * dt;
@@ -94,7 +95,7 @@ void Aircraft::update_translation(double dt)
     }
 }
 
-void Aircraft::update(double dt)
+void Aircraft::update(std::float64_t dt)
 {
     update_actuators();
     update_attitude(dt);
@@ -111,7 +112,7 @@ const AircraftState& Aircraft::state() const
     return state_;
 }
 
-double Aircraft::hover_rpm() const
+std::float64_t Aircraft::hover_rpm() const
 {
     return std::sqrt(kMassKg * kGravityMps2 / kLiftCoeff);
 }

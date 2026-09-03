@@ -58,7 +58,7 @@ void telemetry_sampling_test(TestHarness& runner)
     bool timestamps_ok = true;
     for (std::size_t index = 0; index < samples.size(); ++index) {
         timestamps_ok = timestamps_ok
-                        && std::abs(samples[index].time - 0.05 * static_cast<double>(index)) < 1.0e-6;
+                        && std::abs(samples[index].time - 0.05 * static_cast<std::float64_t>(index)) < 1.0e-6;
     }
     runner.check(timestamps_ok, "TELE-010 : horodatage regulier en temps de simulation");
     runner.check(same_telemetry(samples, second.value().telemetry),
@@ -70,9 +70,7 @@ void telemetry_sampling_test(TestHarness& runner)
     const TelemetrySample& last = samples.back();
     runner.check(std::abs(last.target_z - config.target.z) < 1.0e-9,
                  "TELE-010 : cible de consigne reportee dans la telemetrie");
-    runner.check(last.mission_state >= 0 && last.mission_state <= 5 && last.safety_state >= 0
-                     && last.safety_state <= 2,
-                 "TELE-010 : etats mission/surete renseignes");
+    runner.check(last.mission_state <= 5 && last.safety_state <= 2, "TELE-010 : etats mission/surete renseignes");
 }
 
 /*

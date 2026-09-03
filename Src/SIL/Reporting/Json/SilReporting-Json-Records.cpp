@@ -49,7 +49,7 @@ void write_record_mission(std::ostream& out, const ScenarioRecord& record)
 namespace {
 
 /* Writes one seconds-valued JSON field with a trailing comma. */
-void write_seconds_field(std::ostream& out, std::string_view name, double value, bool comma = true)
+void write_seconds_field(std::ostream& out, std::string_view name, std::float64_t value, bool comma = true)
 {
     out << "    \"" << name << "\": ";
     write_seconds(out, value);
@@ -57,7 +57,7 @@ void write_seconds_field(std::ostream& out, std::string_view name, double value,
 }
 
 /* Writes one metric-valued JSON field with a trailing comma. */
-void write_metric_field(std::ostream& out, std::string_view name, double value)
+void write_metric_field(std::ostream& out, std::string_view name, std::float64_t value)
 {
     out << "    \"" << name << "\": ";
     write_metric(out, value);

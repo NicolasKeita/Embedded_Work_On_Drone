@@ -17,10 +17,10 @@ constexpr std::streamsize kSecondsPrecision = 3;
 constexpr std::streamsize kMetricPrecision = 2;
 
 /*
-Writes a double into the stream with the requested fixed precision, restoring
+Writes a std::float64_t into the stream with the requested fixed precision, restoring
 the stream flags afterwards (no dynamic allocation).
 */
-void write_number(std::ostream& out, double value, std::streamsize precision)
+void write_number(std::ostream& out, std::float64_t value, std::streamsize precision)
 {
     const std::ios_base::fmtflags flags = out.flags();
 
@@ -32,7 +32,7 @@ void write_number(std::ostream& out, double value, std::streamsize precision)
 /*
 Writes a timestamp value with three decimals into the stream.
 */
-void write_seconds(std::ostream& out, double value)
+void write_seconds(std::ostream& out, std::float64_t value)
 {
     write_number(out, value, kSecondsPrecision);
 }
@@ -40,13 +40,13 @@ void write_seconds(std::ostream& out, double value)
 /*
 Writes a metric value with two decimals into the stream.
 */
-void write_metric(std::ostream& out, double value)
+void write_metric(std::ostream& out, std::float64_t value)
 {
     write_number(out, value, kMetricPrecision);
 }
 
 /*
-Streams the JSON-escaped text (double quotes and backslashes) without building
+Streams the JSON-escaped text (std::float64_t quotes and backslashes) without building
 any intermediate string.
 */
 void write_json_escaped(std::ostream& out, std::string_view text)
@@ -66,7 +66,7 @@ void write_json_escaped(std::ostream& out, std::string_view text)
 
 /*
 Streams the CSV-escaped text: raw when no separator is present, otherwise
-wrapped in double quotes with internal quotes doubled.
+wrapped in std::float64_t quotes with internal quotes doubled.
 */
 void write_csv_escaped(std::ostream& out, std::string_view text)
 {

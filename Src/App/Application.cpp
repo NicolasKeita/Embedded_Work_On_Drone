@@ -14,17 +14,17 @@ import Aircraft;
 
 namespace {
 
-constexpr double kDegreesPerRadian = 180.0 / std::numbers::pi;
-constexpr int kTimePrecision = 1;
-constexpr int kValuePrecision = 2;
+constexpr std::float64_t kDegreesPerRadian = 180.0 / std::numbers::pi;
+constexpr std::int8_t kTimePrecision = 1;
+constexpr std::int8_t kValuePrecision = 2;
 
 }
 
-void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
+void Application::PrintTelemetry(std::float64_t timeSeconds, const Aircraft& aircraft)
 {
     const AircraftState& state = aircraft.state();
-    const double pitchDegrees = state.pitch * kDegreesPerRadian;
-    const double rollDegrees = state.roll * kDegreesPerRadian;
+    const std::float64_t pitchDegrees = state.pitch * kDegreesPerRadian;
+    const std::float64_t rollDegrees = state.roll * kDegreesPerRadian;
 
     std::cout << "t = " << std::fixed << std::setprecision(kTimePrecision) << timeSeconds
               << "s   z = " << std::setprecision(kValuePrecision) << state.z
@@ -34,10 +34,10 @@ void Application::PrintTelemetry(double timeSeconds, const Aircraft& aircraft)
               << "deg   rpm = " << state.actual_rpm << std::endl;
 }
 
-int Application::RunSimulationDemo() const
+std::int32_t Application::RunSimulationDemo() const
 {
     const Aircraft reference;
-    const double hoverRpm = reference.hover_rpm();
+    const std::float64_t hoverRpm = reference.hover_rpm();
 
     std::cout << "\n=== Demo physique Heliblade-like ===" << std::endl;
     std::cout << "RPM de stationnaire theorique : "
@@ -69,7 +69,7 @@ int Application::RunSimulationDemo() const
     return 0;
 }
 
-int Application::Run() const
+std::int32_t Application::Run() const
 {
     return RunSimulationDemo();
 }

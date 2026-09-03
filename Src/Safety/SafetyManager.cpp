@@ -34,12 +34,12 @@ SafetyMode SafetyManager::mode() const noexcept
     return mode_;
 }
 
-double SafetyManager::response_time() const noexcept
+std::float64_t SafetyManager::response_time() const noexcept
 {
     return response_time_;
 }
 
-void SafetyManager::engage(double current_time, SafetyMode mode, double margin, bool abort)
+void SafetyManager::engage(std::float64_t current_time, SafetyMode mode, std::float64_t margin, bool abort)
 {
     if (mode != SafetyMode::NORMAL && response_time_ < 0.0) {
         response_time_ = current_time;
@@ -54,7 +54,7 @@ DEGRADED -> COMPENSATED with a thrust margin only on proven actuator mismatch
 (otherwise the fault is a sensor one and thrust must stay nominal),
 HEALTHY -> NORMAL. The SAFE_MODE transition is irreversible.
 */
-SafetyCommand SafetyManager::update(double current_time, const HealthReport& report)
+SafetyCommand SafetyManager::update(std::float64_t current_time, const HealthReport& report)
 {
     if (report.state == HealthState::SAFE) {
         engage(current_time, SafetyMode::SAFE_MODE, 1.0, true);

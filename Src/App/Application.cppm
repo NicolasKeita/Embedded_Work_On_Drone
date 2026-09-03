@@ -15,9 +15,9 @@ import Aircraft;
 export class Application
 {
 public:
-    int Run() const;
+    std::int32_t Run() const;
 
 private:
-    static void PrintTelemetry(double timeSeconds, const Aircraft& aircraft);
-    int RunSimulationDemo() const;
+    static void PrintTelemetry(std::float64_t timeSeconds, const Aircraft& aircraft);
+    std::int32_t RunSimulationDemo() const;
 };

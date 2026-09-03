@@ -33,7 +33,7 @@ static std::string_view safety_command_name(sim::safety::SafetyMode mode)
 /* Records the fault detection and classification chain on first detection. */
 void SILRunner::record_detection(RunContext& ctx, const HealthReport& report)
 {
-    const double detection = report.first_detection_time();
+    const std::float64_t detection = report.first_detection_time();
 
     if (detection < 0.0 || ctx.result.detection_time >= 0.0) {
         return;
@@ -63,7 +63,7 @@ void SILRunner::record_detection(RunContext& ctx, const HealthReport& report)
 void SILRunner::record_safety_transitions(RunContext& ctx)
 {
     const sim::safety::SafetyMode current = ctx.safety.mode();
-    const double response_time = ctx.safety.response_time();
+    const std::float64_t response_time = ctx.safety.response_time();
 
     if (current != ctx.previous_safety_mode) {
         SilEvent transition;

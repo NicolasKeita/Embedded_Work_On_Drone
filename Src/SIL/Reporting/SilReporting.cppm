@@ -38,16 +38,16 @@ struct SilReportOptions {
     bool                  write_csv = true;
     bool                  write_trace = true;
     bool                  write_telemetry = true;
-    double                telemetry_report_interval_s = 2.5;
+    std::float64_t        telemetry_report_interval_s = 2.5;
 };
 
 [[nodiscard]] std::string_view yes_no(bool value) noexcept;
-void write_seconds(std::ostream& out, double value);
-void write_metric(std::ostream& out, double value);
+void write_seconds(std::ostream& out, std::float64_t value);
+void write_metric(std::ostream& out, std::float64_t value);
 void write_json_escaped(std::ostream& out, std::string_view text);
 void write_csv_escaped(std::ostream& out, std::string_view text);
 void write_markdown_report(std::ostream& out, std::span<const ScenarioRecord> records,
-                           double telemetry_report_interval_s = 2.5);
+                           std::float64_t telemetry_report_interval_s = 2.5);
 void write_json_payload(std::ostream& out, std::span<const ScenarioRecord> records);
 void write_csv_payload(std::ostream& out, std::span<const ScenarioRecord> records);
 
@@ -98,13 +98,13 @@ void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool 
 
 // Writes the periodic telemetry table of one scenario section.
 void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> samples,
-                           double interval_s);
+                           std::float64_t interval_s);
 
 // Writes the important discrete events of one scenario section (no heartbeats).
 void write_event_table(std::ostream& out, std::span<const SilEvent> events);
 
 // Appends the telemetry/event/post-fault sections of one detailed scenario section.
 void write_scenario_telemetry_sections(std::ostream& out, const ScenarioRecord& record,
-                                       double telemetry_report_interval_s);
+                                       std::float64_t telemetry_report_interval_s);
 
 }

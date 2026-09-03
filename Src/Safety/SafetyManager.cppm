@@ -17,31 +17,31 @@ export namespace sim::safety {
 enum class SafetyMode { NORMAL, COMPENSATED, SAFE_MODE };
 
 struct SafetyCommand {
-    bool   mission_abort = false;
-    double thrust_margin = 1.0;
+    bool           mission_abort = false;
+    std::float64_t thrust_margin = 1.0;
 };
 
 struct SafetyManagerConfig {
-    double degraded_thrust_margin = 1.7;
+    std::float64_t degraded_thrust_margin = 1.7;
 };
 
 class SafetyManager {
 public:
     explicit SafetyManager(SafetyManagerConfig config = {});
 
-    [[nodiscard]] SafetyCommand update(double current_time, const HealthReport& report);
+    [[nodiscard]] SafetyCommand update(std::float64_t current_time, const HealthReport& report);
 
     [[nodiscard]] SafetyMode mode() const noexcept;
 
-    [[nodiscard]] double response_time() const noexcept;
+    [[nodiscard]] std::float64_t response_time() const noexcept;
 
 private:
-    void engage(double current_time, SafetyMode mode, double margin, bool abort);
+    void engage(std::float64_t current_time, SafetyMode mode, std::float64_t margin, bool abort);
 
     SafetyManagerConfig config_;
     SafetyMode          mode_ = SafetyMode::NORMAL;
     SafetyCommand       command_{};
-    double              response_time_ = -1.0;
+    std::float64_t      response_time_ = -1.0;
 };
 
 [[nodiscard]] std::string_view safety_mode_name(SafetyMode mode);

@@ -21,7 +21,7 @@ Timed activation window [start_time, start_time + duration), a duration <= 0
 meaning active until the end of the simulation. A nominal scenario (None) is
 never active.
 */
-bool FaultInjector::is_active(double current_time) const
+bool FaultInjector::is_active(std::float64_t current_time) const
 {
     if (scenario_.fault_type == FaultType::None) {
         return false;
@@ -40,7 +40,7 @@ const FaultScenario& FaultInjector::scenario() const noexcept
 /*
 Dispatches the owned scenario to the domain-specific injection helper.
 */
-void FaultInjector::inject(SimulationState& state, double current_time) const
+void FaultInjector::inject(SimulationState& state, std::float64_t current_time) const
 {
     if (!is_active(current_time)) {
         return;

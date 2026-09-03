@@ -38,9 +38,9 @@ void write_telemetry_csv(std::ostream& out, std::span<const ScenarioRecord> reco
                 << ';' << sample.vy << ';' << sample.vz << ';' << sample.pitch_rad << ';' << sample.roll_rad
                 << ';' << sample.commanded_rpm << ';' << sample.actual_rpm << ';' << sample.left_servo_deg
                 << ';' << sample.right_servo_deg << ';' << sample.target_x << ';' << sample.target_y << ';'
-                << sample.target_z << ';' << sample.mission_state << ';'
+                << sample.target_z << ';' << static_cast<std::uint32_t>(sample.mission_state) << ';'
                 << sim::control::mission_state_name(static_cast<sim::control::MissionState>(sample.mission_state))
-                << ';' << sample.safety_state << ';'
+                << ';' << static_cast<std::uint32_t>(sample.safety_state) << ';'
                 << sim::safety::safety_mode_name(static_cast<sim::safety::SafetyMode>(sample.safety_state))
                 << '\n';
         }

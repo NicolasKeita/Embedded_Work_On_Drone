@@ -19,15 +19,15 @@ void CommsBus::seed(std::uint64_t seed)
     generator_.seed(seed);
 }
 
-void CommsBus::set_link(bool up, double loss_probability)
+void CommsBus::set_link(bool up, std::float64_t loss_probability)
 {
     link_up_ = up;
     loss_probability_ = loss_probability;
 }
 
-void CommsBus::set_transport_latency(double latency_s) noexcept
+void CommsBus::set_transport_latency(std::float64_t latency_s) noexcept
 {
-    transport_latency_s_ = std::max(0.0, latency_s);
+    transport_latency_s_ = std::max(std::float64_t{0.0}, latency_s);
 }
 
 /*
@@ -51,7 +51,7 @@ void CommsStats::record(const CommsDelivery& delivery)
         latency_mean_s = delivery.latency_s;
         return;
     }
-    latency_mean_s += (delivery.latency_s - latency_mean_s) / static_cast<double>(delivered);
+    latency_mean_s += (delivery.latency_s - latency_mean_s) / static_cast<std::float64_t>(delivered);
 }
 
 void CommsStats::record_timeout() noexcept
@@ -66,7 +66,7 @@ The receive timestamp carries the simulated transport latency as an
 observational attribute; FC2-side detection keeps using the send tick, so the
 delivery semantics are unchanged.
 */
-CommsDelivery CommsBus::publish(double time)
+CommsDelivery CommsBus::publish(std::float64_t time)
 {
     CommsDelivery delivery;
 
@@ -78,7 +78,7 @@ CommsDelivery CommsBus::publish(double time)
         return delivery;
     }
     if (loss_probability_ > 0.0) {
-        const double draw = std::uniform_real_distribution<double>{0.0, 1.0}(generator_);
+        const std::float64_t draw = std::uniform_real_distribution<std::float64_t>{0.0, 1.0}(generator_);
         if (draw < loss_probability_) {
             return delivery;
         }
@@ -94,7 +94,7 @@ bool CommsBus::link_up() const noexcept
     return link_up_;
 }
 
-double CommsBus::last_received_time() const noexcept
+std::float64_t CommsBus::last_received_time() const noexcept
 {
     return last_received_time_;
 }

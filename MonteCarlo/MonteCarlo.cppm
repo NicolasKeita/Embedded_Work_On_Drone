@@ -12,10 +12,16 @@ import std;
 
 export struct MonteCarloResult
 {
-    double estimate = 0.0;
-    double standard_error = 0.0;
-    std::uint64_t samples = 0;
+    std::float64_t estimate       = 0.0;
+    std::float64_t standard_error = 0.0;
+    std::uint64_t  samples        = 0;
 };
+
+/*
+Plain function-pointer signature sampled by the integrator: deterministic call
+overhead and no heap allocation, unlike std::function.
+*/
+export using MonteCarloFunction = std::float64_t (*)(std::float64_t);
 
 export class MonteCarloEngine
 {
@@ -24,8 +30,8 @@ public:
 
     [[nodiscard]] MonteCarloResult estimate_pi(std::uint64_t samples);
     [[nodiscard]] MonteCarloResult integrate(
-        const std::function<double(double)>& func,
-        double lower_bound, double upper_bound, std::uint64_t samples);
+        MonteCarloFunction func,
+        std::float64_t lower_bound, std::float64_t upper_bound, std::uint64_t samples);
 
 private:
     std::mt19937_64 generator_;

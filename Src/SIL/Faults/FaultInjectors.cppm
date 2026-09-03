@@ -42,9 +42,9 @@ public:
     communicates with the HealthMonitor nor the SafetyManager: fault detection
     stays agnostic.
     */
-    void inject(SimulationState& state, double current_time) const;
+    void inject(SimulationState& state, std::float64_t current_time) const;
 
-    [[nodiscard]] bool is_active(double current_time) const;
+    [[nodiscard]] bool is_active(std::float64_t current_time) const;
 
     [[nodiscard]] const FaultScenario& scenario() const noexcept;
 

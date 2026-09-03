@@ -12,50 +12,50 @@ import std;
 
 export struct ControlCommand
 {
-    double wing_rpm = 0.0;
-    double left_servo_angle = 0.0;
-    double right_servo_angle = 0.0;
+    std::float64_t wing_rpm = 0.0;
+    std::float64_t left_servo_angle = 0.0;
+    std::float64_t right_servo_angle = 0.0;
 };
 
 export struct AircraftState
 {
     // Position (meters).
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
+    std::float64_t x = 0.0;
+    std::float64_t y = 0.0;
+    std::float64_t z = 0.0;
 
     // Linear velocity (m/s).
-    double vx = 0.0;
-    double vy = 0.0;
-    double vz = 0.0;
+    std::float64_t vx = 0.0;
+    std::float64_t vy = 0.0;
+    std::float64_t vz = 0.0;
 
     // Attitude (radians).
-    double pitch = 0.0;
-    double roll = 0.0;
+    std::float64_t pitch = 0.0;
+    std::float64_t roll = 0.0;
 
     // Angular velocity (rad/s).
-    double pitch_rate = 0.0;
-    double roll_rate = 0.0;
+    std::float64_t pitch_rate = 0.0;
+    std::float64_t roll_rate = 0.0;
 
     // Effective actuator state.
-    double actual_rpm = 0.0;
-    double actual_left_servo = 0.0;
-    double actual_right_servo = 0.0;
+    std::float64_t actual_rpm = 0.0;
+    std::float64_t actual_left_servo = 0.0;
+    std::float64_t actual_right_servo = 0.0;
 };
 
 export class Aircraft
 {
 public:
-    void update(double dt);
+    void update(std::float64_t dt);
     void set_command(const ControlCommand& cmd);
 
     [[nodiscard]] const AircraftState& state() const;
-    [[nodiscard]] double hover_rpm() const;
+    [[nodiscard]] std::float64_t hover_rpm() const;
 
 private:
     void update_actuators();
-    void update_attitude(double dt);
-    void update_translation(double dt);
+    void update_attitude(std::float64_t dt);
+    void update_translation(std::float64_t dt);
 
     AircraftState  state_{};
     ControlCommand command_{};

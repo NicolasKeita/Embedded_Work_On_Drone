@@ -48,8 +48,8 @@ ground truth.
 void check_commands_diverge(TestHarness&        runner,
                             const SilRunOutput& nominal,
                             const SilRunOutput& faulted,
-                            double              fault_start,
-                            double              fault_end)
+                            std::float64_t      fault_start,
+                            std::float64_t      fault_end)
 {
     bool pre_commands_identical = true;
     bool post_commands_diverge = false;
@@ -79,8 +79,8 @@ during the corruption window.
 void check_stream_separation(TestHarness&        runner,
                              const SilRunOutput& output,
                              const SilConfig&    config,
-                             double              fault_start,
-                             double              fault_end)
+                             std::float64_t      fault_start,
+                             std::float64_t      fault_end)
 {
     const std::vector<TelemetrySample>& samples = output.telemetry;
     const std::vector<TrueStateSample>& truth = output.ground_truth;

@@ -27,7 +27,7 @@ Executes the per-step pipeline until the configured duration is reached.
 */
 void SILRunner::execute(RunContext& ctx)
 {
-    const double dt = ctx.config.dt;
+    const std::float64_t dt = ctx.config.dt;
 
     record_run_start(ctx);
     for (ctx.time = 0.0; ctx.time <= ctx.config.duration_s + 0.5 * dt; ctx.time += dt) {
@@ -67,8 +67,8 @@ void SILRunner::update_metrics(RunContext& ctx)
 {
     const SilConfig& cfg = ctx.config;
     const AircraftState& state = ctx.aircraft.state();
-    const double position_error = std::hypot(state.x - cfg.target.x, state.y - cfg.target.y);
-    const double altitude_error = std::abs(state.z - cfg.target.z);
+    const std::float64_t position_error = std::hypot(state.x - cfg.target.x, state.y - cfg.target.y);
+    const std::float64_t altitude_error = std::abs(state.z - cfg.target.z);
 
     ctx.result.max_position_error_m = std::max(ctx.result.max_position_error_m, position_error);
     ctx.result.max_altitude_error_m = std::max(ctx.result.max_altitude_error_m, altitude_error);
@@ -91,8 +91,8 @@ void SILRunner::update_metrics(RunContext& ctx)
     const TelemetryControl control{.target_x = cfg.target.x,
                                    .target_y = cfg.target.y,
                                    .target_z = cfg.target.z,
-                                   .mission_state = static_cast<int>(ctx.fc1.state()),
-                                   .safety_state = static_cast<int>(ctx.safety.mode())};
+                                   .mission_state = static_cast<std::uint8_t>(ctx.fc1.state()),
+                                   .safety_state = static_cast<std::uint8_t>(ctx.safety.mode())};
     ctx.telemetry_recorder.maybe_record(ctx.time, ctx.sampled_truth, ctx.telemetry, ctx.command,
                                         ctx.commanded_rpm, control);
 }

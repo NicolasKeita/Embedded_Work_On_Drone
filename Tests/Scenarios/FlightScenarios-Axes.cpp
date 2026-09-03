@@ -24,7 +24,7 @@ using sim::control::FlightController;
 Scenario G: autonomous altitude loop from the ground up to 100 m; measures the
 time to enter tolerance, the overshoot and the residual error.
 */
-void autonomous_altitude(TestHarness& runner, double hover_rpm)
+void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario G : autonomie, altitude pure (z : 0 -> 100 m) ==="
               << std::endl;
@@ -49,7 +49,7 @@ void autonomous_altitude(TestHarness& runner, double hover_rpm)
 Test 2: cascaded X position -> pitch -> servos. Phase 1: rendezvous with point
 (20, 0, 100), phase 2: return of x to 0 with metrics tracking.
 */
-void autonomous_position_x(TestHarness& runner, double hover_rpm)
+void autonomous_position_x(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario H : autonomie, axe X en cascade (x : 20 -> 0 m) ==="
               << std::endl;
@@ -76,7 +76,7 @@ void autonomous_position_x(TestHarness& runner, double hover_rpm)
 Test 3: cascaded Y position -> roll -> servos. Phase 1: rendezvous with point
 (0, -15, 100), phase 2: return of y to 0 with metrics tracking.
 */
-void autonomous_position_y(TestHarness& runner, double hover_rpm)
+void autonomous_position_y(TestHarness& runner, std::float64_t hover_rpm)
 {
     std::cout << "\n=== Scenario I : autonomie, axe Y en cascade (y : -15 -> 0 m) ==="
               << std::endl;

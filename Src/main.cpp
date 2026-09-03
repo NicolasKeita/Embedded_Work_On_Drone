@@ -12,5 +12,5 @@ int main()
 {
     Application app;
 
-    return app.Run();
+    return static_cast<int>(app.Run());
 }

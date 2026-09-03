@@ -18,7 +18,7 @@ namespace sim::test {
 /*
 Prints one timestamped state row of the aircraft during mission runs.
 */
-void print_state_row(const Aircraft& aircraft, double timeSeconds)
+void print_state_row(const Aircraft& aircraft, std::float64_t timeSeconds)
 {
     const AircraftState& s = aircraft.state();
 
@@ -33,12 +33,12 @@ void print_state_row(const Aircraft& aircraft, double timeSeconds)
               << std::defaultfloat << std::endl;
 }
 
-double MissionMetrics::overshoot_percent() const noexcept
+std::float64_t MissionMetrics::overshoot_percent() const noexcept
 {
     return initial_gap > 0.0 ? 100.0 * overshoot_units / initial_gap : 0.0;
 }
 
-double component_value(const AircraftState& state, TrackingAxis axis)
+std::float64_t component_value(const AircraftState& state, TrackingAxis axis)
 {
     switch (axis) {
     case TrackingAxis::x_axis: return state.x;
@@ -48,7 +48,7 @@ double component_value(const AircraftState& state, TrackingAxis axis)
     return 0.0;
 }
 
-double component_value(const sim::control::TargetState& target, TrackingAxis axis)
+std::float64_t component_value(const sim::control::TargetState& target, TrackingAxis axis)
 {
     switch (axis) {
     case TrackingAxis::x_axis: return target.x;

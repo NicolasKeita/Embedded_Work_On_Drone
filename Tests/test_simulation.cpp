@@ -25,7 +25,7 @@ namespace
     Reports an invalid scenario argument and prints the usage; returns the
     matching exit code.
     */
-    int reject_argument(std::string_view argument, std::string_view executableName)
+    std::int32_t reject_argument(std::string_view argument, std::string_view executableName)
     {
         std::cout << "Erreur : argument invalide \"" << argument << "\"." << std::endl;
         std::cout << std::endl;
@@ -37,10 +37,10 @@ namespace
     Resolves scenario selection from the command line; returns a code >= 0 to
     terminate immediately, -1 to continue with the selected scenarios.
     */
-    int SelectScenarios(int argc, char* argv[], std::string_view executableName,
+    std::int32_t SelectScenarios(int argc, char* argv[], std::string_view executableName,
                         ScenarioSelection& selected)
     {
-        for (int index = 1; index < argc; ++index) {
+        for (std::int32_t index = 1; index < argc; ++index) {
             const char* rawArgument = argv[index] != nullptr ? argv[index] : "";
             const std::string_view argument{rawArgument};
 
@@ -83,13 +83,13 @@ int main(int argc, char* argv[])
     const std::string_view executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
 
     ScenarioSelection selected;
-    const int earlyStatus = SelectScenarios(argc, argv, executableName, selected);
+    const std::int32_t earlyStatus = SelectScenarios(argc, argv, executableName, selected);
     if (earlyStatus >= 0) {
-        return earlyStatus;
+        return static_cast<int>(earlyStatus);
     }
 
     const Aircraft reference;
-    const double hoverRpm = reference.hover_rpm();
+    const std::float64_t hoverRpm = reference.hover_rpm();
 
     sim::test::TestHarness runner{sim::test::HarnessConfig{.dt = 0.01, .log_interval_steps = 100}};
 

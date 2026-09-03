@@ -48,7 +48,7 @@ enum class EventSeverity { Info, Warning, Error, Debug, Trace };
 
 /* One structured simulation event; string fields reference static literals. */
 struct SilEvent {
-    double           timestamp = 0.0;
+    std::float64_t   timestamp = 0.0;
     std::string_view source{};
     SilEventType     type = SilEventType::SimulationStart;
     EventSeverity    severity = EventSeverity::Info;
@@ -58,9 +58,9 @@ struct SilEvent {
     std::string_view reason{};
     std::uint64_t    sequence = 0;
     bool             has_sequence = false;
-    double           latency_s = -1.0;
+    std::float64_t   latency_s = -1.0;
     bool             has_latency = false;
-    double           value = 0.0;
+    std::float64_t   value = 0.0;
     bool             has_value = false;
 };
 

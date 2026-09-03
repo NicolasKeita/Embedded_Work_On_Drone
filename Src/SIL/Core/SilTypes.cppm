@@ -29,15 +29,15 @@ enum class FaultType {
 };
 
 struct FaultParameters {
-    double               loss_probability = 0.0;
+    std::float64_t       loss_probability = 0.0;
     SensorCorruptionMode corruption = SensorCorruptionMode::None;
-    double               corrupted_altitude_m = 99999.0;
-    double               efficiency = 1.0;
+    std::float64_t       corrupted_altitude_m = 99999.0;
+    std::float64_t       efficiency = 1.0;
 };
 
 struct FaultScenario {
-    double          start_time = 0.0;
-    double          duration = 0.0;
+    std::float64_t  start_time = 0.0;
+    std::float64_t  duration = 0.0;
     FaultType       fault_type = FaultType::None;
     FaultParameters parameters{};
 };
@@ -46,10 +46,10 @@ struct FaultScenario {
 struct SimulationState {
     bool                 fc1_alive = true;
     bool                 comms_link_up = true;
-    double               comms_loss_probability = 0.0;
-    double               actuator_efficiency = 1.0;
+    std::float64_t       comms_loss_probability = 0.0;
+    std::float64_t       actuator_efficiency = 1.0;
     SensorCorruptionMode sensor_corruption = SensorCorruptionMode::None;
-    double               corrupted_altitude_m = 0.0;
+    std::float64_t       corrupted_altitude_m = 0.0;
 };
 
 /*
@@ -61,7 +61,7 @@ struct SimulationResult {
     // Mission (COMPLETE means success; ABORTED/FAILED are documented terminal states).
     bool                       mission_success = false;
     sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
-    double                     mission_duration_s = -1.0;
+    std::float64_t             mission_duration_s = -1.0;
 
     // Safety.
     sim::safety::HealthState final_health = sim::safety::HealthState::HEALTHY;
@@ -72,34 +72,34 @@ struct SimulationResult {
     sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
 
     // Fault chain: injection -> detection -> response -> recovery.
-    FaultType fault_type = FaultType::None;
-    bool      fault_detected = false;
-    double    fault_injected_time = -1.0;
-    double    detection_time = -1.0;
-    double    safety_response_time = -1.0;
-    double    detection_latency = -1.0;
-    double    response_latency = -1.0;
-    bool      recovery_attempted = false;
-    bool      recovery_successful = false;
-    double    recovery_time = -1.0;
+    FaultType      fault_type = FaultType::None;
+    bool           fault_detected = false;
+    std::float64_t fault_injected_time = -1.0;
+    std::float64_t detection_time = -1.0;
+    std::float64_t safety_response_time = -1.0;
+    std::float64_t detection_latency = -1.0;
+    std::float64_t response_latency = -1.0;
+    bool           recovery_attempted = false;
+    bool           recovery_successful = false;
+    std::float64_t recovery_time = -1.0;
 
     // Aircraft.
-    double max_position_error_m = 0.0;
-    double mean_position_error_m = 0.0;
-    double max_altitude_error_m = 0.0;
-    double mean_altitude_error_m = 0.0;
-    double final_x_m = 0.0;
-    double final_y_m = 0.0;
-    double final_altitude_m = 0.0;
-    double max_pitch_rad = 0.0;
-    double max_roll_rad = 0.0;
+    std::float64_t max_position_error_m = 0.0;
+    std::float64_t mean_position_error_m = 0.0;
+    std::float64_t max_altitude_error_m = 0.0;
+    std::float64_t mean_altitude_error_m = 0.0;
+    std::float64_t final_x_m = 0.0;
+    std::float64_t final_y_m = 0.0;
+    std::float64_t final_altitude_m = 0.0;
+    std::float64_t max_pitch_rad = 0.0;
+    std::float64_t max_roll_rad = 0.0;
 
     // Communication (FC1 <-> FC2).
     CommsStats comms{};
 
     // Watchdog (heartbeat/comms supervision on FC2).
-    bool   watchdog_triggered = false;
-    double watchdog_trigger_time = -1.0;
+    bool           watchdog_triggered = false;
+    std::float64_t watchdog_trigger_time = -1.0;
 
     // Test verdict: did the system behave as the scenario requires.
     bool test_verdict = false;

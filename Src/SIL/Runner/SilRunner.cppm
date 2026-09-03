@@ -64,11 +64,11 @@ private:
         sim::safety::HealthState   previous_health = sim::safety::HealthState::HEALTHY;
         bool fc1_was_alive = true, fault_active = false, fault_recorded = false, detection_recorded = false;
         bool recovery_recorded = false, safety_response_recorded = false;
-        bool      mission_abort_recorded = false;
-        FaultType last_fault_type = FaultType::None;
-        double    last_fault_start = 0.0;
-        double commanded_rpm = 0.0, last_effective_rpm = 0.0, safe_rpm = 0.0;
-        double time = 0.0, mission_end_time = -1.0, position_error_sum = 0.0, altitude_error_sum = 0.0;
+        bool           mission_abort_recorded = false;
+        FaultType      last_fault_type = FaultType::None;
+        std::float64_t last_fault_start = 0.0;
+        std::float64_t commanded_rpm = 0.0, last_effective_rpm = 0.0, safe_rpm = 0.0;
+        std::float64_t time = 0.0, mission_end_time = -1.0, position_error_sum = 0.0, altitude_error_sum = 0.0;
         std::uint64_t metric_samples = 0;
     };
     static std::expected<RunContext, SilError> make_context(const SilConfig&, std::span<const FaultScenario>);
@@ -81,14 +81,17 @@ private:
     static void finalize(RunContext&);
 
     static void record_run_start(RunContext&), record_run_end(RunContext&), record_fc1_failure(RunContext&);
-    static void record_heartbeat(RunContext&, const CommsDelivery&), record_heartbeat_delivered(RunContext&, const CommsDelivery&);
+    static void record_heartbeat(RunContext&, const CommsDelivery&);
+    static void record_heartbeat_delivered(RunContext&, const CommsDelivery&);
     static void record_heartbeat_dropped(RunContext&, const CommsDelivery&);
     static void record_watchdog_and_detection(RunContext&, const sim::safety::HealthReport&);
     static void record_watchdog_events(RunContext&, const sim::safety::HealthReport&);
     static void record_recovery_start(RunContext&, const sim::safety::HealthReport&);
     static void record_detection(RunContext&, const sim::safety::HealthReport&);
-    static void record_health_transition(RunContext&, sim::safety::HealthState), record_recovery_end(RunContext&, sim::safety::HealthState);
-    static void record_safety_transitions(RunContext&), record_mission_transition(RunContext&, sim::control::MissionState);
+    static void record_health_transition(RunContext&, sim::safety::HealthState);
+    static void record_recovery_end(RunContext&, sim::safety::HealthState);
+    static void record_safety_transitions(RunContext&);
+    static void record_mission_transition(RunContext&, sim::control::MissionState);
     static void record_fault_activation(RunContext&, const FaultScenario&), record_fault_cleared(RunContext&);
 
     SilConfig config_;

@@ -39,8 +39,8 @@ void SILRunner::finalize(RunContext& ctx)
     result.mission_success = result.final_state == sim::control::MissionState::COMPLETE;
     result.mission_duration_s = ctx.mission_end_time >= 0.0 ? ctx.mission_end_time : ctx.time;
     if (ctx.metric_samples > 0) {
-        result.mean_position_error_m = ctx.position_error_sum / static_cast<double>(ctx.metric_samples);
-        result.mean_altitude_error_m = ctx.altitude_error_sum / static_cast<double>(ctx.metric_samples);
+        result.mean_position_error_m = ctx.position_error_sum / static_cast<std::float64_t>(ctx.metric_samples);
+        result.mean_altitude_error_m = ctx.altitude_error_sum / static_cast<std::float64_t>(ctx.metric_samples);
     }
     result.comms = ctx.comms_stats;
 }

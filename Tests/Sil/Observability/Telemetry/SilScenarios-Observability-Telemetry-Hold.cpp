@@ -37,13 +37,13 @@ using sim::sil::TrueStateSample;
 void check_commands_diverge(TestHarness&        runner,
                             const SilRunOutput& nominal,
                             const SilRunOutput& faulted,
-                            double              fault_start,
-                            double              fault_end);
+                            std::float64_t      fault_start,
+                            std::float64_t      fault_end);
 
 namespace {
 
-constexpr double kFaultStart = 20.0;
-constexpr double kFaultEnd = 30.0;
+constexpr std::float64_t kFaultStart = 20.0;
+constexpr std::float64_t kFaultEnd = 30.0;
 
 /*
 Checks the fault window streams: the forced 99999 m altitude is recorded in the

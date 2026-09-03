@@ -56,7 +56,7 @@ void SILRunner::record_fault_activation(RunContext& ctx, const FaultScenario& sc
     write_fault_parameters(injected, scenario);
     ctx.trace.record(injected);
 
-    const auto record_typed = [&ctx, &scenario](SilEventType type, double value) {
+    const auto record_typed = [&ctx, &scenario](SilEventType type, std::float64_t value) {
         SilEvent event;
 
         event.timestamp = ctx.time;

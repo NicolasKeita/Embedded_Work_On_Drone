@@ -15,7 +15,7 @@ void PrintResult(const std::string& label, const MonteCarloResult& result);
 int main()
 {
     constexpr std::array kSampleCounts{ std::uint64_t{ 1000 }, std::uint64_t{ 100000 }, std::uint64_t{ 10000000 } };
-    constexpr double kPiExact = 3.14159265358979323846;
+    constexpr std::float64_t kPiExact = 3.14159265358979323846;
 
     MonteCarloEngine engine(20260825u);
 
@@ -29,7 +29,7 @@ int main()
     }
 
     std::cout << "\n=== Integrale de f(x) = sin(x) sur [0, pi] ===" << std::endl;
-    const auto sine = [](double x) { return std::sin(x); };
+    const auto sine = [](std::float64_t x) { return std::sin(x); };
 
     for (const std::uint64_t samples : kSampleCounts) {
         const MonteCarloResult result =

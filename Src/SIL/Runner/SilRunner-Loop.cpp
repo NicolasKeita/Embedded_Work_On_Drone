@@ -101,7 +101,7 @@ void SILRunner::apply_actuators(RunContext& ctx)
     ControlCommand effective = ctx.command;
 
     if (ctx.safety.mode() == SafetyMode::SAFE_MODE) {
-        ctx.safe_rpm = std::max(0.0, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt);
+        ctx.safe_rpm = std::max(std::float64_t{0.0}, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt);
         effective.wing_rpm = ctx.safe_rpm;
         effective.left_servo_angle = 0.0;
         effective.right_servo_angle = 0.0;

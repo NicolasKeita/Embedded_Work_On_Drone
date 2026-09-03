@@ -12,7 +12,7 @@ import std;
 
 namespace
 {
-    constexpr double kTakeOffDurationSeconds = 3.0;
+    constexpr std::float64_t kTakeOffDurationSeconds = 3.0;
 }
 
 namespace sim::test {
@@ -52,7 +52,7 @@ void TestHarness::log_step(const Aircraft& aircraft) const
 Variant with an explicit timestamp: used by the autonomous scenarios which
 advance their control loop manually, without going through run().
 */
-void TestHarness::log_step(const Aircraft& aircraft, double time_seconds) const
+void TestHarness::log_step(const Aircraft& aircraft, std::float64_t time_seconds) const
 {
     const AircraftState& s = aircraft.state();
 
@@ -76,7 +76,7 @@ the state at the rate defined by HarnessConfig::log_interval_steps. A final log
 is emitted only if the last step was not already logged by the periodicity
 (otherwise the last table row would be duplicated).
 */
-void TestHarness::run(Aircraft& aircraft, double duration_seconds)
+void TestHarness::run(Aircraft& aircraft, std::float64_t duration_seconds)
 {
     const std::uint32_t steps = static_cast<std::uint32_t>(duration_seconds / config_.dt + 0.5);
 
@@ -103,7 +103,7 @@ Phase common to the aerial scenarios: fast climb to gain altitude. The simulated
 time is tracked internally by the runner (current_time_), so the phase no longer
 needs to return its end instant.
 */
-void TestHarness::take_off(Aircraft& aircraft, double target_rpm)
+void TestHarness::take_off(Aircraft& aircraft, std::float64_t target_rpm)
 {
     aircraft.set_command({1.3 * target_rpm, 0.0, 0.0});
     run(aircraft, kTakeOffDurationSeconds);

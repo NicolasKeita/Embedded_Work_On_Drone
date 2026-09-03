@@ -34,7 +34,9 @@ ControlCommand FlightController::takeoff_command(const AircraftState& actual)
 Climb phase: the altitude loop drives the wing RPM towards target.z; the
 transition to STATION_KEEPING resets the PIDs and the hold timer.
 */
-ControlCommand FlightController::climb_command(const TargetState& target, const AircraftState& actual, double dt)
+ControlCommand FlightController::climb_command(const TargetState&   target,
+                                               const AircraftState& actual,
+                                               std::float64_t       dt)
 {
     ControlCommand cmd;
 
@@ -54,7 +56,7 @@ the target zone and completes the mission after station_hold_seconds.
 */
 ControlCommand FlightController::station_keeping_step(const TargetState&   target,
                                                       const AircraftState& actual,
-                                                      double               dt)
+                                                      std::float64_t       dt)
 {
     ControlCommand cmd = station_keeping_command(target, actual, dt);
 
@@ -77,7 +79,7 @@ mission window exhausted): the controller answers them with a zeroed command.
 */
 ControlCommand FlightController::update(const TargetState&   target,
                                         const AircraftState& actual,
-                                        double               dt)
+                                        std::float64_t       dt)
 {
     switch (mission_state_) {
     case MissionState::TAKEOFF:

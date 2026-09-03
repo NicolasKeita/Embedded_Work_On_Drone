@@ -32,16 +32,15 @@ using sim::sil::SILRunner;
 void check_commands_diverge(TestHarness&        runner,
                             const SilRunOutput& nominal,
                             const SilRunOutput& faulted,
-                            double              fault_start,
-                            double              fault_end);
-
+                            std::float64_t      fault_start,
+                            std::float64_t      fault_end);
 void check_stream_separation(TestHarness&        runner,
                              const SilRunOutput& output,
                              const SilConfig&    config,
-                             double              fault_start,
-                             double              fault_end);
+                             std::float64_t      fault_start,
+                             std::float64_t      fault_end);
 
-constexpr double kFaultStart = 20.0, kFaultEnd = 30.0;
+constexpr std::float64_t kFaultStart = 20.0, kFaultEnd = 30.0;
 
 /*
 TELE-011: a sensor fault injected in the environment reaches the FC through the
