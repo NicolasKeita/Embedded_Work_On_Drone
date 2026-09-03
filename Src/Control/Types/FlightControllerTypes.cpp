@@ -1,12 +1,12 @@
 /*
-Filename: Src/Control/FlightController-Names.cpp
-Description: Readable naming of the mission states of the flight controller.
+Filename: Src/Control/Types/FlightControllerTypes.cpp
+Description: Mission state naming helper of the flight controller data types.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module FlightController;
+module FlightControllerTypes;
 
 import std;
 

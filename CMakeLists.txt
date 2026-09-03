@@ -43,7 +43,8 @@ set(CONTROL_FILES
     Src/Control/FlightController-Core.cpp
     Src/Control/FlightController-Loops.cpp
     Src/Control/FlightController-Mission.cpp
-    Src/Control/FlightController-Names.cpp
+    Src/Control/Types/FlightControllerTypes.cppm
+    Src/Control/Types/FlightControllerTypes.cpp
 )
 
 # Sources du sous-systeme de surete FC2 (.cppm + .cpp conserves ensemble).
@@ -77,6 +78,8 @@ set(SIL_FILES
     Src/SIL/Runner/Events/SilRunnerEvents-Health.cpp
     Src/SIL/Core/SilTypes.cppm
     Src/SIL/Core/SilTypes.cpp
+    Src/SIL/Core/SilFaultScenario.cppm
+    Src/SIL/Core/SilFaultScenario.cpp
     Src/SIL/Core/Telemetry/Telemetry.cppm
     Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
     Src/SIL/Core/Telemetry/Telemetry-Validation.cpp

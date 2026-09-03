@@ -1,13 +1,9 @@
 /*
 Filename: Src/SIL/Core/SilTypes.cppm
-Description: SIL data structures : fault scenarios, simulated environment and simulation results.
+Description: SIL data structures : simulated environment and simulation results (scenario types come from SilFaultScenario).
 Exports:
-    enum class FaultType,
-    struct FaultParameters,
-    struct FaultScenario,
     struct SimulationState,
     struct SimulationResult,
-    fault_type_name(),
     verdict_reason()
 
 Copyright (c) 2026 Nicolas K.
@@ -25,30 +21,9 @@ import HealthMonitor;
 import SafetyManager;
 import Telemetry;
 
+export import SilFaultScenario;
+
 export namespace sim::sil {
-
-enum class FaultType {
-    None,
-    FC1Failure,
-    CommunicationLoss,
-    CommunicationLossRate,
-    SensorFault,
-    ActuatorDegradation
-};
-
-struct FaultParameters {
-    std::float64_t       loss_probability = 0.0;
-    SensorCorruptionMode corruption = SensorCorruptionMode::None;
-    std::float64_t       corrupted_altitude_m = 99999.0;
-    std::float64_t       efficiency = 1.0;
-};
-
-struct FaultScenario {
-    std::float64_t  start_time = 0.0;
-    std::float64_t  duration = 0.0;
-    FaultType       fault_type = FaultType::None;
-    FaultParameters parameters{};
-};
 
 // Simulated environment that fault injectors are allowed to alter.
 struct SimulationState {
@@ -114,9 +89,6 @@ struct SimulationResult {
 
     [[nodiscard]] bool compute_verdict(bool fault_expected) const;
 };
-
-// Human-readable name of a fault type for reports.
-[[nodiscard]] std::string_view fault_type_name(FaultType type);
 
 // Human-readable reason of the test verdict for reports.
 [[nodiscard]] std::string_view verdict_reason(const SimulationResult& result);

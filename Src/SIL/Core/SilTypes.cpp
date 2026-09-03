@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Core/SilTypes.cpp
-Description: Fault type naming helper for the SIL data structures.
+Description: Simulation result helpers : synthetic verdict and textual verdict reason.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -42,25 +42,6 @@ bool SimulationResult::compute_verdict(bool fault_expected) const
     }
     return mission_success && final_health == sim::safety::HealthState::HEALTHY
         && final_safety_mode == sim::safety::SafetyMode::NORMAL;
-}
-
-std::string_view fault_type_name(FaultType type)
-{
-    switch (type) {
-    case FaultType::None:
-        return "NOMINAL";
-    case FaultType::FC1Failure:
-        return "FC1_FAILURE";
-    case FaultType::CommunicationLoss:
-        return "COMMUNICATION_LOSS";
-    case FaultType::CommunicationLossRate:
-        return "COMMUNICATION_LOSS_RATE";
-    case FaultType::SensorFault:
-        return "SENSOR_FAULT";
-    case FaultType::ActuatorDegradation:
-        return "ACTUATOR_DEGRADATION";
-    }
-    return "UNKNOWN";
 }
 
 /*
