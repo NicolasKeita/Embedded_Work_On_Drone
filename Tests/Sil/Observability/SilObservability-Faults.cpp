@@ -55,6 +55,8 @@ void fc1_failure_events_test(TestHarness& runner)
     runner.check(std::abs(injected->timestamp - 30.0) <= config.dt, "OBS-003 : FAULT_INJECTED horodate a l'injection");
     runner.check(injected->detail == sim::sil::fault_type_name(FaultType::FC1Failure),
                  "OBS-003 : FAULT_INJECTED porte le type de faulte");
+    runner.check(injected->reason.find("permanently") != std::string_view::npos,
+                 "OBS-003 : FAULT_INJECTED precise le caractere permanent");
     runner.check(detected->timestamp >= 30.0 && output.result.fault_detected, "OBS-003 : detection apres l'injection");
     runner.check(output.result.detection_latency >= 0.0 && output.result.detection_latency <= 0.30,
                  "OBS-004 : latence de detection dans la limite de 300 ms");

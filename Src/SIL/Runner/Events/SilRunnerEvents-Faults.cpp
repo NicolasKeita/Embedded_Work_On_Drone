@@ -18,8 +18,57 @@ import Telemetry;
 namespace sim::sil {
 
 /*
-Enriches the injection marker with the scenario parameters: loss probability,
-actuator efficiency or sensor corruption mode and forced altitude.
+Human-readable sensor corruption label that also states whether the corruption
+lasts until the end of the run (duration <= 0) or only inside its activation
+window.
+*/
+static std::string_view sensor_corruption_reason(const FaultScenario& scenario)
+{
+    switch (scenario.parameters.corruption) {
+    case SensorCorruptionMode::None:
+        return {};
+    case SensorCorruptionMode::AltitudeNaN:
+        return scenario.duration <= 0.0 ? "ALTITUDE_NAN permanently" : "ALTITUDE_NAN temporarily";
+    case SensorCorruptionMode::AltitudeOutOfRange:
+        return scenario.duration <= 0.0 ? "ALTITUDE_OUT_OF_RANGE permanently"
+                                        : "ALTITUDE_OUT_OF_RANGE temporarily";
+    case SensorCorruptionMode::ExtremeNoise:
+        return scenario.duration <= 0.0 ? "EXTREME_NOISE permanently" : "EXTREME_NOISE temporarily";
+    }
+    return {};
+}
+
+/*
+Human-readable effect label appended to the injection marker. Every message
+states both the injected effect and whether it is permanent (duration <= 0,
+active until the end of the run) or temporary (bounded activation window).
+*/
+static std::string_view fault_effect_reason(const FaultScenario& scenario)
+{
+    switch (scenario.fault_type) {
+    case FaultType::None:
+        return {};
+    case FaultType::FC1Failure:
+        return scenario.duration <= 0.0 ? "flight controller 1 heartbeat stopped permanently"
+                                        : "flight controller 1 heartbeat stopped temporarily";
+    case FaultType::CommunicationLoss:
+        return scenario.duration <= 0.0 ? "FC1-FC2 communication link cut permanently"
+                                        : "FC1-FC2 communication link cut temporarily";
+    case FaultType::CommunicationLossRate:
+        return scenario.duration <= 0.0 ? "random packet loss permanently"
+                                        : "random packet loss temporarily";
+    case FaultType::SensorFault:
+        return sensor_corruption_reason(scenario);
+    case FaultType::ActuatorDegradation:
+        return scenario.duration <= 0.0 ? "actuator efficiency reduced permanently"
+                                        : "actuator efficiency reduced temporarily";
+    }
+    return {};
+}
+
+/*
+Enriches the injection marker with the numeric scenario parameters: loss
+probability, actuator efficiency or forced corrupted altitude.
 */
 
 static void write_fault_parameters(SilEvent& event, const FaultScenario& scenario)
@@ -32,12 +81,10 @@ static void write_fault_parameters(SilEvent& event, const FaultScenario& scenari
         event.value = scenario.parameters.efficiency;
         event.has_value = true;
     }
-    if (scenario.fault_type == FaultType::SensorFault) {
-        event.reason = corruption_mode_name(scenario.parameters.corruption);
-        if (scenario.parameters.corruption == SensorCorruptionMode::AltitudeOutOfRange) {
-            event.value = scenario.parameters.corrupted_altitude_m;
-            event.has_value = true;
-        }
+    if (scenario.fault_type == FaultType::SensorFault
+        && scenario.parameters.corruption == SensorCorruptionMode::AltitudeOutOfRange) {
+        event.value = scenario.parameters.corrupted_altitude_m;
+        event.has_value = true;
     }
 }
 
@@ -54,6 +101,7 @@ void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
     injected.type = SilEventType::FaultInjected;
     injected.severity = EventSeverity::Info;
     injected.detail = fault_type_name(scenario.fault_type);
+    injected.reason = fault_effect_reason(scenario);
     write_fault_parameters(injected, scenario);
     ctx.trace.record(injected);
 

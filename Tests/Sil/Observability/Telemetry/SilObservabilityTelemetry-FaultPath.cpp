@@ -81,8 +81,9 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
         return;
     }
     runner.check(injected->detail == sim::sil::fault_type_name(FaultType::SensorFault)
-                     && injected->reason == sim::sil::corruption_mode_name(SensorCorruptionMode::ExtremeNoise),
-                 "TELE-011 : FAULT_INJECTED porte type et mode de corruption");
+                     && injected->reason.find("EXTREME_NOISE") != std::string_view::npos
+                     && injected->reason.find("temporarily") != std::string_view::npos,
+                 "TELE-011 : FAULT_INJECTED porte type, mode et duree");
 }
 
 }
