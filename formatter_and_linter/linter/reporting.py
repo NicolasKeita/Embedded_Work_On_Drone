@@ -10,6 +10,7 @@ from typing import List, Tuple
 
 from linter.style_checks import MAX_FILE_LENGTH, MAX_FUNCTION_LENGTH
 from linter.comment_language_checks import LINGUA_AVAILABLE
+from linter.multiple_var_decl_checks import MULTIPLE_VAR_DECL_MESSAGE
 
 
 def _get_path_label(file_path: str) -> str:
@@ -81,6 +82,11 @@ def print_blank_line_after_initialization_warnings(
             f"after first declaration block (last declaration at line {last_decl_line})",
             file=sys.stderr,
         )
+
+
+def print_multiple_var_decl_warnings(violations: List[int]) -> None:
+    for line_num in violations:
+        print(f"⚠️  Line {line_num}: {MULTIPLE_VAR_DECL_MESSAGE}", file=sys.stderr)
 
 
 def print_cppm_interface_warnings(

@@ -12,6 +12,7 @@ Checks for style violations and code quality issues.
 - **Comment language** : Comments must be written in English
 - **Function length** : Functions must not exceed 40 lines
 - **File length** : 120 lines max per file
+- **Multiple variable declarations** : `[MULTIPLE_VAR_DECL] Declare only one variable per line.` Commas inside templates `<>`, call arguments `()` and braced initializers `{}` are ignored
 
 ### Examples
 
