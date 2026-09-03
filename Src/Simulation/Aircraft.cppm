@@ -1,6 +1,10 @@
 /*
 Filename: Src/Simulation/Aircraft.cppm
 Description: Public interface of the simplified Heliblade-like physics simulation.
+Exports:
+    struct ControlCommand,
+    struct AircraftState,
+    class Aircraft
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

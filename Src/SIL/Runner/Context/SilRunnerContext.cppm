@@ -1,6 +1,11 @@
 /*
 Filename: Src/SIL/Runner/Context/SilRunnerContext.cppm
 Description: Run context of the SIL runner: configuration, structured output, error modes and per-run state.
+Exports:
+    enum class SilError,
+    struct SilConfig,
+    struct SilRunOutput,
+    struct RunContext
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

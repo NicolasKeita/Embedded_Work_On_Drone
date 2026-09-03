@@ -1,6 +1,16 @@
 /*
 Filename: Src/SIL/Core/Telemetry/Telemetry-Chain.cppm
 Description: Simulated sensor chain, range validation layer and environment-side corruption.
+Exports:
+    enum class SensorCorruptionMode,
+    struct SensorValidationLimits,
+    struct SensorTelemetry,
+    struct SensorValidity,
+    make_telemetry(),
+    to_aircraft_state(),
+    validate(),
+    apply_corruption(),
+    corruption_mode_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

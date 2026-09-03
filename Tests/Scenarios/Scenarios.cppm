@@ -1,6 +1,15 @@
 /*
 Filename: Tests/Scenarios/Scenarios.cppm
 Description: Deterministic validation scenarios (A to F) and the launchable scenario registry.
+Exports:
+    struct ScenarioEntry,
+    class ScenarioCatalog,
+    rest(),
+    climb(),
+    descent(),
+    move_x(),
+    move_y(),
+    combined()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

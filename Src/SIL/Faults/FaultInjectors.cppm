@@ -1,6 +1,10 @@
 /*
 Filename: Src/SIL/Faults/FaultInjectors.cppm
 Description: Fault injection family : value-semantic injector, timed activation and validated factory.
+Exports:
+    enum class InjectorError,
+    class FaultInjector,
+    make_fault_injector()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

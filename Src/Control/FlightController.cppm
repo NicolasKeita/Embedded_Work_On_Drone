@@ -2,6 +2,14 @@
 Filename: Src/Control/FlightController.cppm
 Description: Public interface of the autonomous flight controller : mission
 state machine and cascaded position, altitude and attitude loops.
+Exports:
+    enum class MissionState,
+    struct TargetState,
+    struct ControllerConfig,
+    struct TiltTargets,
+    struct ServoMix,
+    class FlightController,
+    mission_state_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

@@ -1,6 +1,9 @@
 /*
 Filename: MonteCarlo/MonteCarlo.cppm
 Description: Public interface of the generic Monte-Carlo engine (pi estimation and 1D integration).
+Exports:
+    struct MonteCarloResult,
+    class MonteCarloEngine
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

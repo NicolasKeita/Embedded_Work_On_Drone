@@ -1,6 +1,10 @@
 /*
 Filename: Src/SIL/Core/CommsBus.cppm
 Description: Simulated FC1-to-FC2 communication bus with link cutoff and packet loss.
+Exports:
+    struct CommsDelivery,
+    struct CommsStats,
+    class CommsBus
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

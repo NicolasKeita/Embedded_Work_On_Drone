@@ -1,6 +1,23 @@
 /*
 Filename: Src/SIL/Runner/Events/SilRunnerEvents.cppm
 Description: Event recording free functions used by the SIL runner to build the structured trace.
+Exports:
+    record_run_start(),
+    record_run_end(),
+    record_fc1_failure(),
+    record_heartbeat(),
+    record_heartbeat_delivered(),
+    record_heartbeat_dropped(),
+    record_watchdog_and_detection(),
+    record_watchdog_events(),
+    record_recovery_start(),
+    record_detection(),
+    record_health_transition(),
+    record_recovery_end(),
+    record_safety_transitions(),
+    record_mission_transition(),
+    record_fault_activation(),
+    record_fault_cleared()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
