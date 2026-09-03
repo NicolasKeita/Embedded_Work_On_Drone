@@ -1,6 +1,35 @@
 cmake_minimum_required(VERSION 4.1)
-
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
+    "f35a9ac6-8463-4d38-8eec-5d6008153e7d"
+    CACHE STRING "Enable experimental C++ import std support")
 project(HelloWorld VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
+function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
+    set(ALL_FILES ${ARGN})
+
+    set(INTERFACE_FILES ${ALL_FILES})
+    list(FILTER INTERFACE_FILES INCLUDE REGEX "\\.cppm$")
+
+    set(IMPLEMENTATION_FILES ${ALL_FILES})
+    list(FILTER IMPLEMENTATION_FILES EXCLUDE REGEX "\\.cppm$")
+
+    if(IMPLEMENTATION_FILES)
+        target_sources(${TARGET} ${VISIBILITY} ${IMPLEMENTATION_FILES})
+    endif()
+
+    if(INTERFACE_FILES)
+        target_sources(${TARGET} ${VISIBILITY}
+            FILE_SET CXX_MODULES
+            BASE_DIRS "${BASE_DIR}"
+            FILES ${INTERFACE_FILES}
+        )
+    endif()
+endfunction()
 
 # Sources du module de simulation (.cppm + .cpp conserves ensemble).
 set(SIMULATION_FILES
@@ -82,14 +111,6 @@ set(SRC_FILES
     ${SIL_FILES}
 )
 
-add_executable(HelloWorld Src/main.cpp)
-target_sources(HelloWorld
-    PUBLIC
-        FILE_SET CXX_MODULES
-        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES
-            ${SRC_FILES}
-)
 
 # Harness, scenarios physiques et scenarios autonomes du programme de validation
 # (.cppm + .cpp conserves ensemble dans la meme variable).
@@ -110,15 +131,12 @@ set(TEST_SIMULATION_FILES
 
 # Exercice de validation des scenarios A a J (etapes 5 et 6).
 add_executable(test_simulation Tests/test_simulation.cpp)
-target_sources(test_simulation
-    PRIVATE
-        FILE_SET CXX_MODULES
-        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES
-            ${SIMULATION_FILES}
-            ${CONTROL_FILES}
-            ${TEST_SIMULATION_FILES}
+target_add_mixed_sources(test_simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${TEST_SIMULATION_FILES}
 )
+set_property(TARGET test_simulation PROPERTY CXX_SCAN_FOR_MODULES ON)
 
 # Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11) et scenarios
 # d'observabilite.
@@ -141,21 +159,19 @@ set(TEST_SIL_FILES
 )
 
 add_executable(test_sil Tests/test_sil.cpp)
-target_sources(test_sil
-    PRIVATE
-        FILE_SET CXX_MODULES
-        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-        FILES
-            ${SIMULATION_FILES}
-            ${CONTROL_FILES}
-            ${SAFETY_FILES}
-            ${SIL_FILES}
-            Tests/TestHarness.cppm
-            Tests/TestHarness.cpp
-            ${TEST_SIL_FILES}
+target_add_mixed_sources(test_sil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${SAFETY_FILES}
+    ${SIL_FILES}
+    Tests/TestHarness.cppm
+    Tests/TestHarness.cpp
+    ${TEST_SIL_FILES}
 )
 
-foreach(target HelloWorld test_simulation test_sil)
+foreach(target test_simulation test_sil)
+    set_property(TARGET ${target} PROPERTY CXX_MODULE_STD ON)
+
     if(MSVC)
         target_compile_options(${target} PRIVATE
             /W4
@@ -168,5 +184,3 @@ foreach(target HelloWorld test_simulation test_sil)
 
     target_compile_features(${target} PRIVATE cxx_std_23)
 endforeach()
-
-install(TARGETS HelloWorld RUNTIME DESTINATION bin)
