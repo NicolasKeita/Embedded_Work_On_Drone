@@ -1,5 +1,17 @@
 # C++ Coding Rules
 
+## Embedded Systems & Error Handling
+
+This codebase targets embedded software systems. Code must prioritize determinism, layout predictability, and zero-exception overhead.
+
+* **Explicit fixed-width types**: Do not use ambiguous primitive types (`int`, `long`, `float`, `double`) in data structures, hardware buffers, or state logic. Use exact fixed-width types for integers (`std::uint8_t`, `std::int32_t`, `std::uint64_t`) and C++23 floating-point values (`std::float32_t`, `std::float64_t`) directly via `import std;`.
+* **No C++ Exceptions**: Exceptions are strictly prohibited (`-fno-exceptions`).
+  * Never use `throw`, `try`, or `catch`.
+  * For functions or operations that can fail, return `std::expected<T, E>` (or `std::optional<T>`).
+* **Memory & Determinism**:
+  * Avoid dynamic memory allocation (e.g., heap allocations, `std::vector` resizing) inside time-critical control loops or real-time tasks.
+  * Prefer static allocation, value semantics, and compile-time fixed buffers (`std::array`).
+
 ## File Header
 
 Every `.cppm` and `.cpp` file must start with:

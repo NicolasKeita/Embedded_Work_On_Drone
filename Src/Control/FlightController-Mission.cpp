@@ -96,28 +96,4 @@ ControlCommand FlightController::update(const TargetState&   target,
     return ControlCommand{};
 }
 
-/*
-Mission state names. ABORTED and FAILED are SIL-level terminal states produced
-by the simulation engine (safety abort, mission window exhausted); the onboard
-controller itself never enters them.
-*/
-std::string_view mission_state_name(MissionState state)
-{
-    switch (state) {
-    case MissionState::TAKEOFF:
-        return "TAKEOFF";
-    case MissionState::CLIMB:
-        return "CLIMB";
-    case MissionState::STATION_KEEPING:
-        return "STATION_KEEPING";
-    case MissionState::COMPLETE:
-        return "COMPLETE";
-    case MissionState::ABORTED:
-        return "ABORTED";
-    case MissionState::FAILED:
-        return "FAILED";
-    }
-    return "UNKNOWN";
-}
-
 }

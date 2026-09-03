@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Sil/Observability/Telemetry/SilScenarios-Observability-Telemetry-Support.cpp
-Description: Shared helpers of the telemetry test suite (determinism and command divergence).
+Description: Shared helpers of the telemetry test suite (determinism, sensor path and command divergence).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -16,8 +16,10 @@ import TestHarness;
 
 namespace sim::test::sil {
 
+using sim::sil::SilConfig;
 using sim::sil::SilRunOutput;
 using sim::sil::TelemetrySample;
+using sim::sil::TrueStateSample;
 
 /*
 True when two telemetry streams carry identical samples (deterministic run).
@@ -67,6 +69,44 @@ void check_commands_diverge(TestHarness&        runner,
     }
     runner.check(pre_commands_identical, "TELE : commandes identiques au nominal avant la faulte");
     runner.check(post_commands_diverge, "TELE : le FC consomme la mesure du chemin capteur");
+}
+
+/*
+Checks the truth and sensor streams of the faulted run: ground truth stays
+finite (and physical before the fault) while the sensor path diverges from it
+during the corruption window.
+*/
+void check_stream_separation(TestHarness&        runner,
+                             const SilRunOutput& output,
+                             const SilConfig&    config,
+                             double              fault_start,
+                             double              fault_end)
+{
+    const std::vector<TelemetrySample>& samples = output.telemetry;
+    const std::vector<TrueStateSample>& truth = output.ground_truth;
+
+    runner.check(samples.size() == truth.size(), "TELE-011 : flux telemetrie/ground truth alignes");
+
+    bool truth_finite = true;
+    bool truth_valid_before_fault = true;
+    bool pre_fault_identical = true;
+    bool sensor_diverged = false;
+    for (std::size_t index = 0; index < samples.size(); ++index) {
+        truth_finite = truth_finite && std::isfinite(truth[index].z);
+        if (samples[index].time < fault_start) {
+            truth_valid_before_fault = truth_valid_before_fault && truth[index].z >= 0.0
+                                       && truth[index].z <= config.sensor_limits.max_altitude_m;
+            pre_fault_identical = pre_fault_identical && samples[index].altitude_m == truth[index].z;
+        }
+        else if (samples[index].time < fault_end) {
+            sensor_diverged = sensor_diverged
+                              || std::abs(samples[index].altitude_m - truth[index].z) > 1.0e-6;
+        }
+    }
+    runner.check(truth_finite, "TELE-011 : ground truth toujours finie (jamais corrompue)");
+    runner.check(truth_valid_before_fault, "TELE-011 : ground truth dans les limites physiques avant la faulte");
+    runner.check(pre_fault_identical, "TELE-011 : sans corruption capteur et verite coincident");
+    runner.check(sensor_diverged, "TELE-011 : telemetrie capteur ecartee de la verite pendant la faulte");
 }
 
 }

@@ -43,6 +43,7 @@ set(CONTROL_FILES
     Src/Control/FlightController-Core.cpp
     Src/Control/FlightController-Loops.cpp
     Src/Control/FlightController-Mission.cpp
+    Src/Control/FlightController-Names.cpp
 )
 
 # Sources du sous-systeme de surete FC2 (.cppm + .cpp conserves ensemble).
@@ -60,6 +61,7 @@ set(SAFETY_FILES
 # conserves ensemble dans la meme variable).
 set(SIL_FILES
     Src/SIL/Runner/SilRunner.cppm
+    Src/SIL/Runner/SilRunner-Context.cppm
     Src/SIL/Runner/SilRunner-Context.cpp
     Src/SIL/Runner/Events/SilRunner-Events.cpp
     Src/SIL/Runner/Events/SilRunner-FaultEvents.cpp

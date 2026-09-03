@@ -28,8 +28,6 @@ using sim::sil::SilEvent;
 using sim::sil::SilEventType;
 using sim::sil::SilRunOutput;
 using sim::sil::SILRunner;
-using sim::sil::TelemetrySample;
-using sim::sil::TrueStateSample;
 
 void check_commands_diverge(TestHarness&        runner,
                             const SilRunOutput& nominal,
@@ -37,45 +35,13 @@ void check_commands_diverge(TestHarness&        runner,
                             double              fault_start,
                             double              fault_end);
 
-namespace {
+void check_stream_separation(TestHarness&        runner,
+                             const SilRunOutput& output,
+                             const SilConfig&    config,
+                             double              fault_start,
+                             double              fault_end);
 
 constexpr double kFaultStart = 20.0, kFaultEnd = 30.0;
-
-/*
-Checks the truth and sensor streams of the faulted run: ground truth stays
-finite (and physical before the fault) while the sensor path diverges from it
-during the corruption window.
-*/
-void check_stream_separation(TestHarness& runner, const SilRunOutput& output, const SilConfig& config)
-{
-    const std::vector<TelemetrySample>& samples = output.telemetry;
-    const std::vector<TrueStateSample>& truth = output.ground_truth;
-
-    runner.check(samples.size() == truth.size(), "TELE-011 : flux telemetrie/ground truth alignes");
-
-    bool truth_finite = true;
-    bool truth_valid_before_fault = true;
-    bool pre_fault_identical = true;
-    bool sensor_diverged = false;
-    for (std::size_t index = 0; index < samples.size(); ++index) {
-        truth_finite = truth_finite && std::isfinite(truth[index].z);
-        if (samples[index].time < kFaultStart) {
-            truth_valid_before_fault = truth_valid_before_fault && truth[index].z >= 0.0
-                                       && truth[index].z <= config.sensor_limits.max_altitude_m;
-            pre_fault_identical = pre_fault_identical && samples[index].altitude_m == truth[index].z;
-        }
-        else if (samples[index].time < kFaultEnd) {
-            sensor_diverged = sensor_diverged
-                              || std::abs(samples[index].altitude_m - truth[index].z) > 1.0e-6;
-        }
-    }
-    runner.check(truth_finite, "TELE-011 : ground truth toujours finie (jamais corrompue)");
-    runner.check(truth_valid_before_fault, "TELE-011 : ground truth dans les limites physiques avant la faulte");
-    runner.check(pre_fault_identical, "TELE-011 : sans corruption capteur et verite coincident");
-    runner.check(sensor_diverged, "TELE-011 : telemetrie capteur ecartee de la verite pendant la faulte");
-}
-
-}
 
 /*
 TELE-011: a sensor fault injected in the environment reaches the FC through the
@@ -102,7 +68,7 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
         return;
     }
 
-    check_stream_separation(runner, faulted.value(), config);
+    check_stream_separation(runner, faulted.value(), config, kFaultStart, kFaultEnd);
     check_commands_diverge(runner, nominal.value(), faulted.value(), kFaultStart, kFaultEnd);
 
     const SilEvent* injected = find_first(faulted.value().events, SilEventType::FaultInjected);

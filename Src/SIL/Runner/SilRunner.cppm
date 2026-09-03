@@ -21,36 +21,11 @@ import SilTelemetry;
 import SilTypes;
 import Telemetry;
 
-export namespace sim::sil {
-// Typed failures of a SIL run (no exception is ever thrown).
-enum class SilError { TooManyScenarios, FaultScenarioRejected };
+export import :Context;
 
+export namespace sim::sil {
 // Maximum number of fault scenarios a single run can carry (fixed capacity).
 inline constexpr std::size_t kMaxFaultInjectors = 8;
-
-struct SilConfig {
-    double                         dt = 0.01;
-    double                         duration_s = 60.0;
-    sim::control::TargetState      target{.z = 10.0};
-    sim::control::ControllerConfig controller{.hover_rpm = Aircraft{}.hover_rpm()};
-    double                         heartbeat_timeout_s = 0.10;
-    double                         actuator_mismatch_rpm = 60.0;
-    double                         thrust_compensation_margin = 1.7;
-    double                         safe_descent_rpm_rate = 4000.0;
-    SensorValidationLimits         sensor_limits{};
-    std::uint64_t                  seed = 42;
-    double                         transport_latency_s = 0.004;
-    double                         telemetry_rate_hz = 20.0;
-    SilLogLevel                    trace_level = SilLogLevel::Info;
-};
-
-// Full observable output of one SIL run: aggregates plus trace artifacts.
-struct SilRunOutput {
-    SimulationResult             result{};
-    std::vector<SilEvent>        events{};
-    std::vector<TelemetrySample> telemetry{};
-    std::vector<TrueStateSample> ground_truth{};
-};
 
 // SIL orchestrator: fixed-time-step loop linking Aircraft -> FaultInjector ->
 // Sensors/Comms -> FC1/FC2 -> HealthMonitor -> SafetyManager -> Actuators.
