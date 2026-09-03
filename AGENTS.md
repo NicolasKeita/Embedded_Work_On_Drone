@@ -12,6 +12,11 @@ This codebase targets embedded software systems. Code must prioritize determinis
   * Avoid dynamic memory allocation (e.g., heap allocations, `std::vector` resizing) inside time-critical control loops or real-time tasks.
   * Prefer static allocation, value semantics, and compile-time fixed buffers (`std::array`).
 
+
+## Coding Style
+
+* **One variable per line**: Declare each variable on its own separate line. Never group multiple variable declarations using commas (e.g., `int a, b;` or `bool x = true, y = false;` are strictly prohibited).
+
 ## File Header
 
 Every `.cppm` and `.cpp` file must start with:
