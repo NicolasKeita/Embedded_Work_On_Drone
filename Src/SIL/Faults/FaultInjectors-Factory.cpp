@@ -11,6 +11,7 @@ module FaultInjectors;
 import std;
 
 import SilTypes;
+import Telemetry;
 
 namespace sim::sil {
 

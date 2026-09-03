@@ -10,6 +10,7 @@ module SilRunner;
 
 import std;
 
+import FlightController;
 import SilTypes;
 
 namespace sim::sil {

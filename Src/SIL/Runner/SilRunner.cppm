@@ -55,7 +55,7 @@ struct SilRunOutput {
 // SIL orchestrator: fixed-time-step loop linking Aircraft -> FaultInjector ->
 // Sensors/Comms -> FC1/FC2 -> HealthMonitor -> SafetyManager -> Actuators.
 // Logging is purely observational: events and telemetry never alter the run.
-export class SILRunner {
+class SILRunner {
 public:
     explicit SILRunner(SilConfig config = {});
 

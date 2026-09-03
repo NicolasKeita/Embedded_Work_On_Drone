@@ -70,7 +70,11 @@ ControlCommand FlightController::station_keeping_step(const TargetState&   targe
     return cmd;
 }
 
-/* Mission state machine: TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE. */
+/*
+Mission state machine: TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE. ABORTED
+and FAILED are terminal states reached only by the SIL engine (safety abort,
+mission window exhausted): the controller answers them with a zeroed command.
+*/
 ControlCommand FlightController::update(const TargetState&   target,
                                         const AircraftState& actual,
                                         double               dt)
@@ -84,6 +88,9 @@ ControlCommand FlightController::update(const TargetState&   target,
         return station_keeping_step(target, actual, dt);
     case MissionState::COMPLETE:
         return station_keeping_command(target, actual, dt);
+    case MissionState::ABORTED:
+    case MissionState::FAILED:
+        return ControlCommand{};
     }
 
     return ControlCommand{};

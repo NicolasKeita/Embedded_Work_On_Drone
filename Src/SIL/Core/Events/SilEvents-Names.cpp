@@ -12,9 +12,9 @@ import std;
 
 namespace sim::sil {
 
-static std::string_view event_type_name_tail(SilEventType type);
-
-/* Returns the machine-readable name of the first half of the event types. */
+/*
+Returns the machine-readable name of an event type for trace and report output.
+*/
 std::string_view event_type_name(SilEventType type)
 {
     switch (type) {
@@ -46,16 +46,6 @@ std::string_view event_type_name(SilEventType type)
         return "FC_STARTUP";
     case SilEventType::FCShutdown:
         return "FC_SHUTDOWN";
-    }
-    return event_type_name_tail(type);
-}
-
-/*
-Returns the machine-readable name of the remaining event types.
-*/
-std::string_view event_type_name_tail(SilEventType type)
-{
-    switch (type) {
     case SilEventType::FCFailure:
         return "FC_FAILURE";
     case SilEventType::MessageGenerated:
