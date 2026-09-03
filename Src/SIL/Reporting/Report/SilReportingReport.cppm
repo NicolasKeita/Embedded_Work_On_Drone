@@ -83,6 +83,10 @@ namespace sim::sil {
 void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> samples,
                            std::float64_t interval_s);
 
+// Writes one full aligned telemetry table over the selected time window.
+void write_telemetry_window(std::ostream& out, std::span<const TelemetrySample> samples,
+                            std::float64_t start_after, std::float64_t stop_before, std::float64_t interval_s);
+
 // Writes the important discrete events of one scenario section (no heartbeats).
 void write_event_table(std::ostream& out, std::span<const SilEvent> events);
 
