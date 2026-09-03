@@ -1,6 +1,9 @@
 /*
 Filename: Tests/TestHarness.cppm
 Description: Encapsulated test harness for aircraft simulation scenarios.
+Exports:
+    struct HarnessConfig,
+    class TestHarness
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

@@ -1,6 +1,8 @@
 /*
 Filename: Src/App/Application.cppm
 Description: Public application interface running the aircraft physics demo.
+Exports:
+    class Application
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

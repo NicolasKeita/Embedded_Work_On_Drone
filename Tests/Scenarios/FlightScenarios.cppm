@@ -1,6 +1,11 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios.cppm
 Description: Autonomous flight scenarios G to J : altitude, cascaded X/Y position loops and full mission.
+Exports:
+    autonomous_altitude(),
+    autonomous_position_x(),
+    autonomous_position_y(),
+    autonomous_mission()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

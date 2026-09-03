@@ -1,6 +1,16 @@
 /*
 Filename: Src/SIL/Core/Events/SilEvents.cppm
 Description: Structured SIL events and leveled trace recorder.
+Exports:
+    enum class SilEventType,
+    enum class EventSeverity,
+    enum class SilLogLevel,
+    struct SilEvent,
+    struct SilTraceConfig,
+    class SilTrace,
+    event_type_name(),
+    event_severity_name(),
+    event_log_level()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

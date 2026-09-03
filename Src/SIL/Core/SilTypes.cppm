@@ -1,6 +1,14 @@
 /*
 Filename: Src/SIL/Core/SilTypes.cppm
 Description: SIL data structures : fault scenarios, simulated environment and simulation results.
+Exports:
+    enum class FaultType,
+    struct FaultParameters,
+    struct FaultScenario,
+    struct SimulationState,
+    struct SimulationResult,
+    fault_type_name(),
+    verdict_reason()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

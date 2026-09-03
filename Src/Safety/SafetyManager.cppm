@@ -1,6 +1,12 @@
 /*
 Filename: Src/Safety/SafetyManager.cppm
 Description: Safety manager : safety modes, mission abort and thrust compensation commands.
+Exports:
+    enum class SafetyMode,
+    struct SafetyCommand,
+    struct SafetyManagerConfig,
+    class SafetyManager,
+    safety_mode_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

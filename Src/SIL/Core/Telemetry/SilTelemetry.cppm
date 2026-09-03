@@ -1,6 +1,11 @@
 /*
 Filename: Src/SIL/Core/Telemetry/SilTelemetry.cppm
 Description: Structured sensor/ground-truth telemetry streams and fixed-rate dual sampler.
+Exports:
+    struct TelemetrySample,
+    struct TrueStateSample,
+    struct TelemetryControl,
+    struct TelemetryRecorder
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

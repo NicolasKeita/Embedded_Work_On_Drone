@@ -1,6 +1,12 @@
 /*
 Filename: Tests/Sil/Observability/SilObservability.cppm
 Description: Interface of the SIL observability suite (heartbeat trace, fault events, statistics, verdicts).
+Exports:
+    run_traced(),
+    count_events(),
+    find_first(),
+    find_first_after(),
+    run_observability_scenarios()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

@@ -1,6 +1,15 @@
 /*
 Filename: Tests/Mission/MissionRunner.cppm
 Description: Autonomous mission run loop with tracking metrics and reporting helpers.
+Exports:
+    enum class TrackingAxis,
+    struct MissionMetrics,
+    struct MissionRunRequest,
+    struct MissionRunTrace,
+    component_value(),
+    print_metrics_report(),
+    contains_mission_sequence(),
+    run_mission()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

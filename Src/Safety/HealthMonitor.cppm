@@ -1,6 +1,15 @@
 /*
 Filename: Src/Safety/HealthMonitor.cppm
 Description: FC2 health monitor : heartbeat/comms timeouts, sensor validation, actuator mismatch.
+Exports:
+    enum class HealthState,
+    enum class FaultDomain,
+    struct FaultFlag,
+    struct HealthReport,
+    struct HealthMonitorConfig,
+    class HealthMonitor,
+    fault_domain_name(),
+    health_state_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

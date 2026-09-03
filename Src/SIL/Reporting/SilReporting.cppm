@@ -1,6 +1,13 @@
 /*
 Filename: Src/SIL/Reporting/SilReporting.cppm
 Description: SIL validation artifacts export: JSON, CSV payload and trace writers plus orchestration of the report sub-module.
+Exports:
+    write_json_escaped(),
+    write_json_payload(),
+    write_csv_payload(),
+    write_jsonl_trace(),
+    write_text_trace(),
+    write_sil_report()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

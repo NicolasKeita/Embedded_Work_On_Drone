@@ -1,6 +1,17 @@
 /*
 Filename: Src/SIL/Reporting/Report/SilReportingReport.cppm
 Description: Report content of the SIL validation artifacts: scenario records, options and Markdown/CSV section writers.
+Exports:
+    enum class ReportError,
+    struct ScenarioRecord,
+    struct SilReportOptions,
+    yes_no(),
+    write_seconds(),
+    write_metric(),
+    write_csv_escaped(),
+    write_markdown_report(),
+    write_telemetry_csv(),
+    write_truth_csv()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

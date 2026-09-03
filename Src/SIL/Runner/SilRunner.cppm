@@ -1,6 +1,8 @@
 /*
 Filename: Src/SIL/Runner/SilRunner.cppm
 Description: Public interface of the SIL orchestration engine (run context, configuration, output and error types come from SilRunnerContext).
+Exports:
+    class SILRunner
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
