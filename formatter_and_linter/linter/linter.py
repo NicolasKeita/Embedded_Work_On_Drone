@@ -3,11 +3,12 @@
 C++ Code Linter
 
 Checks for style violations and code quality issues including line length,
-comment placement, comment language, function length, file length and
-directory file count.
+comment placement, comment language, function length, file length, directory
+file count and module implementation count.
 
 The implementation lives in style_checks, comment_language_checks,
-cppm_checks, directory_checks and reporting.
+cppm_checks, directory_checks, module_filename_checks, module_size_checks
+and reporting.
 """
 
 import sys
@@ -33,6 +34,10 @@ from linter.directory_checks import (
     check_directory_file_counts,
 )
 from linter.module_filename_checks import check_module_filename_convention
+from linter.module_size_checks import (
+    MAX_IMPLEMENTATION_FILES_PER_MODULE,
+    check_module_implementation_counts,
+)
 from linter.reporting import (
     _get_path_label,
     print_issue_header,
@@ -46,6 +51,7 @@ from linter.reporting import (
     print_cppm_interface_warnings,
     print_directory_file_count_warnings,
     print_module_filename_warnings,
+    print_module_size_warnings,
 )
 
 
@@ -115,6 +121,8 @@ __all__ = [
     "check_cppm_interface_implementations",
     "check_directory_file_counts",
     "check_module_filename_convention",
+    "MAX_IMPLEMENTATION_FILES_PER_MODULE",
+    "check_module_implementation_counts",
     "_get_path_label",
     "print_issue_header",
     "print_line_length_warnings",
@@ -127,6 +135,7 @@ __all__ = [
     "print_cppm_interface_warnings",
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",
+    "print_module_size_warnings",
     "lint_code",
 ]
 

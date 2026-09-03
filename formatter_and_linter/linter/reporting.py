@@ -11,6 +11,7 @@ from typing import List, Tuple
 from linter.style_checks import MAX_FILE_LENGTH, MAX_FUNCTION_LENGTH
 from linter.comment_language_checks import LINGUA_AVAILABLE
 from linter.multiple_var_decl_checks import MULTIPLE_VAR_DECL_MESSAGE
+from linter.module_size_checks import format_module_too_large_message
 
 
 def _get_path_label(file_path: str) -> str:
@@ -71,6 +72,14 @@ def print_directory_file_count_warnings(
 def print_module_filename_warnings(violations: List[Tuple[str, str]]) -> None:
     for file_path, message in violations:
         print(f"⚠️  '{file_path}': {message}", file=sys.stderr)
+
+
+def print_module_size_warnings(violations: List[Tuple[str, int, str]]) -> None:
+    for label, file_count, suggestion in violations:
+        print(
+            f"⚠️  {format_module_too_large_message(label, file_count, suggestion)}",
+            file=sys.stderr,
+        )
 
 
 def print_blank_line_after_initialization_warnings(

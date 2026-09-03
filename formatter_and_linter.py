@@ -136,7 +136,14 @@ def check_directory_structure() -> bool:
     module_filename_violations = linter.check_module_filename_convention(["Src", "Tests"])
     linter.print_module_filename_warnings(module_filename_violations)
 
-    return len(directory_violations) > 0 or len(module_filename_violations) > 0
+    module_size_violations = linter.check_module_implementation_counts(["Src", "Tests"])
+    linter.print_module_size_warnings(module_size_violations)
+
+    return (
+        len(directory_violations) > 0
+        or len(module_filename_violations) > 0
+        or len(module_size_violations) > 0
+    )
 
 
 def main() -> NoReturn:
