@@ -97,6 +97,7 @@ void run_all_sil_scenarios(TestHarness& runner)
 {
     std::array<SilRunOutput, 5> outputs{};
     std::array<ScenarioRecord, 5> records{};
+
     nominal_scenario(runner, outputs[0], records[0]);
     fc1_failure_scenario(runner, outputs[1], records[1]);
     communication_loss_scenario(runner, outputs[2], records[2]);
