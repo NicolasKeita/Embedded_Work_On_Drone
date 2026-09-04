@@ -107,7 +107,7 @@ void run_all_sil_scenarios(TestHarness& runner)
     run_observability_scenarios(runner);
     run_telemetry_scenarios(runner);
 
-    std::cout << "\n=== Generation du rapport SIL (docs/validation) ===" << std::endl;
+    std::cout << "\n=== Generation du rapport SIL (docs/validation/data) ===" << std::endl;
     const std::expected<void, sim::sil::ReportError> outcome = sim::sil::write_sil_report(records);
     if (!outcome.has_value()) {
         runner.check(false, "generation des artefacts SIL impossible");

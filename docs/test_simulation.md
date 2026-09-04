@@ -135,7 +135,7 @@ Chaque scénario évalue un objet `SimulationResult` contenant les métriques de
 
 ### Rapports de validation
 
-À la fin de l'exécution, les résultats sont exportés automatiquement dans le dossier `docs/validation/` sous plusieurs formats :
+À la fin de l'exécution, les résultats sont exportés automatiquement dans le dossier `docs/validation/data/` sous plusieurs formats :
 
 - **`sil.json`** : Fichier JSON contenant l'ensemble des données brutes de la simulation (configuration des scénarios, métriques de vol, temps de détection, latences, verdicts). Ce format est conçu pour être lu par des machines, ce qui le rend idéal pour l'intégration continue (CI) et le parsing automatisé.
 - **`sil.csv`** : Fichier CSV (Comma-Separated Values) résumant les résultats sous forme de tableau (Nom du test, Verdict, Temps de détection, Latence, Mode final). Ce format est parfait pour un import rapide dans un tableur (Excel, Calc) ou pour générer des graphiques d'analyse.

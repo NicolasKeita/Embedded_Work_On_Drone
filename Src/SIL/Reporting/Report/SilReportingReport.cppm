@@ -44,7 +44,7 @@ struct ScenarioRecord {
 using ReportSectionWriter = void (*)(std::ostream&, std::span<const ScenarioRecord>);
 
 struct SilReportOptions {
-    std::filesystem::path docs_dir = "docs/validation";
+    std::filesystem::path docs_dir = "docs/validation/data";
     bool                  write_markdown = true;
     bool                  write_json = true;
     bool                  write_csv = true;

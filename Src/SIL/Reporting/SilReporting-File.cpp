@@ -101,7 +101,7 @@ void write_text_trace_report(std::ostream& out, std::span<const ScenarioRecord> 
 }
 
 /*
-Generates the SIL validation artifacts (docs/validation/sil.md, sil.json,
+Generates the SIL validation artifacts (docs/validation/data/sil.md, sil.json,
 sil.csv, sil_trace.jsonl, sil_trace.txt, telemetry and truth CSVs).
 */
 std::expected<void, ReportError> write_sil_report(std::span<const ScenarioRecord> records,
