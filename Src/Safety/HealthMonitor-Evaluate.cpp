@@ -87,10 +87,7 @@ HealthReport HealthMonitor::evaluate(std::float64_t                   current_ti
     update_sensor_flags(current_time, telemetry);
     update_actuator_flags(current_time, telemetry, commanded_rpm);
     state_ = compute_state(flags_);
-    HealthReport report;
-    report.state = state_;
-    report.flags = flags_;
-    return report;
+    return HealthReport{.state = state_, .flags = flags_};
 }
 
 }

@@ -124,14 +124,20 @@ def _scan_body_for_declaration_block(
     if not _is_declaration_line(first_masked.strip()):
         return None
 
-    group_end = body_idx + 1
+    group_end = body_idx
     while group_end < len(lines):
-        next_masked, in_block_comment = _mask_strings_and_comments(lines[group_end], in_block_comment)
-        next_stripped = next_masked.strip()
-        if not next_stripped:
+        block_masked, in_block_comment = _mask_strings_and_comments(lines[group_end], in_block_comment)
+        block_stripped = block_masked.strip()
+        if not block_stripped:
             break
-        if not _is_declaration_line(next_stripped):
+        if not _is_declaration_line(block_stripped):
             break
+        while not (block_stripped.endswith(';') or block_stripped.endswith('}')):
+            group_end += 1
+            if group_end >= len(lines):
+                return None
+            block_masked, in_block_comment = _mask_strings_and_comments(lines[group_end], in_block_comment)
+            block_stripped = block_masked.strip()
         group_end += 1
 
     if group_end >= len(lines):

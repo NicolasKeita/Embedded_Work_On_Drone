@@ -25,19 +25,18 @@ injected corruption the sensors are ideal and both views coincide.
 */
 SensorTelemetry make_telemetry(const AircraftState& state)
 {
-    SensorTelemetry telemetry;
+    SensorTelemetry telemetry{.x = state.x,
+                              .y = state.y,
+                              .z = state.z,
+                              .vx = state.vx,
+                              .vy = state.vy,
+                              .vz = state.vz,
+                              .pitch = state.pitch,
+                              .roll = state.roll,
+                              .actual_rpm = state.actual_rpm,
+                              .actual_left_servo = state.actual_left_servo,
+                              .actual_right_servo = state.actual_right_servo};
 
-    telemetry.x = state.x;
-    telemetry.y = state.y;
-    telemetry.z = state.z;
-    telemetry.vx = state.vx;
-    telemetry.vy = state.vy;
-    telemetry.vz = state.vz;
-    telemetry.pitch = state.pitch;
-    telemetry.roll = state.roll;
-    telemetry.actual_rpm = state.actual_rpm;
-    telemetry.actual_left_servo = state.actual_left_servo;
-    telemetry.actual_right_servo = state.actual_right_servo;
     return telemetry;
 }
 
@@ -47,19 +46,18 @@ are not consumed by the controller and are left at rest.
 */
 AircraftState to_aircraft_state(const SensorTelemetry& telemetry)
 {
-    AircraftState state;
+    AircraftState state{.x = telemetry.x,
+                        .y = telemetry.y,
+                        .z = telemetry.z,
+                        .vx = telemetry.vx,
+                        .vy = telemetry.vy,
+                        .vz = telemetry.vz,
+                        .pitch = telemetry.pitch,
+                        .roll = telemetry.roll,
+                        .actual_rpm = telemetry.actual_rpm,
+                        .actual_left_servo = telemetry.actual_left_servo,
+                        .actual_right_servo = telemetry.actual_right_servo};
 
-    state.x = telemetry.x;
-    state.y = telemetry.y;
-    state.z = telemetry.z;
-    state.vx = telemetry.vx;
-    state.vy = telemetry.vy;
-    state.vz = telemetry.vz;
-    state.pitch = telemetry.pitch;
-    state.roll = telemetry.roll;
-    state.actual_rpm = telemetry.actual_rpm;
-    state.actual_left_servo = telemetry.actual_left_servo;
-    state.actual_right_servo = telemetry.actual_right_servo;
     return state;
 }
 

@@ -47,13 +47,12 @@ void record_watchdog_events(RunContext& ctx, const sim::safety::HealthReport& re
             || (domain != FaultDomain::FC1Heartbeat && domain != FaultDomain::Communication)) {
             continue;
         }
-        SilEvent timeout;
-        timeout.timestamp = ctx.time;
-        timeout.source = "FC2";
-        timeout.type = SilEventType::WatchdogTimeout;
-        timeout.severity = EventSeverity::Warning;
-        timeout.detail = fault_domain_name(domain);
-        timeout.reason = "supervised link silent";
+        SilEvent timeout{.timestamp = ctx.time,
+                         .source = "FC2",
+                         .type = SilEventType::WatchdogTimeout,
+                         .severity = EventSeverity::Warning,
+                         .detail = fault_domain_name(domain),
+                         .reason = "supervised link silent"};
         ctx.trace.record(timeout);
 
         SilEvent message_timeout = timeout;
@@ -83,13 +82,12 @@ void record_recovery_start(RunContext& ctx, const HealthReport& report)
         ctx.recovery_recorded = true;
         ctx.result.recovery_attempted = true;
 
-        SilEvent recovery;
-        recovery.timestamp = ctx.time;
-        recovery.source = "FC2";
-        recovery.type = SilEventType::RecoveryStart;
-        recovery.severity = EventSeverity::Info;
-        recovery.detail = fault_domain_name(static_cast<FaultDomain>(index));
-        recovery.reason = "fault flag cleared";
+        SilEvent recovery{.timestamp = ctx.time,
+                          .source = "FC2",
+                          .type = SilEventType::RecoveryStart,
+                          .severity = EventSeverity::Info,
+                          .detail = fault_domain_name(static_cast<FaultDomain>(index)),
+                          .reason = "fault flag cleared"};
         ctx.trace.record(recovery);
     }
 }

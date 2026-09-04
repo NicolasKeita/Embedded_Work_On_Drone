@@ -20,14 +20,13 @@ switches to CLIMB as soon as takeoff_altitude_m is reached.
 */
 ControlCommand FlightController::takeoff_command(const AircraftState& actual)
 {
-    ControlCommand cmd;
-
-    cmd.wing_rpm = std::clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
+    const std::float64_t wing_rpm =
+        std::clamp(config_.takeoff_rpm_factor * config_.hover_rpm, config_.min_rpm, config_.max_rpm);
 
     if (actual.z >= config_.takeoff_altitude_m) {
         enter_climb();
     }
-    return cmd;
+    return ControlCommand{.wing_rpm = wing_rpm};
 }
 
 /*
@@ -38,16 +37,14 @@ ControlCommand FlightController::climb_command(const TargetState&   target,
                                                const AircraftState& actual,
                                                std::float64_t       dt)
 {
-    ControlCommand cmd;
-
-    cmd.wing_rpm = updateAltitudeControl(target.z, actual.z, dt);
+    const std::float64_t wing_rpm = updateAltitudeControl(target.z, actual.z, dt);
 
     if (std::abs(target.z - actual.z) <= config_.altitude_tolerance_m) {
         reset_pids();
         station_hold_timer_ = 0.0;
         mission_state_ = MissionState::STATION_KEEPING;
     }
-    return cmd;
+    return ControlCommand{.wing_rpm = wing_rpm};
 }
 
 /*

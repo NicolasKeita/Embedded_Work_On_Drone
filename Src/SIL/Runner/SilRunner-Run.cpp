@@ -49,12 +49,10 @@ std::expected<SilRunOutput, SilError> SILRunner::run(std::span<const FaultScenar
 {
     return make_context(config_, scenarios).and_then([](RunContext&& ctx) {
         execute(ctx);
-        SilRunOutput output;
-
-        output.result = ctx.result;
-        output.events = ctx.trace.take_events();
-        output.telemetry = std::move(ctx.telemetry_recorder.samples);
-        output.ground_truth = std::move(ctx.telemetry_recorder.truth_samples);
+        SilRunOutput output{.result = ctx.result,
+                            .events = ctx.trace.take_events(),
+                            .telemetry = std::move(ctx.telemetry_recorder.samples),
+                            .ground_truth = std::move(ctx.telemetry_recorder.truth_samples)};
         return std::expected<SilRunOutput, SilError>{std::move(output)};
     });
 }

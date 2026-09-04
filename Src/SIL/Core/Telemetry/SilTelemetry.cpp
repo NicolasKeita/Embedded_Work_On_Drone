@@ -26,26 +26,25 @@ TelemetrySample make_sensor_sample(std::float64_t          time,
                                    std::float64_t          commanded_rpm,
                                    const TelemetryControl& control)
 {
-    TelemetrySample sample;
+    const TelemetrySample sample{.time = time,
+                                 .x = sensor.x,
+                                 .y = sensor.y,
+                                 .altitude_m = sensor.z,
+                                 .pitch_rad = sensor.pitch,
+                                 .roll_rad = sensor.roll,
+                                 .vx = sensor.vx,
+                                 .vy = sensor.vy,
+                                 .vz = sensor.vz,
+                                 .commanded_rpm = commanded_rpm,
+                                 .actual_rpm = sensor.actual_rpm,
+                                 .left_servo_deg = command.left_servo_angle,
+                                 .right_servo_deg = command.right_servo_angle,
+                                 .target_x = control.target_x,
+                                 .target_y = control.target_y,
+                                 .target_z = control.target_z,
+                                 .mission_state = control.mission_state,
+                                 .safety_state = control.safety_state};
 
-    sample.time = time;
-    sample.x = sensor.x;
-    sample.y = sensor.y;
-    sample.altitude_m = sensor.z;
-    sample.pitch_rad = sensor.pitch;
-    sample.roll_rad = sensor.roll;
-    sample.vx = sensor.vx;
-    sample.vy = sensor.vy;
-    sample.vz = sensor.vz;
-    sample.commanded_rpm = commanded_rpm;
-    sample.actual_rpm = sensor.actual_rpm;
-    sample.left_servo_deg = command.left_servo_angle;
-    sample.right_servo_deg = command.right_servo_angle;
-    sample.target_x = control.target_x;
-    sample.target_y = control.target_y;
-    sample.target_z = control.target_z;
-    sample.mission_state = control.mission_state;
-    sample.safety_state = control.safety_state;
     return sample;
 }
 
@@ -54,20 +53,19 @@ Builds the aligned ground-truth sample of one recording instant.
 */
 TrueStateSample make_truth_sample(std::float64_t time, const AircraftState& truth)
 {
-    TrueStateSample sample;
+    const TrueStateSample sample{.time = time,
+                                 .x = truth.x,
+                                 .y = truth.y,
+                                 .z = truth.z,
+                                 .vx = truth.vx,
+                                 .vy = truth.vy,
+                                 .vz = truth.vz,
+                                 .pitch = truth.pitch,
+                                 .roll = truth.roll,
+                                 .actual_rpm = truth.actual_rpm,
+                                 .actual_left_servo = truth.actual_left_servo,
+                                 .actual_right_servo = truth.actual_right_servo};
 
-    sample.time = time;
-    sample.x = truth.x;
-    sample.y = truth.y;
-    sample.z = truth.z;
-    sample.vx = truth.vx;
-    sample.vy = truth.vy;
-    sample.vz = truth.vz;
-    sample.pitch = truth.pitch;
-    sample.roll = truth.roll;
-    sample.actual_rpm = truth.actual_rpm;
-    sample.actual_left_servo = truth.actual_left_servo;
-    sample.actual_right_servo = truth.actual_right_servo;
     return sample;
 }
 

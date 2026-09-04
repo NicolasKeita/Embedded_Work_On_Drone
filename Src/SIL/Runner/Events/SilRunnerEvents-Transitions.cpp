@@ -47,12 +47,11 @@ void record_detection(RunContext& ctx, const HealthReport& report)
     }
     ctx.detection_recorded = true;
 
-    SilEvent detected;
-    detected.timestamp = detection;
-    detected.source = "FC2";
-    detected.type = SilEventType::FaultDetected;
-    detected.severity = EventSeverity::Info;
-    detected.detail = fault_domain_name(ctx.result.first_fault_domain);
+    SilEvent detected{.timestamp = detection,
+                      .source = "FC2",
+                      .type = SilEventType::FaultDetected,
+                      .severity = EventSeverity::Info,
+                      .detail = fault_domain_name(ctx.result.first_fault_domain)};
     ctx.trace.record(detected);
     SilEvent classified = detected;
     classified.type = SilEventType::FaultClassified;
@@ -67,27 +66,25 @@ void record_safety_transitions(RunContext& ctx)
     const std::float64_t response_time = ctx.safety.response_time();
 
     if (current != ctx.previous_safety_mode) {
-        SilEvent transition;
-        transition.timestamp = ctx.time;
-        transition.source = "FC2";
-        transition.type = SilEventType::SafetyStateTransition;
-        transition.severity = EventSeverity::Info;
-        transition.previous_state = safety_mode_name(ctx.previous_safety_mode);
-        transition.new_state = safety_mode_name(current);
-        transition.reason = current == sim::safety::SafetyMode::NORMAL
-            ? "health restored" : fault_domain_name(ctx.result.first_fault_domain);
+        SilEvent transition{.timestamp = ctx.time,
+                            .source = "FC2",
+                            .type = SilEventType::SafetyStateTransition,
+                            .severity = EventSeverity::Info,
+                            .previous_state = safety_mode_name(ctx.previous_safety_mode),
+                            .new_state = safety_mode_name(current),
+                            .reason = current == sim::safety::SafetyMode::NORMAL
+                                          ? "health restored" : fault_domain_name(ctx.result.first_fault_domain)};
         ctx.trace.record(transition);
         ctx.previous_safety_mode = current;
     }
     if (response_time >= 0.0 && !ctx.safety_response_recorded) {
         ctx.safety_response_recorded = true;
         ctx.result.safety_response_time = response_time;
-        SilEvent response;
-        response.timestamp = response_time;
-        response.source = "FC2";
-        response.type = SilEventType::SafetyResponse;
-        response.severity = EventSeverity::Info;
-        response.detail = safety_command_name(current);
+        SilEvent response{.timestamp = response_time,
+                          .source = "FC2",
+                          .type = SilEventType::SafetyResponse,
+                          .severity = EventSeverity::Info,
+                          .detail = safety_command_name(current)};
         ctx.trace.record(response);
     }
 }
@@ -99,15 +96,14 @@ void record_mission_transition(RunContext& ctx, sim::control::MissionState curre
         return;
     }
 
-    SilEvent transition;
-    transition.timestamp = ctx.time;
-    transition.source = "FC1";
-    transition.type = SilEventType::MissionStateTransition;
-    transition.severity = EventSeverity::Info;
-    transition.previous_state = sim::control::mission_state_name(ctx.previous_mission_state);
-    transition.new_state = sim::control::mission_state_name(current);
-    transition.reason = current == sim::control::MissionState::COMPLETE ? "station hold completed"
-                                                        : "controller progression";
+    SilEvent transition{.timestamp = ctx.time,
+                        .source = "FC1",
+                        .type = SilEventType::MissionStateTransition,
+                        .severity = EventSeverity::Info,
+                        .previous_state = sim::control::mission_state_name(ctx.previous_mission_state),
+                        .new_state = sim::control::mission_state_name(current),
+                        .reason = current == sim::control::MissionState::COMPLETE ? "station hold completed"
+                                  : "controller progression"};
     ctx.trace.record(transition);
     ctx.previous_mission_state = current;
     if (current == sim::control::MissionState::COMPLETE && ctx.mission_end_time < 0.0) {

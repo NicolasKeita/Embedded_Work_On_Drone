@@ -45,26 +45,23 @@ fault parameters plus the typed sensor/actuator events. Called on a rising edge.
 */
 void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
 {
-    SilEvent injected;
+    SilEvent injected{.timestamp = ctx.time,
+                      .source = "ENV",
+                      .type = SilEventType::FaultInjected,
+                      .severity = EventSeverity::Info,
+                      .detail = fault_type_name(scenario.fault_type),
+                      .reason = fault_effect_reason(scenario)};
 
-    injected.timestamp = ctx.time;
-    injected.source = "ENV";
-    injected.type = SilEventType::FaultInjected;
-    injected.severity = EventSeverity::Info;
-    injected.detail = fault_type_name(scenario.fault_type);
-    injected.reason = fault_effect_reason(scenario);
     write_fault_parameters(injected, scenario);
     ctx.trace.record(injected);
 
     const auto record_typed = [&ctx, &scenario](SilEventType type, std::float64_t value) {
-        SilEvent event;
-
-        event.timestamp = ctx.time;
-        event.source = "ENV";
-        event.type = type;
-        event.severity = EventSeverity::Warning;
-        event.value = value;
-        event.has_value = true;
+        SilEvent event{.timestamp = ctx.time,
+                       .source = "ENV",
+                       .type = type,
+                       .severity = EventSeverity::Warning,
+                       .value = value,
+                       .has_value = true};
         ctx.trace.record(event);
     };
 
@@ -82,16 +79,15 @@ closes; permanent faults (duration <= 0) never produce this event.
 */
 void record_fault_cleared(RunContext& ctx)
 {
-    SilEvent cleared;
+    SilEvent cleared{.timestamp = ctx.time,
+                     .source = "ENV",
+                     .type = SilEventType::FaultCleared,
+                     .severity = EventSeverity::Info,
+                     .detail = fault_type_name(ctx.last_fault_type),
+                     .reason = "activation window closed",
+                     .value = ctx.time - ctx.last_fault_start,
+                     .has_value = true};
 
-    cleared.timestamp = ctx.time;
-    cleared.source = "ENV";
-    cleared.type = SilEventType::FaultCleared;
-    cleared.severity = EventSeverity::Info;
-    cleared.detail = fault_type_name(ctx.last_fault_type);
-    cleared.reason = "activation window closed";
-    cleared.value = ctx.time - ctx.last_fault_start;
-    cleared.has_value = true;
     ctx.trace.record(cleared);
 }
 

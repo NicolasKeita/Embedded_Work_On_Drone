@@ -20,11 +20,11 @@ layer is what invalidates a disturbed sensor.
 */
 SensorValidity validate(const SensorTelemetry& telemetry, const SensorValidationLimits& limits)
 {
-    SensorValidity validity;
-
-    validity.altitude_valid = !std::isnan(telemetry.z) && telemetry.z >= 0.0 && telemetry.z <= limits.max_altitude_m;
     const std::float64_t horizontal = std::hypot(telemetry.x, telemetry.y);
-    validity.position_valid = !std::isnan(horizontal) && horizontal <= limits.max_position_m;
+    const SensorValidity validity{
+        .altitude_valid = !std::isnan(telemetry.z) && telemetry.z >= 0.0 && telemetry.z <= limits.max_altitude_m,
+        .position_valid = !std::isnan(horizontal) && horizontal <= limits.max_position_m};
+
     return validity;
 }
 

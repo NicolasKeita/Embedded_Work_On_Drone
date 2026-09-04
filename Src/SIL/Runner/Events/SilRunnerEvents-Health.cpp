@@ -28,15 +28,13 @@ void record_health_transition(RunContext& ctx, sim::safety::HealthState current)
         return;
     }
 
-    SilEvent transition;
-
-    transition.timestamp = ctx.time;
-    transition.source = "FC2";
-    transition.type = SilEventType::SafetyStateTransition;
-    transition.severity = EventSeverity::Info;
-    transition.previous_state = health_state_name(ctx.previous_health);
-    transition.new_state = health_state_name(current);
-    transition.reason = current == HealthState::HEALTHY ? "all flags clear" : "fault flags raised";
+    SilEvent transition{.timestamp = ctx.time,
+                        .source = "FC2",
+                        .type = SilEventType::SafetyStateTransition,
+                        .severity = EventSeverity::Info,
+                        .previous_state = health_state_name(ctx.previous_health),
+                        .new_state = health_state_name(current),
+                        .reason = current == HealthState::HEALTHY ? "all flags clear" : "fault flags raised"};
     ctx.trace.record(transition);
 }
 
@@ -51,12 +49,11 @@ void record_recovery_end(RunContext& ctx, sim::safety::HealthState current)
     ctx.result.recovery_time = ctx.time;
     ctx.result.recovery_successful = true;
 
-    SilEvent recovery_end;
-    recovery_end.timestamp = ctx.time;
-    recovery_end.source = "FC2";
-    recovery_end.type = SilEventType::RecoveryEnd;
-    recovery_end.severity = EventSeverity::Info;
-    recovery_end.reason = "health restored";
+    SilEvent recovery_end{.timestamp = ctx.time,
+                          .source = "FC2",
+                          .type = SilEventType::RecoveryEnd,
+                          .severity = EventSeverity::Info,
+                          .reason = "health restored"};
 
     SilEvent watchdog_recovery = recovery_end;
     watchdog_recovery.type = SilEventType::WatchdogRecovery;
