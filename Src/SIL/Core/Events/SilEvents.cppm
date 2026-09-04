@@ -72,6 +72,8 @@ struct SilEvent {
     bool             has_latency = false;
     std::float64_t   value = 0.0;
     bool             has_value = false;
+    std::float64_t   duration_s = 0.0;
+    bool             has_duration = false;
 };
 
 enum class SilLogLevel { Info, Debug, Trace };

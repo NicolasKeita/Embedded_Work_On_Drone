@@ -62,6 +62,14 @@ void write_event_number_details(std::ostream& out, const SilEvent& event, bool& 
         out << "\"value\":";
         write_metric(out, event.value);
     }
+    if (event.has_duration) {
+        if (!first) {
+            out << ",";
+        }
+        first = false;
+        out << "\"duration_s\":";
+        write_seconds(out, event.duration_s);
+    }
 }
 
 /*
@@ -70,7 +78,7 @@ Writes the details object of one JSONL event: only the set fields are emitted.
 void write_event_details(std::ostream& out, const SilEvent& event)
 {
     if (event.detail.empty() && event.previous_state.empty() && event.new_state.empty() && event.reason.empty()
-        && !event.has_sequence && !event.has_latency && !event.has_value) {
+        && !event.has_sequence && !event.has_latency && !event.has_value && !event.has_duration) {
         return;
     }
     out << ",\"details\":{";
