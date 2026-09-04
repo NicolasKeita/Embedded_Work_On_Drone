@@ -26,6 +26,9 @@ export namespace sim::sil {
 
 enum class SensorCorruptionMode { None, AltitudeNaN, AltitudeOutOfRange, ExtremeNoise };
 
+// Peak amplitude of the deterministic extreme-noise disturbance (meters).
+inline constexpr std::float64_t kExtremeNoiseAmplitudeM = 300.0;
+
 struct SensorValidationLimits {
     std::float64_t max_altitude_m = 500.0;
     std::float64_t max_position_m = 1000.0;

@@ -30,6 +30,7 @@ import std;
 import CommsBus;
 import FlightController;
 import HealthMonitor;
+import SilEvents;
 import SilRunnerContext;
 import SilTypes;
 
@@ -57,5 +58,9 @@ void record_fault_cleared(RunContext& ctx);
 namespace sim::sil {
 
 std::string_view fault_effect_reason(const FaultScenario& scenario);
+std::string_view fault_expected_behavior(const FaultScenario& scenario);
+void write_fault_parameters(SilEvent& event, const FaultScenario& scenario);
+void write_fault_metadata(SilEvent& event, const FaultScenario& scenario);
+void record_typed_fault(RunContext& ctx, const FaultScenario& scenario, const SilEvent& injected);
 
 }

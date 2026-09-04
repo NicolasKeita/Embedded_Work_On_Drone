@@ -11,6 +11,7 @@ module SilReportingReport;
 import std;
 
 import SilEvents;
+import SilFaultScenario;
 
 namespace sim::sil {
 
@@ -68,8 +69,9 @@ std::string_view event_category(SilEventType type)
 }
 
 /*
-Streams the description of one report event: type, detail, state transition and
-reason when present.
+Streams the description of one report event: type and subtype, target and
+temporality profile of the fault injections, state transition and reason when
+present, labelled numeric parameter and expected system response.
 */
 void write_event_description(std::ostream& out, const SilEvent& event)
 {
@@ -77,13 +79,26 @@ void write_event_description(std::ostream& out, const SilEvent& event)
     if (!event.detail.empty()) {
         out << ' ' << event.detail;
     }
+    if (!event.subtype.empty()) {
+        out << " (" << event.subtype << ')';
+    }
+    if (!event.target.empty()) {
+        out << " target=" << event.target;
+    }
+    if (event.has_profile) {
+        out << " profile=" << fault_profile_name(event.profile);
+    }
     if (!event.previous_state.empty()) {
         out << ' ' << event.previous_state << " -> " << event.new_state;
     }
     if (!event.reason.empty()) {
         out << " (" << event.reason << ')';
     }
-    if (event.has_value) {
+    if (event.value_kind != FaultValueKind::None) {
+        out << ' ';
+        write_fault_value(out, event);
+    }
+    else if (event.has_value) {
         out << " value=";
         write_metric(out, event.value);
     }
@@ -91,6 +106,9 @@ void write_event_description(std::ostream& out, const SilEvent& event)
         out << " duration=";
         write_seconds(out, event.duration_s);
         out << "s";
+    }
+    if (event.type == SilEventType::FaultInjected && !event.expected_behavior.empty()) {
+        out << " expected=" << event.expected_behavior;
     }
 }
 

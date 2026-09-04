@@ -96,6 +96,7 @@ struct RunContext {
     bool                                          safety_response_recorded = false;
     bool                                          mission_abort_recorded = false;
     FaultType                                     last_fault_type = FaultType::None;
+    FaultTarget                                   last_fault_target = FaultTarget::Unspecified;
     std::float64_t                                last_fault_start = 0.0;
     std::float64_t                                commanded_rpm = 0.0;
     std::float64_t                                last_effective_rpm = 0.0;

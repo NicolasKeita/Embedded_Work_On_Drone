@@ -10,6 +10,8 @@ module SilReportingReport;
 
 import std;
 
+import SilFaultScenario;
+
 namespace sim::sil {
 
 namespace {
@@ -70,6 +72,49 @@ void write_csv_escaped(std::ostream& out, std::string_view text)
 std::string_view yes_no(bool value) noexcept
 {
     return value ? "oui" : "non";
+}
+
+/*
+Streams the labelled numeric parameter of one fault event: the label and unit
+follow the value kind recorded at injection time, and the actuator efficiency
+also shows the resulting capacity loss. Nothing is streamed when the event
+carries no typed parameter.
+*/
+void write_fault_value(std::ostream& out, const SilEvent& event)
+{
+    switch (event.value_kind) {
+    case FaultValueKind::Efficiency: {
+        const std::int64_t capacity_loss_percent = static_cast<std::int64_t>((1.0 - event.value) * 100.0 + 0.5);
+
+        out << "efficiency=";
+        write_metric(out, event.value);
+        if (capacity_loss_percent > 0) {
+            out << " (-" << capacity_loss_percent << "% capacity)";
+        }
+        break;
+    }
+    case FaultValueKind::LossProbability:
+        out << "loss_probability=";
+        write_metric(out, event.value);
+        break;
+    case FaultValueKind::Altitude:
+        out << "value=";
+        if (event.has_value) {
+            write_metric(out, event.value);
+            out << " m";
+        }
+        else {
+            out << "NaN m";
+        }
+        break;
+    case FaultValueKind::AltitudeNoise:
+        out << "amplitude=";
+        write_metric(out, event.value);
+        out << " m";
+        break;
+    case FaultValueKind::None:
+        break;
+    }
 }
 
 }

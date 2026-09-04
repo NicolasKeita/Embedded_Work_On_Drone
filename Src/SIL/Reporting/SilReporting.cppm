@@ -7,6 +7,7 @@ Exports:
     write_csv_payload(),
     write_jsonl_trace(),
     write_text_trace(),
+    write_text_trace_report(),
     write_sil_report()
 
 Copyright (c) 2026 Nicolas K.
@@ -39,6 +40,12 @@ Writes one human-readable text trace line per event (debugging artifact).
 void write_text_trace(std::ostream& out, std::span<const SilEvent> events);
 
 /*
+Writes the human-readable text trace of every scenario record (one section per
+scenario), used for the sil_trace.txt artifact.
+*/
+void write_text_trace_report(std::ostream& out, std::span<const ScenarioRecord> records);
+
+/*
 Generates the SIL validation artifacts (docs/validation/sil.md, sil.json,
 sil.csv, sil_trace.jsonl); returns a typed error when disk writing fails.
 */
@@ -59,5 +66,8 @@ void write_record_mission(std::ostream& out, const ScenarioRecord& record);
 
 // Writes the timing, metric and verdict fields of one JSON record, closing the object.
 void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool last);
+
+// Writes the details object of one JSONL event (only the set fields are emitted).
+void write_event_details(std::ostream& out, const SilEvent& event);
 
 }

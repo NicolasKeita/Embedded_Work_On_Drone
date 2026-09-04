@@ -16,8 +16,7 @@ import SilTypes;
 namespace sim::sil {
 
 /*
-Streams one report section into a freshly opened file, or returns a typed
-error when the file cannot be opened.
+Streams one report section into a freshly opened file (typed error on failure).
 */
 std::expected<void, ReportError> write_section_file(const std::filesystem::path&    path,
                                                     ReportSectionWriter             writer,
@@ -33,7 +32,7 @@ std::expected<void, ReportError> write_section_file(const std::filesystem::path&
 }
 
 /*
-Streams the mission/fault result artifacts (Markdown, JSON, CSV) when enabled.
+Streams the mission/fault result artifacts (Markdown, JSON and CSV).
 */
 static std::expected<void, ReportError> write_result_artifacts(std::span<const ScenarioRecord> records,
                                                                const SilReportOptions& options)
@@ -60,8 +59,7 @@ static std::expected<void, ReportError> write_result_artifacts(std::span<const S
 }
 
 /*
-Streams the trace artifacts (JSONL event trace plus the raw telemetry and
-ground-truth CSV streams) when enabled.
+Streams the trace artifacts (JSONL, text, telemetry and ground-truth CSVs).
 */
 static std::expected<void, ReportError> write_trace_artifacts(std::span<const ScenarioRecord> records,
                                                               const SilReportOptions& options)
@@ -71,6 +69,13 @@ static std::expected<void, ReportError> write_trace_artifacts(std::span<const Sc
             write_section_file(options.docs_dir / "sil_trace.jsonl", &write_jsonl_trace, records);
         if (!outcome.has_value()) {
             return outcome;
+        }
+    }
+    if (options.write_text_trace) {
+        const std::expected<void, ReportError> text_outcome =
+            write_section_file(options.docs_dir / "sil_trace.txt", &write_text_trace_report, records);
+        if (!text_outcome.has_value()) {
+            return text_outcome;
         }
     }
     if (options.write_telemetry) {
@@ -85,15 +90,24 @@ static std::expected<void, ReportError> write_trace_artifacts(std::span<const Sc
 }
 
 /*
+Writes the human-readable sil_trace.txt artifact: one trace section per scenario.
+*/
+void write_text_trace_report(std::ostream& out, std::span<const ScenarioRecord> records)
+{
+    for (const ScenarioRecord& record : records) {
+        out << "== " << record.name << " ==\n";
+        write_text_trace(out, record.events);
+    }
+}
+
+/*
 Generates the SIL validation artifacts (docs/validation/sil.md, sil.json,
-sil.csv, sil_trace.jsonl, sil_telemetry.csv, sil_truth.csv); returns the first
-typed error encountered.
+sil.csv, sil_trace.jsonl, sil_trace.txt, telemetry and truth CSVs).
 */
 std::expected<void, ReportError> write_sil_report(std::span<const ScenarioRecord> records,
                                                   const SilReportOptions&         options)
 {
     std::error_code ec;
-
     std::filesystem::create_directories(options.docs_dir, ec);
     if (ec) {
         return std::unexpected(ReportError::DirectoryCreation);

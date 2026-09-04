@@ -78,6 +78,7 @@ void SILRunner::apply_injectors(RunContext& ctx)
     if (injected && !ctx.fault_active && active_scenario != nullptr) {
         ctx.fault_active = true;
         ctx.last_fault_type = active_scenario->fault_type;
+        ctx.last_fault_target = effective_fault_target(*active_scenario);
         ctx.last_fault_start = ctx.time;
         record_fault_activation(ctx, *active_scenario);
     }

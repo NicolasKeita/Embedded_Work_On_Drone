@@ -21,6 +21,7 @@ export module SilEvents;
 import std;
 
 import Aircraft;
+import SilFaultScenario;
 
 export namespace sim::sil {
 
@@ -74,6 +75,13 @@ struct SilEvent {
     bool             has_value = false;
     std::float64_t   duration_s = 0.0;
     bool             has_duration = false;
+    std::string_view target{};
+    std::string_view target_signal{};
+    std::string_view subtype{};
+    std::string_view expected_behavior{};
+    FaultProfile     profile = FaultProfile::Permanent;
+    bool             has_profile = false;
+    FaultValueKind   value_kind = FaultValueKind::None;
 };
 
 enum class SilLogLevel { Info, Debug, Trace };

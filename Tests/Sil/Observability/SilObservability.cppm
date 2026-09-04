@@ -42,6 +42,8 @@ namespace sim::test::sil {
 void heartbeat_trace_test(TestHarness& runner);
 void dropped_heartbeats_test(TestHarness& runner);
 void fc1_failure_events_test(TestHarness& runner);
+void fault_metadata_test(TestHarness& runner);
+void sensor_fault_metadata_test(TestHarness& runner);
 void state_transitions_test(TestHarness& runner);
 void comms_statistics_test(TestHarness& runner);
 void verdict_independence_test(TestHarness& runner);

@@ -47,7 +47,7 @@ SensorTelemetry apply_corruption(const SensorTelemetry& telemetry,
         corrupted.z = corrupted_altitude_m;
         break;
     case SensorCorruptionMode::ExtremeNoise:
-        corrupted.z += 300.0 * std::sin(97.0 * telemetry.z);
+        corrupted.z += kExtremeNoiseAmplitudeM * std::sin(97.0 * telemetry.z);
         break;
     case SensorCorruptionMode::None:
         break;

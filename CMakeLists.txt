@@ -71,8 +71,9 @@ set(SIL_FILES
     Src/SIL/Runner/Context/SilRunnerContext.cpp
     Src/SIL/Runner/Events/SilRunnerEvents.cppm
     Src/SIL/Runner/Events/SilRunnerEvents-Lifecycle.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-Faults.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-FaultReasons.cpp
+    Src/SIL/Runner/Events/Faults/SilRunnerEvents-Faults.cpp
+    Src/SIL/Runner/Events/Faults/SilRunnerEvents-FaultInfo.cpp
+    Src/SIL/Runner/Events/Faults/SilRunnerEvents-FaultReasons.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Watchdog.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Heartbeats.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Transitions.cpp
@@ -80,7 +81,8 @@ set(SIL_FILES
     Src/SIL/Core/SilTypes.cppm
     Src/SIL/Core/SilTypes.cpp
     Src/SIL/Core/SilFaultScenario.cppm
-    Src/SIL/Core/SilFaultScenario.cpp
+    Src/SIL/Core/SilFaultScenario-Core.cpp
+    Src/SIL/Core/SilFaultScenario-Names.cpp
     Src/SIL/Core/Telemetry/Telemetry.cppm
     Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
     Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
@@ -103,6 +105,7 @@ set(SIL_FILES
     Src/SIL/Reporting/Json/SilReporting-Json.cpp
     Src/SIL/Reporting/Json/SilReporting-Json-Records.cpp
     Src/SIL/Reporting/Trace/SilReporting-Trace.cpp
+    Src/SIL/Reporting/Trace/SilReporting-Trace-Details.cpp
     Src/SIL/Reporting/Trace/SilReporting-Trace-Text.cpp
     Src/SIL/Reporting/Report/SilReportingReport.cppm
     Src/SIL/Reporting/Report/SilReportingReport-Format.cpp
@@ -161,7 +164,8 @@ set(TEST_SIL_FILES
     Tests/Sil/Observability/SilObservability-Support.cpp
     Tests/Sil/Observability/SilObservability-Heartbeat.cpp
     Tests/Sil/Observability/SilObservability-Dropped.cpp
-    Tests/Sil/Observability/SilObservability-Faults.cpp
+    Tests/Sil/Observability/Faults/SilObservability-Faults.cpp
+    Tests/Sil/Observability/Faults/SilObservability-FaultMetadata.cpp
     Tests/Sil/Observability/SilObservability-Comms.cpp
     Tests/Sil/Observability/SilObservability-Logging.cpp
     Tests/Sil/Observability/SilObservability-Trace.cpp

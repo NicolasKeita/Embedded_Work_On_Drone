@@ -84,6 +84,8 @@ void run_observability_scenarios(TestHarness& runner)
     heartbeat_trace_test(runner);
     dropped_heartbeats_test(runner);
     fc1_failure_events_test(runner);
+    fault_metadata_test(runner);
+    sensor_fault_metadata_test(runner);
     state_transitions_test(runner);
     comms_statistics_test(runner);
     verdict_independence_test(runner);
