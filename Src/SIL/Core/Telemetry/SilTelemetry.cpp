@@ -26,26 +26,24 @@ TelemetrySample make_sensor_sample(std::float64_t          time,
                                    std::float64_t          commanded_rpm,
                                    const TelemetryControl& control)
 {
-    const TelemetrySample sample{.time = time,
-                                 .x = sensor.x,
-                                 .y = sensor.y,
-                                 .altitude_m = sensor.z,
-                                 .pitch_rad = sensor.pitch,
-                                 .roll_rad = sensor.roll,
-                                 .vx = sensor.vx,
-                                 .vy = sensor.vy,
-                                 .vz = sensor.vz,
-                                 .commanded_rpm = commanded_rpm,
-                                 .actual_rpm = sensor.actual_rpm,
-                                 .left_servo_deg = command.left_servo_angle,
-                                 .right_servo_deg = command.right_servo_angle,
-                                 .target_x = control.target_x,
-                                 .target_y = control.target_y,
-                                 .target_z = control.target_z,
-                                 .mission_state = control.mission_state,
-                                 .safety_state = control.safety_state};
-
-    return sample;
+    return TelemetrySample{.time = time,
+                           .x = sensor.x,
+                           .y = sensor.y,
+                           .altitude_m = sensor.z,
+                           .pitch_rad = sensor.pitch,
+                           .roll_rad = sensor.roll,
+                           .vx = sensor.vx,
+                           .vy = sensor.vy,
+                           .vz = sensor.vz,
+                           .commanded_rpm = commanded_rpm,
+                           .actual_rpm = sensor.actual_rpm,
+                           .left_servo_deg = command.left_servo_angle,
+                           .right_servo_deg = command.right_servo_angle,
+                           .target_x = control.target_x,
+                           .target_y = control.target_y,
+                           .target_z = control.target_z,
+                           .mission_state = control.mission_state,
+                           .safety_state = control.safety_state};
 }
 
 /*
@@ -53,20 +51,18 @@ Builds the aligned ground-truth sample of one recording instant.
 */
 TrueStateSample make_truth_sample(std::float64_t time, const AircraftState& truth)
 {
-    const TrueStateSample sample{.time = time,
-                                 .x = truth.x,
-                                 .y = truth.y,
-                                 .z = truth.z,
-                                 .vx = truth.vx,
-                                 .vy = truth.vy,
-                                 .vz = truth.vz,
-                                 .pitch = truth.pitch,
-                                 .roll = truth.roll,
-                                 .actual_rpm = truth.actual_rpm,
-                                 .actual_left_servo = truth.actual_left_servo,
-                                 .actual_right_servo = truth.actual_right_servo};
-
-    return sample;
+    return TrueStateSample{.time = time,
+                           .x = truth.x,
+                           .y = truth.y,
+                           .z = truth.z,
+                           .vx = truth.vx,
+                           .vy = truth.vy,
+                           .vz = truth.vz,
+                           .pitch = truth.pitch,
+                           .roll = truth.roll,
+                           .actual_rpm = truth.actual_rpm,
+                           .actual_left_servo = truth.actual_left_servo,
+                           .actual_right_servo = truth.actual_right_servo};
 }
 
 }

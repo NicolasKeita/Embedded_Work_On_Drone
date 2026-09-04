@@ -42,11 +42,9 @@ TiltTargets FlightController::updatePositionControl(const TargetState&   t,
                                                     const AircraftState& a,
                                                     std::float64_t       dt)
 {
-    const TiltTargets targets{
+    return TiltTargets{
         .pitch_deg = Clamp(AxisPidStep(x_position_pid_, t.x - a.x, dt), -config_.max_tilt_deg, config_.max_tilt_deg),
         .roll_deg = Clamp(AxisPidStep(y_position_pid_, t.y - a.y, dt), -config_.max_tilt_deg, config_.max_tilt_deg)};
-
-    return targets;
 }
 
 /*
