@@ -16,6 +16,8 @@ CONTROL_KEYWORDS = frozenset({
     'typeid', 'decltype', 'noexcept', 'static_assert'
 })
 
+_SIGNATURE_HEAD_FORBIDDEN_CHARS = frozenset({'{', '}', ';', '=', "'", '"'})
+
 
 def is_control_structure(line: str) -> bool:
     stripped = line.strip()
@@ -63,6 +65,8 @@ def extract_function_name(line: str) -> Optional[str]:
         return None
     before_paren = stripped[:paren_pos].rstrip()
     if not before_paren:
+        return None
+    if any(char in _SIGNATURE_HEAD_FORBIDDEN_CHARS for char in before_paren):
         return None
     name_end = len(before_paren)
     name_start = name_end - 1

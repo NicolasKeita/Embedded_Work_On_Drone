@@ -142,6 +142,7 @@ class TestBlankLineAfterInitialization(unittest.TestCase):
             '    Aircraft& aircraft)',
             '{',
             '    ControlCommand cmd;',
+            '',
             '    cmd.wing_rpm = 100;',
             '',
             '    return Result::Success;',
@@ -251,7 +252,7 @@ class TestBlankLineAfterInitialization(unittest.TestCase):
         violations = check_code(code)
         self.assertEqual(len(violations), 1)
         self.assertEqual(violations[0][0], 'bad')
-        self.assertEqual(violations[0][2], 11)
+        self.assertEqual(violations[0][2], 10)
 
     def test_stream_operator_not_declaration(self):
         code = [

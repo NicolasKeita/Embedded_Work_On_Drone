@@ -105,7 +105,7 @@ def format_function_braces(code: str) -> str:
         paren_depth += line.count('(') - line.count(')')
         angle_depth = _update_angle_depth(line, angle_depth)
 
-    return '\n'.join(result_lines)
+    return '\n'.join(result_lines) + ('\n' if code.endswith('\n') else '')
 
 
 def _update_angle_depth(line: str, angle_depth: int) -> int:

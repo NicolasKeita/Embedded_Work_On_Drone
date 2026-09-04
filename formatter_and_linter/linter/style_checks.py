@@ -175,9 +175,10 @@ def check_blank_line_after_initialization(code: str) -> List[Tuple[str, int, int
                 if paren_depth > 0:
                     paren_depth -= 1
             elif char == '{' and paren_depth == 0:
-                opening = _find_function_opening(lines, line_index, masked_line[:char_index])
+                head = masked_line[:char_index]
+                opening = _find_function_opening(lines, line_index, head)
                 scope_depth += 1
-                if opening is not None:
+                if opening is not None and head.strip() == '':
                     func_name, start_line = opening
                     last_decl = _scan_body_for_declaration_block(
                         lines, line_index, in_block_comment
