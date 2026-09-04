@@ -36,7 +36,7 @@ def format_comment_function_spacing(code: str) -> str:
             else:
                 last_line = None
 
-            if last_line is not None and (last_line.startswith('//') or last_line.startswith('/*')):
+            if last_line is not None and (last_line.startswith('//') or last_line.startswith('/*') or last_line.endswith('*/')):
                 while new_lines and new_lines[-1].strip() == '':
                     new_lines.pop()
             else:
