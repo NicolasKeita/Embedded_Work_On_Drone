@@ -13,6 +13,7 @@ from linter.comment_language_checks import LINGUA_AVAILABLE
 from linter.multiple_var_decl_checks import MULTIPLE_VAR_DECL_MESSAGE
 from linter.module_size_checks import format_module_too_large_message
 from linter.uninitialized_decl_checks import format_uninitialized_decl_message
+from linter.return_only_var_checks import format_return_only_var_message
 
 
 def _get_path_label(file_path: str) -> str:
@@ -102,6 +103,12 @@ def print_multiple_var_decl_warnings(violations: List[int]) -> None:
 def print_uninitialized_decl_warnings(violations: List[Tuple[int, str]]) -> None:
     for line_num, variable_name in violations:
         message = format_uninitialized_decl_message(variable_name)
+        print(f"⚠️  Line {line_num}: {message}", file=sys.stderr)
+
+
+def print_return_only_var_warnings(violations: List[Tuple[int, str]]) -> None:
+    for line_num, variable_name in violations:
+        message = format_return_only_var_message(variable_name)
         print(f"⚠️  Line {line_num}: {message}", file=sys.stderr)
 
 
