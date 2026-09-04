@@ -68,11 +68,7 @@ delivery semantics are unchanged.
 */
 CommsDelivery CommsBus::publish(std::float64_t time)
 {
-    CommsDelivery delivery;
-
-    delivery.sequence = ++sequence_;
-    delivery.send_time = time;
-    delivery.latency_s = transport_latency_s_;
+    CommsDelivery delivery{.sequence = ++sequence_, .send_time = time, .latency_s = transport_latency_s_};
 
     if (!link_up_) {
         return delivery;

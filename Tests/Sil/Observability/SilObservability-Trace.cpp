@@ -42,9 +42,7 @@ before the injection and completely absent afterwards (FC1 gone silent).
 */
 HeartbeatScan scan_heartbeat_around_fault(std::span<const SilEvent> events)
 {
-    HeartbeatScan scan;
-
-    scan.injected = find_first(events, SilEventType::FaultInjected);
+    HeartbeatScan scan{.injected = find_first(events, SilEventType::FaultInjected)};
     const std::size_t fault_index =
         scan.injected == nullptr ? 0u : static_cast<std::size_t>(scan.injected - events.data());
 
