@@ -108,6 +108,7 @@ std::expected<void, ReportError> write_sil_report(std::span<const ScenarioRecord
                                                   const SilReportOptions&         options)
 {
     std::error_code ec;
+
     std::filesystem::create_directories(options.docs_dir, ec);
     if (ec) {
         return std::unexpected(ReportError::DirectoryCreation);

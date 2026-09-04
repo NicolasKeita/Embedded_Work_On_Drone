@@ -69,7 +69,6 @@ probability, forced altitude or noise amplitude) with its unit and, for the
 actuator efficiency, the resulting capacity loss.
 */
 void write_fault_value(std::ostream& out, const SilEvent& event);
-
 void write_markdown_report(std::ostream& out, std::span<const ScenarioRecord> records,
                            std::float64_t telemetry_report_interval_s = 1.0);
 
