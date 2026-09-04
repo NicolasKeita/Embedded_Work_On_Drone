@@ -12,6 +12,7 @@ from linter.style_checks import MAX_FILE_LENGTH, MAX_FUNCTION_LENGTH
 from linter.comment_language_checks import LINGUA_AVAILABLE
 from linter.multiple_var_decl_checks import MULTIPLE_VAR_DECL_MESSAGE
 from linter.module_size_checks import format_module_too_large_message
+from linter.uninitialized_decl_checks import format_uninitialized_decl_message
 
 
 def _get_path_label(file_path: str) -> str:
@@ -96,6 +97,12 @@ def print_blank_line_after_initialization_warnings(
 def print_multiple_var_decl_warnings(violations: List[int]) -> None:
     for line_num in violations:
         print(f"⚠️  Line {line_num}: {MULTIPLE_VAR_DECL_MESSAGE}", file=sys.stderr)
+
+
+def print_uninitialized_decl_warnings(violations: List[Tuple[int, str]]) -> None:
+    for line_num, variable_name in violations:
+        message = format_uninitialized_decl_message(variable_name)
+        print(f"⚠️  Line {line_num}: {message}", file=sys.stderr)
 
 
 def print_cppm_interface_warnings(
