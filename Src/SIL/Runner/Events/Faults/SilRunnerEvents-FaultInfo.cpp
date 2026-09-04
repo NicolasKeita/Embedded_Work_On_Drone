@@ -83,35 +83,15 @@ void write_fault_metadata(SilEvent& event, const FaultScenario& scenario)
 
     event.target = fault_target_name(target);
     event.target_signal = fault_target_signal(target);
+    event.physical_role = fault_target_physical_role(target);
+    event.physical_category = fault_target_category(target);
+    event.physical_function = fault_target_function(target);
     if (scenario.fault_type == FaultType::SensorFault) {
         event.subtype = corruption_mode_name(scenario.parameters.corruption);
     }
     event.profile = scenario.duration > 0.0 ? FaultProfile::Temporary : FaultProfile::Permanent;
     event.has_profile = true;
     event.expected_behavior = fault_expected_behavior(scenario);
-}
-
-/*
-Emits the typed sensor/actuator fault event echoing the injection marker
-payload; fault families without a typed event emit nothing.
-*/
-void record_typed_fault(RunContext& ctx, const FaultScenario& scenario, const SilEvent& injected)
-{
-    if (scenario.fault_type != FaultType::SensorFault && scenario.fault_type != FaultType::ActuatorDegradation) {
-        return;
-    }
-    const SilEventType type = scenario.fault_type == FaultType::SensorFault ? SilEventType::SensorFault
-                                                                           : SilEventType::ActuatorFault;
-    SilEvent event{.timestamp = ctx.time,
-                   .source = "ENV",
-                   .type = type,
-                   .severity = EventSeverity::Warning,
-                   .value = injected.value,
-                   .has_value = injected.has_value};
-
-    event.target = injected.target;
-    event.value_kind = injected.value_kind;
-    ctx.trace.record(event);
 }
 
 }

@@ -109,6 +109,9 @@ std::string_view event_category(SilEventType type);
 // Streams the description of one report event (type, detail, transition, reason).
 void write_event_description(std::ostream& out, const SilEvent& event);
 
+// Streams the target field of one report event with its physical role and category.
+void write_event_target(std::ostream& out, const SilEvent& event);
+
 // Appends the telemetry/event/post-fault sections of one detailed scenario section.
 void write_scenario_telemetry_sections(std::ostream& out, const ScenarioRecord& record,
                                        std::float64_t telemetry_report_interval_s);

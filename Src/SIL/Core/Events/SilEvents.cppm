@@ -77,6 +77,9 @@ struct SilEvent {
     bool             has_duration = false;
     std::string_view target{};
     std::string_view target_signal{};
+    std::string_view physical_role{};
+    std::string_view physical_category{};
+    std::string_view physical_function{};
     std::string_view subtype{};
     std::string_view expected_behavior{};
     FaultProfile     profile = FaultProfile::Permanent;

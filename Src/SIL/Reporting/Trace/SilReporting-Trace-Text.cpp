@@ -19,44 +19,30 @@ namespace {
 
 constexpr std::string_view kFaultBranch = "  \u251C\u2500\u2500 ";
 constexpr std::string_view kFaultLast = "  \u2514\u2500\u2500 ";
+constexpr std::string_view kFaultSubBranch = "  \u2502    \u251C\u2500\u2500 ";
+constexpr std::string_view kFaultSubLast = "  \u2502    \u2514\u2500\u2500 ";
 
 /*
-Streams the details of one text trace line (states, reason, sequence, latency,
-value) exactly when the fields are set.
+Streams the physical role, actuator type and aerodynamic function sub-tree of
+an actuator target, nested under the Target line of a fault block.
 */
-void write_event_text_details(std::ostream& out, const SilEvent& event)
+void write_fault_physical_subtree(std::ostream& out, const SilEvent& event)
 {
-    if (!event.previous_state.empty()) {
-        out << ' ' << event.previous_state << " -> " << event.new_state;
+    if (!event.physical_role.empty()) {
+        out << kFaultSubBranch << "Physical Role : " << event.physical_role << '\n';
     }
-    if (!event.detail.empty()) {
-        out << ' ' << event.detail;
+    if (!event.physical_category.empty()) {
+        out << kFaultSubBranch << "Actuator Type : " << event.physical_category << '\n';
     }
-    if (!event.reason.empty()) {
-        out << " reason=" << event.reason;
-    }
-    if (event.has_sequence) {
-        out << " seq=" << event.sequence;
-    }
-    if (event.has_latency) {
-        out << " latency=";
-        write_metric(out, 1000.0 * event.latency_s);
-        out << "ms";
-    }
-    if (event.has_value) {
-        out << " value=";
-        write_metric(out, event.value);
-    }
-    if (event.has_duration) {
-        out << " duration=";
-        write_seconds(out, event.duration_s);
-        out << "s";
+    if (!event.physical_function.empty()) {
+        out << kFaultSubLast << "Function : " << event.physical_function << '\n';
     }
 }
 
 /*
 Streams the structured multi-line block of one fault-injection event: type,
-target, temporality, duration, parameters and expected system response.
+target with its physical sub-tree, temporality, duration, parameters and
+expected system response.
 */
 void write_fault_block(std::ostream& out, const SilEvent& event)
 {
@@ -73,6 +59,7 @@ void write_fault_block(std::ostream& out, const SilEvent& event)
         out << " (" << event.target_signal << ')';
     }
     out << '\n';
+    write_fault_physical_subtree(out, event);
     out << kFaultBranch << "Profile : " << (event.has_profile ? fault_profile_name(event.profile) : "UNSPECIFIED")
         << '\n';
     out << kFaultBranch << "Duration : ";

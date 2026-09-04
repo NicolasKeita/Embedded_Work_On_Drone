@@ -82,9 +82,7 @@ void write_event_description(std::ostream& out, const SilEvent& event)
     if (!event.subtype.empty()) {
         out << " (" << event.subtype << ')';
     }
-    if (!event.target.empty()) {
-        out << " target=" << event.target;
-    }
+    write_event_target(out, event);
     if (event.has_profile) {
         out << " profile=" << fault_profile_name(event.profile);
     }

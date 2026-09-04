@@ -75,6 +75,24 @@ const SilEvent* find_first_after(std::span<const SilEvent> events, SilEventType 
 }
 
 /*
+OBS-013: the actuator semantic mapping resolves every actuator target to its
+physical role, hardware category and aerodynamic function, and leaves
+non-actuator targets empty.
+*/
+void actuator_semantic_mapping_test(TestHarness& runner)
+{
+    using sim::sil::FaultTarget;
+    runner.check(sim::sil::fault_target_physical_role(FaultTarget::ActuatorLeftServo) == "left_servo",
+                 "OBS-013 : role physique du servo gauche");
+    runner.check(sim::sil::fault_target_category(FaultTarget::ActuatorLeftServo) == "CONTROL_SURFACE_SERVO",
+                 "OBS-013 : categorie servo de surface de controle");
+    runner.check(sim::sil::fault_target_function(FaultTarget::ActuatorRightServo) == "Pitch / Roll Control",
+                 "OBS-013 : fonction aerodynamique du servo");
+    runner.check(sim::sil::fault_target_physical_role(FaultTarget::SensorBarometer).empty(),
+                 "OBS-013 : cible non-actionneur sans role physique");
+}
+
+/*
 Runs the whole observability suite.
 */
 void run_observability_scenarios(TestHarness& runner)
@@ -86,6 +104,7 @@ void run_observability_scenarios(TestHarness& runner)
     fc1_failure_events_test(runner);
     fault_metadata_test(runner);
     sensor_fault_metadata_test(runner);
+    actuator_semantic_mapping_test(runner);
     state_transitions_test(runner);
     comms_statistics_test(runner);
     verdict_independence_test(runner);

@@ -15,6 +15,21 @@ import SilEvents;
 namespace sim::sil {
 
 /*
+Streams the target field of one report event: the canonical identifier followed,
+for actuator targets, by the physical role and hardware category in parentheses.
+*/
+void write_event_target(std::ostream& out, const SilEvent& event)
+{
+    if (event.target.empty()) {
+        return;
+    }
+    out << " target=" << event.target;
+    if (!event.physical_role.empty() && !event.physical_category.empty()) {
+        out << " (" << event.physical_role << " / " << event.physical_category << ')';
+    }
+}
+
+/*
 Writes the important discrete events of one scenario section (no heartbeat or
 per-message traffic).
 */
