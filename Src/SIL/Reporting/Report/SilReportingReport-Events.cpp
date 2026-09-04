@@ -93,6 +93,11 @@ void write_event_description(std::ostream& out, const SilEvent& event)
         out << " value=";
         write_metric(out, event.value);
     }
+    if (event.has_duration) {
+        out << " duration=";
+        write_seconds(out, event.duration_s);
+        out << "s";
+    }
 }
 
 }

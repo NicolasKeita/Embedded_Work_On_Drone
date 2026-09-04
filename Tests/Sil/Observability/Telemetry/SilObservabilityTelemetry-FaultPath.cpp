@@ -84,6 +84,9 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
                      && injected->reason.find("EXTREME_NOISE") != std::string_view::npos
                      && injected->reason.find("temporarily") != std::string_view::npos,
                  "TELE-011 : FAULT_INJECTED porte type, mode et duree");
+    runner.check(injected->has_duration
+                     && std::abs(injected->duration_s - (kFaultEnd - kFaultStart)) <= 1.0e-9,
+                 "TELE-011 : FAULT_INJECTED porte la duree explicite de la faute temporaire");
 }
 
 }

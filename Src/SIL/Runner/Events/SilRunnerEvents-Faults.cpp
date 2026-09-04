@@ -53,6 +53,12 @@ void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
                       .reason = fault_effect_reason(scenario)};
 
     write_fault_parameters(injected, scenario);
+
+    if (scenario.duration > 0.0) {
+        injected.duration_s = scenario.duration;
+        injected.has_duration = true;
+    }
+
     ctx.trace.record(injected);
 
     const auto record_typed = [&ctx, &scenario](SilEventType type, std::float64_t value) {
