@@ -128,6 +128,20 @@ set(SRC_FILES
     ${SIL_FILES}
 )
 
+# Sources du sous-systeme de validation statistique Monte-Carlo SIL (.cppm +
+# .cpp conserves ensemble dans la meme variable ; interface unique, quatre
+# fichiers d'implementation suffixes par responsabilite).
+set(VALIDATION_FILES
+    Src/SIL/Validation/FlightControlValidation.cppm
+    Src/SIL/Validation/FlightControlValidation-Generator.cpp
+    Src/SIL/Validation/FlightControlValidation-Sampling.cpp
+    Src/SIL/Validation/FlightControlValidation-Collector.cpp
+    Src/SIL/Validation/FlightControlValidation-Runner.cpp
+    Src/SIL/Validation/FlightControlValidation-Classify.cpp
+    Src/SIL/Validation/FlightControlValidation-Csv.cpp
+    Src/SIL/Validation/FlightControlValidation-CsvRows.cpp
+)
+
 
 # Harness, scenarios physiques et scenarios autonomes du programme de validation
 # (.cppm + .cpp conserves ensemble dans la meme variable).
@@ -204,3 +218,29 @@ foreach(target test_simulation test_sil)
 
     target_compile_features(${target} PRIVATE cxx_std_23)
 endforeach()
+
+# Campagne de validation statistique Monte-Carlo sur le moteur SIL : le point
+# d'entree Src/SIL/Validation/main.cpp lance N runs deterministes et exporte
+# les resultats au format CSV.
+add_executable(monte_carlo_validation Src/SIL/Validation/Campaign/main.cpp)
+target_add_mixed_sources(monte_carlo_validation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${SAFETY_FILES}
+    ${SIL_FILES}
+    ${VALIDATION_FILES}
+)
+set_property(TARGET monte_carlo_validation PROPERTY CXX_SCAN_FOR_MODULES ON)
+set_property(TARGET monte_carlo_validation PROPERTY CXX_MODULE_STD ON)
+
+if(MSVC)
+    target_compile_options(monte_carlo_validation PRIVATE
+        /W4
+        /external:W0
+        /external:anglebrackets
+    )
+else()
+    target_compile_options(monte_carlo_validation PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
