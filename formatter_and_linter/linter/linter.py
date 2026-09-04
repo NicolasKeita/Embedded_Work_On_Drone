@@ -30,6 +30,7 @@ from linter.cppm_checks import (
 from linter.comment_language_checks import check_code_comments_language
 from linter.multiple_var_decl_checks import check_multiple_var_declarations
 from linter.uninitialized_decl_checks import check_uninitialized_declarations
+from linter.return_only_var_checks import check_return_only_variable
 from linter.directory_checks import (
     MAX_FILES_PER_DIRECTORY,
     check_directory_file_counts,
@@ -50,6 +51,7 @@ from linter.reporting import (
     print_blank_line_after_initialization_warnings,
     print_multiple_var_decl_warnings,
     print_uninitialized_decl_warnings,
+    print_return_only_var_warnings,
     print_cppm_interface_warnings,
     print_directory_file_count_warnings,
     print_module_filename_warnings,
@@ -65,6 +67,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         language_violations = check_code_comments_language(code)
         multiple_decl_violations = check_multiple_var_declarations(code)
         uninitialized_decl_violations = check_uninitialized_declarations(code)
+        return_only_var_violations = check_return_only_variable(code)
 
         has_issues = (
             len(cppm_violations) > 0
@@ -72,6 +75,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
             or len(language_violations) > 0
             or len(multiple_decl_violations) > 0
             or len(uninitialized_decl_violations) > 0
+            or len(return_only_var_violations) > 0
         )
         if has_issues:
             print_issue_header(file_path)
@@ -80,6 +84,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_comment_language_warnings(language_violations)
         print_multiple_var_decl_warnings(multiple_decl_violations)
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
+        print_return_only_var_warnings(return_only_var_violations)
 
         return has_issues
 
@@ -92,6 +97,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     language_violations = check_code_comments_language(code)
     multiple_decl_violations = check_multiple_var_declarations(code)
     uninitialized_decl_violations = check_uninitialized_declarations(code)
+    return_only_var_violations = check_return_only_variable(code)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
@@ -101,6 +107,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         or len(language_violations) > 0
         or len(multiple_decl_violations) > 0
         or len(uninitialized_decl_violations) > 0
+        or len(return_only_var_violations) > 0
     )
     if has_issues:
         print_issue_header(file_path)
@@ -112,6 +119,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_comment_language_warnings(language_violations)
         print_multiple_var_decl_warnings(multiple_decl_violations)
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
+        print_return_only_var_warnings(return_only_var_violations)
 
     return has_issues
 
@@ -127,6 +135,7 @@ __all__ = [
     "check_blank_line_after_initialization",
     "check_multiple_var_declarations",
     "check_uninitialized_declarations",
+    "check_return_only_variable",
     "check_cppm_interface_implementations",
     "check_directory_file_counts",
     "check_module_filename_convention",
@@ -142,6 +151,7 @@ __all__ = [
     "print_blank_line_after_initialization_warnings",
     "print_multiple_var_decl_warnings",
     "print_uninitialized_decl_warnings",
+    "print_return_only_var_warnings",
     "print_cppm_interface_warnings",
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",
