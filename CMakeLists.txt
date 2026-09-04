@@ -72,6 +72,7 @@ set(SIL_FILES
     Src/SIL/Runner/Events/SilRunnerEvents.cppm
     Src/SIL/Runner/Events/SilRunnerEvents-Lifecycle.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Faults.cpp
+    Src/SIL/Runner/Events/SilRunnerEvents-FaultReasons.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Watchdog.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Heartbeats.cpp
     Src/SIL/Runner/Events/SilRunnerEvents-Transitions.cpp

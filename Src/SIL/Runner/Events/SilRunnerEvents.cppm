@@ -25,6 +25,8 @@ All rights reserved.
 
 export module SilRunnerEvents;
 
+import std;
+
 import CommsBus;
 import FlightController;
 import HealthMonitor;
@@ -49,5 +51,11 @@ void record_safety_transitions(RunContext& ctx);
 void record_mission_transition(RunContext& ctx, sim::control::MissionState current);
 void record_fault_activation(RunContext& ctx, const FaultScenario& scenario);
 void record_fault_cleared(RunContext& ctx);
+
+}
+
+namespace sim::sil {
+
+std::string_view fault_effect_reason(const FaultScenario& scenario);
 
 }
