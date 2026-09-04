@@ -11,6 +11,7 @@ module FlightControlValidation;
 import std;
 
 import SilTypes;
+import Telemetry;
 
 namespace sim::sil::validation {
 

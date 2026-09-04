@@ -9,6 +9,7 @@ export module FlightControlValidation;
 import std;
 import SilRunner;
 import SilTypes;
+import Telemetry;
 export namespace sim::sil::validation {
 enum class FailureReason : std::uint8_t {
     None                 = 0,
