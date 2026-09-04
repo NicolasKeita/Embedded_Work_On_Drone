@@ -82,6 +82,7 @@ temporality profile, the labelled value kind and the expected system response.
 void write_event_details(std::ostream& out, const SilEvent& event)
 {
     if (event.detail.empty() && event.subtype.empty() && event.target.empty() && event.target_signal.empty()
+        && event.physical_role.empty() && event.physical_category.empty() && event.physical_function.empty()
         && event.previous_state.empty() && event.new_state.empty() && event.reason.empty()
         && event.expected_behavior.empty() && !event.has_profile && event.value_kind == FaultValueKind::None
         && !event.has_sequence && !event.has_latency && !event.has_value && !event.has_duration) {
@@ -94,6 +95,9 @@ void write_event_details(std::ostream& out, const SilEvent& event)
     write_string_field(out, "subtype", event.subtype, first);
     write_string_field(out, "target", event.target, first);
     write_string_field(out, "target_signal", event.target_signal, first);
+    write_string_field(out, "physical_role", event.physical_role, first);
+    write_string_field(out, "physical_category", event.physical_category, first);
+    write_string_field(out, "physical_function", event.physical_function, first);
     write_string_field(out, "previous_state", event.previous_state, first);
     write_string_field(out, "new_state", event.new_state, first);
     write_string_field(out, "reason", event.reason, first);

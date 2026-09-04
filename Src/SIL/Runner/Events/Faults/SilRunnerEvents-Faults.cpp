@@ -59,9 +59,39 @@ void record_fault_cleared(RunContext& ctx)
 
     cleared.target = fault_target_name(ctx.last_fault_target);
     cleared.target_signal = fault_target_signal(ctx.last_fault_target);
+    cleared.physical_role = fault_target_physical_role(ctx.last_fault_target);
+    cleared.physical_category = fault_target_category(ctx.last_fault_target);
+    cleared.physical_function = fault_target_function(ctx.last_fault_target);
     cleared.profile = FaultProfile::Temporary;
     cleared.has_profile = true;
     ctx.trace.record(cleared);
+}
+
+/*
+Emits the typed sensor/actuator fault event echoing the injection marker
+payload; fault families without a typed event emit nothing.
+*/
+void record_typed_fault(RunContext& ctx, const FaultScenario& scenario, const SilEvent& injected)
+{
+    if (scenario.fault_type != FaultType::SensorFault && scenario.fault_type != FaultType::ActuatorDegradation) {
+        return;
+    }
+    const SilEventType type = scenario.fault_type == FaultType::SensorFault ? SilEventType::SensorFault
+                                                                           : SilEventType::ActuatorFault;
+    SilEvent event{.timestamp = ctx.time,
+                   .source = "ENV",
+                   .type = type,
+                   .severity = EventSeverity::Warning,
+                   .value = injected.value,
+                   .has_value = injected.has_value,
+                   .target = injected.target,
+                   .target_signal = injected.target_signal,
+                   .physical_role = injected.physical_role,
+                   .physical_category = injected.physical_category,
+                   .physical_function = injected.physical_function,
+                   .value_kind = injected.value_kind};
+
+    ctx.trace.record(event);
 }
 
 }

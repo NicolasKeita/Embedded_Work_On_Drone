@@ -70,4 +70,7 @@ void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool 
 // Writes the details object of one JSONL event (only the set fields are emitted).
 void write_event_details(std::ostream& out, const SilEvent& event);
 
+// Streams the inline details of one text trace line (states, reason, value).
+void write_event_text_details(std::ostream& out, const SilEvent& event);
+
 }

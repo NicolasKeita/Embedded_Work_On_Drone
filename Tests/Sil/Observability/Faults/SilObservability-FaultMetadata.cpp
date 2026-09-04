@@ -54,6 +54,10 @@ void fault_metadata_test(TestHarness& runner)
 
     runner.check(injected->target == "actuator_0" && injected->target_signal == "wing_rpm",
                  "OBS-011 : cible actionneur identifiee avec son signal");
+    runner.check(injected->physical_role == "main_rotor" && injected->physical_category == "ROTOR_MOTOR",
+                 "OBS-011 : role physique et categorie materielle de l'actionneur");
+    runner.check(injected->physical_function == "Propulsion / Roll-Pitch-Yaw Control",
+                 "OBS-011 : fonction aerodynamique de l'actionneur documentee");
     runner.check(injected->has_profile && injected->profile == FaultProfile::Permanent,
                  "OBS-011 : profil PERMANENT explicite");
     runner.check(!injected->has_duration, "OBS-011 : faute permanente sans duree bornee");
@@ -92,6 +96,8 @@ void sensor_fault_metadata_test(TestHarness& runner)
     }
 
     runner.check(injected->target == "baro_primary", "OBS-012 : cible capteur baro identifiee");
+    runner.check(injected->physical_role.empty() && injected->physical_category.empty(),
+                 "OBS-012 : cible non-actionneur sans role physique");
     runner.check(injected->subtype == "ALTITUDE_OUT_OF_RANGE", "OBS-012 : sous-type de corruption porte");
     runner.check(injected->has_profile && injected->profile == FaultProfile::Temporary,
                  "OBS-012 : profil TEMPORARY explicite");

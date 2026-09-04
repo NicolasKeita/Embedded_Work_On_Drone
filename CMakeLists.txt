@@ -83,6 +83,7 @@ set(SIL_FILES
     Src/SIL/Core/SilFaultScenario.cppm
     Src/SIL/Core/SilFaultScenario-Core.cpp
     Src/SIL/Core/SilFaultScenario-Names.cpp
+    Src/SIL/Core/SilFaultScenario-Semantics.cpp
     Src/SIL/Core/Telemetry/Telemetry.cppm
     Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
     Src/SIL/Core/Telemetry/Telemetry-Validation.cpp

@@ -44,6 +44,7 @@ void dropped_heartbeats_test(TestHarness& runner);
 void fc1_failure_events_test(TestHarness& runner);
 void fault_metadata_test(TestHarness& runner);
 void sensor_fault_metadata_test(TestHarness& runner);
+void actuator_semantic_mapping_test(TestHarness& runner);
 void state_transitions_test(TestHarness& runner);
 void comms_statistics_test(TestHarness& runner);
 void verdict_independence_test(TestHarness& runner);

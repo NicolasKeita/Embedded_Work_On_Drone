@@ -11,6 +11,9 @@ Exports:
     fault_type_name(),
     fault_target_name(),
     fault_target_signal(),
+    fault_target_physical_role(),
+    fault_target_category(),
+    fault_target_function(),
     effective_fault_target(),
     fault_profile_name(),
     fault_value_kind_name()
@@ -83,6 +86,15 @@ struct FaultScenario {
 
 // Simulated signal path disturbed on the target (empty when not applicable).
 [[nodiscard]] std::string_view fault_target_signal(FaultTarget target);
+
+// Physical role of a fault target (motor_front_left, main_rotor); empty for non-actuator targets.
+[[nodiscard]] std::string_view fault_target_physical_role(FaultTarget target);
+
+// Physical category of a fault target (ROTOR_MOTOR, CONTROL_SURFACE_SERVO); empty for non-actuator targets.
+[[nodiscard]] std::string_view fault_target_category(FaultTarget target);
+
+// Aerodynamic or propulsion function of a fault target; empty for non-actuator targets.
+[[nodiscard]] std::string_view fault_target_function(FaultTarget target);
 
 /*
 Target actually disturbed by the scenario: the explicit target when the
