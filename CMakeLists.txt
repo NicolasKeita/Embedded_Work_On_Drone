@@ -109,6 +109,7 @@ set(SIL_FILES
     Src/SIL/Reporting/Report/SilReportingReport-Markdown.cpp
     Src/SIL/Reporting/Report/SilReportingReport-Sections.cpp
     Src/SIL/Reporting/Report/SilReportingReport-Events.cpp
+    Src/SIL/Reporting/Report/Events/SilReportingReport-EventRows.cpp
     Src/SIL/Reporting/Report/SilReportingReport-Telemetry.cpp
     Src/SIL/Reporting/Report/SilReportingReport-Table.cpp
     Src/SIL/Reporting/Report/SilReportingReport-Csv.cpp

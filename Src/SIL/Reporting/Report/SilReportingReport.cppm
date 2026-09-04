@@ -90,6 +90,15 @@ void write_telemetry_window(std::ostream& out, std::span<const TelemetrySample> 
 // Writes the important discrete events of one scenario section (no heartbeats).
 void write_event_table(std::ostream& out, std::span<const SilEvent> events);
 
+// True when an event belongs to the human-readable report (no heartbeat noise).
+bool is_report_event(SilEventType type);
+
+// Short category label of a report event row.
+std::string_view event_category(SilEventType type);
+
+// Streams the description of one report event (type, detail, transition, reason).
+void write_event_description(std::ostream& out, const SilEvent& event);
+
 // Appends the telemetry/event/post-fault sections of one detailed scenario section.
 void write_scenario_telemetry_sections(std::ostream& out, const ScenarioRecord& record,
                                        std::float64_t telemetry_report_interval_s);
