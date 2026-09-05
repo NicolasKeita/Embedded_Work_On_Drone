@@ -59,10 +59,10 @@ recorded with FailureReason::RunnerError rather than propagated as exceptions.
 */
 void MonteCarloRunner::execute_run(std::uint64_t run_id)
 {
-    Scenario                     scenario = generator_.generate_scenario(run_id);
-    const SilConfig              config = make_run_config(config_, scenario);
-    const FaultScenario          fault = scenario.to_fault_scenario();
-    const bool                   fault_expected = (scenario.fault_type != FaultType::None);
+    Scenario            scenario = generator_.generate_scenario(run_id);
+    const SilConfig     config = make_run_config(config_, scenario);
+    const FaultScenario fault = scenario.to_fault_scenario();
+    const bool          fault_expected = (scenario.fault_type != FaultType::None);
     SimulationResult             result{
                                      .run_id = run_id,
                                      .scenario_seed = scenario.scenario_seed,

@@ -137,7 +137,8 @@ set(VALIDATION_FILES
     Src/SIL/Validation/Types/ValidationTypes.cppm
     Src/SIL/Validation/Types/ValidationTypes.cpp
     Src/SIL/Validation/FlightControlValidation-Generator.cpp
-    Src/SIL/Validation/FlightControlValidation-Sampling.cpp
+    Src/SIL/Validation/Sampling/FlightControlValidation-Sampling.cpp
+    Src/SIL/Validation/Sampling/FlightControlValidation-Conditions.cpp
     Src/SIL/Validation/FlightControlValidation-Collector.cpp
     Src/SIL/Validation/FlightControlValidation-Runner.cpp
     Src/SIL/Validation/FlightControlValidation-Classify.cpp
