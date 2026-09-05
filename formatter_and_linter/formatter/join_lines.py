@@ -28,7 +28,9 @@ Multi-line function signatures (return type + name, e.g. a definition or a
 prototype whose parameters are aligned by the parameter formatter) are left
 untouched: the parameters are never joined back onto a single line. Access
 specifiers ('public:', 'private:', 'protected:') and case/default/goto labels
-that end a line with ':' never swallow the following statement. Finally, stream
+that end a line with ':' never swallow the following statement. The same
+applies when such a label already carries its opening brace on the same line
+(e.g. 'case 1: {'). Finally, stream
 statements (std::cout, std::cerr, ...) written across several lines with '<<'
 or '>>' continuations are never joined.
 
@@ -62,7 +64,7 @@ _ENUM_START = re.compile(r"^\s*enum\b")
 _FUNC_DEF_START = re.compile(r"^\s*(?:(?:static|inline|virtual|explicit|constexpr|const)\s+)*[\w:<>]+(?:\s*[*&])*\s+([\w:<>]+)\s*\(")
 _QUALIFIED_SIG_START = re.compile(r"^\s*[\w:<>,]+::~?[\w:]+\s*\(")
 _ACCESS_SPECIFIER = re.compile(r"^\s*(?:public|private|protected)\s*:\s*$")
-_CASE_LABEL = re.compile(r"^\s*(?:case\b.*|default)\s*:\s*$")
+_CASE_LABEL = re.compile(r"^\s*(?:case\b.*|default)\s*:\s*\{?\s*$")
 _LABEL = re.compile(r"^\s*[A-Za-z_]\w*\s*:\s*$")
 
 _END_TOKENS = ("&&", "||", "<<", ">>", "->")

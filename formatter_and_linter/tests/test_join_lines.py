@@ -176,6 +176,23 @@ def test_case_and_default_labels_do_not_swallow_next_line():
     assert join_lines(code) == code
 
 
+def test_braced_case_and_default_labels_do_not_swallow_next_line():
+    code = (
+        "    switch (mode) {\n"
+        "    case FaultType::SensorFault: {\n"
+        "        const std::uint64_t corruption_roll = generator() % 3;\n"
+        "        scenario.sensor_corruption = static_cast<SensorCorruptionMode>(corruption_roll + 1);\n"
+        "        break;\n"
+        "    }\n"
+        "    default: {\n"
+        "        do_default();\n"
+        "        break;\n"
+        "    }\n"
+        "    }\n"
+    )
+    assert join_lines(code) == code
+
+
 def test_enum_declaration_is_preserved():
     code = (
         "enum class MissionState {\n"
