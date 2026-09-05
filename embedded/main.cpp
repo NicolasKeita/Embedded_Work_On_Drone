@@ -143,34 +143,40 @@ int main()
 
     const auto wire_sensor = Transport::makeSensorPayload(tx_sensor);
     const auto sensor_frame = Transport::encodeSensorFrame(wire_sensor, sequence);
-    transport.sendBytes(sensor_frame);
+    const bool sensor_frame_sent = transport.sendBytes(sensor_frame);
+    if (!sensor_frame_sent) return 1;
 
     Transport::HilHeader header{};
     const bool sensor_ok = receiveFrame(transport, parser, header, payload_buffer);
     if (!sensor_ok) return 1;
 
     Transport::HilSensorPayload decoded_sensor{};
-    Transport::decodeSensorPayload(std::span<const std::uint8_t>(payload_buffer.data(), header.payload_len), decoded_sensor);
+    const bool sensor_decoded = Transport::decodeSensorPayload(std::span<const std::uint8_t>(payload_buffer.data(), header.payload_len), decoded_sensor);
+    if (!sensor_decoded) return 1;
     HAL::SensorData fc_sensor = Transport::toSensorData(decoded_sensor);
     sensorInput.inject(fc_sensor);
-    sensorInput.readSensorData(fc_sensor);
+    const bool sensor_read = sensorInput.readSensorData(fc_sensor);
+    if (!sensor_read) return 1;
 
     HAL::ActuatorCommands cmds{};
     cmds.timestamp_us = clock.nowUs();
     computeFakeControl(fc_sensor, cmds);
-    actuatorOutput.writeActuatorCommands(cmds);
+    const bool actuator_written = actuatorOutput.writeActuatorCommands(cmds);
+    if (!actuator_written) return 1;
 
     const Transport::ActuatorDiagnostics diagnostics{};
     const auto wire_actuator = Transport::makeActuatorPayload(cmds, fc_sensor.timestamp_us, diagnostics);
     const auto actuator_frame = Transport::encodeActuatorFrame(wire_actuator, sequence);
-    transport.sendBytes(actuator_frame);
+    const bool actuator_frame_sent = transport.sendBytes(actuator_frame);
+    if (!actuator_frame_sent) return 1;
 
     Transport::HilHeader actuator_header{};
     const bool actuator_ok = receiveFrame(transport, parser, actuator_header, payload_buffer);
     if (!actuator_ok) return 1;
 
     Transport::HilActuatorPayload decoded_actuator{};
-    Transport::decodeActuatorPayload(std::span<const std::uint8_t>(payload_buffer.data(), actuator_header.payload_len), decoded_actuator);
+    const bool actuator_decoded = Transport::decodeActuatorPayload(std::span<const std::uint8_t>(payload_buffer.data(), actuator_header.payload_len), decoded_actuator);
+    if (!actuator_decoded) return 1;
 
     printReport(sim_step_us, sequence, tx_sensor, fc_sensor, cmds, decoded_actuator, clock.nowUs(), parser.rejectedFrames());
     return 0;
