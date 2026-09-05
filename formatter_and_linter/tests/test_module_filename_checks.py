@@ -45,12 +45,10 @@ class TestCheckModuleFilenameConvention(unittest.TestCase):
         ])
         self.assertEqual(check_module_filename_convention([directory]), [])
 
-    def test_missing_implementation_is_reported(self):
+    def test_missing_implementation_is_not_reported(self):
         directory = os.path.join(self.root, "Src", "Utils")
         self.create_module_files(directory, ["Logger.cppm"])
-        violations = check_module_filename_convention([directory])
-        self.assertEqual(len(violations), 1)
-        self.assertTrue(violations[0][0].endswith("Logger.cppm"))
+        self.assertEqual(check_module_filename_convention([directory]), [])
 
     def test_single_hyphenated_implementation_is_reported(self):
         directory = os.path.join(self.root, "Src", "Utils")
@@ -88,14 +86,12 @@ class TestCheckModuleFilenameConvention(unittest.TestCase):
         self.create_module_files(directory, ["main.cpp", "TestHarness.cppm", "TestHarness.cpp"])
         self.assertEqual(check_module_filename_convention([directory]), [])
 
-    def test_implementation_must_live_next_to_interface(self):
+    def test_implementation_may_live_elsewhere(self):
         interface_dir = os.path.join(self.root, "Src", "App")
         other_dir = os.path.join(self.root, "Src", "Elsewhere")
         self.create_module_files(interface_dir, ["Application.cppm"])
         self.create_module_files(other_dir, ["Application.cpp"])
-        violations = check_module_filename_convention([interface_dir])
-        self.assertEqual(len(violations), 1)
-        self.assertTrue(violations[0][0].endswith("Application.cppm"))
+        self.assertEqual(check_module_filename_convention([interface_dir]), [])
 
     def test_violations_are_sorted_by_path(self):
         dir_a = os.path.join(self.root, "Src", "Aaa")
@@ -105,7 +101,7 @@ class TestCheckModuleFilenameConvention(unittest.TestCase):
         violations = check_module_filename_convention([dir_b, dir_a])
         self.assertEqual(
             [file_path for file_path, _ in violations],
-            [os.path.join(dir_a, "ModuleA-Core.cpp"), os.path.join(dir_b, "ModuleB.cppm")],
+            [os.path.join(dir_a, "ModuleA-Core.cpp")],
         )
 
 

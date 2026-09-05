@@ -6,6 +6,9 @@ Checks the naming convention between module interfaces (.cppm) and their
 implementation files (.cpp):
 
 - A single implementation file must be exactly '<ModuleName>.cpp'.
+- A missing implementation file is not reported here: the inline function
+  body check ([WARN_CPPM_INLINE_FUNCTION]) already indicates when an
+  implementation .cpp file is needed.
 - Multiple implementation files must all follow '<ModuleName>-<Suffix>.cpp'
   and none may be the plain '<ModuleName>.cpp'.
 """
@@ -48,11 +51,7 @@ def check_module_filename_convention(directories: List[str]) -> List[Tuple[str, 
                 interface_path = os.path.join(root, interface_file)
                 implementations = _find_implementation_files(files, module_name)
 
-                if not implementations:
-                    violations.append((
-                        interface_path,
-                        "has no implementation .cpp file",
-                    ))
+                if len(implementations) == 0:
                     continue
 
                 if len(implementations) == 1:
