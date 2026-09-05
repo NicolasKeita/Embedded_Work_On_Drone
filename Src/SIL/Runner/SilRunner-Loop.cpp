@@ -54,7 +54,7 @@ the actuator efficiency and the physics integrates the aircraft state.
 void SILRunner::apply_actuators(RunContext& ctx)
 {
     const SilConfig& cfg = ctx.config;
-    ControlCommand effective = ctx.command;
+    ControlCommand   effective = ctx.command;
 
     if (ctx.safety.mode() == SafetyMode::SAFE_MODE) {
         ctx.safe_rpm = std::max(std::float64_t{0.0}, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt);

@@ -64,7 +64,7 @@ controller view, physics state for the ground-truth stream).
 */
 void SILRunner::update_metrics(RunContext& ctx)
 {
-    const SilConfig& cfg = ctx.config;
+    const SilConfig&     cfg = ctx.config;
     const AircraftState& state = ctx.aircraft.state();
     const std::float64_t position_error = std::hypot(state.x - cfg.target.x, state.y - cfg.target.y);
     const std::float64_t altitude_error = std::abs(state.z - cfg.target.z);

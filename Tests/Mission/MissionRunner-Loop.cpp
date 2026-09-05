@@ -83,12 +83,12 @@ void run_control_loop(FlightController&        ctrl,
 {
     constexpr std::float64_t kDt = 0.01;
     constexpr std::float64_t kSteadyWindowSeconds = 10.0;
-    constexpr std::uint32_t kLogIntervalSteps = 250;
-    const std::float64_t steady_start = std::max(std::float64_t{0.0}, run.duration - kSteadyWindowSeconds);
-    StepMetrics step{direction, steady_start};
-    MissionState previous_state = ctrl.state();
-    std::float64_t time = 0.0;
-    std::uint32_t step_index = 0;
+    constexpr std::uint32_t  kLogIntervalSteps = 250;
+    const std::float64_t     steady_start = std::max(std::float64_t{0.0}, run.duration - kSteadyWindowSeconds);
+    StepMetrics              step{direction, steady_start};
+    MissionState             previous_state = ctrl.state();
+    std::float64_t           time = 0.0;
+    std::uint32_t            step_index = 0;
 
     print_state_row(craft, time);
     while (time < run.duration) {

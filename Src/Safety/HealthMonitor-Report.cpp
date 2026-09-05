@@ -31,7 +31,7 @@ std::float64_t HealthReport::first_detection_time() const
 
 FaultDomain HealthReport::first_fault_domain() const
 {
-    FaultDomain best = FaultDomain::FC1Heartbeat;
+    FaultDomain    best = FaultDomain::FC1Heartbeat;
     std::float64_t best_time = -1.0;
 
     for (std::size_t index = 0; index < flags.size(); ++index) {

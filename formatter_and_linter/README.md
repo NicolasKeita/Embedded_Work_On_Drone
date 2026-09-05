@@ -58,6 +58,14 @@ Automatically formats C++ code according to defined rules.
   (control structure, function call, reassignment, ...); the blank line that
   separates the declaration block from the rest of the body is preserved
   (and, when missing, inserted by the existing initialization-block rule).
+- Local variable alignment: at the very beginning of every function body, the
+  first contiguous block of variable declarations (right after the opening
+  brace `{`) is realigned so that all variable names start on the same column,
+  computed from the longest declaration type of the block plus one space. The
+  rule applies only when the block holds at least two declarations; the
+  initializer that follows each name (`=`, `{...}`, `(...)`) is preserved, as
+  is the base indentation. It runs after line joining so wrapped declarations
+  are already back on a single line, and only for non module-interface files.
 
 **Before :**
 ```cpp
@@ -99,6 +107,32 @@ struct SilConfig {
     double                    dt = 0.01;
     sim::control::TargetState target{.z = 10.0};
 };
+```
+
+**Before :**  (local variable alignment)
+```cpp
+void generate_faults() {
+    std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
+    std::uniform_real_distribution<std::float64_t> time_window(2.0, 12.0);
+    const std::uint64_t fault_roll = generator() % 6;
+    SimulationResult result{.sil_result = sil_result, .failure_reason = FailureReason::None};
+    const std::float64_t dx = sil_result.final_x_m - 0.0;
+
+    apply_fault(fault_roll);
+}
+```
+
+**After :**
+```cpp
+void generate_faults() {
+    std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
+    std::uniform_real_distribution<std::float64_t> time_window(2.0, 12.0);
+    const std::uint64_t                            fault_roll = generator() % 6;
+    SimulationResult                               result{.sil_result = sil_result, .failure_reason = FailureReason::None};
+    const std::float64_t                           dx = sil_result.final_x_m - 0.0;
+
+    apply_fault(fault_roll);
+}
 ```
 
 ### Examples

@@ -36,7 +36,7 @@ void Application::PrintTelemetry(std::float64_t timeSeconds, const Aircraft& air
 
 std::int32_t Application::RunSimulationDemo() const
 {
-    const Aircraft reference;
+    const Aircraft       reference;
     const std::float64_t hoverRpm = reference.hover_rpm();
 
     std::cout << "\n=== Demo physique Heliblade-like ===" << std::endl;

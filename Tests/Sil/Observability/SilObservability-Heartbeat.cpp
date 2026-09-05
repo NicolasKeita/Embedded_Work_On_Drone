@@ -33,10 +33,10 @@ that every delivery records its latency.
 */
 bool check_heartbeat_trace(std::span<const SilEvent> events)
 {
-    bool sequences_ok = true;
-    bool latency_ok = true;
+    bool          sequences_ok = true;
+    bool          latency_ok = true;
     std::uint64_t last_sequence = 0;
-    bool first = true;
+    bool          first = true;
 
     for (const SilEvent& event : events) {
         if (event.type == SilEventType::HeartbeatSent) {
@@ -62,7 +62,7 @@ trace level, and filtered out at the default info level.
 */
 void heartbeat_trace_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
+    const SilConfig                             config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, FaultScenario{});
 
     if (!outcome.has_value()) {

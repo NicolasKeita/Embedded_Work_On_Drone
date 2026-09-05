@@ -48,8 +48,8 @@ generation stays allocation-free.
 Scenario ScenarioGenerator::generate_scenario(std::uint64_t run_id)
 {
     const std::uint64_t seed = mix_seed(master_seed_, run_id);
-    std::mt19937_64 generator(seed);
-    Scenario scenario{.run_id = run_id, .scenario_seed = seed};
+    std::mt19937_64     generator(seed);
+    Scenario            scenario{.run_id = run_id, .scenario_seed = seed};
 
     sample_fault_window(scenario, generator);
     sample_fault_parameters(scenario, generator);

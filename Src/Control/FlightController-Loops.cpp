@@ -73,7 +73,7 @@ ControlCommand FlightController::station_keeping_command(const TargetState&   t,
                                                          std::float64_t       dt)
 {
     const std::float64_t wing_rpm = updateAltitudeControl(t.z, a.z, dt);
-    const ServoMix servos = updateAttitudeControl(updatePositionControl(t, a, dt), a);
+    const ServoMix       servos = updateAttitudeControl(updatePositionControl(t, a, dt), a);
     const ControlCommand cmd{.wing_rpm = wing_rpm,
                              .left_servo_angle = servos.left_deg,
                              .right_servo_angle = servos.right_deg};

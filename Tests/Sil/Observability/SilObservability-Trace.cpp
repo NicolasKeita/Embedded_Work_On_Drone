@@ -67,8 +67,8 @@ OBS-010: the FC1 failure scenario is fully reconstructible from the trace alone.
 */
 void trace_reconstruction_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
+    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

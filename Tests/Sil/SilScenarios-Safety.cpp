@@ -95,7 +95,7 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
 /* Runs the five scenarios, the observability suite and the report artifacts. */
 void run_all_sil_scenarios(TestHarness& runner)
 {
-    std::array<SilRunOutput, 5> outputs{};
+    std::array<SilRunOutput, 5>   outputs{};
     std::array<ScenarioRecord, 5> records{};
 
     nominal_scenario(runner, outputs[0], records[0]);
