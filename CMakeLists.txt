@@ -248,3 +248,44 @@ else()
 endif()
 
 target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
+
+# ----------------------------------------------------------------------------
+# HIL Hardware-in-the-Loop skeleton (etape 13).
+# Couche d'abstraction materielle (HAL), protocole binaire HIL-Proto v1.0 et
+# mocks de simulation hote (PC). Les modules .cppm contiennent interfaces et
+# implementations inline pour coller a l'arborescence demandee.
+# ----------------------------------------------------------------------------
+set(HIL_FILES
+    embedded/hal/hal_types.cppm
+    embedded/hal/sensor_input.cppm
+    embedded/hal/actuator_output.cppm
+    embedded/hal/clock.cppm
+    embedded/transport/transport.cppm
+    embedded/transport/hil_protocol.cppm
+    embedded/sim/sim_sensor_input.cppm
+    embedded/sim/sim_actuator_output.cppm
+    embedded/sim/sim_clock.cppm
+    embedded/sim/loopback_transport.cppm
+)
+
+# Demonstration : bouclage d'un pas de simulation lockstep
+# (SensorPacket -> parser -> ISensorInput -> FC factice -> IActuatorOutput ->
+#  ActuatorPacket).
+add_executable(hil_demo embedded/main.cpp)
+target_add_mixed_sources(hil_demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${HIL_FILES}
+)
+set_property(TARGET hil_demo PROPERTY CXX_SCAN_FOR_MODULES ON)
+set_property(TARGET hil_demo PROPERTY CXX_MODULE_STD ON)
+
+if(MSVC)
+    target_compile_options(hil_demo PRIVATE
+        /W4
+        /external:W0
+        /external:anglebrackets
+    )
+else()
+    target_compile_options(hil_demo PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+target_compile_features(hil_demo PRIVATE cxx_std_23)
