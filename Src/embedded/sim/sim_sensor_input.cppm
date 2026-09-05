@@ -32,28 +32,12 @@ public:
 
 private:
     FlightCore::HAL::SensorData latest_{};
-    bool fresh_{false};
+    bool                        fresh_{false};
 };
-
-/* Records the latest simulated sample and marks it as pending consumption. */
-inline void SimulatedSensorInput::inject(const FlightCore::HAL::SensorData& data) noexcept
-{
-    latest_ = data;
-    fresh_ = true;
-}
 
 inline bool SimulatedSensorInput::hasFreshData() const noexcept
 {
     return fresh_;
-}
-
-/* Returns the pending sample once, then clears the pending flag (lockstep). */
-inline bool SimulatedSensorInput::readSensorData(FlightCore::HAL::SensorData& out_data) noexcept
-{
-    if (!fresh_) return false;
-    out_data = latest_;
-    fresh_ = false;
-    return true;
 }
 
 }

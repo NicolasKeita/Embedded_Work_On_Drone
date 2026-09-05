@@ -34,15 +34,8 @@ public:
 
 private:
     FlightCore::HAL::ActuatorCommands last_{};
-    bool pending_{false};
+    bool                              pending_{false};
 };
-
-inline bool SimulatedActuatorOutput::writeActuatorCommands(const FlightCore::HAL::ActuatorCommands& in_cmds) noexcept
-{
-    last_ = in_cmds;
-    pending_ = true;
-    return true;
-}
 
 inline bool SimulatedActuatorOutput::hasNewCommands() const noexcept
 {

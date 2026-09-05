@@ -39,8 +39,7 @@ private:
     std::uint64_t now_{0};
 };
 
-inline SimulatedClock::SimulatedClock(std::uint64_t start_us) noexcept
-    : now_{start_us}
+inline SimulatedClock::SimulatedClock(std::uint64_t start_us) noexcept : now_{start_us}
 {
 }
 

@@ -71,7 +71,7 @@ struct ActuatorCommands
     std::float32_t left_servo_rad;
     std::float32_t right_servo_rad;
     std::float32_t aux_actuator_cmd;
-    std::uint8_t  mode_flags;
+    std::uint8_t   mode_flags;
 };
 
 }

@@ -35,46 +35,14 @@ public:
 
 private:
     std::array<std::uint8_t, kCapacity> buffer_{};
-    std::size_t head_{0};
-    std::size_t tail_{0};
-    std::size_t count_{0};
+    std::size_t                         head_{0};
+    std::size_t                         tail_{0};
+    std::size_t                         count_{0};
 };
-
-/* Appends the whole frame or rejects it atomically (no partial writes). */
-inline bool LoopbackTransport::sendBytes(std::span<const std::uint8_t> data) noexcept
-{
-    if (data.size() > kCapacity - count_) return false;
-    for (std::uint8_t value : data)
-    {
-        buffer_[head_] = value;
-        head_ = (head_ + 1u) % kCapacity;
-        ++count_;
-    }
-    return true;
-}
-
-inline std::size_t LoopbackTransport::receiveBytes(std::span<std::uint8_t> buffer) noexcept
-{
-    const std::size_t n = (buffer.size() < count_) ? buffer.size() : count_;
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        buffer[i] = buffer_[tail_];
-        tail_ = (tail_ + 1u) % kCapacity;
-        --count_;
-    }
-    return n;
-}
 
 inline std::size_t LoopbackTransport::bytesAvailable() const noexcept
 {
     return count_;
-}
-
-inline void LoopbackTransport::flush() noexcept
-{
-    head_ = 0;
-    tail_ = 0;
-    count_ = 0;
 }
 
 }

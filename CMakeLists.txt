@@ -251,9 +251,10 @@ target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
 
 # ----------------------------------------------------------------------------
 # HIL Hardware-in-the-Loop skeleton (etape 13).
-# Couche d'abstraction materielle (HAL), protocole binaire HIL-Proto v1.0 et
-# mocks de simulation hote (PC). Les modules .cppm contiennent interfaces et
-# implementations inline pour coller a l'arborescence demandee.
+# Couche d'abstraction materielle (HAL), protocole binaire HIL-Proto v1.0
+# (types, parseur, codec), mocks de simulation hote (PC) et demo lockstep.
+# Chaque module .cppm garde l'interface ; les implementations vivent dans les
+# .cpp apparies (<module>.cpp ou <module>-<Suffix>.cpp).
 # ----------------------------------------------------------------------------
 set(HIL_FILES
     Src/embedded/hal/hal_types.cppm
@@ -262,10 +263,25 @@ set(HIL_FILES
     Src/embedded/hal/clock.cppm
     Src/embedded/transport/transport.cppm
     Src/embedded/transport/hil_protocol.cppm
+    Src/embedded/transport/parser/hil_protocol_parser.cppm
+    Src/embedded/transport/parser/hil_protocol_parser-crc.cpp
+    Src/embedded/transport/parser/hil_protocol_parser-sync.cpp
+    Src/embedded/transport/parser/hil_protocol_parser-frame.cpp
+    Src/embedded/transport/codec/hil_protocol_codec.cppm
+    Src/embedded/transport/codec/hil_protocol_codec-sensor.cpp
+    Src/embedded/transport/codec/hil_protocol_codec-actuator.cpp
     Src/embedded/sim/sim_sensor_input.cppm
+    Src/embedded/sim/sim_sensor_input.cpp
     Src/embedded/sim/sim_actuator_output.cppm
+    Src/embedded/sim/sim_actuator_output.cpp
     Src/embedded/sim/sim_clock.cppm
     Src/embedded/sim/loopback_transport.cppm
+    Src/embedded/sim/loopback_transport.cpp
+    Src/embedded/demo/demo.cppm
+    Src/embedded/demo/demo-Sensor.cpp
+    Src/embedded/demo/demo-Actuator.cpp
+    Src/embedded/demo/demo-Report.cpp
+    Src/embedded/demo/demo-Step.cpp
 )
 
 # Demonstration : bouclage d'un pas de simulation lockstep
