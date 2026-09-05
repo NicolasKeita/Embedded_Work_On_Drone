@@ -66,7 +66,7 @@ Sont explicitement **exclus** de cette première étape HIL :
 ### 2.1 Boucle de Contrôle HIL Fermée
 La boucle d'asservissement HIL fonctionne selon le schéma récursif suivant :
 
-1. **PC (Simulateur) :** Calcule un pas de temps de la physique de l'aéronef ($dt = 10	ext{ ms}$).
+1. **PC (Simulateur) :** Calcule un pas de temps de la physique de l'aéronef ($dt = 10\text{ ms}$).
 2. **PC (Simulateur) :** Génère un paquet de données capteurs simulées (`SensorPacket`) incluant le timestamp virtuel de simulation.
 3. **PC ➔ STM32 :** Transmet le `SensorPacket` via la liaison série (UART/USB CDC).
 4. **STM32 (SensorTask) :** Réceptionne, décode et valide l'intégrité du paquet, puis met à jour le bus interne de capteurs.
@@ -118,131 +118,165 @@ L'exécution sur la STM32 repose sur un ordonnancement préemptif par priorités
 ### 4.1 Principe d'Isolation Matérielle
 Afin d'éviter la propagation de directives de préprocesseur du type `#ifdef STM32` dans le code métier du Flight Controller, le système respecte une séparation stricte via le motif de conception **Inversion de Dépendance (Dependency Inversion Principle)**.
 
-Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++20 pures (`ISensorInput`, `IActuatorOutput`, `ITransport`).
+Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++23 pures (`ISensorInput`, `IActuatorOutput`, `IClock` côté HAL ; `ITransport` côté transport), définies dans les modules `flight.hal.*` et `flight.transport`.
 
 ```
-                          ┌───────────────────────────┐
-                          │   FlightController Core   │
-                          └─────────────┬─────────────┘
-                                        │
-                                        ▼
-                   ┌─────────────────────────────────────────┐
-                   │    Hardware Abstraction Layer (HAL)     │
-                   │                                         │
-                   │   ISensorInput     IActuatorOutput      │
-                   │   ITransport       ISystemTime          │
-                   └────────────────────┬────────────────────┘
-                                        │
-                     ┌──────────────────┴──────────────────┐
-                     ▼                                     ▼
-        ┌─────────────────────────┐           ┌─────────────────────────┐
-        │     Implémentation PC   │           │   Implémentation STM32  │
-        │                         │           │                         │
-        │  • MockSensorInput      │           │  • HILSensorInput       │
-        │  • MockActuatorOutput   │           │  • HILActuatorOutput    │
-        │  • SocketTransport      │           │  • Stm32UartTransport   │
-        └─────────────────────────┘           └─────────────────────────┘
+                          +---------------------------+
+                          |   FlightController Core   |
+                          +-------------+-------------+
+                                        |
+                                        v
+                   +-----------------------------------------+
+                   |    Hardware Abstraction Layer (HAL)     |
+                   |                                         |
+                   |  ISensorInput     IActuatorOutput       |
+                   |  IClock           ITransport            |
+                   +---------------------+-------------------+
+                                         |
+                      +------------------+------------------+
+                      v                                     v
+        +-------------------------+           +-------------------------+
+        |     Implementation PC   |           |  Implementation STM32   |
+        |     (flight.sim.*)      |           |       (a venir)         |
+        |                         |           |                         |
+        |  SimulatedSensorInput   |           |  HILSensorInput         |
+        |  SimulatedActuatorOutput|           |  HILActuatorOutput      |
+        |  LoopbackTransport      |           |  Stm32UartTransport     |
+        |  SimulatedClock         |           |  DwtClock               |
+        +-------------------------+           +-------------------------+
 ```
 
-### 4.2 Interfaces C++20 (Code de Spécification)
+### 4.2 Interfaces C++23 (Code d'Implémentation)
 
 ```cpp
-// HAL Interfaces pour découplage SIL/HIL
-#pragma once
-#include <cstdint>
-#include <span>
+// Extrait de Src/embedded/hal/hal_types.cppm (module flight.hal.types)
+import std;
 
-namespace FlightCore::HAL {
+namespace FlightCore::HAL
+{
 
-struct SensorData {
-    uint64_t timestamp_us;
-    float position_x_m;
-    float position_y_m;
-    float altitude_m;
-    float velocity_x_ms;
-    float velocity_y_ms;
-    float velocity_z_ms;
-    float pitch_rad;
-    float roll_rad;
-    float yaw_rad;
-    float wing_rpm;
+struct SensorData
+{
+    std::uint64_t timestamp_us;
+
+    std::float32_t position_x_m;
+    std::float32_t position_y_m;
+    std::float32_t position_z_m;
+
+    std::float32_t velocity_x_ms;
+    std::float32_t velocity_y_ms;
+    std::float32_t velocity_z_ms;
+
+    std::float32_t gyro_roll_rad_s;
+    std::float32_t gyro_pitch_rad_s;
+    std::float32_t gyro_yaw_rad_s;
+
+    std::float32_t accel_x_m_s2;
+    std::float32_t accel_y_m_s2;
+    std::float32_t accel_z_m_s2;
+
+    std::float32_t roll_rad;
+    std::float32_t pitch_rad;
+    std::float32_t yaw_rad;
+
+    std::float32_t altitude_baro_m;
+    std::float32_t wing_rpm_meas;
+
+    std::uint32_t sensor_valid_flags;
 };
 
-struct ActuatorCommands {
-    uint64_t timestamp_us;
-    float wing_rpm_cmd;
-    float left_servo_rad;
-    float right_servo_rad;
-    uint8_t mode_flags;
+struct ActuatorCommands
+{
+    std::uint64_t timestamp_us;
+
+    std::float32_t wing_rpm_cmd;
+    std::float32_t left_servo_rad;
+    std::float32_t right_servo_rad;
+    std::float32_t aux_actuator_cmd;
+    std::uint8_t   mode_flags;
 };
 
-class ISensorInput {
+}
+```
+
+```cpp
+// Extraits de Src/embedded/hal/{sensor_input,actuator_output,clock}.cppm
+// et Src/embedded/transport/transport.cppm
+import std;
+
+namespace FlightCore::HAL
+{
+
+class ISensorInput
+{
 public:
     virtual ~ISensorInput() = default;
-    virtual bool readSensorData(SensorData& out_data) = 0;
+
+    /* false si aucun echantillon frais (non bloquant). */
+    [[nodiscard]] virtual bool readSensorData(SensorData& out_data) noexcept = 0;
 };
 
-class IActuatorOutput {
+class IActuatorOutput
+{
 public:
     virtual ~IActuatorOutput() = default;
-    virtual bool writeActuatorCommands(const ActuatorCommands& in_cmds) = 0;
+
+    /* false si le canal aval ne peut pas accepter la commande. */
+    [[nodiscard]] virtual bool writeActuatorCommands(const ActuatorCommands& in_cmds) noexcept = 0;
 };
 
-class ITransport {
+class IClock
+{
+public:
+    virtual ~IClock() = default;
+
+    [[nodiscard]] virtual std::uint64_t nowUs() const noexcept = 0;
+
+    virtual void sleepUs(std::uint64_t us) noexcept = 0;
+};
+
+}
+
+namespace FlightCore::Transport
+{
+
+class ITransport
+{
 public:
     virtual ~ITransport() = default;
-    virtual bool sendBytes(std::span<const uint8_t> data) = 0;
-    virtual size_t receiveBytes(std::span<uint8_t> buffer) = 0;
+
+    [[nodiscard]] virtual bool sendBytes(std::span<const std::uint8_t> data) noexcept = 0;
+
+    [[nodiscard]] virtual std::size_t receiveBytes(std::span<std::uint8_t> buffer) noexcept = 0;
+
+    [[nodiscard]] virtual std::size_t bytesAvailable() const noexcept = 0;
+
+    virtual void flush() noexcept {}
 };
 
-} // namespace FlightCore::HAL
+}
 ```
+
+> **Note :** les champs de `SensorData` / `ActuatorCommands` reproduisent un à un les payloads `HilSensorPayload` / `HilActuatorPayload` de HIL-Proto v1.0 (voir `docs/hil/hil_protocol.md`), de sorte que la conversion fil <-> HAL (module `flight.transport.protocol.codec`) ne nécessite aucun re-calibrage. Les implémentations PC de ces interfaces sont les mocks du module `flight.sim.*` (`SimulatedSensorInput`, `SimulatedActuatorOutput`, `SimulatedClock`, `LoopbackTransport`).
 
 ---
 
 ## 5. Spécification du Protocole Transport HIL
 
-### 5.1 Structure des Paquets Binaires (Little-Endian, Alignment 1 Byte)
+### 5.1 Synthèse du Format Implémenté (Little-Endian, Alignement 1 Octet)
 
-Le protocole HIL utilise un cadrage binaire compact pour minimiser la latence de sérialisation et d'émission série.
+La spécification normative du protocole binaire **HIL-Proto v1.0** est maintenue dans [`hil_protocol.md`](hil_protocol.md) ; le contrat filaire de référence est implémenté dans le module `flight.transport.protocol` (`Src/embedded/transport/hil_protocol.cppm`), avec vérifications statiques (`static_assert`) sur toutes les tailles.
 
-#### Paquet Données Capteurs : `SensorPacket` (PC ➔ STM32)
-* **Taille totale :** 48 octets
-* **Fréquence :** 100 Hz
+| Élément | Valeur implémentée | Constante / symbole |
+| :--- | :--- | :--- |
+| Octets de synchronisation | `0x48` `0x49` (`'H'`, `'I'`) | `kSync1` / `kSync2` |
+| Version de protocole | `0x10` (v1.0) | `kProtocolVer` |
+| En-tête (`HilHeader`) | 8 octets (sync, msg_id, protocol_ver, sequence_num u16, payload_len u16) | `kHeaderSize` |
+| `SensorPacket` (msg 0x01, PC -> STM32) | payload 80 octets / trame 90 octets | `kSensorPayloadSize` / `kSensorFrameSize` |
+| `ActuatorPacket` (msg 0x02, STM32 -> PC) | payload 44 octets / trame 54 octets | `kActuatorPayloadSize` / `kActuatorFrameSize` |
+| CRC-16-CCITT (poly `0x1021`, init `0xFFFF`) | 2 octets, little-endian, calculés sur Header + Payload | `HilCrc` (`flight.transport.protocol.parser`) |
 
-| Champ | Type | Taille (Octets) | Description / Unité |
-| :--- | :--- | :--- | :--- |
-| `preamble` | `uint16_t` | 2 | Octets de synchronisation de trame (`0xAA55`) |
-| `msg_id` | `uint8_t` | 1 | Identifiant de message (`0x01` = SensorPacket) |
-| `sequence` | `uint8_t` | 1 | Numéro de séquence incrémental (0-255) |
-| `sim_timestamp_ms` | `uint32_t` | 4 | Horodatage du simulateur hôte (ms) |
-| `position_x` | `float` | 4 | Position Est (m) |
-| `position_y` | `float` | 4 | Position Nord (m) |
-| `altitude` | `float` | 4 | Altitude Z (m) |
-| `velocity_x` | `float` | 4 | Vitesse Est (m/s) |
-| `velocity_y` | `float` | 4 | Vitesse Nord (m/s) |
-| `velocity_z` | `float` | 4 | Vitesse Verticale (m/s) |
-| `pitch` | `float` | 4 | Tangage (rad) |
-| `roll` | `float` | 4 | Roulis (rad) |
-| `wing_rpm` | `float` | 4 | Vitesse de rotation du rotor/aile (RPM) |
-| `crc16` | `uint16_t` | 2 | Checksum CRC16-CCITT sur l'ensemble de la charge utile |
-
-#### Paquet Commandes Actionneurs : `ActuatorPacket` (STM32 ➔ PC)
-* **Taille totale :** 22 octets
-* **Fréquence :** 100 Hz
-
-| Champ | Type | Taille (Octets) | Description / Unité |
-| :--- | :--- | :--- | :--- |
-| `preamble` | `uint16_t` | 2 | Octets de synchronisation de trame (`0xAA55`) |
-| `msg_id` | `uint8_t` | 1 | Identifiant de message (`0x02` = ActuatorPacket) |
-| `sequence` | `uint8_t` | 1 | Numéro de séquence retourné par la STM32 |
-| `stm32_timestamp_ms`| `uint32_t` | 4 | Horodatage interne du RTOS STM32 (ms) |
-| `wing_rpm_cmd` | `float` | 4 | Consigne RPM moteur |
-| `left_servo_cmd` | `float` | 4 | Consigne angle gouverne gauche (rad) |
-| `right_servo_cmd` | `float` | 4 | Consigne angle gouverne droite (rad) |
-| `status_flags` | `uint8_t` | 1 | État de santé du FC (0x01 = OK, 0x02 = Degraded, 0xFF = Fail) |
-| `crc16` | `uint16_t` | 2 | Checksum CRC16-CCITT sur l'ensemble de la charge utile |
-
+> Les anciennes tables de ce document (paquets de 48 / 22 octets avec préambule `0xAA55`) sont obsolètes et remplacées par la spécification HIL-Proto v1.0 ci-dessus. La description complète des payloads champ par champ figure dans la section 4 de `hil_protocol.md`.
 ---
 
 ## 6. Gestion du Temps et Synchronisation Temporelle
@@ -257,8 +291,8 @@ Afin de garantir la répétabilité parfaite des essais HIL et d'éviter les dé
 Deux modes d'exécution temporelle sont pris en charge :
 
 1. **Mode Temps Réel Cadencé (Paced Real-Time - Par Défaut) :**
-   * Le PC envoie un `SensorPacket` toutes les $10	ext{ ms}$ (cadence stricte $100	ext{ Hz}$).
-   * La STM32 traite le paquet, calcule les commandes et renvoie le `ActuatorPacket` en moins de $2	ext{ ms}$.
+   * Le PC envoie un `SensorPacket` toutes les $10\text{ ms}$ (cadence stricte $100\text{ Hz}$).
+   * La STM32 traite le paquet, calcule les commandes et renvoie le `ActuatorPacket` en moins de $2\text{ ms}$.
    * Le PC reçoit la réponse avant l'échéance du pas de simulation suivant.
 
 2. **Mode Pas à Pas Déterministe (Deterministic Lockstep) :**
@@ -271,16 +305,16 @@ Deux modes d'exécution temporelle sont pris en charge :
 
 ### 7.1 Cadre de Comparaison SIL vs HIL
 Pour valider le portage HIL, un scénario de test identique est exécuté en SIL et en HIL :
-* **Consigne de Mission :** Montée stationnaire et maintien de position aux coordonnées $X = 0	ext{ m}, Y = 0	ext{ m}, Z = 100	ext{ m}$.
-* **Durée du Scénario :** $60	ext{ secondes}$.
+* **Consigne de Mission :** Montée stationnaire et maintien de position aux coordonnées $X = 0\text{ m}, Y = 0\text{ m}, Z = 100\text{ m}$.
+* **Durée du Scénario :** $60\text{ secondes}$.
 
 #### Métriques d'Équivalence SIL / HIL
 
 | Critère de Performance | Valeur Référence SIL | Valeur Mesurée HIL | Tolérance Maximale Admissible |
 | :--- | :--- | :--- | :--- |
-| **Time to Altitude (Z = 100 m)** | 12.40 s | 12.45 s | $\pm 0.50	ext{ s}$ |
-| **Erreur de Position Max ($e_{max}$)** | 0.82 m | 0.89 m | $\pm 0.25	ext{ m}$ |
-| **Erreur Quadratique Moyenne (RMSE Z)**| 0.12 m | 0.15 m | $\pm 0.08	ext{ m}$ |
+| **Time to Altitude (Z = 100 m)** | 12.40 s | 12.45 s | $\pm 0.50\text{ s}$ |
+| **Erreur de Position Max ($e_{max}$)** | 0.82 m | 0.89 m | $\pm 0.25\text{ m}$ |
+| **Erreur Quadratique Moyenne (RMSE Z)**| 0.12 m | 0.15 m | $\pm 0.08\text{ m}$ |
 | **Consommation Énergétique / RPM Moy** | 4250 RPM | 4262 RPM | $\pm 2.0\%$ |
 | **Statut de Réussite de Mission** | PASS | PASS | Strictement Identique (PASS) |
 
@@ -312,12 +346,12 @@ L'intérêt majeur du banc HIL est de valider la résilience du système face à
 ### 8.1 Scénarios d'Injection de Fautes Temporelles
 
 1. **Retard Artificiel des Données Capteurs (Sensor Packet Delay) :**
-   * **Perturbation :** Introduction d'un délai artificiel de $20	ext{ ms}$ (soit 2 pas de retard) sur l'envoi du `SensorPacket` par le PC.
+   * **Perturbation :** Introduction d'un délai artificiel de $20\text{ ms}$ (soit 2 pas de retard) sur l'envoi du `SensorPacket` par le PC.
    * **Comportement Attendu :** `SensorTask` détecte l'absence de données fraîches via un timer d'échéance.
-   * **Action de Sécurité :** Passage en mode d'extrapolation d'état (*Dead Reckoning*) pendant $50	ext{ ms}$. Si le retard persiste $> 100	ext{ ms}$, la `HealthTask` déclenche un mode Failsafe d'atterrissage d'urgence.
+   * **Action de Sécurité :** Passage en mode d'extrapolation d'état (*Dead Reckoning*) pendant $50\text{ ms}$. Si le retard persiste $> 100\text{ ms}$, la `HealthTask` déclenche un mode Failsafe d'atterrissage d'urgence.
 
 2. **Surcharge CPU Artificielle (CPU Load Stress) :**
-   * **Perturbation :** Injection d'une boucle de calcul factice à haute priorité sur la STM32 consommant $8	ext{ ms}$ sur les $10	ext{ ms}$ de budget.
+   * **Perturbation :** Injection d'une boucle de calcul factice à haute priorité sur la STM32 consommant $8\text{ ms}$ sur les $10\text{ ms}$ de budget.
    * **Comportement Attendu :** Augmentation du taux d'occupation CPU à $> 90\%$.
    * **Action de Sécurité :** La `Task_Health` détecte la baisse de marge temporelle et désactive les tâches non critiques (e.g. télémétrie étendue) pour préserver la `ControlTask`.
 
@@ -362,6 +396,6 @@ Une fois le HIL Niveau 1 complètement validé et stabilisé, le banc d'essai po
 L'architecture HIL formalisée dans ce document fournit un cadre rigoureux pour exécuter le code de vol réel sur matériel embarqué ARM Cortex-M tout en maintenant un contrôle parfait du temps et des conditions d'essai grâce au simulateur PC hôte.
 
 **Prochaines étapes opérationnelles :**
-1. Validation du câblage matériel et du débit de la liaison série USB-UART à $921\,600	ext{ baud}$.
+1. Validation du câblage matériel et du débit de la liaison série USB-UART à $921\,600\text{ baud}$.
 2. Compilation de la chaîne `FlightCore` avec le toolchain `arm-none-eabi-gcc`.
 3. Exécution de la campagne de tests comparatifs SIL vs HIL et génération des rapports de timing embarqués.
