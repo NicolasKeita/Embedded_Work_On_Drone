@@ -1,5 +1,5 @@
 /*
-Filename: embedded/hal/hal_types.cppm
+Filename: Src/embedded/hal/hal_types.cppm
 Description: Flight Controller HAL data structures exchanged between the control
 core and platform-specific sensor/actuator/clock implementations (SensorData,
 ActuatorCommands, sensor-validity flag bits). Fields mirror the HIL-Proto v1.0

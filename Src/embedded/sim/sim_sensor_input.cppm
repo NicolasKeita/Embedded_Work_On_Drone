@@ -1,5 +1,5 @@
 /*
-Filename: embedded/sim/sim_sensor_input.cppm
+Filename: Src/embedded/sim/sim_sensor_input.cppm
 Description: PC mock of the sensor acquisition path. The aircraft simulator injects
 a simulated sensor sample (a measurement, never the ground-truth state, per
 hil_validation.md 4.3) which the Flight Controller reads through ISensorInput.

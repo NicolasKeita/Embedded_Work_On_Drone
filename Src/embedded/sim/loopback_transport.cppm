@@ -1,5 +1,5 @@
 /*
-Filename: embedded/sim/loopback_transport.cppm
+Filename: Src/embedded/sim/loopback_transport.cppm
 Description: Fixed-size ring-buffer loopback transport for host-side unit tests.
 It interconnects the simulator and the HIL-Proto parser locally with zero heap
 allocation and deterministic FIFO ordering, exercising the framing layer without a

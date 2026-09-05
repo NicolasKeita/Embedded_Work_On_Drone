@@ -1,5 +1,5 @@
 /*
-Filename: embedded/sim/sim_clock.cppm
+Filename: Src/embedded/sim/sim_clock.cppm
 Description: PC mock of the time source for deterministic lockstep execution
 (hil_architecture.md 6.2 / hil_protocol.md 6.1). The virtual clock is advanced
 explicitly by advanceUs(); sleepUs() advances it too instead of blocking on a

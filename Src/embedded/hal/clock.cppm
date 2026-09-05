@@ -1,5 +1,5 @@
 /*
-Filename: embedded/hal/clock.cppm
+Filename: Src/embedded/hal/clock.cppm
 Description: HAL abstraction over the time source. The PC mock (SimulatedClock)
     is advanced deterministically by the lockstep driver; the STM32 HIL
     implementation is backed by a hardware timer / DWT cycle counter.

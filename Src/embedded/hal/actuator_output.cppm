@@ -1,5 +1,5 @@
 /*
-Filename: embedded/hal/actuator_output.cppm
+Filename: Src/embedded/hal/actuator_output.cppm
 Description: HAL abstraction over the actuator command path. The PC mock
 (SimulatedActuatorOutput) records the last command set for the simulator; the
 STM32 HIL implementation encodes and emits an ActuatorPacket over the transport.

@@ -256,22 +256,22 @@ target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
 # implementations inline pour coller a l'arborescence demandee.
 # ----------------------------------------------------------------------------
 set(HIL_FILES
-    embedded/hal/hal_types.cppm
-    embedded/hal/sensor_input.cppm
-    embedded/hal/actuator_output.cppm
-    embedded/hal/clock.cppm
-    embedded/transport/transport.cppm
-    embedded/transport/hil_protocol.cppm
-    embedded/sim/sim_sensor_input.cppm
-    embedded/sim/sim_actuator_output.cppm
-    embedded/sim/sim_clock.cppm
-    embedded/sim/loopback_transport.cppm
+    Src/embedded/hal/hal_types.cppm
+    Src/embedded/hal/sensor_input.cppm
+    Src/embedded/hal/actuator_output.cppm
+    Src/embedded/hal/clock.cppm
+    Src/embedded/transport/transport.cppm
+    Src/embedded/transport/hil_protocol.cppm
+    Src/embedded/sim/sim_sensor_input.cppm
+    Src/embedded/sim/sim_actuator_output.cppm
+    Src/embedded/sim/sim_clock.cppm
+    Src/embedded/sim/loopback_transport.cppm
 )
 
 # Demonstration : bouclage d'un pas de simulation lockstep
 # (SensorPacket -> parser -> ISensorInput -> FC factice -> IActuatorOutput ->
 #  ActuatorPacket).
-add_executable(hil_demo embedded/main.cpp)
+add_executable(hil_demo Src/embedded/main.cpp)
 target_add_mixed_sources(hil_demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_FILES}
 )

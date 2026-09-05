@@ -1,5 +1,5 @@
 /*
-Filename: embedded/transport/hil_protocol.cppm
+Filename: Src/embedded/transport/hil_protocol.cppm
 Description: HIL-Proto v1.0 binary contract (docs/hil/hil_protocol.md): packed
 HilHeader, HilSensorPayload (msg 0x01), HilActuatorPayload (msg 0x02),
 CRC-16-CCITT (poly 0x1021, init 0xFFFF), a heap-free byte-by-byte HilFrameParser

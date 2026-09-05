@@ -1,5 +1,5 @@
 /*
-Filename: embedded/main.cpp
+Filename: Src/embedded/main.cpp
 Description: HIL step-closure demo (single lockstep step). The PC simulator builds a
 simulated sensor sample from its private ground-truth state, encodes a SensorPacket
 over a LoopbackTransport; the Flight Controller decodes it, reads it through

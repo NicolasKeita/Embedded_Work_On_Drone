@@ -1,5 +1,5 @@
 /*
-Filename: embedded/hal/sensor_input.cppm
+Filename: Src/embedded/hal/sensor_input.cppm
 Description: HAL abstraction over the sensor acquisition path. The PC mock
 (SimulatedSensorInput) and the STM32 HIL implementation both satisfy this
 interface, keeping the control core transport-agnostic.

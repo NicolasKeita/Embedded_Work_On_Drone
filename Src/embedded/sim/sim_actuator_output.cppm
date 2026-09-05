@@ -1,5 +1,5 @@
 /*
-Filename: embedded/sim/sim_actuator_output.cppm
+Filename: Src/embedded/sim/sim_actuator_output.cppm
 Description: PC mock of the actuator command path. Records the last command set
 emitted by the Flight Controller so the simulator can read it back and apply it
 to the actuator dynamics / aerodynamic model.
