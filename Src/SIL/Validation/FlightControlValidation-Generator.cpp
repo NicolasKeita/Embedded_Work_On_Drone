@@ -49,9 +49,7 @@ Scenario ScenarioGenerator::generate_scenario(std::uint64_t run_id)
     const std::uint64_t seed = mix_seed(master_seed_, run_id);
     std::mt19937_64 generator(seed);
 
-    Scenario scenario{};
-    scenario.run_id = run_id;
-    scenario.scenario_seed = seed;
+    Scenario scenario{.run_id = run_id, .scenario_seed = seed};
 
     sample_fault_window(scenario, generator);
     sample_fault_parameters(scenario, generator);
@@ -59,25 +57,6 @@ Scenario ScenarioGenerator::generate_scenario(std::uint64_t run_id)
     sample_initial_conditions(scenario, generator);
 
     return scenario;
-}
-
-/*
-Projects the randomized scenario onto the declarative FaultScenario consumed by
-the SIL engine. Only the fault-related fields are mapped: environment noise
-and initial conditions are applied separately by the runner configuration.
-*/
-FaultScenario Scenario::to_fault_scenario() const
-{
-    FaultScenario fault{};
-    fault.start_time = fault_start_time_s;
-    fault.duration = (fault_profile == FaultProfile::Permanent) ? 0.0 : fault_duration_s;
-    fault.fault_type = fault_type;
-    fault.target = fault_target;
-    fault.parameters.loss_probability = fault_loss_probability;
-    fault.parameters.corruption = sensor_corruption;
-    fault.parameters.corrupted_altitude_m = corrupted_altitude_m;
-    fault.parameters.efficiency = actuator_efficiency;
-    return fault;
 }
 
 }

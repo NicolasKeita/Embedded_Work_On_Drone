@@ -18,10 +18,7 @@ int main()
     constexpr std::uint64_t kMasterSeed = 20260825ULL;
     constexpr std::uint64_t kRunCount = 100;
 
-    sim::sil::SilConfig config{};
-    config.duration_s = 30.0;
-    config.dt = 0.01;
-    config.target.z = 10.0;
+    sim::sil::SilConfig config{.dt = 0.01, .duration_s = 30.0, .target = {.z = 10.0}};
 
     sim::sil::validation::MonteCarloRunner runner(kMasterSeed, config);
 

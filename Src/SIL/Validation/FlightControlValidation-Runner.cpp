@@ -63,10 +63,7 @@ void MonteCarloRunner::execute_run(std::uint64_t run_id)
     const FaultScenario fault = scenario.to_fault_scenario();
     const bool fault_expected = (scenario.fault_type != FaultType::None);
 
-    SimulationResult result{};
-    result.run_id = run_id;
-    result.scenario_seed = scenario.scenario_seed;
-    result.scenario = scenario;
+    SimulationResult result{.run_id = run_id, .scenario_seed = scenario.scenario_seed, .scenario = scenario};
 
     SILRunner runner(config);
     std::array<FaultScenario, 1> scenarios{ fault };

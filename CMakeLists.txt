@@ -129,17 +129,20 @@ set(SRC_FILES
 )
 
 # Sources du sous-systeme de validation statistique Monte-Carlo SIL (.cppm +
-# .cpp conserves ensemble dans la meme variable ; interface unique, quatre
-# fichiers d'implementation suffixes par responsabilite).
+# .cpp conserves ensemble dans la meme variable ; le vocabulaire commun vit
+# dans le sous-module ValidationTypes, l'interface principale re-exporte le
+# tout et regroupe le generateur, le collecteur et le runner).
 set(VALIDATION_FILES
     Src/SIL/Validation/FlightControlValidation.cppm
+    Src/SIL/Validation/Types/ValidationTypes.cppm
+    Src/SIL/Validation/Types/ValidationTypes.cpp
     Src/SIL/Validation/FlightControlValidation-Generator.cpp
     Src/SIL/Validation/FlightControlValidation-Sampling.cpp
     Src/SIL/Validation/FlightControlValidation-Collector.cpp
     Src/SIL/Validation/FlightControlValidation-Runner.cpp
     Src/SIL/Validation/FlightControlValidation-Classify.cpp
-    Src/SIL/Validation/FlightControlValidation-Csv.cpp
     Src/SIL/Validation/FlightControlValidation-CsvRows.cpp
+    Src/SIL/Validation/FlightControlValidation-CsvWriter.cpp
 )
 
 
