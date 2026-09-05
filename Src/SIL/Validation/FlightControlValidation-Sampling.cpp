@@ -25,8 +25,8 @@ void sample_fault_window(Scenario& scenario, std::mt19937_64& generator)
     std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
     std::uniform_real_distribution<std::float64_t> time_window(2.0, 12.0);
     std::uniform_real_distribution<std::float64_t> duration_window(1.0, 8.0);
-
     const std::uint64_t fault_roll = generator() % 6;
+
     scenario.fault_type = static_cast<FaultType>(fault_roll);
     scenario.fault_start_time_s = time_window(generator);
     scenario.fault_duration_s = duration_window(generator);
