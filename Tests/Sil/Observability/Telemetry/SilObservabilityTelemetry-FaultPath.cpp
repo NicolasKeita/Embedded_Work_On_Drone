@@ -53,12 +53,10 @@ reacts to the corrupted data.
 void telemetry_sensor_fault_path_test(TestHarness& runner)
 {
     const SilConfig config{.duration_s = 35.0};
-
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
                               .fault_type = FaultType::SensorFault,
                               .parameters = {.corruption = SensorCorruptionMode::ExtremeNoise}};
-
     const std::array<FaultScenario, 1> nominal_scenarios{FaultScenario{}};
     const std::array<FaultScenario, 1> fault_scenarios{fault};
     const std::expected<SilRunOutput, SilError> nominal = SILRunner{config}.run(nominal_scenarios);

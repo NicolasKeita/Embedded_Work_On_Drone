@@ -27,9 +27,9 @@ SimulationResult MonteCarloRunner::classify(const Scenario&                   sc
                                             const sim::sil::SimulationResult& sil_result)
 {
     SimulationResult result{.sil_result = sil_result, .failure_reason = FailureReason::None};
-
     const std::float64_t dx = sil_result.final_x_m - 0.0;
     const std::float64_t dy = sil_result.final_y_m - 0.0;
+
     result.position_error_m = std::sqrt(dx * dx + dy * dy);
     result.altitude_error_m = std::abs(sil_result.final_altitude_m - scenario.target_altitude_m);
 

@@ -75,7 +75,6 @@ void Aircraft::update_translation(std::float64_t dt)
     const std::float64_t lift = kLiftCoeff * state_.actual_rpm * state_.actual_rpm;
     const std::float64_t weight = kMassKg * kGravityMps2;
     const std::float64_t az = (lift - weight) / kMassKg;
-
     const std::float64_t ax = kPitchAccelGainMps2PerRad * state_.pitch;
     const std::float64_t ay = kRollAccelGainMps2PerRad * state_.roll;
 

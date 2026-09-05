@@ -51,8 +51,41 @@ Automatically formats C++ code according to defined rules.
   declaration blocks are aligned on one column. The column is computed from
   the longest type of the block plus one space; blank lines, methods, macros
   and visibility changes start a new block; trailing comments are preserved.
+- Declaration block compaction: blank lines located *between* consecutive
+  variable declarations at the very beginning of a function body are removed
+  so the leading declarations are packed together. The zone starts right after
+  the opening brace `{` and ends at the first line that is not a declaration
+  (control structure, function call, reassignment, ...); the blank line that
+  separates the declaration block from the rest of the body is preserved
+  (and, when missing, inserted by the existing initialization-block rule).
 
 **Before :**
+```cpp
+void sample()
+{
+    std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
+
+    std::uniform_real_distribution<std::float64_t> window(2.0, 12.0);
+
+    const std::uint64_t roll = generator() % 6;
+
+    apply(roll);
+}
+```
+
+**After :**
+```cpp
+void sample()
+{
+    std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
+    std::uniform_real_distribution<std::float64_t> window(2.0, 12.0);
+    const std::uint64_t roll = generator() % 6;
+
+    apply(roll);
+}
+```
+
+**Before :**  (member alignment)
 ```cpp
 struct SilConfig {
     double dt = 0.01;

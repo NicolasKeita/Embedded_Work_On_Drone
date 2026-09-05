@@ -57,7 +57,6 @@ ServoMix FlightController::updateAttitudeControl(TiltTargets tilt, const Aircraf
 {
     const std::float64_t pitchErrorDeg = (DegToRad(tilt.pitch_deg) - s.pitch) / kServoRadPerDeg;
     const std::float64_t rollErrorDeg = (DegToRad(tilt.roll_deg) - s.roll) / kServoRadPerDeg;
-
     const std::float64_t meanServoDeg = tilt.pitch_deg + config_.kp_attitude * pitchErrorDeg;
     const std::float64_t halfRollServoDeg = (tilt.roll_deg + config_.kp_attitude * rollErrorDeg) / 2.0;
 

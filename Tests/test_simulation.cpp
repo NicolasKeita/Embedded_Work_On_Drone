@@ -81,9 +81,9 @@ counter is accumulated over the whole validation.
 int main(int argc, char* argv[])
 {
     const std::string_view executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "test_simulation";
-
     ScenarioSelection selected;
     const std::int32_t earlyStatus = SelectScenarios(argc, argv, executableName, selected);
+
     if (earlyStatus >= 0) {
         return static_cast<int>(earlyStatus);
     }

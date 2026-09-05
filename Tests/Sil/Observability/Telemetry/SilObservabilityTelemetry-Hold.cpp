@@ -81,13 +81,11 @@ measurement and the temporary fault closes with a FAULT_CLEARED event.
 void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
 {
     const SilConfig config{.duration_s = 40.0};
-
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
                               .fault_type = FaultType::SensorFault,
                               .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange,
                                              .corrupted_altitude_m = 99999.0}};
-
     const std::array<FaultScenario, 1> nominal_scenarios{FaultScenario{}};
     const std::array<FaultScenario, 1> fault_scenarios{fault};
     const std::expected<SilRunOutput, SilError> nominal = SILRunner{config}.run(nominal_scenarios);

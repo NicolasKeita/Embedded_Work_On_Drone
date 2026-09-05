@@ -79,7 +79,6 @@ is emitted only if the last step was not already logged by the periodicity
 void TestHarness::run(Aircraft& aircraft, std::float64_t duration_seconds)
 {
     const std::uint32_t steps = static_cast<std::uint32_t>(duration_seconds / config_.dt + 0.5);
-
     bool last_step_logged = false;
 
     for (std::uint32_t i = 0; i < steps; ++i) {
