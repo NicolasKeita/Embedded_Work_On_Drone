@@ -7,8 +7,8 @@ comment placement, comment language, function length, file length, directory
 file count and module implementation count.
 
 The implementation lives in style_checks, comment_language_checks,
-cppm_checks, directory_checks, module_filename_checks, module_size_checks
-and reporting.
+cppm_checks, cppm_inline_function_checks, directory_checks,
+module_filename_checks, module_size_checks and reporting.
 """
 
 import sys
@@ -26,6 +26,12 @@ from linter.style_checks import (
 from linter.cppm_checks import (
     MAX_CPPM_INLINE_BODY_LINES,
     check_cppm_interface_implementations,
+)
+from linter.cppm_inline_function_checks import (
+    MAX_CPPM_INLINE_FUNCTION_BODY_LINES,
+    check_cppm_inline_function_bodies,
+    check_cppm_inline_functions,
+    format_cppm_inline_function_message,
 )
 from linter.comment_language_checks import check_code_comments_language
 from linter.multiple_var_decl_checks import check_multiple_var_declarations
@@ -55,6 +61,7 @@ from linter.reporting import (
     print_designated_init_warnings,
     print_return_only_var_warnings,
     print_cppm_interface_warnings,
+    print_cppm_inline_function_warnings,
     print_directory_file_count_warnings,
     print_module_filename_warnings,
     print_module_size_warnings,
@@ -64,7 +71,7 @@ from linter.reporting import (
 def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     is_module_interface = file_path.lower().endswith('.cppm')
     if is_module_interface:
-        cppm_violations = check_cppm_interface_implementations(code)
+        cppm_violations = check_cppm_inline_function_bodies(code)
         file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)
         language_violations = check_code_comments_language(code)
         multiple_decl_violations = check_multiple_var_declarations(code)
@@ -83,7 +90,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         )
         if has_issues:
             print_issue_header(file_path)
-        print_cppm_interface_warnings(cppm_violations, file_path)
+        print_cppm_inline_function_warnings(cppm_violations, file_path)
         print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
         print_comment_language_warnings(language_violations)
         print_multiple_var_decl_warnings(multiple_decl_violations)
@@ -146,6 +153,10 @@ __all__ = [
     "check_designated_init_candidates",
     "check_return_only_variable",
     "check_cppm_interface_implementations",
+    "MAX_CPPM_INLINE_FUNCTION_BODY_LINES",
+    "check_cppm_inline_function_bodies",
+    "check_cppm_inline_functions",
+    "format_cppm_inline_function_message",
     "check_directory_file_counts",
     "check_module_filename_convention",
     "MAX_IMPLEMENTATION_FILES_PER_MODULE",
@@ -163,6 +174,7 @@ __all__ = [
     "print_designated_init_warnings",
     "print_return_only_var_warnings",
     "print_cppm_interface_warnings",
+    "print_cppm_inline_function_warnings",
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",
     "print_module_size_warnings",
