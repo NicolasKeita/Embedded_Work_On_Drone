@@ -66,6 +66,19 @@ Automatically formats C++ code according to defined rules.
   initializer that follows each name (`=`, `{...}`, `(...)`) is preserved, as
   is the base indentation. It runs after line joining so wrapped declarations
   are already back on a single line, and only for non module-interface files.
+- Designated initializer splitting: single-line declarations using a C++20
+  designated initializer (`.field = value`) whose line exceeds 120 characters
+  are split over several lines. The declaration and its opening brace stay on
+  the original line (so the type / variable-name column alignment of the
+  surrounding declarations is preserved), every field moves to its own line
+  (indented 4 spaces past the variable-name column), the closing `};` is
+  aligned with the variable-name column and a trailing comma is added after
+  the last field. Only top-level commas are split points, so commas inside
+  function calls, template arguments (`<...>`) or nested braced
+  sub-initializers never break a sub-expression, and a trailing line comment
+  is kept on the closing brace line. The pass runs after line joining and
+  after local variable alignment.
+
 
 **Before :**
 ```cpp

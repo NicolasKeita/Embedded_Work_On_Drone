@@ -30,6 +30,7 @@ import formatter.initialization_block_formatter as initialization_block_formatte
 import formatter.member_alignment_formatter as member_alignment_formatter
 import formatter.declaration_blank_line_formatter as declaration_blank_line_formatter
 import formatter.local_variable_alignment_formatter as local_variable_alignment_formatter
+import formatter.designated_init_split_formatter as designated_init_split_formatter
 from formatter.join_lines import join_lines
 
 
@@ -114,6 +115,8 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
 
     if not is_module_interface:
         formatted_code = local_variable_alignment_formatter.align_first_declaration_blocks(formatted_code)
+
+    formatted_code = designated_init_split_formatter.split_long_designated_initializations(formatted_code)
 
     has_long_lines = linter.lint_code(formatted_code, file_path=input_file)
 

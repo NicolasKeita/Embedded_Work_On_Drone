@@ -32,7 +32,10 @@ OBS-006: the communication statistics aggregate matches the event trace.
 void comms_statistics_test(TestHarness& runner)
 {
     const SilConfig                             config{.duration_s = 32.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::CommunicationLoss};
+    const FaultScenario                         scenario{
+                                                    .start_time = 30.0,
+                                                    .fault_type = FaultType::CommunicationLoss
+                                                };
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
