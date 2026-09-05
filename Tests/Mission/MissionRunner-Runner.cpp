@@ -23,7 +23,7 @@ trace.
 */
 MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run)
 {
-    MissionRunTrace trace;
+    MissionRunTrace      trace;
     const std::float64_t target_value = component_value(run.target, run.axis);
     const std::float64_t initial_value = component_value(craft.state(), run.axis);
     const std::float64_t direction = target_value >= initial_value ? 1.0 : -1.0;

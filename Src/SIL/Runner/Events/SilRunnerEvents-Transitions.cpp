@@ -63,7 +63,7 @@ void record_detection(RunContext& ctx, const HealthReport& report)
 void record_safety_transitions(RunContext& ctx)
 {
     const sim::safety::SafetyMode current = ctx.safety.mode();
-    const std::float64_t response_time = ctx.safety.response_time();
+    const std::float64_t          response_time = ctx.safety.response_time();
 
     if (current != ctx.previous_safety_mode) {
         SilEvent transition{.timestamp = ctx.time,

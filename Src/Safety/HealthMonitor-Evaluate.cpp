@@ -57,7 +57,7 @@ void HealthMonitor::update_actuator_flags(std::float64_t                   curre
                                           std::float64_t                   commanded_rpm)
 {
     const std::float64_t mismatch = std::abs(commanded_rpm - telemetry.actual_rpm);
-    const bool mismatching = commanded_rpm > 0.0 && mismatch > config_.actuator_mismatch_rpm;
+    const bool           mismatching = commanded_rpm > 0.0 && mismatch > config_.actuator_mismatch_rpm;
 
     if (mismatching && mismatch_since_ < 0.0) {
         mismatch_since_ = current_time;

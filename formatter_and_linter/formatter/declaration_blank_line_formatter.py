@@ -29,6 +29,7 @@ import re
 from typing import List
 
 from shared.brace_utils import (
+    brace_delta,
     find_brace_positions,
     is_lambda_capture,
     is_initializer_list,
@@ -41,13 +42,6 @@ from formatter.initialization_block_formatter import DECLARATION_PATTERN
 _CONTROL_BLOCK_RE = re.compile(r'\b(class|struct|enum|namespace|do|else|try)\b')
 
 
-def _brace_delta(line: str) -> int:
-    positions = find_brace_positions(line)
-    opens = sum(1 for _, char in positions if char == '{')
-    closes = sum(1 for _, char in positions if char == '}')
-    return opens - closes
-
-
 def _prev_nonempty(lines: List[str], idx: int) -> str:
     j = idx - 1
     while j >= 0:
@@ -58,7 +52,7 @@ def _prev_nonempty(lines: List[str], idx: int) -> str:
     return ''
 
 
-def _is_function_open_brace(line: str, lines: List[str], idx: int) -> bool:
+def is_function_open_brace(line: str, lines: List[str], idx: int) -> bool:
     """
     Return True when ``line`` carries the opening brace of a function
     definition (same-line brace or a lone ``{`` preceded by a signature).
@@ -109,7 +103,7 @@ def _process_declaration_zone(lines: List[str], start: int, result: List[str]) -
     while i < n:
         line = lines[i]
         stripped = line.strip()
-        delta = _brace_delta(line)
+        delta = brace_delta(line)
 
         if brace_depth + delta <= 0:
             result.extend(pending)
@@ -149,7 +143,7 @@ def _process_declaration_zone(lines: List[str], start: int, result: List[str]) -
                 while i < n:
                     cline = lines[i]
                     cstrip = cline.strip()
-                    cdelta = _brace_delta(cline)
+                    cdelta = brace_delta(cline)
                     result.append(cline)
                     brace_depth += cdelta
                     i += 1
@@ -176,8 +170,8 @@ def remove_blank_lines_between_declarations(code: str) -> str:
 
     while i < n:
         line = lines[i]
-        if _is_function_open_brace(line, lines, i):
-            if _brace_delta(line) <= 0:
+        if is_function_open_brace(line, lines, i):
+            if brace_delta(line) <= 0:
                 result.append(line)
                 i += 1
                 continue
@@ -190,4 +184,4 @@ def remove_blank_lines_between_declarations(code: str) -> str:
     return '\n'.join(result) + ('\n' if code.endswith('\n') else '')
 
 
-__all__ = ["remove_blank_lines_between_declarations"]
+__all__ = ["remove_blank_lines_between_declarations", "is_function_open_brace"]

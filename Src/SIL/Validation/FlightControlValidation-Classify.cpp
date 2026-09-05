@@ -26,7 +26,7 @@ aggregate them in a single pass.
 SimulationResult MonteCarloRunner::classify(const Scenario&                   scenario,
                                             const sim::sil::SimulationResult& sil_result)
 {
-    SimulationResult result{.sil_result = sil_result, .failure_reason = FailureReason::None};
+    SimulationResult     result{.sil_result = sil_result, .failure_reason = FailureReason::None};
     const std::float64_t dx = sil_result.final_x_m - 0.0;
     const std::float64_t dy = sil_result.final_y_m - 0.0;
 

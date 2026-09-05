@@ -143,3 +143,12 @@ def is_initializer_list(line: str, brace_pos: int) -> bool:
 def is_constructor_initializer_continuation(line_prefix: str) -> bool:
     stripped = line_prefix.strip()
     return stripped.startswith(':') or stripped.startswith(',')
+
+
+def brace_delta(line: str) -> int:
+    """Net change in brace depth introduced by ``line`` (opens minus closes),
+    ignoring braces inside string / char literals and comments."""
+    positions = find_brace_positions(line)
+    opens = sum(1 for _, char in positions if char == '{')
+    closes = sum(1 for _, char in positions if char == '}')
+    return opens - closes

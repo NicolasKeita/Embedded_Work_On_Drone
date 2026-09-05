@@ -40,8 +40,8 @@ populated and a second identical run is bit-for-bit identical.
 */
 void telemetry_sampling_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 10.0, .telemetry_rate_hz = 20.0};
-    const FaultScenario scenario{};
+    const SilConfig                             config{.duration_s = 10.0, .telemetry_rate_hz = 20.0};
+    const FaultScenario                         scenario{};
     const std::expected<SilRunOutput, SilError> first = run_traced(config, scenario);
     const std::expected<SilRunOutput, SilError> second = run_traced(config, scenario);
 
@@ -80,10 +80,10 @@ number of recorded samples (observational neutrality of telemetry logging).
 */
 void telemetry_rate_neutrality_test(TestHarness& runner)
 {
-    const FaultScenario scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
-    const SilConfig slow{.duration_s = 35.0, .telemetry_rate_hz = 5.0};
-    const SilConfig standard{.duration_s = 35.0, .telemetry_rate_hz = 20.0};
-    const SilConfig fast{.duration_s = 35.0, .telemetry_rate_hz = 50.0};
+    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const SilConfig                             slow{.duration_s = 35.0, .telemetry_rate_hz = 5.0};
+    const SilConfig                             standard{.duration_s = 35.0, .telemetry_rate_hz = 20.0};
+    const SilConfig                             fast{.duration_s = 35.0, .telemetry_rate_hz = 50.0};
     const std::expected<SilRunOutput, SilError> slow_out = run_traced(slow, scenario);
     const std::expected<SilRunOutput, SilError> standard_out = run_traced(standard, scenario);
     const std::expected<SilRunOutput, SilError> fast_out = run_traced(fast, scenario);

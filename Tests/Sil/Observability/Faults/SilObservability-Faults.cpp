@@ -32,8 +32,8 @@ detection events, and the detection latency is correctly derived.
 */
 void fc1_failure_events_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
+    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -76,8 +76,8 @@ new state and the reason that drove the change.
 */
 void state_transitions_test(TestHarness& runner)
 {
-    const SilConfig config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
+    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

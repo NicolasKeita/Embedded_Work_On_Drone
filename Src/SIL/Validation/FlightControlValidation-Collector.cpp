@@ -92,7 +92,7 @@ accumulate_run so that summarize stays a thin fold over the result buffer.
 CampaignSummary ResultCollector::summarize() const
 {
     CampaignSummary summary{.total_runs = results_.size()};
-    Accumulators acc{};
+    Accumulators    acc{};
 
     for (const SimulationResult& result : results_) {
         accumulate_run(result, summary, acc);

@@ -25,7 +25,7 @@ void sample_fault_window(Scenario& scenario, std::mt19937_64& generator)
     std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
     std::uniform_real_distribution<std::float64_t> time_window(2.0, 12.0);
     std::uniform_real_distribution<std::float64_t> duration_window(1.0, 8.0);
-    const std::uint64_t fault_roll = generator() % 6;
+    const std::uint64_t                            fault_roll = generator() % 6;
 
     scenario.fault_type = static_cast<FaultType>(fault_roll);
     scenario.fault_start_time_s = time_window(generator);
@@ -85,11 +85,11 @@ noise and dropout rate use uniform and half-normal draws.
 void sample_environment(Scenario& scenario, std::mt19937_64& generator)
 {
     std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
-    std::normal_distribution<std::float64_t> wind_dist(0.0, 2.5);
-    std::normal_distribution<std::float64_t> pressure_dist(101.325, 1.5);
-    std::normal_distribution<std::float64_t> temperature_dist(288.15, 5.0);
-    std::normal_distribution<std::float64_t> noise_altitude(0.0, 0.3);
-    std::normal_distribution<std::float64_t> noise_position(0.0, 0.5);
+    std::normal_distribution<std::float64_t>       wind_dist(0.0, 2.5);
+    std::normal_distribution<std::float64_t>       pressure_dist(101.325, 1.5);
+    std::normal_distribution<std::float64_t>       temperature_dist(288.15, 5.0);
+    std::normal_distribution<std::float64_t>       noise_altitude(0.0, 0.3);
+    std::normal_distribution<std::float64_t>       noise_position(0.0, 0.5);
 
     scenario.wind_x_mps = wind_dist(generator);
     scenario.wind_y_mps = wind_dist(generator);
