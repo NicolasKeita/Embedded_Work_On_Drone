@@ -92,7 +92,7 @@ bool contains_mission_sequence(std::span<const sim::control::MissionState> visit
     constexpr std::array<sim::control::MissionState, 4> expected{
         sim::control::MissionState::TAKEOFF, sim::control::MissionState::CLIMB,
         sim::control::MissionState::STATION_KEEPING, sim::control::MissionState::COMPLETE};
-    std::size_t cursor = 0;
+    std::size_t                                         cursor = 0;
 
     for (sim::control::MissionState state : visited) {
         if (cursor < expected.size() && state == expected[cursor]) {
