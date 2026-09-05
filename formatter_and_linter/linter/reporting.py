@@ -48,7 +48,11 @@ def print_comment_placement_warnings(invalid_comments: List[Tuple[int, str]]) ->
 
 def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: int = MAX_FILE_LENGTH) -> None:
     if exceeds_limit:
-        print(f"⚠️  File exceeds {max_lines} lines: {line_count} lines", file=sys.stderr)
+        print(
+            f"⚠️  File exceeds {max_lines} lines: {line_count} lines. "
+            "Split into multiple smaller files with explicit, coherent names.",
+            file=sys.stderr
+        )
 
 
 def print_function_length_warnings(long_functions: List[Tuple[str, int, int]], max_lines: int = MAX_FUNCTION_LENGTH) -> None:
