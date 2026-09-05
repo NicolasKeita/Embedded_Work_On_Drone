@@ -53,8 +53,9 @@ struct Accumulators {
 Accumulates one run into the summary counters and running sums. Latency sums
 are only fed when the run produced a finite latency; runner errors skip them.
 */
-static void accumulate_run(const SimulationResult& result, CampaignSummary& summary,
-                            Accumulators& acc)
+static void accumulate_run(const SimulationResult& result,
+                           CampaignSummary&        summary,
+                           Accumulators&           acc)
 {
     if (result.failure_reason == FailureReason::RunnerError) {
         ++summary.runner_errors;

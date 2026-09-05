@@ -10,8 +10,8 @@ module FlightControlValidation;
 
 import std;
 
-import SilTypes;
 import FlightController;
+import SilTypes;
 
 namespace sim::sil::validation {
 
@@ -23,8 +23,8 @@ safety mode > physical bounds > comms). Position and altitude errors are also
 computed here from the SIL ground-truth fields so that the collector can
 aggregate them in a single pass.
 */
-SimulationResult MonteCarloRunner::classify(const Scenario& scenario,
-                                             const sim::sil::SimulationResult& sil_result)
+SimulationResult MonteCarloRunner::classify(const Scenario&                   scenario,
+                                            const sim::sil::SimulationResult& sil_result)
 {
     SimulationResult result{.sil_result = sil_result, .failure_reason = FailureReason::None};
 

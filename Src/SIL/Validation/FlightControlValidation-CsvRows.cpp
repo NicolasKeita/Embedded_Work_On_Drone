@@ -10,10 +10,10 @@ module FlightControlValidation;
 
 import std;
 
-import SilTypes;
 import FlightController;
 import HealthMonitor;
 import SafetyManager;
+import SilTypes;
 
 namespace sim::sil::validation {
 
@@ -25,6 +25,7 @@ both as their numeric id and their human-readable name.
 static void write_scenario_fields(std::ostream& out, const SimulationResult& result)
 {
     const Scenario& s = result.scenario;
+
     out << result.run_id << ';' << result.scenario_seed << ';'
         << static_cast<std::uint32_t>(s.fault_type) << ';' << fault_type_name(s.fault_type) << ';'
         << static_cast<std::uint32_t>(s.fault_target) << ';' << fault_target_name(s.fault_target) << ';'
@@ -47,6 +48,7 @@ and failure reason close the row.
 static void write_sil_result_fields(std::ostream& out, const SimulationResult& result)
 {
     const sim::sil::SimulationResult& r = result.sil_result;
+
     out << (r.mission_success ? 1 : 0) << ';' << static_cast<std::uint32_t>(r.final_state) << ';'
         << sim::control::mission_state_name(r.final_state) << ';'
         << static_cast<std::uint32_t>(r.final_health) << ';'

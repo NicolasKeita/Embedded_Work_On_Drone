@@ -37,33 +37,33 @@ enum class FailureReason : std::uint8_t {
 };
 
 struct Scenario {
-    std::uint64_t          run_id = 0;
-    std::uint64_t          scenario_seed = 0;
-    FaultType              fault_type = FaultType::None;
-    FaultTarget            fault_target = FaultTarget::Unspecified;
-    FaultProfile           fault_profile = FaultProfile::Permanent;
-    std::float64_t         fault_start_time_s = 0.0;
-    std::float64_t         fault_duration_s = 0.0;
-    std::float64_t         fault_loss_probability = 0.0;
-    SensorCorruptionMode   sensor_corruption = SensorCorruptionMode::None;
-    std::float64_t         corrupted_altitude_m = 0.0;
-    std::float64_t         actuator_efficiency = 1.0;
-    std::float64_t         wind_x_mps = 0.0;
-    std::float64_t         wind_y_mps = 0.0;
-    std::float64_t         ambient_pressure_kpa = 101.325;
-    std::float64_t         ambient_temperature_k = 288.15;
-    std::float64_t         sensor_noise_altitude_m = 0.0;
-    std::float64_t         sensor_noise_position_m = 0.0;
-    std::float64_t         sensor_dropout_rate = 0.0;
-    std::float64_t         comms_loss_probability = 0.0;
-    std::float64_t         comms_transport_latency_s = 0.004;
-    bool                   comms_link_up = true;
-    std::float64_t         initial_altitude_m = 0.0;
-    std::float64_t         initial_x_m = 0.0;
-    std::float64_t         initial_y_m = 0.0;
-    std::float64_t         target_altitude_m = 10.0;
-    std::float64_t         simulation_duration_s = 30.0;
-    std::float64_t         time_step_s = 0.01;
+    std::uint64_t        run_id = 0;
+    std::uint64_t        scenario_seed = 0;
+    FaultType            fault_type = FaultType::None;
+    FaultTarget          fault_target = FaultTarget::Unspecified;
+    FaultProfile         fault_profile = FaultProfile::Permanent;
+    std::float64_t       fault_start_time_s = 0.0;
+    std::float64_t       fault_duration_s = 0.0;
+    std::float64_t       fault_loss_probability = 0.0;
+    SensorCorruptionMode sensor_corruption = SensorCorruptionMode::None;
+    std::float64_t       corrupted_altitude_m = 0.0;
+    std::float64_t       actuator_efficiency = 1.0;
+    std::float64_t       wind_x_mps = 0.0;
+    std::float64_t       wind_y_mps = 0.0;
+    std::float64_t       ambient_pressure_kpa = 101.325;
+    std::float64_t       ambient_temperature_k = 288.15;
+    std::float64_t       sensor_noise_altitude_m = 0.0;
+    std::float64_t       sensor_noise_position_m = 0.0;
+    std::float64_t       sensor_dropout_rate = 0.0;
+    std::float64_t       comms_loss_probability = 0.0;
+    std::float64_t       comms_transport_latency_s = 0.004;
+    bool                 comms_link_up = true;
+    std::float64_t       initial_altitude_m = 0.0;
+    std::float64_t       initial_x_m = 0.0;
+    std::float64_t       initial_y_m = 0.0;
+    std::float64_t       target_altitude_m = 10.0;
+    std::float64_t       simulation_duration_s = 30.0;
+    std::float64_t       time_step_s = 0.01;
     [[nodiscard]] FaultScenario to_fault_scenario() const;
 };
 
@@ -79,15 +79,15 @@ struct SimulationResult {
 };
 
 struct CampaignSummary {
-    std::uint64_t total_runs = 0;
-    std::uint64_t successful_runs = 0;
-    std::uint64_t failed_runs = 0;
-    std::uint64_t runner_errors = 0;
-    std::float64_t success_rate = 0.0;
-    std::float64_t mean_detection_latency_s = 0.0;
-    std::float64_t mean_response_latency_s = 0.0;
-    std::float64_t mean_position_error_m = 0.0;
-    std::float64_t mean_altitude_error_m = 0.0;
+    std::uint64_t                 total_runs = 0;
+    std::uint64_t                 successful_runs = 0;
+    std::uint64_t                 failed_runs = 0;
+    std::uint64_t                 runner_errors = 0;
+    std::float64_t                success_rate = 0.0;
+    std::float64_t                mean_detection_latency_s = 0.0;
+    std::float64_t                mean_response_latency_s = 0.0;
+    std::float64_t                mean_position_error_m = 0.0;
+    std::float64_t                mean_altitude_error_m = 0.0;
     std::array<std::uint64_t, 10> failure_counts{};
 };
 

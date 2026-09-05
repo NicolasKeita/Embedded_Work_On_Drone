@@ -23,6 +23,7 @@ is exactly reproducible across platforms and toolchains.
 std::uint64_t ScenarioGenerator::mix_seed(std::uint64_t master_seed, std::uint64_t run_id)
 {
     std::uint64_t z = master_seed ^ (run_id + 0x9E3779B97F4A7C15ULL);
+
     z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
     z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
     return z ^ (z >> 31);

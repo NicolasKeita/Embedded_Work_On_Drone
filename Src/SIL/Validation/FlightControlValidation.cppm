@@ -64,8 +64,8 @@ private:
                                       const sim::sil::SimulationResult& sil_result);
     void execute_run(std::uint64_t run_id);
     ScenarioGenerator generator_;
-    SilConfig config_;
-    ResultCollector collector_;
+    SilConfig         config_;
+    ResultCollector   collector_;
 };
 
 void sample_fault_window(Scenario& scenario, std::mt19937_64& generator);

@@ -44,6 +44,7 @@ run.
 static SilConfig make_run_config(const SilConfig& base, const Scenario& scenario)
 {
     SilConfig config = base;
+
     config.duration_s = scenario.simulation_duration_s;
     config.dt = scenario.time_step_s;
     config.target.z = scenario.target_altitude_m;
