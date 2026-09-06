@@ -21,7 +21,7 @@ namespace sim::hil {
 
 bool send_sensor_frame(FlightCore::Transport::ITransport& channel,
                        const FlightCore::HAL::SensorData& sensor,
-                       std::uint16_t                      sequence)
+                       std::uint16_t                      sequence) noexcept
 {
     const auto payload = FlightCore::Transport::makeSensorPayload(sensor);
     const auto frame = FlightCore::Transport::encodeSensorFrame(payload, sequence);
@@ -33,7 +33,7 @@ bool send_actuator_frame(FlightCore::Transport::ITransport&                chann
                          const FlightCore::HAL::ActuatorCommands&          cmds,
                          std::uint64_t                                     echo_sim_ts_us,
                          const FlightCore::Transport::ActuatorDiagnostics& diagnostics,
-                         std::uint16_t                                     sequence)
+                         std::uint16_t                                     sequence) noexcept
 {
     const auto payload = FlightCore::Transport::makeActuatorPayload(cmds, echo_sim_ts_us, diagnostics);
     const auto frame = FlightCore::Transport::encodeActuatorFrame(payload, sequence);

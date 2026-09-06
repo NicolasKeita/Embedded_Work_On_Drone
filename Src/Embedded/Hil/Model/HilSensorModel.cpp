@@ -45,7 +45,7 @@ sim::sil::SensorTelemetry HilSensorModel::sample(const AircraftState& truth)
 FlightCore::HAL::SensorData to_sensor_data(const sim::sil::SensorTelemetry& sensors,
                                            std::uint64_t                    sim_timestamp_us,
                                            const AircraftState&             truth,
-                                           const sim::sil::SensorValidity&  validity)
+                                           const sim::sil::SensorValidity&  validity) noexcept
 {
     std::uint32_t flags = FlightCore::HAL::kFlagImu1Ok | FlightCore::HAL::kFlagImu2Ok
                         | FlightCore::HAL::kFlagTachometerOk;
