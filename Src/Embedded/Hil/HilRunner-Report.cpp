@@ -80,7 +80,7 @@ namespace {
         switch (event.type) {
         case HilEventType::MissionStateTransition:
         case HilEventType::SafetyStateTransition:
-            return event.new_state;
+            return !event.new_state.empty() ? event.new_state : event.detail;
         case HilEventType::MissionComplete:
             return "MISSION_COMPLETE";
         case HilEventType::MissionAborted:
@@ -111,16 +111,13 @@ namespace {
     }
 }
 
-void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
+void HilRunner::writeHeader(std::ostream& out, const HilConfig& cfg, bool fault_expected)
 {
-    const HilConfig& cfg = output.config;
-    const HilResult& r = output.result;
-
     out << "\n============================================\n";
-    out << cfg.scenario_id << " : " << (r.fault_expected ? "fault injection scenario" : "nominal station keeping")
+    out << cfg.scenario_id << " : " << (fault_expected ? "fault injection scenario" : "nominal station keeping")
         << "\n";
     out << "============================================\n\n";
-    if (!r.fault_expected) {
+    if (!fault_expected) {
         out << "Host-target closed-loop validation (NO physical STM32 present).\n\n";
     }
 
@@ -137,6 +134,15 @@ void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
 
     out << "Mission (sensor stream : FC-observed; ground truth recorded separately)\n";
     write_table_header(out);
+    out << std::flush;
+}
+
+void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
+{
+    const HilConfig& cfg = output.config;
+    const HilResult& r = output.result;
+
+    writeHeader(out, cfg, r.fault_expected);
 
     const std::uint64_t report_steps = static_cast<std::uint64_t>(std::ceil(cfg.duration_s / cfg.report_period_s));
     std::vector<HilEvent> timeline;
@@ -186,9 +192,15 @@ void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
         }
         out << "\n";
     }
-    out << "\n";
 
-    out << "Timing\n";
+    writeSummary(out, output);
+}
+
+void HilRunner::writeSummary(std::ostream& out, const HilRunOutput& output)
+{
+    const HilResult& r = output.result;
+
+    out << "\nTiming\n";
     out << "  Steps executed        : " << r.timing.steps_executed << "\n";
     out << "  Deadline misses       : " << r.timing.deadline_misses << "\n";
     out << "  Max step duration     : " << r.timing.max_step_us << " us\n";
@@ -215,6 +227,49 @@ void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
     out << "  Detection latency     : " << std::fixed << std::setprecision(4) << r.detection_latency << " s\n";
     out << "  Test verdict          : " << (r.test_verdict ? "PASS" : "FAIL") << "\n";
     out << "  > " << hil_verdict_reason(r) << "\n";
+}
+
+/*
+Streams the run live to ctx.live_out (no-op when no stream is registered): drains the
+trace events recorded since the previous call and prints the report-event lines, then
+prints one telemetry row (with the truth-vs-sensor altitude line) for each report-period
+boundary crossed, using the most recent dual sample. Everything is flushed immediately so
+the terminal shows the mission as it executes.
+*/
+void stream_live_output(HilRunContext& ctx)
+{
+    if (ctx.live_out == nullptr) {
+        return;
+    }
+    std::ostream& out = *ctx.live_out;
+    const HilConfig& cfg = ctx.config;
+
+    const std::span<const HilEvent> events = ctx.trace.events();
+    while (ctx.live_event_cursor < events.size()) {
+        const HilEvent& event = events[ctx.live_event_cursor];
+        ++ctx.live_event_cursor;
+        if (is_report_event(event.type)) {
+            write_event_line(out, event);
+        }
+    }
+
+    const std::uint64_t report_steps =
+        static_cast<std::uint64_t>(std::ceil(cfg.duration_s / cfg.report_period_s));
+    while (ctx.live_report_index <= report_steps
+           && ctx.time + 1.0e-9 >= static_cast<std::float64_t>(ctx.live_report_index) * cfg.report_period_s) {
+        ++ctx.live_report_index;
+        if (ctx.telemetry_recorder.samples.empty()) {
+            continue;
+        }
+        const HilSensorSample& sensor = ctx.telemetry_recorder.samples.back();
+        write_table_row(out, sensor);
+        if (!ctx.telemetry_recorder.truth_samples.empty()) {
+            const HilTruthSample& truth = ctx.telemetry_recorder.truth_samples.back();
+            out << "    truth z=" << std::fixed << std::setprecision(3) << truth.z
+                << " m  sensor z=" << sensor.z << " m\n";
+        }
+    }
+    out << std::flush;
 }
 
 }

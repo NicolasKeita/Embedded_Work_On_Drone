@@ -33,6 +33,14 @@ public:
     explicit HilRunner(HilConfig config = {});
 
     /*
+    Registers the stream the runner writes to in real time during run(): the mission
+    telemetry rows (report cadence) interleaved with the structured event lines as they
+    are recorded, each emission flushed immediately. When no stream is registered the
+    run stays fully silent and reporting is left to writeReport().
+    */
+    void setLiveStream(std::ostream& out);
+
+    /*
     Executes the configured scenario(s) and returns the structured run output, or a
     typed error. The run is real-time paced when config.real_time_pacing is set.
     */
@@ -44,6 +52,19 @@ public:
     */
     static void writeReport(std::ostream& out, const HilRunOutput& output);
 
+    /*
+    Writes the run header : scenario banner, host/target note, configuration block and
+    the telemetry table column header. Called before the run so the configuration is
+    visible in real time while the mission is executing.
+    */
+    static void writeHeader(std::ostream& out, const HilConfig& config, bool fault_expected);
+
+    /*
+    Writes the post-run summary : timing, communication statistics, mission result and
+    verdict. Only available once the run has completed.
+    */
+    static void writeSummary(std::ostream& out, const HilRunOutput& output);
+
 private:
     [[nodiscard]] static std::expected<std::unique_ptr<HilRunContext>, HilError> makeContext(const HilConfig& config,
                                                                                                std::span<const sim::sil::FaultScenario> scenarios);
@@ -51,6 +72,7 @@ private:
     static void finalize(HilRunContext& ctx);
 
     HilConfig config_;
+    std::ostream* live_out_ = nullptr;
 };
 
 }
@@ -75,5 +97,6 @@ void update_health_and_safety(HilRunContext& ctx);
 void apply_actuators(HilRunContext& ctx);
 void update_metrics(HilRunContext& ctx);
 void handle_deadline(HilRunContext& ctx, const HilStepTiming& timing);
+void stream_live_output(HilRunContext& ctx);
 
 }

@@ -160,6 +160,10 @@ struct HilRunContext {
 
     bool                                           fault_expected = false;
     bool                                           aborted_on_deadline = false;
+
+    std::ostream*                                  live_out = nullptr;
+    std::size_t                                    live_event_cursor = 0;
+    std::uint64_t                                  live_report_index = 0;
 };
 
 }

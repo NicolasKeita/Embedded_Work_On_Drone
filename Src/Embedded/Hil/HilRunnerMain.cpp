@@ -1,7 +1,8 @@
 /*
 Filename: Src/Embedded/Hil/HilRunnerMain.cpp
-Description: Entry point of hil_runner : loads a HIL scenario, executes the real-time
-closed-loop mission against the host FC emulator and prints the human-readable report.
+Description: Entry point of hil_runner : loads a HIL scenario, prints the run header,
+executes the real-time closed-loop mission against the host FC emulator with live
+telemetry/event streaming to the terminal, then prints the post-run summary report.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -119,13 +120,23 @@ int main(int argc, char** argv)
     else if (deadline_name == "Warn") { config.deadline_policy = sim::hil::DeadlinePolicy::Warn; }
 
     std::array<sim::sil::FaultScenario, 1> scenarios{record ? record->fault : sim::sil::FaultScenario{}};
+    bool fault_expected = false;
+    for (const sim::sil::FaultScenario& scenario : scenarios) {
+        if (scenario.fault_type != sim::sil::FaultType::None) {
+            fault_expected = true;
+        }
+    }
+
+    sim::hil::HilRunner::writeHeader(std::cout, config, fault_expected);
+
     sim::hil::HilRunner runner{config};
+    runner.setLiveStream(std::cout);
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> outcome = runner.run(scenarios);
     if (!outcome.has_value()) {
         std::cerr << "HIL run failed\n";
         return 1;
     }
 
-    sim::hil::HilRunner::writeReport(std::cout, *outcome);
+    sim::hil::HilRunner::writeSummary(std::cout, *outcome);
     return (*outcome).result.test_verdict ? 0 : 1;
 }

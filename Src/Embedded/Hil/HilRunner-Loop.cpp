@@ -100,6 +100,7 @@ void HilRunner::execute(HilRunContext& ctx)
             timing.fc_send_us = static_cast<std::int64_t>(ctx.this_fc.fc_send_wall_us);
         }
         update_metrics(ctx);
+        stream_live_output(ctx);
         timing.aircraft_update_us = ctx.clock->nowUs();
         timing.step_completion_us = ctx.clock->nowUs();
 
@@ -119,6 +120,12 @@ void HilRunner::execute(HilRunContext& ctx)
 
     finalize(ctx);
     record_run_end(ctx);
+    stream_live_output(ctx);
+}
+
+void HilRunner::setLiveStream(std::ostream& out)
+{
+    live_out_ = &out;
 }
 
 /*
@@ -126,7 +133,8 @@ Runs the configured scenario(s) and returns the structured outcome, or a typed e
 */
 std::expected<HilRunOutput, HilError> HilRunner::run(std::span<const sim::sil::FaultScenario> scenarios)
 {
-    return makeContext(config_, scenarios).and_then([](std::unique_ptr<HilRunContext> ctx) {
+    return makeContext(config_, scenarios).and_then([this](std::unique_ptr<HilRunContext> ctx) {
+        ctx->live_out = live_out_;
         execute(*ctx);
         HilRunOutput output{};
         output.result = ctx->result;
