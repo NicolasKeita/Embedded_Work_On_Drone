@@ -76,6 +76,7 @@ void record_mission_transition(HilRunContext& ctx, sim::control::MissionState cu
 void record_safety_transitions(HilRunContext& ctx)
 {
     const sim::safety::SafetyMode current = ctx.safety.mode();
+
     if (current != ctx.previous_safety_mode) {
         const std::string_view reason = current == sim::safety::SafetyMode::NORMAL ? "health restored"
                                           : sim::safety::fault_domain_name(ctx.result.first_fault_domain);

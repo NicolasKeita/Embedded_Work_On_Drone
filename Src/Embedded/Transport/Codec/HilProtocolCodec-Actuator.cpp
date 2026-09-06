@@ -10,10 +10,11 @@ All rights reserved.
 
 module HilProtocolCodec;
 
+import std;
+
 import HalTypes;
 import HilProtocol;
 import HilProtocolParser;
-import std;
 
 namespace FlightCore::Transport
 {

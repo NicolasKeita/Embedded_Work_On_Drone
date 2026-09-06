@@ -40,11 +40,13 @@ FlightCore::HAL::ActuatorCommands to_actuator(const ControlCommand& cmd, std::ui
     };
 }
 
-void answer_sensor(sim::hil::FcHostState& state, const FlightCore::Transport::HilSensorPayload& sensor_payload,
-                   std::uint16_t sequence)
+void answer_sensor(sim::hil::FcHostState&                         state,
+                   const FlightCore::Transport::HilSensorPayload& sensor_payload,
+                   std::uint16_t                                  sequence)
 {
     const FlightCore::HAL::SensorData sensor = FlightCore::Transport::toSensorData(sensor_payload);
-    const sim::sil::SensorTelemetry telemetry = sim::hil::to_telemetry(sensor);
+    const sim::sil::SensorTelemetry   telemetry = sim::hil::to_telemetry(sensor);
+
     if (sim::sil::validate(telemetry, state.limits).all_valid()) {
         state.fc_view = sim::hil::to_aircraft_state(sensor);
         state.have_view = true;
@@ -74,8 +76,7 @@ bool process_frame(FcHostState& state, const FlightCore::Transport::HilHeader& h
         return false;
     }
     FlightCore::Transport::HilSensorPayload sensor_payload{};
-    const std::span<const std::uint8_t> span(state.payload_buffer.data(),
-                                             FlightCore::Transport::kSensorPayloadSize);
+    const std::span<const std::uint8_t> span(state.payload_buffer.data(), FlightCore::Transport::kSensorPayloadSize);
     if (!FlightCore::Transport::decodeSensorPayload(span, sensor_payload)) {
         return false;
     }

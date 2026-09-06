@@ -23,6 +23,7 @@ namespace {
     std::vector<HilEvent> report_timeline(const HilRunOutput& output)
     {
         std::vector<HilEvent> timeline;
+
         for (const HilEvent& event : output.events) {
             if (is_report_event(event.type)) {
                 timeline.push_back(event);
@@ -35,6 +36,7 @@ namespace {
     {
         std::ptrdiff_t best = -1;
         std::float64_t best_delta = 1.0e9;
+
         for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(output.telemetry.size()); ++i) {
             const std::float64_t d = std::abs(output.telemetry[static_cast<std::size_t>(i)].time_s - target_time);
             if (d < best_delta) {
@@ -59,12 +61,13 @@ namespace {
         }
     }
 
-    void write_mission_timeline(std::ostream& out, const HilRunOutput& output,
+    void write_mission_timeline(std::ostream&                out,
+                                const HilRunOutput&          output,
                                 const std::vector<HilEvent>& timeline)
     {
-        const HilConfig& cfg = output.config;
+        const HilConfig&    cfg = output.config;
         const std::uint64_t report_steps = static_cast<std::uint64_t>(std::ceil(cfg.duration_s / cfg.report_period_s));
-        std::size_t event_idx = 0;
+        std::size_t         event_idx = 0;
 
         for (std::uint64_t k = 0; k <= report_steps; ++k) {
             const std::float64_t target_time = static_cast<std::float64_t>(k) * cfg.report_period_s;

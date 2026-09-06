@@ -36,8 +36,7 @@ void stream_live_output(HilRunContext& ctx)
         }
     }
 
-    const std::uint64_t report_steps =
-        static_cast<std::uint64_t>(std::ceil(cfg.duration_s / cfg.report_period_s));
+    const std::uint64_t report_steps = static_cast<std::uint64_t>(std::ceil(cfg.duration_s / cfg.report_period_s));
     while (ctx.live_report_index <= report_steps
            && ctx.time + 1.0e-9 >= static_cast<std::float64_t>(ctx.live_report_index) * cfg.report_period_s) {
         ++ctx.live_report_index;

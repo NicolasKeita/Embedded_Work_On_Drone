@@ -40,12 +40,12 @@ import Transport;
 export namespace sim::hil {
 
 struct FcStepOutcome {
-    bool           ok = false;
-    std::uint64_t  fc_receive_wall_us = 0;
-    std::uint64_t  fc_send_wall_us = 0;
-    std::uint16_t  sequence = 0;
-    std::uint64_t  echo_sim_timestamp_us = 0;
-    std::uint8_t   mission_state = 0;
+    bool          ok = false;
+    std::uint64_t fc_receive_wall_us = 0;
+    std::uint64_t fc_send_wall_us = 0;
+    std::uint16_t sequence = 0;
+    std::uint64_t echo_sim_timestamp_us = 0;
+    std::uint8_t  mission_state = 0;
 };
 
 class IFcTarget {
@@ -94,18 +94,18 @@ private:
     /* Emits the answering ActuatorPacket through the HAL actuator output and the channel. */
     bool send_actuators(const ControlCommand& command, FcStepOutcome& outcome);
 
-    FlightCore::Transport::ITransport&                channel_;
-    IWallClock&                                       clock_;
-    sim::control::FlightController                    fc_;
-    FlightCore::Sim::SimulatedSensorInput             sensor_input_;
-    FlightCore::Sim::SimulatedActuatorOutput          actuator_output_;
-    FlightCore::Transport::HilFrameParser             parser_{};
+    FlightCore::Transport::ITransport&                           channel_;
+    IWallClock&                                                  clock_;
+    sim::control::FlightController                               fc_;
+    FlightCore::Sim::SimulatedSensorInput                        sensor_input_;
+    FlightCore::Sim::SimulatedActuatorOutput                     actuator_output_;
+    FlightCore::Transport::HilFrameParser                        parser_{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload_buffer_{};
-    sim::control::TargetState                         target_;
-    std::float64_t                                    dt_;
-    sim::sil::SensorValidationLimits                   sensor_limits_;
-    AircraftState                                     fc_view_{};
-    bool                                              have_view_ = false;
+    sim::control::TargetState                                    target_;
+    std::float64_t                                               dt_;
+    sim::sil::SensorValidationLimits                             sensor_limits_;
+    AircraftState                                                fc_view_{};
+    bool                                                         have_view_ = false;
 };
 
 }

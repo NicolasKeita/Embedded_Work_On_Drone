@@ -50,8 +50,7 @@ void comms_statistics_test(TestHarness& runner)
     runner.check(output.result.comms.sent == sent, "comms.sent reflects the trace");
     runner.check(output.result.comms.dropped == dropped, "comms.dropped reflects the trace");
     runner.check(output.result.comms.delivered == sent - dropped, "delivered = sent - dropped");
-    runner.check(output.result.comms.timeouts == timeouts && timeouts >= 1,
-                 "communication timeout observed");
+    runner.check(output.result.comms.timeouts == timeouts && timeouts >= 1, "communication timeout observed");
     runner.check(output.result.comms.latency_min_s >= 0.0, "positive minimum latency");
 }
 

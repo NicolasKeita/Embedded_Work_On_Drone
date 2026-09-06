@@ -10,12 +10,13 @@ All rights reserved.
 
 module Demo;
 
+import std;
+
 import HalTypes;
-import Transport;
 import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;
-import std;
+import Transport;
 
 namespace FlightCore::Demo
 {

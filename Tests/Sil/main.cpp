@@ -28,6 +28,7 @@ namespace
     CliOptions parse_cli(int argc, char* argv[])
     {
         CliOptions options;
+
         for (int index = 1; index < argc; ++index) {
             const char*       raw = argv[index] != nullptr ? argv[index] : "";
             const std::string_view argument{raw};

@@ -42,10 +42,12 @@ HostFcTarget::HostFcTarget(FlightCore::Transport::ITransport& channel,
 {
 }
 
-bool HostFcTarget::receive_sensor(std::uint16_t expected_sequence, FcStepOutcome& outcome,
+bool HostFcTarget::receive_sensor(std::uint16_t                            expected_sequence,
+                                  FcStepOutcome&                           outcome,
                                   FlightCore::Transport::HilSensorPayload& out_payload)
 {
     FlightCore::Transport::HilHeader header{};
+
     if (!receive_frame(channel_, parser_, header, payload_buffer_)) {
         return false;
     }
@@ -59,8 +61,7 @@ bool HostFcTarget::receive_sensor(std::uint16_t expected_sequence, FcStepOutcome
 
     outcome.fc_receive_wall_us = clock_.nowUs();
 
-    const std::span<const std::uint8_t> span(payload_buffer_.data(),
-                                             FlightCore::Transport::kSensorPayloadSize);
+    const std::span<const std::uint8_t> span(payload_buffer_.data(), FlightCore::Transport::kSensorPayloadSize);
     if (!FlightCore::Transport::decodeSensorPayload(span, out_payload)) {
         return false;
     }
@@ -71,8 +72,9 @@ bool HostFcTarget::receive_sensor(std::uint16_t expected_sequence, FcStepOutcome
 
 ControlCommand HostFcTarget::update_control(const FlightCore::Transport::HilSensorPayload& sensor_payload)
 {
-    FlightCore::HAL::SensorData sensor = FlightCore::Transport::toSensorData(sensor_payload);
+    FlightCore::HAL::SensorData     sensor = FlightCore::Transport::toSensorData(sensor_payload);
     const sim::sil::SensorTelemetry telemetry = to_telemetry(sensor);
+
     if (sim::sil::validate(telemetry, sensor_limits_).all_valid()) {
         sensor_input_.inject(sensor);
     }

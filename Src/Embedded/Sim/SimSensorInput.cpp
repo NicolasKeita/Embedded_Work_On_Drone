@@ -9,9 +9,10 @@ All rights reserved.
 
 module SimSensorInput;
 
-import SensorInput;
-import HalTypes;
 import std;
+
+import HalTypes;
+import SensorInput;
 
 namespace FlightCore::Sim
 {

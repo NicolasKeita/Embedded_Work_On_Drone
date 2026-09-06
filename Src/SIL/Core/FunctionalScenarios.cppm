@@ -38,12 +38,12 @@ family used to group the scenario in the taxonomy. The fault activation timing
 (start time and duration) is target-specific and applied by each runner.
 */
 struct FunctionalScenario {
-    std::string_view            id;
-    std::string_view            description;
-    FunctionalFamily            family;
-    sim::sil::FaultType         fault_type;
-    sim::sil::FaultParameters   parameters;
-    bool                        fault_expected;
+    std::string_view          id;
+    std::string_view          description;
+    FunctionalFamily          family;
+    sim::sil::FaultType       fault_type;
+    sim::sil::FaultParameters parameters;
+    bool                      fault_expected;
 };
 
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;

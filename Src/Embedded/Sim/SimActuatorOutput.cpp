@@ -9,9 +9,10 @@ All rights reserved.
 
 module SimActuatorOutput;
 
+import std;
+
 import ActuatorOutput;
 import HalTypes;
-import std;
 
 namespace FlightCore::Sim
 {

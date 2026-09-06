@@ -67,8 +67,7 @@ void fc1_failure_events_test(TestHarness& runner)
     runner.check(output.result.watchdog_triggered
                      && output.result.watchdog_trigger_time <= output.result.detection_time + 1.0e-9,
                  "watchdog triggered no later than detection");
-    runner.check(output.result.safety_response_time >= output.result.detection_time,
-                 "safety response after detection");
+    runner.check(output.result.safety_response_time >= output.result.detection_time, "safety response after detection");
 }
 
 /*

@@ -83,8 +83,7 @@ void logging_neutrality_test(TestHarness& runner)
     runner.check(i.mission_success == t.mission_success, "mission success independent");
     runner.check(i.final_state == t.final_state, "terminal state independent");
     runner.check(i.detection_latency == t.detection_latency, "identical detection latency");
-    runner.check(i.comms.sent == t.comms.sent && i.comms.dropped == t.comms.dropped,
-                 "identical comms statistics");
+    runner.check(i.comms.sent == t.comms.sent && i.comms.dropped == t.comms.dropped, "identical comms statistics");
     runner.check(i.max_altitude_error_m == t.max_altitude_error_m, "identical aircraft metrics");
     runner.check(count_events(info.value().events, SilEventType::HeartbeatSent)
                  < count_events(trace.value().events, SilEventType::HeartbeatSent),

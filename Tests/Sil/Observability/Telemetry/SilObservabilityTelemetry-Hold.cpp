@@ -107,8 +107,7 @@ void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
     if (cleared == nullptr) {
         return;
     }
-    runner.check(std::abs(cleared->timestamp - kFaultEnd) <= config.dt,
-                 "FAULT_CLEARED at window close");
+    runner.check(std::abs(cleared->timestamp - kFaultEnd) <= config.dt, "FAULT_CLEARED at window close");
     runner.check(cleared->detail == sim::sil::fault_type_name(FaultType::SensorFault),
                  "FAULT_CLEARED carries the fault type");
 }

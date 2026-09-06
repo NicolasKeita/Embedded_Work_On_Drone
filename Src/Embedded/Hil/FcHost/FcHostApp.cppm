@@ -48,14 +48,14 @@ struct FcHostState {
     {
     }
 
-    sim::control::FlightController                    fc;
-    sim::control::TargetState                         target;
-    std::float64_t                                    dt;
-    sim::sil::SensorValidationLimits                  limits;
-    IWallClock&                                       clock;
-    AircraftState                                     fc_view{};
-    bool                                              have_view = false;
-    FlightCore::Transport::HilFrameParser             parser{};
+    sim::control::FlightController                               fc;
+    sim::control::TargetState                                    target;
+    std::float64_t                                               dt;
+    sim::sil::SensorValidationLimits                             limits;
+    IWallClock&                                                  clock;
+    AircraftState                                                fc_view{};
+    bool                                                         have_view = false;
+    FlightCore::Transport::HilFrameParser                        parser{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload_buffer{};
 };
 

@@ -35,14 +35,14 @@ enum class ReceiveResult {
 };
 
 struct HilCommStats {
-    std::uint64_t messages_sent = 0;
-    std::uint64_t messages_received = 0;
-    std::uint64_t messages_dropped = 0;
-    std::uint64_t sequence_errors = 0;
-    std::uint64_t timeouts = 0;
-    std::uint64_t stale_packets = 0;
-    std::int64_t  latency_min_us = -1;
-    std::int64_t  latency_max_us = -1;
+    std::uint64_t  messages_sent = 0;
+    std::uint64_t  messages_received = 0;
+    std::uint64_t  messages_dropped = 0;
+    std::uint64_t  sequence_errors = 0;
+    std::uint64_t  timeouts = 0;
+    std::uint64_t  stale_packets = 0;
+    std::int64_t   latency_min_us = -1;
+    std::int64_t   latency_max_us = -1;
     std::float64_t latency_mean_us = -1.0;
 
     void record_received(std::int64_t rtt_us) noexcept;

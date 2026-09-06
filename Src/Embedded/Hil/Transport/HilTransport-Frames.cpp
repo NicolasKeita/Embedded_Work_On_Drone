@@ -20,28 +20,31 @@ import Transport;
 namespace sim::hil {
 
 bool send_sensor_frame(FlightCore::Transport::ITransport& channel,
-                       const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence) noexcept
+                       const FlightCore::HAL::SensorData& sensor,
+                       std::uint16_t                      sequence)
 {
     const auto payload = FlightCore::Transport::makeSensorPayload(sensor);
     const auto frame = FlightCore::Transport::encodeSensorFrame(payload, sequence);
+
     return channel.sendBytes(frame);
 }
 
-bool send_actuator_frame(FlightCore::Transport::ITransport& channel,
-                         const FlightCore::HAL::ActuatorCommands& cmds,
-                         std::uint64_t echo_sim_ts_us,
+bool send_actuator_frame(FlightCore::Transport::ITransport&                channel,
+                         const FlightCore::HAL::ActuatorCommands&          cmds,
+                         std::uint64_t                                     echo_sim_ts_us,
                          const FlightCore::Transport::ActuatorDiagnostics& diagnostics,
-                         std::uint16_t sequence) noexcept
+                         std::uint16_t                                     sequence)
 {
     const auto payload = FlightCore::Transport::makeActuatorPayload(cmds, echo_sim_ts_us, diagnostics);
     const auto frame = FlightCore::Transport::encodeActuatorFrame(payload, sequence);
+
     return channel.sendBytes(frame);
 }
 
-bool receive_frame(FlightCore::Transport::ITransport& channel,
+bool receive_frame(FlightCore::Transport::ITransport&     channel,
                    FlightCore::Transport::HilFrameParser& parser,
-                   FlightCore::Transport::HilHeader& out_header,
-                   std::span<std::uint8_t> out_payload)
+                   FlightCore::Transport::HilHeader&      out_header,
+                   std::span<std::uint8_t>                out_payload)
 {
     std::array<std::uint8_t, 128> rx{};
 

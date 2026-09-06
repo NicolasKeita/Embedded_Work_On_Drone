@@ -88,11 +88,11 @@ public:
     void reset();
 
 private:
-    HarnessConfig   config_;
-    std::uint32_t   failures_{0};
-    std::float64_t  current_time_{0.0};
-    std::size_t     step_count_{0};
-    std::string     context_;
+    HarnessConfig  config_;
+    std::uint32_t  failures_{0};
+    std::float64_t current_time_{0.0};
+    std::size_t    step_count_{0};
+    std::string    context_;
 };
 
 }

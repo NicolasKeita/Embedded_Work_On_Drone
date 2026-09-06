@@ -85,8 +85,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "heartbeat timeout within 300 ms");
     runner.check(r.final_safety_mode == SafetyMode::SAFE_MODE, "SAFE_MODE engaged");
     runner.check(r.response_latency >= 0.0 && r.response_latency <= 0.20, "response latency <= 200 ms");
-    runner.check(r.final_state == sim::control::MissionState::ABORTED,
-                 "mission ABORTED by the SafetyManager");
+    runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED by the SafetyManager");
     runner.check(!r.mission_success && r.test_verdict, "verdict PASS with mission not successful");
     record = {.name = "FINJ-001_Fc1Failure", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};

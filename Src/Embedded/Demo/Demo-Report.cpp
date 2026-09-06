@@ -9,9 +9,10 @@ All rights reserved.
 
 module Demo;
 
+import std;
+
 import HalTypes;
 import HilProtocol;
-import std;
 
 namespace FlightCore::Demo
 {

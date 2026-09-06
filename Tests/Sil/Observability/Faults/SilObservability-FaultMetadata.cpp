@@ -59,8 +59,7 @@ void fault_metadata_test(TestHarness& runner)
                  "actuator physical role and hardware category");
     runner.check(injected->physical_function == "Propulsion / Roll-Pitch-Yaw Control",
                  "actuator aerodynamic function documented");
-    runner.check(injected->has_profile && injected->profile == FaultProfile::Permanent,
-                 "explicit PERMANENT profile");
+    runner.check(injected->has_profile && injected->profile == FaultProfile::Permanent, "explicit PERMANENT profile");
     runner.check(!injected->has_duration, "permanent fault without bounded duration");
     runner.check(injected->value_kind == sim::sil::FaultValueKind::Efficiency
                      && std::abs(injected->value - 0.6) <= 1.0e-9,
@@ -101,8 +100,7 @@ void sensor_fault_metadata_test(TestHarness& runner)
     runner.check(injected->physical_role.empty() && injected->physical_category.empty(),
                  "non-actuator target without physical role");
     runner.check(injected->subtype == "ALTITUDE_OUT_OF_RANGE", "corruption subtype carried");
-    runner.check(injected->has_profile && injected->profile == FaultProfile::Temporary,
-                 "explicit TEMPORARY profile");
+    runner.check(injected->has_profile && injected->profile == FaultProfile::Temporary, "explicit TEMPORARY profile");
     runner.check(injected->has_duration && std::abs(injected->duration_s - 5.0) <= 1.0e-9,
                  "explicit duration of the temporary fault");
     runner.check(!injected->expected_behavior.empty(), "expected behavior documented");

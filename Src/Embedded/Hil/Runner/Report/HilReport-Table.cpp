@@ -26,7 +26,10 @@ namespace {
 
 std::string_view yes_no(bool value) noexcept { return value ? "YES" : "NO"; }
 
-void write_metric(std::ostream& out, std::float64_t value) { out << std::fixed << std::setprecision(2) << value; }
+void write_metric(std::ostream& out, std::float64_t value)
+{
+    out << std::fixed << std::setprecision(2) << value;
+}
 
 std::array<std::float64_t, 10> row_values(const HilSensorSample& s)
 {
@@ -46,6 +49,7 @@ void write_table_header(std::ostream& out)
 void write_table_row(std::ostream& out, const HilSensorSample& s)
 {
     const auto values = row_values(s);
+
     out << " ";
     for (std::size_t c = 0; c < 10; ++c) {
         out << std::setw(kReportWidths[c]);

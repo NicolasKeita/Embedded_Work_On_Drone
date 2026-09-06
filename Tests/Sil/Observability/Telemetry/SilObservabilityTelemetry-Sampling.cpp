@@ -64,15 +64,13 @@ void telemetry_sampling_test(TestHarness& runner)
                         && std::abs(samples[index].time - 0.05 * static_cast<std::float64_t>(index)) < 1.0e-6;
     }
     runner.check(timestamps_ok, "regular timestamps in simulation time");
-    runner.check(same_telemetry(samples, second.value().telemetry),
-                 "deterministic sampling across two runs");
+    runner.check(same_telemetry(samples, second.value().telemetry), "deterministic sampling across two runs");
 
     if (samples.empty()) {
         return;
     }
     const TelemetrySample& last = samples.back();
-    runner.check(std::abs(last.target_z - config.target.z) < 1.0e-9,
-                 "setpoint target carried into telemetry");
+    runner.check(std::abs(last.target_z - config.target.z) < 1.0e-9, "setpoint target carried into telemetry");
     runner.check(last.mission_state <= 5 && last.safety_state <= 2, "mission/safety states populated");
 }
 

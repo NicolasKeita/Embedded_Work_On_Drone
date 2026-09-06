@@ -67,6 +67,7 @@ namespace {
 void record_detection(HilRunContext& ctx, const sim::safety::HealthReport& report)
 {
     const std::float64_t detection = report.first_detection_time();
+
     if (detection < 0.0 || ctx.result.detection_time >= 0.0) {
         return;
     }

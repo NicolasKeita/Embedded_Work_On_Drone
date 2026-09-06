@@ -10,10 +10,9 @@ All rights reserved.
 module;
 
 #if defined(_WIN32)
-#include <io.h>
-#include <fcntl.h>
-#endif
 #include <cstdio>
+#include <fcntl.h>
+#include <io.h>
 
 module FcHostApp;
 
@@ -30,7 +29,7 @@ namespace sim::hil {
 int run_fc1_host()
 {
     const sim::hil::HilConfig base = sim::hil::hil_base_config();
-    sim::hil::MonotonicClock clock;
+    sim::hil::MonotonicClock  clock;
 
 #if defined(_WIN32)
     _setmode(_fileno(stdin), _O_BINARY);

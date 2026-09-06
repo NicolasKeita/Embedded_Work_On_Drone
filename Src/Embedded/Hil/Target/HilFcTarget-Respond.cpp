@@ -43,6 +43,7 @@ namespace {
 bool HostFcTarget::send_actuators(const ControlCommand& command, FcStepOutcome& outcome)
 {
     FlightCore::HAL::ActuatorCommands cmds = to_actuator_commands(command);
+
     cmds.mode_flags = static_cast<std::uint8_t>(fc_.state());
     cmds.timestamp_us = clock_.nowUs();
     if (!actuator_output_.writeActuatorCommands(cmds)) {
@@ -66,7 +67,7 @@ bool HostFcTarget::send_actuators(const ControlCommand& command, FcStepOutcome& 
 
 FcStepOutcome HostFcTarget::respond(std::uint16_t expected_sequence)
 {
-    FcStepOutcome outcome{};
+    FcStepOutcome                           outcome{};
     FlightCore::Transport::HilSensorPayload sensor_payload{};
 
     if (!receive_sensor(expected_sequence, outcome, sensor_payload)) {
