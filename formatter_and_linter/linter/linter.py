@@ -101,8 +101,8 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         return has_issues
 
     long_lines = check_line_length(code, max_length)
-    comments, function_lines = detect_comments_and_functions(code)
-    invalid_comments = check_comment_placement(comments, function_lines)
+    comments, function_lines, declaration_lines = detect_comments_and_functions(code)
+    invalid_comments = check_comment_placement(comments, function_lines, declaration_lines)
     long_functions = check_function_length(code, max_lines=MAX_FUNCTION_LENGTH)
     blank_line_violations = check_blank_line_after_initialization(code)
     file_too_long, file_line_count = check_file_length(code, max_lines=MAX_FILE_LENGTH)

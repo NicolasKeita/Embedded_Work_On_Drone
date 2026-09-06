@@ -37,13 +37,13 @@ def print_line_length_warnings(long_lines: List[Tuple[int, int]], max_length: in
 def print_comment_placement_warnings(invalid_comments: List[Tuple[int, str]]) -> None:
     for line_num, comment_type in invalid_comments:
         if comment_type == "singleline":
-            print(f"⚠️  Line {line_num}: Single-line comment not above a function", file=sys.stderr)
+            print(f"⚠️  Line {line_num}: Single-line comment not above a function or declaration", file=sys.stderr)
         elif comment_type == "inline":
-            print(f"⚠️  Line {line_num}: Inline comment not allowed (only comments above functions are permitted)", file=sys.stderr)
+            print(f"⚠️  Line {line_num}: Inline comment not allowed (only comments above functions or declarations are permitted)", file=sys.stderr)
         elif comment_type == "multiline_start":
-            print(f"⚠️  Line {line_num}: Multiline comment not above a function", file=sys.stderr)
+            print(f"⚠️  Line {line_num}: Multiline comment not above a function or declaration", file=sys.stderr)
         elif comment_type == "multiline_content":
-            print(f"⚠️  Line {line_num}: Multiline comment content not above a function", file=sys.stderr)
+            print(f"⚠️  Line {line_num}: Multiline comment content not above a function or declaration", file=sys.stderr)
 
 
 def print_file_length_warning(exceeds_limit: bool, line_count: int, max_lines: int = MAX_FILE_LENGTH) -> None:
