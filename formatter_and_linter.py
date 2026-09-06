@@ -149,10 +149,17 @@ def check_directory_structure() -> bool:
     module_size_violations = linter.check_module_implementation_counts(["Src", "Tests"])
     linter.print_module_size_warnings(module_size_violations)
 
+    cmake_length_violations = linter.check_cmake_file_lengths(["Src", "Tests"])
+    linter.print_cmake_length_warnings(
+        cmake_length_violations,
+        linter.MAX_CMAKELISTS_LINES,
+    )
+
     return (
         len(directory_violations) > 0
         or len(module_filename_violations) > 0
         or len(module_size_violations) > 0
+        or len(cmake_length_violations) > 0
     )
 
 
@@ -178,7 +185,7 @@ def main() -> NoReturn:
         print("       python formatter_and_linter.py --check", file=sys.stderr)
         print("  -i, --in-place    : Modify the file in place (otherwise create output.cpp)", file=sys.stderr)
         print("  -r, --recursive   : Process all .cpp/.cppm files in Src/ and Tests/ recursively", file=sys.stderr)
-        print("  --check           : Check all files in Src/ and Tests/ without modifying", file=sys.stderr)
+        print("  --check           : Check all files in Src/ and Tests/ and CMakeLists.txt without modifying", file=sys.stderr)
         sys.exit(1)
 
     has_any_long_lines = False

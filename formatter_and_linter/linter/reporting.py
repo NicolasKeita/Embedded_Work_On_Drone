@@ -13,6 +13,7 @@ from linter.comment_language_checks import LINGUA_AVAILABLE
 from linter.multiple_var_decl_checks import MULTIPLE_VAR_DECL_MESSAGE
 from linter.main_filename_checks import MAIN_FILENAME_MESSAGE
 from linter.module_size_checks import format_module_too_large_message
+from linter.cmake_checks import MAX_CMAKELISTS_LINES
 from linter.uninitialized_decl_checks import format_uninitialized_decl_message
 from linter.designated_init_checks import format_designated_init_message
 from linter.return_only_var_checks import format_return_only_var_message
@@ -88,6 +89,18 @@ def print_module_size_warnings(violations: List[Tuple[str, int, str]]) -> None:
         print(
             f"⚠️  {format_module_too_large_message(label, file_count, suggestion)}",
             file=sys.stderr,
+        )
+
+
+def print_cmake_length_warnings(
+    violations: List[Tuple[str, int]],
+    max_lines: int = MAX_CMAKELISTS_LINES,
+) -> None:
+    for file_path, line_count in violations:
+        print(
+            f"⚠️  '{file_path}' exceeds {max_lines} lines: {line_count} lines. "
+            "Split the CMake configuration into smaller CMakeLists.txt files.",
+            file=sys.stderr
         )
 
 

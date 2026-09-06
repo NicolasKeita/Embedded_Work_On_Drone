@@ -4,12 +4,12 @@ C++ Code Linter
 
 Checks for style violations and code quality issues including line length,
 comment placement, comment language, function length, file length, directory
-file count and module implementation count.
+file count, module implementation count and CMakeLists.txt length.
 
 The implementation lives in style_checks, comment_language_checks,
 cppm_checks, cppm_inline_function_checks, directory_checks,
-main_filename_checks, module_filename_checks, module_size_checks and
-reporting.
+main_filename_checks, module_filename_checks, module_size_checks, cmake_checks
+and reporting.
 """
 
 import sys
@@ -49,6 +49,10 @@ from linter.module_size_checks import (
     MAX_IMPLEMENTATION_FILES_PER_MODULE,
     check_module_implementation_counts,
 )
+from linter.cmake_checks import (
+    MAX_CMAKELISTS_LINES,
+    check_cmake_file_lengths,
+)
 from linter.reporting import (
     _get_path_label,
     print_issue_header,
@@ -68,6 +72,7 @@ from linter.reporting import (
     print_directory_file_count_warnings,
     print_module_filename_warnings,
     print_module_size_warnings,
+    print_cmake_length_warnings,
 )
 
 
@@ -171,6 +176,8 @@ __all__ = [
     "check_module_filename_convention",
     "MAX_IMPLEMENTATION_FILES_PER_MODULE",
     "check_module_implementation_counts",
+    "MAX_CMAKELISTS_LINES",
+    "check_cmake_file_lengths",
     "_get_path_label",
     "print_issue_header",
     "print_line_length_warnings",
@@ -189,6 +196,7 @@ __all__ = [
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",
     "print_module_size_warnings",
+    "print_cmake_length_warnings",
     "lint_code",
 ]
 
