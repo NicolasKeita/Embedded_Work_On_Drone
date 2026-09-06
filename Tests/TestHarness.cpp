@@ -10,25 +10,89 @@ module TestHarness;
 
 import std;
 
+import Aircraft;
+
 namespace
 {
     constexpr std::float64_t kTakeOffDurationSeconds = 3.0;
+
+    std::string_view lower_ascii(std::string_view text, std::string& buffer)
+    {
+        buffer.clear();
+        buffer.reserve(text.size());
+        for (char character : text) {
+            buffer.push_back(static_cast<char>(character >= 'A' && character <= 'Z'
+                                                  ? character + ('a' - 'A')
+                                                  : character));
+        }
+        return buffer;
+    }
 }
 
 namespace sim::test {
 
+std::string_view run_target_name(RunTarget target) noexcept
+{
+    switch (target) {
+    case RunTarget::SIL:        return "sil";
+    case RunTarget::HIL:        return "hil";
+    case RunTarget::Simulation: return "simulation";
+    }
+    return "simulation";
+}
+
+std::string_view run_target_tag(RunTarget target) noexcept
+{
+    switch (target) {
+    case RunTarget::SIL:        return "SIL";
+    case RunTarget::HIL:        return "HIL";
+    case RunTarget::Simulation: return "SIM";
+    }
+    return "SIM";
+}
+
+std::optional<RunTarget> parse_run_target(std::string_view name) noexcept
+{
+    std::string lowered;
+    const std::string_view normalised = lower_ascii(name, lowered);
+    if (normalised == "sil" || normalised == "software-in-the-loop") {
+        return RunTarget::SIL;
+    }
+    if (normalised == "hil" || normalised == "hardware-in-the-loop") {
+        return RunTarget::HIL;
+    }
+    if (normalised == "sim" || normalised == "simulation" || normalised == "physics") {
+        return RunTarget::Simulation;
+    }
+    return std::nullopt;
+}
+
+void TestHarness::set_context(std::string_view tag)
+{
+    context_ = std::string{tag};
+}
+
+void TestHarness::begin_scenario(std::string_view id, std::string_view description)
+{
+    context_ = std::string{id};
+    std::cout << "\n=== [" << id << "][" << run_target_tag(config_.target) << "] "
+              << description << " ===" << std::endl;
+}
+
 /*
-Checks a condition and explicitly logs the success or failure; the failure is
+Checks a condition and explicitly logs the success or failure, pairing the active
+scenario/sub-suite tag with the execution target ([tag][target]); the failure is
 counted in the runner instance state (failures_).
 */
 void TestHarness::check(bool condition, std::string_view label)
 {
-    if (condition) {
-        std::cout << "  [PASS] " << label << std::endl;
+    std::cout << "  [" << (condition ? "PASS" : "FAIL") << "] ";
+    if (!context_.empty()) {
+        std::cout << '[' << context_ << "][" << run_target_tag(config_.target) << "] ";
     }
-    else {
+    std::cout << label << std::endl;
+    if (!condition) {
         ++failures_;
-        std::cout << "  [FAIL] " << label << std::endl;
     }
 }
 
@@ -39,7 +103,7 @@ void TestHarness::log_header() const
               << std::setw(11) << "z(m)";
     std::cout << "   " << std::setw(11) << "vx(m/s)" << std::setw(11) << "vy(m/s)"
               << std::setw(11) << "vz(m/s)";
-    std::cout << "   " << std::setw(11) << "pitch(d)" << std::setw(11) << "roll(d)";
+    std::cout << "   " << std::setw(11) << "pitch(deg)" << std::setw(11) << "roll(deg)";
     std::cout << "   " << std::setw(11) << "rpm" << std::endl;
 }
 

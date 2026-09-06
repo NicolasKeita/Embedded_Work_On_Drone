@@ -60,17 +60,17 @@ std::float64_t component_value(const sim::control::TargetState& target, Tracking
 
 void print_metrics_report(std::string_view label, const MissionMetrics& metrics)
 {
-    std::cout << "  Metriques de poursuite (" << label << ") :" << std::endl;
+    std::cout << "  Tracking metrics (" << label << "):" << std::endl;
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "    ecart initial             : " << std::setw(9) << metrics.initial_gap
+    std::cout << "    initial gap              : " << std::setw(9) << metrics.initial_gap
               << " m" << std::endl;
-    std::cout << "    temps entree tolerance    : " << std::setw(9)
+    std::cout << "    time to enter tolerance : " << std::setw(9)
               << metrics.time_within_tolerance << " s" << std::endl;
-    std::cout << "    depassement maximal       : " << std::setw(9) << metrics.overshoot_units
+    std::cout << "    max overshoot           : " << std::setw(9) << metrics.overshoot_units
               << " m (" << metrics.overshoot_percent() << " %)" << std::endl;
-    std::cout << "    erreur regime permanent   : " << std::setw(9)
+    std::cout << "    steady-state error      : " << std::setw(9)
               << metrics.steady_state_error << " m" << std::endl;
-    std::cout << "    erreur finale             : " << std::setw(9) << metrics.final_error
+    std::cout << "    final error             : " << std::setw(9) << metrics.final_error
               << " m" << std::endl;
     std::cout << std::defaultfloat;
 }

@@ -71,7 +71,7 @@ void write_csv_escaped(std::ostream& out, std::string_view text)
 
 std::string_view yes_no(bool value) noexcept
 {
-    return value ? "oui" : "non";
+    return value ? "yes" : "no";
 }
 
 /*

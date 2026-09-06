@@ -36,6 +36,7 @@ compensation response expected from the safety chain.
 */
 void fault_metadata_test(TestHarness& runner)
 {
+    runner.set_context("OBS-011");
     const SilConfig config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario scenario{.start_time = 5.0,
                                  .fault_type = FaultType::ActuatorDegradation,
@@ -43,30 +44,30 @@ void fault_metadata_test(TestHarness& runner)
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-011 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
     const SilEvent* injected = find_first(outcome.value().events, SilEventType::FaultInjected);
     if (injected == nullptr) {
-        runner.check(false, "OBS-011 : evenement FAULT_INJECTED present");
+        runner.check(false, "FAULT_INJECTED event present");
         return;
     }
 
     runner.check(injected->target == "actuator_0" && injected->target_signal == "wing_rpm",
-                 "OBS-011 : cible actionneur identifiee avec son signal");
+                 "actuator target identified with its signal");
     runner.check(injected->physical_role == "main_rotor" && injected->physical_category == "ROTOR_MOTOR",
-                 "OBS-011 : role physique et categorie materielle de l'actionneur");
+                 "actuator physical role and hardware category");
     runner.check(injected->physical_function == "Propulsion / Roll-Pitch-Yaw Control",
-                 "OBS-011 : fonction aerodynamique de l'actionneur documentee");
+                 "actuator aerodynamic function documented");
     runner.check(injected->has_profile && injected->profile == FaultProfile::Permanent,
-                 "OBS-011 : profil PERMANENT explicite");
-    runner.check(!injected->has_duration, "OBS-011 : faute permanente sans duree bornee");
+                 "explicit PERMANENT profile");
+    runner.check(!injected->has_duration, "permanent fault without bounded duration");
     runner.check(injected->value_kind == sim::sil::FaultValueKind::Efficiency
                      && std::abs(injected->value - 0.6) <= 1.0e-9,
-                 "OBS-011 : parametre efficiency porte et type");
+                 "efficiency parameter carried and typed");
     runner.check(injected->expected_behavior.find("ACTUATOR_MISMATCH") != std::string_view::npos
                      && injected->expected_behavior.find("COMPENSATED") != std::string_view::npos,
-                 "OBS-011 : comportement attendu documente");
+                 "expected behavior documented");
 }
 
 /*
@@ -76,6 +77,7 @@ marker repeating the target identity.
 */
 void sensor_fault_metadata_test(TestHarness& runner)
 {
+    runner.set_context("OBS-012");
     const SilConfig config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario scenario{.start_time = 10.0,
                                  .duration = 5.0,
@@ -85,28 +87,28 @@ void sensor_fault_metadata_test(TestHarness& runner)
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-012 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
     const SilEvent* injected = find_first(outcome.value().events, SilEventType::FaultInjected);
     const SilEvent* cleared = find_first(outcome.value().events, SilEventType::FaultCleared);
     if (injected == nullptr || cleared == nullptr) {
-        runner.check(false, "OBS-012 : evenements FAULT_INJECTED et FAULT_CLEARED presents");
+        runner.check(false, "FAULT_INJECTED and FAULT_CLEARED events present");
         return;
     }
 
-    runner.check(injected->target == "baro_primary", "OBS-012 : cible capteur baro identifiee");
+    runner.check(injected->target == "baro_primary", "baro sensor target identified");
     runner.check(injected->physical_role.empty() && injected->physical_category.empty(),
-                 "OBS-012 : cible non-actionneur sans role physique");
-    runner.check(injected->subtype == "ALTITUDE_OUT_OF_RANGE", "OBS-012 : sous-type de corruption porte");
+                 "non-actuator target without physical role");
+    runner.check(injected->subtype == "ALTITUDE_OUT_OF_RANGE", "corruption subtype carried");
     runner.check(injected->has_profile && injected->profile == FaultProfile::Temporary,
-                 "OBS-012 : profil TEMPORARY explicite");
+                 "explicit TEMPORARY profile");
     runner.check(injected->has_duration && std::abs(injected->duration_s - 5.0) <= 1.0e-9,
-                 "OBS-012 : duree explicite de la faute temporaire");
-    runner.check(!injected->expected_behavior.empty(), "OBS-012 : comportement attendu documente");
+                 "explicit duration of the temporary fault");
+    runner.check(!injected->expected_behavior.empty(), "expected behavior documented");
     runner.check(cleared->target == "baro_primary" && cleared->has_profile
                      && cleared->profile == FaultProfile::Temporary,
-                 "OBS-012 : FAULT_CLEARED porte la cible et le profil");
+                 "FAULT_CLEARED carries the target and profile");
 }
 
 }

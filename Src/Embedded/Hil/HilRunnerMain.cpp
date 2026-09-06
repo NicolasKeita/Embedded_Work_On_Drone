@@ -20,9 +20,9 @@ namespace {
 
 void print_usage(std::string_view name)
 {
-    std::cout << "HIL runner : real-time closed-loop mission against the FC target.\n";
+    std::cout << "HIL runner: real-time closed-loop mission against the FC target.\n";
     std::cout << "Usage: " << name << " [options]\n";
-    std::cout << "  --scenario <id>         HIL-001..HIL-005 (default HIL-001)\n";
+    std::cout << "  --scenario <id>         functional scenario ID (default NOM-001_StationKeeping)\n";
     std::cout << "  --duration <s>          override mission duration in seconds\n";
     std::cout << "  --telemetry-period <s>  override human-readable report period (default 1 s)\n";
     std::cout << "  --seed <n>              random seed\n";
@@ -31,13 +31,14 @@ void print_usage(std::string_view name)
     std::cout << "  --clock <Monotonic|Fast> wall-clock source (default Monotonic; Fast for tests)\n";
     std::cout << "  --deadline <Warn|Fail|Abort>  deadline-miss policy (default Warn)\n";
     std::cout << "  --list                  list available scenarios\n";
+    std::cout << "  --target <sil|hil>      execution target tag for the report (default hil)\n";
 }
 
 void list_scenarios()
 {
     std::cout << "HIL scenarios:\n";
     for (const sim::hil::HilScenarioRecord& s : sim::hil::HilScenarioCatalog::all()) {
-        std::cout << "  " << s.id << " : " << s.description << "\n";
+        std::cout << "  " << s.id << " : " << s.description << " [HIL]\n";
     }
 }
 
@@ -54,7 +55,7 @@ std::optional<std::string> value_of(int argc, char** argv, int& i, std::string_v
 
 int main(int argc, char** argv)
 {
-    std::string scenario_id = "HIL-001";
+    std::string scenario_id = "NOM-001_StationKeeping";
     std::optional<std::float64_t> duration;
     std::optional<std::float64_t> telemetry_period;
     std::optional<std::uint64_t> seed;

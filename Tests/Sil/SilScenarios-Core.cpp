@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Sil/SilScenarios-Core.cpp
-Description: SIL scenarios 001 to 003 : nominal, FC1 failure and communication loss.
+Description: SIL scenarios: nominal station-keeping, FC1 failure and communication loss.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -40,69 +40,69 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 }
 void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    std::cout << "\n=== SIL-001 : vol nominal sans faulte ===" << std::endl;
+    runner.begin_scenario("NOM-001_StationKeeping", "Nominal station-keeping mission (no fault)");
     const FaultScenario scenario{};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
-        runner.check(false, "SIL-001 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "SIL-001", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "NOM-001_StationKeeping", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
     output = std::move(outcome).value();
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(false);
-    runner.check(r.mission_success, "SIL-001 : mission COMPLETE sans faulte");
-    runner.check(r.final_state == sim::control::MissionState::COMPLETE, "SIL-001 : etat terminal COMPLETE");
-    runner.check(r.final_safety_mode == SafetyMode::NORMAL, "SIL-001 : mode de surete NORMAL");
-    runner.check(!r.fault_detected, "SIL-001 : aucune faulte detectee");
-    runner.check(r.max_altitude_error_m <= 10.5, "SIL-001 : erreur d'altitude maitrisee (<= 10.5 m)");
-    record = {.name = "SIL-001", .scenario = scenario, .result = r, .events = output.events,
+    runner.check(r.mission_success, "mission completed COMPLETE with no fault");
+    runner.check(r.final_state == sim::control::MissionState::COMPLETE, "terminal state COMPLETE");
+    runner.check(r.final_safety_mode == SafetyMode::NORMAL, "safety mode NORMAL");
+    runner.check(!r.fault_detected, "no fault detected");
+    runner.check(r.max_altitude_error_m <= 10.5, "altitude error bounded (<= 10.5 m)");
+    record = {.name = "NOM-001_StationKeeping", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    std::cout << "\n=== SIL-002 : defaillance FC1 a t = 20.0 s ===" << std::endl;
+    runner.begin_scenario("FINJ-001_Fc1Failure", "FC1 failure injected at t = 20.0 s");
     const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
-        runner.check(false, "SIL-002 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "SIL-002", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FINJ-001_Fc1Failure", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
     output = std::move(outcome).value();
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
-    runner.check(r.fault_detected, "SIL-002 : defaillance FC1 detectee");
-    runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "SIL-002 : timeout heartbeat en <= 300 ms");
-    runner.check(r.final_safety_mode == SafetyMode::SAFE_MODE, "SIL-002 : passage en SAFE_MODE");
-    runner.check(r.response_latency >= 0.0 && r.response_latency <= 0.20, "SIL-002 : latence de reponse <= 200 ms");
+    runner.check(r.fault_detected, "FC1 failure detected");
+    runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "heartbeat timeout within 300 ms");
+    runner.check(r.final_safety_mode == SafetyMode::SAFE_MODE, "SAFE_MODE engaged");
+    runner.check(r.response_latency >= 0.0 && r.response_latency <= 0.20, "response latency <= 200 ms");
     runner.check(r.final_state == sim::control::MissionState::ABORTED,
-                 "SIL-002 : mission ABORTED par le SafetyManager");
-    runner.check(!r.mission_success && r.test_verdict, "SIL-002 : verdict PASS avec mission non reussie");
-    record = {.name = "SIL-002", .scenario = scenario, .result = r, .events = output.events,
+                 "mission ABORTED by the SafetyManager");
+    runner.check(!r.mission_success && r.test_verdict, "verdict PASS with mission not successful");
+    record = {.name = "FINJ-001_Fc1Failure", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    std::cout << "\n=== SIL-003 : perte de communication a t = 20.0 s ===" << std::endl;
+    runner.begin_scenario("FINJ-002_CommLoss", "Communication loss injected at t = 20.0 s");
     const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::CommunicationLoss};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
-        runner.check(false, "SIL-003 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "SIL-003", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FINJ-002_CommLoss", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
@@ -110,11 +110,11 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
     runner.check(r.fault_detected && r.first_fault_domain == FaultDomain::Communication,
-                 "SIL-003 : alerte COMMUNICATION_LOST levee");
-    runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "SIL-003 : alerte en <= 300 ms");
-    runner.check(r.safe_mode_reached, "SIL-003 : reaction de surete engagee");
-    runner.check(r.final_state == sim::control::MissionState::ABORTED, "SIL-003 : mission ABORTED (regle etape 10)");
-    record = {.name = "SIL-003", .scenario = scenario, .result = r, .events = output.events,
+                 "COMMUNICATION_LOST alert raised");
+    runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "alert raised within 300 ms");
+    runner.check(r.safe_mode_reached, "safety reaction engaged");
+    runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED (step 10 rule)");
+    record = {.name = "FINJ-002_CommLoss", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 }

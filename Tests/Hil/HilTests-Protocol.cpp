@@ -55,14 +55,15 @@ namespace {
 
 void run_protocol_tests(sim::test::TestHarness& runner)
 {
+    runner.set_context("PROTO");
     {
         FlightCore::Sim::LoopbackTransport channel;
         sim::hil::HilTransport transport{&channel};
         sim::hil::FastClock clock;
         push_actuator(channel, 5, 1000);
         runner.check(receive(transport, clock, 6, 1000) == sim::hil::ReceiveResult::SequenceError,
-                     "protocol : sequence mismatch rejected");
-        runner.check(transport.stats().sequence_errors >= 1, "protocol : sequence errors counted");
+                     "sequence mismatch rejected");
+        runner.check(transport.stats().sequence_errors >= 1, "sequence errors counted");
     }
 
     {
@@ -71,8 +72,8 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         sim::hil::FastClock clock;
         push_actuator(channel, 5, 9999);
         runner.check(receive(transport, clock, 5, 1000) == sim::hil::ReceiveResult::EchoMismatch,
-                     "protocol : stale sim-timestamp echo rejected");
-        runner.check(transport.stats().stale_packets >= 1, "protocol : stale packets counted");
+                     "stale sim-timestamp echo rejected");
+        runner.check(transport.stats().stale_packets >= 1, "stale packets counted");
     }
 
     {
@@ -80,10 +81,10 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         sim::hil::HilTransport transport{&channel};
         sim::hil::FastClock clock;
         const FlightCore::HAL::SensorData sensor{};
-        runner.check(sim::hil::send_sensor_frame(channel, sensor, 5), "protocol : sensor frame queued");
+        runner.check(sim::hil::send_sensor_frame(channel, sensor, 5), "sensor frame queued");
         runner.check(receive(transport, clock, 5, 0) == sim::hil::ReceiveResult::Timeout,
-                     "protocol : wrong message id dropped, then timeout");
-        runner.check(transport.stats().messages_dropped >= 1, "protocol : wrong-type frame dropped");
+                     "wrong message id dropped, then timeout");
+        runner.check(transport.stats().messages_dropped >= 1, "wrong-type frame dropped");
     }
 
     {
@@ -92,12 +93,12 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         sim::hil::FastClock clock;
         push_actuator(channel, 5, 1000);
         std::array<std::uint8_t, FlightCore::Transport::kActuatorFrameSize> frame{};
-        runner.check(channel.receiveBytes(frame) == frame.size(), "protocol : actuator frame drained");
+        runner.check(channel.receiveBytes(frame) == frame.size(), "actuator frame drained");
         frame[FlightCore::Transport::kHeaderSize + 4] ^= 0xFFu;
-        runner.check(channel.sendBytes(frame), "protocol : corrupt frame queued");
+        runner.check(channel.sendBytes(frame), "corrupt frame queued");
         runner.check(receive(transport, clock, 5, 1000) == sim::hil::ReceiveResult::Timeout,
-                     "protocol : CRC-corrupt frame rejected (timeout)");
-        runner.check(transport.stats().messages_dropped >= 1, "protocol : corrupt frame counted as dropped");
+                     "CRC-corrupt frame rejected (timeout)");
+        runner.check(transport.stats().messages_dropped >= 1, "corrupt frame counted as dropped");
     }
 
     {
@@ -107,7 +108,7 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         push_actuator(channel, 4, 1000);
         push_actuator(channel, 5, 1000);
         runner.check(receive(transport, clock, 5, 1000) == sim::hil::ReceiveResult::SequenceError,
-                     "protocol : duplicate/stale earlier packet caught before the matching one");
+                     "duplicate/stale earlier packet caught before the matching one");
     }
 }
 

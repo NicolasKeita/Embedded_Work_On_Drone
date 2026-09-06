@@ -15,17 +15,21 @@ import TestHarness;
 
 namespace sim::test {
 
-const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
-    {'a', "Repos (RPM = 0, servos = 0)", scenarios::rest},
-    {'b', "Montee (RPM > hover)", scenarios::climb},
-    {'c', "Descente (RPM < hover)", scenarios::descent},
-    {'d', "Deplacement X (hover + pitch > 0)", scenarios::move_x},
-    {'e', "Deplacement Y (hover + roll > 0)", scenarios::move_y},
-    {'f', "Combine (RPM > hover, pitch > 0, roll < 0)", scenarios::combined},
-    {'g', "Autonomie : altitude pure (z -> 100 m)", flight_scenarios::autonomous_altitude},
-    {'h', "Autonomie : axe X en cascade (x 20 -> 0)", flight_scenarios::autonomous_position_x},
-    {'i', "Autonomie : axe Y en cascade (y -15 -> 0)", flight_scenarios::autonomous_position_y},
-    {'j', "Autonomie : mission complete (TAKEOFF a COMPLETE)", flight_scenarios::autonomous_mission},
+const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{{
+    {"NOM-002_GroundedRest",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
+    {"NOM-003_VerticalClimb",        "Vertical climb (RPM > hover)",              scenarios::climb},
+    {"NOM-004_Descent",             "Descent (RPM < hover)",                     scenarios::descent},
+    {"NOM-005_ForwardTranslation",  "Forward translation (hover + pitch > 0)",    scenarios::move_x},
+    {"NOM-006_LateralTranslation",  "Lateral translation (hover + roll > 0)",     scenarios::move_y},
+    {"NOM-007_CombinedTranslation", "Combined translation (RPM > hover, "
+                                    "pitch > 0, roll < 0)",                      scenarios::combined},
+    {"MC-001_AltitudeHold",         "Autonomous altitude hold (z: 0 -> 100 m)",  flight_scenarios::autonomous_altitude},
+    {"MC-002_PositionXHold",        "Autonomous cascaded X axis (x: 20 -> 0)",
+                                    flight_scenarios::autonomous_position_x},
+    {"MC-003_PositionYHold",        "Autonomous cascaded Y axis (y: -15 -> 0)",
+                                    flight_scenarios::autonomous_position_y},
+    {"MC-004_FullMission",          "Autonomous full mission (TAKEOFF to COMPLETE)",
+                                    flight_scenarios::autonomous_mission},
 }};
 
 std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept
@@ -33,16 +37,10 @@ std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept
     return scenarios_;
 }
 
-const ScenarioEntry* ScenarioCatalog::find(char argument) noexcept
+const ScenarioEntry* ScenarioCatalog::find(std::string_view id) noexcept
 {
-    char normalizedKey = argument;
-
-    if (normalizedKey >= 'A' && normalizedKey <= 'Z') {
-        normalizedKey = static_cast<char>(normalizedKey + ('a' - 'A'));
-    }
-
     for (const ScenarioEntry& entry : scenarios_) {
-        if (entry.key == normalizedKey) {
+        if (entry.id == id) {
             return &entry;
         }
     }
@@ -52,19 +50,16 @@ const ScenarioEntry* ScenarioCatalog::find(char argument) noexcept
 
 void ScenarioCatalog::print_usage(std::string_view executableName)
 {
-    std::cout << "Validation du simulateur physique (Heliblade-like)." << std::endl;
-    std::cout << "Utilisation : " << executableName << " [scenario ...]" << std::endl;
-    std::cout << "  Sans argument : tous les scenarios sont executes." << std::endl;
-    std::cout << "  scenario      : lettre(s) parmi";
-    for (const ScenarioEntry& entry : scenarios_) {
-        std::cout << ' ' << entry.key;
-    }
-    std::cout << " (insensible a la casse), ou -h / --help." << std::endl;
+    std::cout << "Physical simulator validation (Heliblade-like)." << std::endl;
+    std::cout << "Usage: " << executableName << " [--target=simulation] [scenario ...]" << std::endl;
+    std::cout << "  With no scenario argument, all scenarios are executed (in catalog order)." << std::endl;
+    std::cout << "  --target=simulation  Execution target (default: simulation, also: sim)." << std::endl;
+    std::cout << "  -h, --help            Show this help." << std::endl;
     std::cout << std::endl;
-    std::cout << "Scenarios disponibles :" << std::endl;
+    std::cout << "Available scenarios:" << std::endl;
 
     for (const ScenarioEntry& entry : scenarios_) {
-        std::cout << "  " << entry.key << " : " << entry.description << std::endl;
+        std::cout << "  " << entry.id << " : " << entry.description << std::endl;
     }
 }
 

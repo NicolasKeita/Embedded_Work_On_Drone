@@ -43,12 +43,13 @@ namespace {
 
 void run_runner_tests(sim::test::TestHarness& runner)
 {
-    const sim::hil::HilConfig cfg = fast_config("HIL-001", 30.0);
-    const std::array<sim::sil::FaultScenario, 1> scenarios{scenario_of("HIL-001")};
+    runner.set_context("NOM-001_StationKeeping");
+    const sim::hil::HilConfig cfg = fast_config("NOM-001_StationKeeping", 30.0);
+    const std::array<sim::sil::FaultScenario, 1> scenarios{scenario_of("NOM-001_StationKeeping")};
     sim::hil::HilRunner runner_obj{cfg};
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> outcome = runner_obj.run(scenarios);
 
-    runner.check(outcome.has_value(), "HIL-001 : runner executed");
+    runner.check(outcome.has_value(), "runner executed");
     if (!outcome.has_value()) {
         return;
     }
@@ -56,19 +57,19 @@ void run_runner_tests(sim::test::TestHarness& runner)
 
     const std::uint64_t expected_steps = sim::hil::hil_step_count(cfg);
     runner.check(output.result.timing.steps_executed == expected_steps,
-                 "HIL-001 : executed all steps (duration / dt, not hard-coded)");
-    runner.check(expected_steps == 3000, "HIL-001 : 30 s / 10 ms = 3000 steps");
+                 "executed all steps (duration / dt, not hard-coded)");
+    runner.check(expected_steps == 3000, "30 s / 10 ms = 3000 steps");
 
-    runner.check(output.result.mission_success, "HIL-001 : mission completed (COMPLETE)");
+    runner.check(output.result.mission_success, "mission completed (COMPLETE)");
     runner.check(output.result.final_state == sim::control::MissionState::COMPLETE,
-                 "HIL-001 : final mission state COMPLETE");
-    runner.check(output.result.timing.deadline_misses == 0, "HIL-001 : zero deadline misses");
-    runner.check(output.result.test_verdict, "HIL-001 : verdict PASS");
+                 "final mission state COMPLETE");
+    runner.check(output.result.timing.deadline_misses == 0, "zero deadline misses");
+    runner.check(output.result.test_verdict, "verdict PASS");
 
-    runner.check(!output.telemetry.empty(), "HIL-001 : structured telemetry emitted");
+    runner.check(!output.telemetry.empty(), "structured telemetry emitted");
     const std::size_t expected_samples = static_cast<std::size_t>(cfg.duration_s * cfg.telemetry_rate_hz);
     runner.check(output.telemetry.size() >= expected_samples / 2,
-                 "HIL-001 : telemetry cadence near the configured internal rate");
+                 "telemetry cadence near the configured internal rate");
 
     bool ordered = true;
     for (std::size_t i = 1; i < output.events.size(); ++i) {
@@ -77,14 +78,15 @@ void run_runner_tests(sim::test::TestHarness& runner)
             break;
         }
     }
-    runner.check(ordered, "HIL-001 : event ordering preserved by sim time");
+    runner.check(ordered, "event ordering preserved by sim time");
 
+    runner.set_context("TIMING");
     sim::hil::HilStepTiming timing{};
     timing.scheduled_us = 0;
     timing.step_completion_us = 15000;
-    runner.check(timing.deadline_missed(10000), "timing : deadline miss detected when over budget");
+    runner.check(timing.deadline_missed(10000), "deadline miss detected when over budget");
     timing.step_completion_us = 9000;
-    runner.check(!timing.deadline_missed(10000), "timing : no miss when within budget");
+    runner.check(!timing.deadline_missed(10000), "no miss when within budget");
 
     sim::hil::HilTimingStats stats{};
     sim::hil::HilStepTiming miss{};
@@ -92,15 +94,17 @@ void run_runner_tests(sim::test::TestHarness& runner)
     miss.actual_start_us = 0;
     miss.step_completion_us = 12000;
     stats.record(miss, 10000);
-    runner.check(stats.deadline_misses == 1, "timing : HilTimingStats counts a deadline miss");
+    runner.check(stats.deadline_misses == 1, "HilTimingStats counts a deadline miss");
 
+    runner.set_context("REALTIME");
     sim::hil::HilConfig realtime_cfg = sim::hil::hil_base_config();
-    realtime_cfg.scenario_id = "HIL-001";
+    realtime_cfg.scenario_id = "NOM-001_StationKeeping";
     realtime_cfg.duration_s = 0.10;
     realtime_cfg.dt_s = 0.01;
     realtime_cfg.real_time_pacing = true;
     realtime_cfg.clock_kind = sim::hil::ClockKind::Monotonic;
-    const std::array<sim::sil::FaultScenario, 1> rs{sim::hil::HilScenarioCatalog::find("HIL-001")->fault};
+    const std::array<sim::sil::FaultScenario, 1> rs{
+        sim::hil::HilScenarioCatalog::find("NOM-001_StationKeeping")->fault};
     const auto t0 = std::chrono::steady_clock::now();
     sim::hil::HilRunner rt_runner{realtime_cfg};
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> rt = rt_runner.run(rs);

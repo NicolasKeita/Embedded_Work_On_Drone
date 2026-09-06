@@ -68,8 +68,8 @@ void check_commands_diverge(TestHarness&        runner,
             post_commands_diverge = post_commands_diverge || n.commanded_rpm != f.commanded_rpm;
         }
     }
-    runner.check(pre_commands_identical, "TELE : commandes identiques au nominal avant la faulte");
-    runner.check(post_commands_diverge, "TELE : le FC consomme la mesure du chemin capteur");
+    runner.check(pre_commands_identical, "commands identical to nominal before the fault");
+    runner.check(post_commands_diverge, "FC consumes the sensor-path measurement");
 }
 
 /*
@@ -86,7 +86,7 @@ void check_stream_separation(TestHarness&        runner,
     const std::vector<TelemetrySample>& samples = output.telemetry;
     const std::vector<TrueStateSample>& truth = output.ground_truth;
 
-    runner.check(samples.size() == truth.size(), "TELE-011 : flux telemetrie/ground truth alignes");
+    runner.check(samples.size() == truth.size(), "telemetry/ground-truth streams aligned");
 
     bool truth_finite = true;
     bool truth_valid_before_fault = true;
@@ -104,9 +104,9 @@ void check_stream_separation(TestHarness&        runner,
                               || std::abs(samples[index].altitude_m - truth[index].z) > 1.0e-6;
         }
     }
-    runner.check(truth_finite, "TELE-011 : ground truth toujours finie (jamais corrompue)");
-    runner.check(truth_valid_before_fault, "TELE-011 : ground truth dans les limites physiques avant la faulte");
-    runner.check(pre_fault_identical, "TELE-011 : sans corruption capteur et verite coincident");
-    runner.check(sensor_diverged, "TELE-011 : telemetrie capteur ecartee de la verite pendant la faulte");
+    runner.check(truth_finite, "ground truth always finite (never corrupted)");
+    runner.check(truth_valid_before_fault, "ground truth within physical limits before the fault");
+    runner.check(pre_fault_identical, "sensor and truth coincide without corruption");
+    runner.check(sensor_diverged, "sensor telemetry diverges from truth during the fault");
 }
 }

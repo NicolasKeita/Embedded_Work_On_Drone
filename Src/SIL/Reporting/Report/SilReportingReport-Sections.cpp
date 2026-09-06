@@ -24,20 +24,20 @@ void write_scenario_fault_rows(std::ostream& out, const ScenarioRecord& record)
 {
     const SimulationResult& r = record.result;
 
-    out << "| Type de faulte | `" << fault_type_name(record.scenario.fault_type) << "` |\n";
-    out << "| Debut (s) | ";
+    out << "| Fault type | `" << fault_type_name(record.scenario.fault_type) << "` |\n";
+    out << "| Start (s) | ";
     write_seconds(out, record.scenario.start_time);
     out << " |\n";
-    out << "| Duree (s) | ";
+    out << "| Duration (s) | ";
     write_seconds(out, record.scenario.duration);
     out << " |\n";
-    out << "| Detectee a (s) | ";
+    out << "| Detected at (s) | ";
     write_seconds(out, r.detection_time);
     out << " |\n";
-    out << "| Latence de detection (ms) | ";
+    out << "| Detection latency (ms) | ";
     write_metric(out, 1000.0 * r.detection_latency);
     out << " |\n";
-    out << "| Latence de reponse (ms) | ";
+    out << "| Response latency (ms) | ";
     write_metric(out, 1000.0 * r.response_latency);
     out << " |\n";
 }
@@ -47,33 +47,33 @@ Writes the safety, aircraft, communication and verdict rows of one section.
 */
 void write_scenario_outcome_rows(std::ostream& out, const SimulationResult& r)
 {
-    out << "| Sante finale | `" << health_state_name(r.final_health) << "` |\n";
-    out << "| Mode de surete final | `" << safety_mode_name(r.final_safety_mode) << "` |\n";
-    out << "| Etat de mission final | `" << sim::control::mission_state_name(r.final_state) << "` |\n";
-    out << "| Erreur de position max (m) | ";
+    out << "| Final health | `" << health_state_name(r.final_health) << "` |\n";
+    out << "| Final safety mode | `" << safety_mode_name(r.final_safety_mode) << "` |\n";
+    out << "| Final mission state | `" << sim::control::mission_state_name(r.final_state) << "` |\n";
+    out << "| Max position error (m) | ";
     write_metric(out, r.max_position_error_m);
     out << " |\n";
-    out << "| Erreur d'altitude max (m) | ";
+    out << "| Max altitude error (m) | ";
     write_metric(out, r.max_altitude_error_m);
     out << " |\n";
-    out << "| Altitude finale (m) | ";
+    out << "| Final altitude (m) | ";
     write_metric(out, r.final_altitude_m);
     out << " |\n";
-    out << "| Watchdog declenche | " << yes_no(r.watchdog_triggered) << " |\n";
-    out << "| Messages envoyes / recus / perdus | " << r.comms.sent << " / " << r.comms.delivered << " / "
+    out << "| Watchdog triggered | " << yes_no(r.watchdog_triggered) << " |\n";
+    out << "| Messages sent / received / lost | " << r.comms.sent << " / " << r.comms.delivered << " / "
         << r.comms.dropped << " |\n";
-    out << "| Derniere sequence recue | " << r.comms.last_sequence << " |\n";
-    out << "| Timeouts de communication | " << r.comms.timeouts << " |\n";
-    out << "| Latence min / moyenne / max (ms) | ";
+    out << "| Last received sequence | " << r.comms.last_sequence << " |\n";
+    out << "| Communication timeouts | " << r.comms.timeouts << " |\n";
+    out << "| Min / mean / max latency (ms) | ";
     write_metric(out, 1000.0 * r.comms.latency_min_s);
     out << " / ";
     write_metric(out, 1000.0 * r.comms.latency_mean_s);
     out << " / ";
     write_metric(out, 1000.0 * r.comms.latency_max_s);
     out << " |\n";
-    out << "| Mission reussie | " << yes_no(r.mission_success) << " |\n";
+    out << "| Mission successful | " << yes_no(r.mission_success) << " |\n";
     out << "| Verdict | " << (r.test_verdict ? "**PASS**" : "**FAIL**") << " |\n\n";
-    out << "> Verdict : " << verdict_reason(r) << "\n\n";
+    out << "> Verdict: " << verdict_reason(r) << "\n\n";
 }
 
 }

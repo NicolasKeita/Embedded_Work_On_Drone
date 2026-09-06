@@ -40,17 +40,17 @@ void write_scenario_telemetry_sections(std::ostream&         out,
 {
     const std::float64_t fault_time = record.result.fault_injected_time;
 
-    out << "\n#### Telemetrie mission\n\n";
+    out << "\n#### Mission telemetry\n\n";
     const std::float64_t pre_fault_stop = fault_time < 0.0 ? std::numeric_limits<std::float64_t>::max() : fault_time;
     write_telemetry_window(out, record.telemetry, 0.0, pre_fault_stop, telemetry_report_interval_s);
 
-    out << "\n#### Evenements\n\n";
+    out << "\n#### Events\n\n";
     write_event_table(out, record.events);
     if (fault_time < 0.0) {
         out << "\n";
         return;
     }
-    out << "\n#### Telemetrie apres faulte\n\n";
+    out << "\n#### Post-fault telemetry\n\n";
     write_telemetry_window(out, record.telemetry, fault_time, std::numeric_limits<std::float64_t>::max(),
                            telemetry_report_interval_s);
     out << "\n";

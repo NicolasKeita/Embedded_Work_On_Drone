@@ -81,15 +81,16 @@ non-actuator targets empty.
 */
 void actuator_semantic_mapping_test(TestHarness& runner)
 {
+    runner.set_context("OBS-013");
     using sim::sil::FaultTarget;
     runner.check(sim::sil::fault_target_physical_role(FaultTarget::ActuatorLeftServo) == "left_servo",
-                 "OBS-013 : role physique du servo gauche");
+                 "left servo physical role");
     runner.check(sim::sil::fault_target_category(FaultTarget::ActuatorLeftServo) == "CONTROL_SURFACE_SERVO",
-                 "OBS-013 : categorie servo de surface de controle");
+                 "control surface servo category");
     runner.check(sim::sil::fault_target_function(FaultTarget::ActuatorRightServo) == "Pitch / Roll Control",
-                 "OBS-013 : fonction aerodynamique du servo");
+                 "servo aerodynamic function");
     runner.check(sim::sil::fault_target_physical_role(FaultTarget::SensorBarometer).empty(),
-                 "OBS-013 : cible non-actionneur sans role physique");
+                 "non-actuator target without physical role");
 }
 
 /*
@@ -97,7 +98,7 @@ Runs the whole observability suite.
 */
 void run_observability_scenarios(TestHarness& runner)
 {
-    std::cout << "\n=== Suite observabilite SIL ===" << std::endl;
+    std::cout << "\n=== SIL observability suite ===" << std::endl;
 
     heartbeat_trace_test(runner);
     dropped_heartbeats_test(runner);
