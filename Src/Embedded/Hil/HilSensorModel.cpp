@@ -17,14 +17,17 @@ import Telemetry;
 namespace sim::hil {
 
 HilSensorModel::HilSensorModel(std::float64_t noise_stddev, std::uint64_t seed)
-    : generator_{seed}, distribution_{0.0, std::max(std::float64_t{0.0}, noise_stddev)}
+    : generator_{seed}, distribution_{0.0, 1.0}, stddev_{std::max(std::float64_t{0.0}, noise_stddev)}
 {
+    if (stddev_ > 0.0) {
+        distribution_.param(std::normal_distribution<std::float64_t>::param_type(0.0, stddev_));
+    }
 }
 
 sim::sil::SensorTelemetry HilSensorModel::sample(const AircraftState& truth)
 {
     sim::sil::SensorTelemetry sensors = sim::sil::make_telemetry(truth);
-    if (distribution_.stddev() <= 0.0) {
+    if (stddev_ <= 0.0) {
         return sensors;
     }
     sensors.x += distribution_(generator_);

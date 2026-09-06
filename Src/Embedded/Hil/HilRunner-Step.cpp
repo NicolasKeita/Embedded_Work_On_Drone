@@ -19,6 +19,7 @@ import FlightController;
 import HalTypes;
 import HealthMonitor;
 import HilEvents;
+import HilFcTarget;
 import HilProtocol;
 import HilConfig;
 import HilClock;
@@ -98,7 +99,10 @@ void exchange_actuators(HilRunContext& ctx)
     const std::uint64_t sensor_send_wall = ctx.clock->nowUs();
     ctx.sensor_send_wall_us = sensor_send_wall;
     ctx.actuator_receive_wall_us = 0;
-    ctx.transport.sendSensor(wire, sequence);
+    if (!ctx.transport.sendSensor(wire, sequence)) {
+        record_step_error(ctx, ReceiveResult::SendFailed);
+        return;
+    }
 
     ctx.this_fc = FcStepOutcome{};
     ctx.this_received = false;

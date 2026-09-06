@@ -25,6 +25,7 @@ import FlightController;
 import FlightControllerTypes;
 import HalTypes;
 import HilClock;
+import HilConfig;
 import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;

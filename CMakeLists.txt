@@ -404,6 +404,7 @@ target_add_mixed_sources(fc1_hil_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Src/Embedded/Hil/HilSensorModel.cpp
     Src/Embedded/Hil/HilScenarios.cppm
     Src/Embedded/Hil/HilScenarios.cpp
+    ${SAFETY_FILES}
     ${HIL_TRANSPORT_FILES}
     ${SIMULATION_FILES}
     ${CONTROL_FILES}

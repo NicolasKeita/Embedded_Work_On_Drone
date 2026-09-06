@@ -34,13 +34,13 @@ namespace {
         };
     }
 
-    void push_actuator(FlightCore::Sim::LoopbackTransport& channel, std::uint16_t seq, std::uint64_t echo_us)
+    bool push_actuator(FlightCore::Sim::LoopbackTransport& channel, std::uint16_t seq, std::uint64_t echo_us)
     {
         const FlightCore::HAL::ActuatorCommands cmds = sample_commands(7, seq);
         const FlightCore::Transport::ActuatorDiagnostics diag{};
         const auto payload = FlightCore::Transport::makeActuatorPayload(cmds, echo_us, diag);
         const auto frame = FlightCore::Transport::encodeActuatorFrame(payload, seq);
-        channel.sendBytes(frame);
+        return channel.sendBytes(frame);
     }
 
     sim::hil::ReceiveResult receive(sim::hil::HilTransport& transport, sim::hil::FastClock& clock,
@@ -80,7 +80,7 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         sim::hil::HilTransport transport{&channel};
         sim::hil::FastClock clock;
         const FlightCore::HAL::SensorData sensor{};
-        sim::hil::send_sensor_frame(channel, sensor, 5);
+        runner.check(sim::hil::send_sensor_frame(channel, sensor, 5), "protocol : sensor frame queued");
         runner.check(receive(transport, clock, 5, 0) == sim::hil::ReceiveResult::Timeout,
                      "protocol : wrong message id dropped, then timeout");
         runner.check(transport.stats().messages_dropped >= 1, "protocol : wrong-type frame dropped");
@@ -92,9 +92,9 @@ void run_protocol_tests(sim::test::TestHarness& runner)
         sim::hil::FastClock clock;
         push_actuator(channel, 5, 1000);
         std::array<std::uint8_t, FlightCore::Transport::kActuatorFrameSize> frame{};
-        channel.receiveBytes(frame);
+        runner.check(channel.receiveBytes(frame) == frame.size(), "protocol : actuator frame drained");
         frame[FlightCore::Transport::kHeaderSize + 4] ^= 0xFFu;
-        channel.sendBytes(frame);
+        runner.check(channel.sendBytes(frame), "protocol : corrupt frame queued");
         runner.check(receive(transport, clock, 5, 1000) == sim::hil::ReceiveResult::Timeout,
                      "protocol : CRC-corrupt frame rejected (timeout)");
         runner.check(transport.stats().messages_dropped >= 1, "protocol : corrupt frame counted as dropped");

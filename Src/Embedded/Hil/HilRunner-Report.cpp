@@ -36,7 +36,7 @@ namespace {
 
     std::array<std::float64_t, 10> row_values(const HilSensorSample& s)
     {
-        return {s.time, s.x, s.y, s.z, s.vx, s.vy, s.vz, s.pitch_rad * kDegreesPerRadian,
+        return {s.time_s, s.x, s.y, s.z, s.vx, s.vy, s.vz, s.pitch_rad * kDegreesPerRadian,
                 s.roll_rad * kDegreesPerRadian, s.measured_rpm};
     }
 
@@ -151,13 +151,13 @@ void HilRunner::writeReport(std::ostream& out, const HilRunOutput& output)
         std::ptrdiff_t best = -1;
         std::float64_t best_delta = 1.0e9;
         for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(output.telemetry.size()); ++i) {
-            const std::float64_t d = std::abs(output.telemetry[static_cast<std::size_t>(i)].time - target_time);
+            const std::float64_t d = std::abs(output.telemetry[static_cast<std::size_t>(i)].time_s - target_time);
             if (d < best_delta) {
                 best_delta = d;
                 best = i;
             }
         }
-        const std::float64_t boundary = (best >= 0) ? output.telemetry[static_cast<std::size_t>(best)].time : target_time;
+        const std::float64_t boundary = (best >= 0) ? output.telemetry[static_cast<std::size_t>(best)].time_s : target_time;
         while (event_idx < timeline.size() && timeline[event_idx].sim_time_s <= boundary + 1.0e-6) {
             write_event_line(out, timeline[event_idx]);
             ++event_idx;

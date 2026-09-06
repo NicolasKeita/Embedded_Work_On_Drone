@@ -73,6 +73,9 @@ FcStepOutcome HostFcTarget::respond(std::uint16_t expected_sequence)
         || header.payload_len < FlightCore::Transport::kSensorPayloadSize) {
         return outcome;
     }
+    if (header.sequence_num != expected_sequence) {
+        return outcome;
+    }
 
     outcome.fc_receive_wall_us = clock_.nowUs();
 
@@ -104,7 +107,9 @@ FcStepOutcome HostFcTarget::respond(std::uint16_t expected_sequence)
     FlightCore::HAL::ActuatorCommands cmds = to_actuator_commands(command);
     cmds.mode_flags = static_cast<std::uint8_t>(fc_.state());
     cmds.timestamp_us = clock_.nowUs();
-    actuator_output_.writeActuatorCommands(cmds);
+    if (!actuator_output_.writeActuatorCommands(cmds)) {
+        return outcome;
+    }
     const FlightCore::HAL::ActuatorCommands& emitted = actuator_output_.lastCommands();
 
     outcome.fc_send_wall_us = clock_.nowUs();

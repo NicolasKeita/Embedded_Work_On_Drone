@@ -65,7 +65,7 @@ void update_metrics(HilRunContext& ctx)
         .mission_state = static_cast<std::uint8_t>(current),
         .safety_state = static_cast<std::uint8_t>(ctx.safety.mode()),
     };
-    ctx.telemetry_recorder.maybe_record(ctx.time, state, ctx.last_sensor_data, ctx.actuator_cmd,
+    ctx.telemetry_recorder.maybe_record(ctx.time, ctx.sampled_truth, ctx.last_sensor_data, ctx.actuator_cmd,
                                          ctx.commanded_rpm, control);
 }
 

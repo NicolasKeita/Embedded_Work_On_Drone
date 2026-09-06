@@ -41,7 +41,8 @@ public:
 
 private:
     std::mt19937_64                    generator_{42};
-    std::normal_distribution<std::float64_t> distribution_{0.0, 0.0};
+    std::normal_distribution<std::float64_t> distribution_{0.0, 1.0};
+    std::float64_t                     stddev_ = 0.0;
 };
 
 /*

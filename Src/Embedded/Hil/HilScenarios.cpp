@@ -12,6 +12,7 @@ import std;
 
 import HilConfig;
 import SilFaultScenario;
+import Telemetry;
 
 namespace sim::hil {
 
