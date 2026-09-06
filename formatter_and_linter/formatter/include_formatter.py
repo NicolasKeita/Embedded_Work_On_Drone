@@ -116,11 +116,30 @@ def remove_blank_lines_between_includes(lines: List[str]) -> List[str]:
                     result.append('')
             result.append(line)
         elif stripped == '':
+            if _blank_line_touches_preprocessor(lines, i):
+                result.append(line)
             continue
         else:
             result.append(line)
 
     return result
+
+
+def _blank_line_touches_preprocessor(lines: List[str], blank_index: int) -> bool:
+    previous = ''
+    for j in range(blank_index - 1, -1, -1):
+        if lines[j].strip():
+            previous = lines[j].strip()
+            break
+
+    following = ''
+    for j in range(blank_index + 1, len(lines)):
+        if lines[j].strip():
+            following = lines[j].strip()
+            break
+
+    starts_with_hash = re.compile(r'^\s*#')
+    return bool(starts_with_hash.match(previous) or starts_with_hash.match(following))
 
 
 def format_include_group(include_lines: List[str]) -> List[str]:
