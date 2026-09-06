@@ -80,7 +80,7 @@ La structure de l'en-tête est strictement identique pour tous les types de mess
 ### 3.1 Structure du Header (`HilHeader`)
 
 ```cpp
-// Extrait de Src/embedded/transport/hil_protocol.cppm (module flight.transport.protocol)
+// Extrait de Src/Embedded/Transport/HilProtocol.cppm (module HilProtocol)
 #pragma pack(push, 1)
 struct HilHeader
 {
@@ -107,7 +107,7 @@ static_assert(sizeof(HilHeader) == 8);
 | `0xFE` | `FaultInjectionCmd`| PC Host | STM32 FC1 | Atypique | Injection de défaillances logicielles/matérielles |
 | `0xFF` | `AckNackPacket` | STM32 FC1 | PC Host | Asynchrone | Accusé de réception / Erreur de protocole |
 
-> **État d'implémentation (skeleton étape 13) :** seuls `0x01` (`SensorPacket`) et `0x02` (`ActuatorPacket`) sont définis et traités par le code (`kMsgIdSensor` / `kMsgIdActuator` du module `flight.transport.protocol`). Les identifiants `0x03`, `0x04`, `0xFE` et `0xFF` sont réservés pour les étapes ultérieures et ne sont pas encore pris en charge par le parser ni par le codec.
+> **État d'implémentation (skeleton étape 13) :** seuls `0x01` (`SensorPacket`) et `0x02` (`ActuatorPacket`) sont définis et traités par le code (`kMsgIdSensor` / `kMsgIdActuator` du module `HilProtocol`). Les identifiants `0x03`, `0x04`, `0xFE` et `0xFF` sont réservés pour les étapes ultérieures et ne sont pas encore pris en charge par le parser ni par le codec.
 
 ---
 
@@ -124,7 +124,7 @@ static_assert(sizeof(HilHeader) == 8);
 #### Structure Binaire C++ (`HilSensorPayload`)
 
 ```cpp
-// Extrait de Src/embedded/transport/hil_protocol.cppm (module flight.transport.protocol)
+// Extrait de Src/Embedded/Transport/HilProtocol.cppm (module HilProtocol)
 #pragma pack(push, 1)
 struct HilSensorPayload
 {
@@ -186,7 +186,7 @@ static_assert(sizeof(HilSensorPayload) == 80);
 #### Structure Binaire C++ (`HilActuatorPayload`)
 
 ```cpp
-// Extrait de Src/embedded/transport/hil_protocol.cppm (module flight.transport.protocol)
+// Extrait de Src/Embedded/Transport/HilProtocol.cppm (module HilProtocol)
 #pragma pack(push, 1)
 struct HilActuatorPayload
 {
@@ -226,8 +226,8 @@ Afin de garantir une détection rigoureuse contre le bruit sur la ligne série (
 * **Champ de Calcul :** Calculé sur la totalité du `HilHeader` + `Payload`.
 
 ```cpp
-// Extraits de Src/embedded/transport/parser/hil_protocol_parser.cppm (interface,
-// module flight.transport.protocol.parser) et hil_protocol_parser-crc.cpp
+// Extraits de Src/Embedded/Transport/Parser/HilProtocolParser.cppm (interface,
+// module HilProtocolParser) et HilProtocolParser-Crc.cpp
 // (implémentation bitwise).
 import std;
 
@@ -247,7 +247,7 @@ public:
 };
 ```
 
-> **Sérialisation :** les encodeurs (`encodeSensorFrame` / `encodeActuatorFrame` du module `flight.transport.protocol.codec`) écrivent le CRC en **little-endian** (octet de poids faible d'abord) dans les deux derniers octets de la trame, et le calcul CRC couvre `HilHeader` + `Payload` (pas les octets de CRC eux-mêmes).
+> **Sérialisation :** les encodeurs (`encodeSensorFrame` / `encodeActuatorFrame` du module `HilProtocolCodec`) écrivent le CRC en **little-endian** (octet de poids faible d'abord) dans les deux derniers octets de la trame, et le calcul CRC couvre `HilHeader` + `Payload` (pas les octets de CRC eux-mêmes).
 
 ---
 
@@ -297,10 +297,10 @@ Si $\text{RTT} > 15.0\text{ ms}$, une alerte de gigue temporelle (jitter) est é
 
 ## 7. Interface d'Abstraction Matérielle (HAL C++)
 
-Afin de garantir que le code du calculateur de vol (`FlightController`) reste totalement agnostique du support d'exécution (SIL sous Windows/Linux vs HIL sur STM32 bare-metal/FreeRTOS), des interfaces C++ pures sont définies en modules C++23. La couche transport vit dans `flight.transport` (namespace `FlightCore::Transport`) ; les abstractions capteurs, actionneurs et horloge vivent dans `flight.hal.sensor`, `flight.hal.actuator` et `flight.hal.clock` (namespace `FlightCore::HAL`).
+Afin de garantir que le code du calculateur de vol (`FlightController`) reste totalement agnostique du support d'exécution (SIL sous Windows/Linux vs HIL sur STM32 bare-metal/FreeRTOS), des interfaces C++ pures sont définies en modules C++23. La couche transport vit dans `Transport` (namespace `FlightCore::Transport`) ; les abstractions capteurs, actionneurs et horloge vivent dans `SensorInput`, `ActuatorOutput` et `Clock` (namespace `FlightCore::HAL`).
 
 ```cpp
-// Extrait de Src/embedded/transport/transport.cppm (module flight.transport)
+// Extrait de Src/Embedded/Transport/Transport.cppm (module Transport)
 import std;
 
 namespace FlightCore::Transport
@@ -339,19 +339,19 @@ public:
 }
 ```
 
-Le cœur de contrôle dépend quant à lui des trois interfaces HAL suivantes, satisfaites à la fois par les mocks PC (`flight.sim.*`) et par les futures implémentations STM32 :
+Le cœur de contrôle dépend quant à lui des trois interfaces HAL suivantes, satisfaites à la fois par les mocks PC (`Sim.*`) et par les futures implémentations STM32 :
 
 | Interface | Module | Méthode | Sémantique d'erreur |
 | :--- | :--- | :--- | :--- |
-| `ISensorInput` | `flight.hal.sensor` | `readSensorData(SensorData&)` | `false` si aucun échantillon frais (non bloquant) |
-| `IActuatorOutput` | `flight.hal.actuator` | `writeActuatorCommands(const ActuatorCommands&)` | `false` si le canal aval ne peut pas accepter la commande |
-| `IClock` | `flight.hal.clock` | `nowUs()` / `sleepUs(us)` | Horloge monotone en µs (timer HW / DWT sur cible, horloge virtuelle sur PC) |
+| `ISensorInput` | `SensorInput` | `readSensorData(SensorData&)` | `false` si aucun échantillon frais (non bloquant) |
+| `IActuatorOutput` | `ActuatorOutput` | `writeActuatorCommands(const ActuatorCommands&)` | `false` si le canal aval ne peut pas accepter la commande |
+| `IClock` | `Clock` | `nowUs()` / `sleepUs(us)` | Horloge monotone en µs (timer HW / DWT sur cible, horloge virtuelle sur PC) |
 
 ### 7.1 Parser de Trame Robuste (State Machine)
-La réception des trames s'effectue via une machine à états finis (FSM) alimentée octet par octet, pour éviter tout blocage ou décalage de buffer en cas d'octet parasite. L'implémentation réelle vit dans le module `flight.transport.protocol.parser` (`Src/embedded/transport/parser/`) :
+La réception des trames s'effectue via une machine à états finis (FSM) alimentée octet par octet, pour éviter tout blocage ou décalage de buffer en cas d'octet parasite. L'implémentation réelle vit dans le module `HilProtocolParser` (`Src/Embedded/Transport/Parser/`) :
 
 ```cpp
-// Extrait de Src/embedded/transport/parser/hil_protocol_parser.cppm
+// Extrait de Src/Embedded/Transport/Parser/HilProtocolParser.cppm
 class HilFrameParser
 {
 public:
@@ -387,7 +387,7 @@ private:
 };
 ```
 
-Comportements clés de la FSM (`hil_protocol_parser-sync.cpp` / `hil_protocol_parser-frame.cpp`) :
+Comportements clés de la FSM (`HilProtocolParser-Sync.cpp` / `HilProtocolParser-Frame.cpp`) :
 
 1. **Chasse de synchronisation (`WaitSync1` / `WaitSync2`) :** les octets `0x48` puis `0x49` sont consommés ; un `0x48` reçu alors que la FSM attend `0x49` relance la chasse à partir de `WaitSync2`. Les octets de sync font partie du header reconstitué (`header_bytes_[0..1]`, `index_ = 2`).
 2. **Validation de l'en-tête (`ReadHeader`) :** à réception des 8 octets, un `payload_len > kMaxPayload` provoque le rejet immédiat de la trame (incrémentation de `rejected_` et retour en `WaitSync1`) ; un `payload_len == 0` saute directement à `ReadCrc`.

@@ -118,7 +118,7 @@ L'exécution sur la STM32 repose sur un ordonnancement préemptif par priorités
 ### 4.1 Principe d'Isolation Matérielle
 Afin d'éviter la propagation de directives de préprocesseur du type `#ifdef STM32` dans le code métier du Flight Controller, le système respecte une séparation stricte via le motif de conception **Inversion de Dépendance (Dependency Inversion Principle)**.
 
-Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++23 pures (`ISensorInput`, `IActuatorOutput`, `IClock` côté HAL ; `ITransport` côté transport), définies dans les modules `flight.hal.*` et `flight.transport`.
+Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++23 pures (`ISensorInput`, `IActuatorOutput`, `IClock` côté HAL ; `ITransport` côté transport), définies dans les modules `Hal.*` et `Transport`.
 
 ```
                           +---------------------------+
@@ -137,7 +137,7 @@ Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++23 pure
                       v                                     v
         +-------------------------+           +-------------------------+
         |     Implementation PC   |           |  Implementation STM32   |
-        |     (flight.sim.*)      |           |       (a venir)         |
+        |     (Sim.*)      |           |       (a venir)         |
         |                         |           |                         |
         |  SimulatedSensorInput   |           |  HILSensorInput         |
         |  SimulatedActuatorOutput|           |  HILActuatorOutput      |
@@ -149,7 +149,7 @@ Le cœur des algorithmes de contrôle dépend uniquement d'interfaces C++23 pure
 ### 4.2 Interfaces C++23 (Code d'Implémentation)
 
 ```cpp
-// Extrait de Src/embedded/hal/hal_types.cppm (module flight.hal.types)
+// Extrait de Src/Embedded/Hal/HalTypes.cppm (module HalTypes)
 import std;
 
 namespace FlightCore::HAL
@@ -200,8 +200,8 @@ struct ActuatorCommands
 ```
 
 ```cpp
-// Extraits de Src/embedded/hal/{sensor_input,actuator_output,clock}.cppm
-// et Src/embedded/transport/transport.cppm
+// Extraits de Src/Embedded/Hal/{sensor_input,actuator_output,clock}.cppm
+// et Src/Embedded/Transport/Transport.cppm
 import std;
 
 namespace FlightCore::HAL
@@ -257,7 +257,7 @@ public:
 }
 ```
 
-> **Note :** les champs de `SensorData` / `ActuatorCommands` reproduisent un à un les payloads `HilSensorPayload` / `HilActuatorPayload` de HIL-Proto v1.0 (voir `docs/hil/hil_protocol.md`), de sorte que la conversion fil <-> HAL (module `flight.transport.protocol.codec`) ne nécessite aucun re-calibrage. Les implémentations PC de ces interfaces sont les mocks du module `flight.sim.*` (`SimulatedSensorInput`, `SimulatedActuatorOutput`, `SimulatedClock`, `LoopbackTransport`).
+> **Note :** les champs de `SensorData` / `ActuatorCommands` reproduisent un à un les payloads `HilSensorPayload` / `HilActuatorPayload` de HIL-Proto v1.0 (voir `docs/hil/hil_protocol.md`), de sorte que la conversion fil <-> HAL (module `HilProtocolCodec`) ne nécessite aucun re-calibrage. Les implémentations PC de ces interfaces sont les mocks du module `Sim.*` (`SimulatedSensorInput`, `SimulatedActuatorOutput`, `SimulatedClock`, `LoopbackTransport`).
 
 ---
 
@@ -265,7 +265,7 @@ public:
 
 ### 5.1 Synthèse du Format Implémenté (Little-Endian, Alignement 1 Octet)
 
-La spécification normative du protocole binaire **HIL-Proto v1.0** est maintenue dans [`hil_protocol.md`](hil_protocol.md) ; le contrat filaire de référence est implémenté dans le module `flight.transport.protocol` (`Src/embedded/transport/hil_protocol.cppm`), avec vérifications statiques (`static_assert`) sur toutes les tailles.
+La spécification normative du protocole binaire **HIL-Proto v1.0** est maintenue dans [`hil_protocol.md`](hil_protocol.md) ; le contrat filaire de référence est implémenté dans le module `HilProtocol` (`Src/Embedded/Transport/HilProtocol.cppm`), avec vérifications statiques (`static_assert`) sur toutes les tailles.
 
 | Élément | Valeur implémentée | Constante / symbole |
 | :--- | :--- | :--- |
@@ -274,7 +274,7 @@ La spécification normative du protocole binaire **HIL-Proto v1.0** est maintenu
 | En-tête (`HilHeader`) | 8 octets (sync, msg_id, protocol_ver, sequence_num u16, payload_len u16) | `kHeaderSize` |
 | `SensorPacket` (msg 0x01, PC -> STM32) | payload 80 octets / trame 90 octets | `kSensorPayloadSize` / `kSensorFrameSize` |
 | `ActuatorPacket` (msg 0x02, STM32 -> PC) | payload 44 octets / trame 54 octets | `kActuatorPayloadSize` / `kActuatorFrameSize` |
-| CRC-16-CCITT (poly `0x1021`, init `0xFFFF`) | 2 octets, little-endian, calculés sur Header + Payload | `HilCrc` (`flight.transport.protocol.parser`) |
+| CRC-16-CCITT (poly `0x1021`, init `0xFFFF`) | 2 octets, little-endian, calculés sur Header + Payload | `HilCrc` (`HilProtocolParser`) |
 
 > Les anciennes tables de ce document (paquets de 48 / 22 octets avec préambule `0xAA55`) sont obsolètes et remplacées par la spécification HIL-Proto v1.0 ci-dessus. La description complète des payloads champ par champ figure dans la section 4 de `hil_protocol.md`.
 ---

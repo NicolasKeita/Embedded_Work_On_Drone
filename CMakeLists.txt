@@ -257,37 +257,37 @@ target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
 # .cpp apparies (<module>.cpp ou <module>-<Suffix>.cpp).
 # ----------------------------------------------------------------------------
 set(HIL_FILES
-    Src/embedded/hal/hal_types.cppm
-    Src/embedded/hal/sensor_input.cppm
-    Src/embedded/hal/actuator_output.cppm
-    Src/embedded/hal/clock.cppm
-    Src/embedded/transport/transport.cppm
-    Src/embedded/transport/hil_protocol.cppm
-    Src/embedded/transport/parser/hil_protocol_parser.cppm
-    Src/embedded/transport/parser/hil_protocol_parser-crc.cpp
-    Src/embedded/transport/parser/hil_protocol_parser-sync.cpp
-    Src/embedded/transport/parser/hil_protocol_parser-frame.cpp
-    Src/embedded/transport/codec/hil_protocol_codec.cppm
-    Src/embedded/transport/codec/hil_protocol_codec-sensor.cpp
-    Src/embedded/transport/codec/hil_protocol_codec-actuator.cpp
-    Src/embedded/sim/sim_sensor_input.cppm
-    Src/embedded/sim/sim_sensor_input.cpp
-    Src/embedded/sim/sim_actuator_output.cppm
-    Src/embedded/sim/sim_actuator_output.cpp
-    Src/embedded/sim/sim_clock.cppm
-    Src/embedded/sim/loopback_transport.cppm
-    Src/embedded/sim/loopback_transport.cpp
-    Src/embedded/demo/demo.cppm
-    Src/embedded/demo/demo-Sensor.cpp
-    Src/embedded/demo/demo-Actuator.cpp
-    Src/embedded/demo/demo-Report.cpp
-    Src/embedded/demo/demo-Step.cpp
+    Src/Embedded/Hal/HalTypes.cppm
+    Src/Embedded/Hal/SensorInput.cppm
+    Src/Embedded/Hal/ActuatorOutput.cppm
+    Src/Embedded/Hal/Clock.cppm
+    Src/Embedded/Transport/Transport.cppm
+    Src/Embedded/Transport/HilProtocol.cppm
+    Src/Embedded/Transport/Parser/HilProtocolParser.cppm
+    Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
+    Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
+    Src/Embedded/Transport/Parser/HilProtocolParser-Frame.cpp
+    Src/Embedded/Transport/Codec/HilProtocolCodec.cppm
+    Src/Embedded/Transport/Codec/HilProtocolCodec-Sensor.cpp
+    Src/Embedded/Transport/Codec/HilProtocolCodec-Actuator.cpp
+    Src/Embedded/Sim/SimSensorInput.cppm
+    Src/Embedded/Sim/SimSensorInput.cpp
+    Src/Embedded/Sim/SimActuatorOutput.cppm
+    Src/Embedded/Sim/SimActuatorOutput.cpp
+    Src/Embedded/Sim/SimClock.cppm
+    Src/Embedded/Sim/LoopbackTransport.cppm
+    Src/Embedded/Sim/LoopbackTransport.cpp
+    Src/Embedded/Demo/Demo.cppm
+    Src/Embedded/Demo/Demo-Sensor.cpp
+    Src/Embedded/Demo/Demo-Actuator.cpp
+    Src/Embedded/Demo/Demo-Report.cpp
+    Src/Embedded/Demo/Demo-Step.cpp
 )
 
 # Demonstration : bouclage d'un pas de simulation lockstep
 # (SensorPacket -> parser -> ISensorInput -> FC factice -> IActuatorOutput ->
 #  ActuatorPacket).
-add_executable(hil_demo Src/embedded/main.cpp)
+add_executable(hil_demo Src/Embedded/Main.cpp)
 target_add_mixed_sources(hil_demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_FILES}
 )
