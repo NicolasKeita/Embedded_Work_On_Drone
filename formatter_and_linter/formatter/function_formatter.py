@@ -33,10 +33,19 @@ def format_function_params(code: str) -> str:
     Returns:
         The formatted code
     """
-    # First handle single-line function definitions
-    pattern = r'((?:(?:static|inline|virtual|explicit|constexpr|const)\s+)*[\w:]+(?:\s*[*&])*)\s+(\w+)\s*\((.*?)\)\s*(const)?\s*\{'
+    # First handle single-line function definitions.
+    # The match is anchored to the start of a line and parameters cannot
+    # cross ';' or braces, so preprocessor directives (e.g. '#if defined(_WIN32)')
+    # are never consumed as part of a signature.
+    pattern = (
+        r'^([ \t]*)'
+        r'((?:(?:static|inline|virtual|explicit|constexpr|const)\s+)*[\w:]+(?:\s*[*&])*)'
+        r'\s+(\w+)\s*\(([^;{}]*?)\)\s*'
+        r'((?:const\b\s*|noexcept\b(?:\s*\([^()]*\))?\s*|override\b\s*|final\b\s*)*)'
+        r'\{'
+    )
 
-    formatted = re.sub(pattern, format_single_function, code, flags=re.MULTILINE | re.DOTALL)
+    formatted = re.sub(pattern, format_single_function, code, flags=re.MULTILINE)
 
     # Then handle multi-line function definitions
     formatted = format_multiline_function_params(formatted)

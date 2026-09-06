@@ -120,10 +120,11 @@ def format_single_function(match: Match[str]) -> str:
     Returns:
         Formatted function string
     """
-    full_prefix = match.group(1)
-    func_name = match.group(2)
-    params_str = match.group(3)
-    const_qualifier = match.group(4) or ""
+    leading_indent = match.group(1)
+    full_prefix = match.group(2)
+    func_name = match.group(3)
+    params_str = match.group(4)
+    signature_suffix = match.group(5).strip()
 
     if not should_format_function(full_prefix, func_name, params_str):
         return match.group(0)
@@ -139,8 +140,8 @@ def format_single_function(match: Match[str]) -> str:
 
     formatted_params = format_parameters_list(parsed_params, indent, max_type_len)
 
-    const_part = f" {const_qualifier}" if const_qualifier.strip() else ""
-    result = f"{full_prefix} {func_name}{formatted_params}{const_part}\n{{"
+    const_part = f" {signature_suffix}" if signature_suffix else ""
+    result = f"{leading_indent}{full_prefix} {func_name}{formatted_params}{const_part}\n{{"
 
     return result
 

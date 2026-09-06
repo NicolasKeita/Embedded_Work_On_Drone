@@ -7,7 +7,7 @@ and proper spacing.
 """
 
 import re
-from typing import List, Tuple
+from typing import List, Set, Tuple
 
 from shared.regex_patterns import INCLUDE_REGEX, FUNC_REGEX
 
@@ -112,39 +112,56 @@ def remove_blank_lines_between_includes(lines: List[str]) -> List[str]:
             result.append(line)
         elif i > last_include_index:
             if stripped != '' and i == last_include_index + 1:
-                if result and result[-1].strip() != '':
+                if result and result[-1].strip() != '' and not re.match(r'^\s*#', line):
                     result.append('')
             result.append(line)
         elif stripped == '':
             continue
+        else:
+            result.append(line)
 
     return result
+
+
+def format_include_group(include_lines: List[str]) -> List[str]:
+    include_lines = remove_duplicate_includes(include_lines)
+    system_includes, local_includes = separate_system_local(include_lines)
+    local_includes.sort()
+    formatted_includes = system_includes.copy()
+    if system_includes and local_includes:
+        formatted_includes.append('')
+    formatted_includes.extend(local_includes)
+    return formatted_includes
 
 
 def format_includes(code: str) -> str:
     lines = code.splitlines()
     lines = remove_blank_lines_between_includes(lines)
 
-    include_lines, _ = extract_includes(lines)
-    if include_lines:
-        include_lines = remove_duplicate_includes(include_lines)
-        system_includes, local_includes = separate_system_local(include_lines)
-        local_includes.sort()
-        formatted_includes = system_includes.copy()
-        if system_includes and local_includes:
-            formatted_includes.append('')
-        formatted_includes.extend(local_includes)
+    new_lines: List[str] = []
+    pending_group: List[str] = []
+    seen_contents: Set[str] = set()
 
-        new_lines = []
-        inserted = False
-        for line in lines:
-            if re.match(INCLUDE_REGEX, line):
-                if not inserted:
-                    new_lines.extend(formatted_includes)
-                    inserted = True
-            else:
-                new_lines.append(line)
-        lines = new_lines
+    def flush_pending_group() -> None:
+        if pending_group:
+            new_lines.extend(format_include_group(pending_group))
+            pending_group.clear()
+
+    for line in lines:
+        include_match = re.match(INCLUDE_REGEX, line)
+        if include_match:
+            content = include_match.group(1)
+            if content not in seen_contents:
+                seen_contents.add(content)
+                pending_group.append(line)
+        else:
+            flush_pending_group()
+            if re.match(r'^\s*#', line):
+                seen_contents.clear()
+            new_lines.append(line)
+
+    flush_pending_group()
+    lines = new_lines
 
     lines = ensure_single_blank_lines(lines)
     return '\n'.join(lines)

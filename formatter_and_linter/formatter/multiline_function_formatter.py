@@ -98,9 +98,21 @@ def format_multiline_function_params(code: str) -> str:
 
                     brace_on_next_line = has_brace and '{' not in last_param_line and next_line_is_brace
 
-                    # Remove trailing ) and anything after (like { or ;)
+                    # Remove trailing ) but keep the signature suffix that
+                    # follows it (noexcept, const, override, trailing ; or {)
+                    signature_suffix = ''
                     if ')' in all_params:
-                        all_params = all_params[:all_params.rfind(')')]
+                        closing_index = all_params.rfind(')')
+                        signature_suffix = all_params[closing_index + 1:]
+                        all_params = all_params[:closing_index]
+
+                    inline_body = ''
+                    if '{' in signature_suffix:
+                        suffix_part, inline_body = signature_suffix.split('{', 1)
+                    else:
+                        suffix_part = signature_suffix
+
+                    signature_suffix = suffix_part.strip().rstrip(';').strip()
 
                     # Parse and format parameters
                     parsed_params = extract_parameters(all_params)
@@ -110,19 +122,7 @@ def format_multiline_function_params(code: str) -> str:
                         indent = calculate_indentation(full_prefix, full_func_name, max_type_len, leading_indent)
                         formatted_params = format_parameters_list(parsed_params, indent, max_type_len)
 
-                        const_qualifier = ""
-                        if has_brace:
-                            # Check for const qualifier
-                            if '{' in last_param_line:
-                                const_match = re.search(r'\)\s*(const)?\s*\{', last_param_line)
-                                if const_match and const_match.group(1):
-                                    const_qualifier = const_match.group(1)
-                            else:
-                                const_match = re.search(r'\)\s*(const)?\s*;?$', last_param_line)
-                                if const_match and const_match.group(1):
-                                    const_qualifier = const_match.group(1)
-
-                        const_part = f" {const_qualifier}" if const_qualifier else ""
+                        const_part = f" {signature_suffix}" if signature_suffix else ""
 
                             # Add formatted function declaration
                         if has_brace:
@@ -131,10 +131,8 @@ def format_multiline_function_params(code: str) -> str:
                             result_lines.append(f"{leading_indent}{{")
 
                             # Handle content after { on last param line (only if { is in that line)
-                            if '{' in last_param_line:
-                                after_brace = last_param_line.split('{', 1)[1].strip()
-                                if after_brace:
-                                    result_lines.append(after_brace)
+                            if inline_body:
+                                result_lines.append(inline_body.strip())
                         else:
                             # Function prototype - just add semicolon
                             result_lines.append(f"{leading_indent}{full_prefix} {full_func_name}{formatted_params};")
