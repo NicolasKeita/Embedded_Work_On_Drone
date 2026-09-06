@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Source lists of every module and test suite (.cppm + .cpp kept together in the same
+# variable) live in cmake/Sources.cmake and cmake/HilSources.cmake.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(Sources)
+include(HilSources)
 
 function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
     set(ALL_FILES ${ARGN})
@@ -31,141 +36,6 @@ function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
     endif()
 endfunction()
 
-# Sources of the simulation module (.cppm + .cpp kept together).
-set(SIMULATION_FILES
-    Src/Simulation/Aircraft.cppm
-    Src/Simulation/Aircraft.cpp
-)
-
-# Sources of the flight control module (.cppm + .cpp kept together in the same variable).
-set(CONTROL_FILES
-    Src/Control/FlightController.cppm
-    Src/Control/FlightController-Core.cpp
-    Src/Control/FlightController-Loops.cpp
-    Src/Control/FlightController-Mission.cpp
-    Src/Control/Types/FlightControllerTypes.cppm
-    Src/Control/Types/FlightControllerTypes.cpp
-)
-
-# Sources of the FC2 safety subsystem (.cppm + .cpp kept together).
-set(SAFETY_FILES
-    Src/Safety/HealthMonitor.cppm
-    Src/Safety/HealthMonitor-Core.cpp
-    Src/Safety/HealthMonitor-Evaluate.cpp
-    Src/Safety/HealthMonitor-Report.cpp
-    Src/Safety/HealthMonitor-Names.cpp
-    Src/Safety/SafetyManager.cppm
-    Src/Safety/SafetyManager.cpp
-)
-
-# Sources of the SIL fault injection and simulation engine (.cppm + .cpp kept
-# together in the same variable).
-set(SIL_FILES
-    Src/SIL/Runner/SilRunner.cppm
-    Src/SIL/Runner/SilRunner-Context.cpp
-    Src/SIL/Runner/SilRunner-Fc1.cpp
-    Src/SIL/Runner/SilRunner-Loop.cpp
-    Src/SIL/Runner/SilRunner-Run.cpp
-    Src/SIL/Runner/SilRunner-Finalize.cpp
-    Src/SIL/Runner/Context/SilRunnerContext.cppm
-    Src/SIL/Runner/Context/SilRunnerContext.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents.cppm
-    Src/SIL/Runner/Events/SilRunnerEvents-Lifecycle.cpp
-    Src/SIL/Runner/Events/Faults/SilRunnerEvents-Faults.cpp
-    Src/SIL/Runner/Events/Faults/SilRunnerEvents-FaultInfo.cpp
-    Src/SIL/Runner/Events/Faults/SilRunnerEvents-FaultReasons.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-Watchdog.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-Heartbeats.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-Transitions.cpp
-    Src/SIL/Runner/Events/SilRunnerEvents-Health.cpp
-    Src/SIL/Core/SilTypes.cppm
-    Src/SIL/Core/SilTypes.cpp
-    Src/SIL/Core/SilFaultScenario.cppm
-    Src/SIL/Core/SilFaultScenario-Core.cpp
-    Src/SIL/Core/SilFaultScenario-Names.cpp
-    Src/SIL/Core/SilFaultScenario-Semantics.cpp
-    Src/SIL/Core/FunctionalScenarios.cppm
-    Src/SIL/Core/FunctionalScenarios.cpp
-    Src/SIL/Core/Telemetry/Telemetry.cppm
-    Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
-    Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
-    Src/SIL/Core/Telemetry/SilTelemetry.cppm
-    Src/SIL/Core/Telemetry/SilTelemetry.cpp
-    Src/SIL/Core/CommsBus.cppm
-    Src/SIL/Core/CommsBus.cpp
-    Src/SIL/Core/Events/SilEvents.cppm
-    Src/SIL/Core/Events/SilEvents-Names.cpp
-    Src/SIL/Core/Events/SilEvents-Levels.cpp
-    Src/SIL/Core/Events/SilEvents-Recorder.cpp
-    Src/SIL/Faults/FaultInjectors.cppm
-    Src/SIL/Faults/FaultInjectors-Base.cpp
-    Src/SIL/Faults/FaultInjectors-Injectors.cpp
-    Src/SIL/Faults/FaultInjectors-Factory.cpp
-    Src/SIL/Reporting/SilReporting.cppm
-    Src/SIL/Reporting/SilReporting-Export.cpp
-    Src/SIL/Reporting/SilReporting-File.cpp
-    Src/SIL/Reporting/SilReporting-Format.cpp
-    Src/SIL/Reporting/Json/SilReporting-Json.cpp
-    Src/SIL/Reporting/Json/SilReporting-Json-Records.cpp
-    Src/SIL/Reporting/Trace/SilReporting-Trace.cpp
-    Src/SIL/Reporting/Trace/SilReporting-Trace-Details.cpp
-    Src/SIL/Reporting/Trace/SilReporting-Trace-Text.cpp
-    Src/SIL/Reporting/Report/SilReportingReport.cppm
-    Src/SIL/Reporting/Report/SilReportingReport-Format.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Markdown.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Sections.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Events.cpp
-    Src/SIL/Reporting/Report/Events/SilReportingReport-EventRows.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Telemetry.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Table.cpp
-    Src/SIL/Reporting/Report/SilReportingReport-Csv.cpp
-)
-
-set(SRC_FILES
-    Src/App/Application.cppm
-    Src/App/Application.cpp
-    ${SIMULATION_FILES}
-    ${CONTROL_FILES}
-    ${SAFETY_FILES}
-    ${SIL_FILES}
-)
-
-# Sources of the statistical Monte-Carlo SIL validation subsystem (.cppm + .cpp
-# kept together in the same variable; the shared vocabulary lives in the
-# ValidationTypes sub-module, the main interface re-exports everything and groups
-# the generator, collector and runner).
-set(VALIDATION_FILES
-    Src/SIL/Validation/FlightControlValidation.cppm
-    Src/SIL/Validation/Types/ValidationTypes.cppm
-    Src/SIL/Validation/Types/ValidationTypes.cpp
-    Src/SIL/Validation/FlightControlValidation-Generator.cpp
-    Src/SIL/Validation/Sampling/FlightControlValidation-Sampling.cpp
-    Src/SIL/Validation/Sampling/FlightControlValidation-Conditions.cpp
-    Src/SIL/Validation/FlightControlValidation-Collector.cpp
-    Src/SIL/Validation/FlightControlValidation-Runner.cpp
-    Src/SIL/Validation/FlightControlValidation-Classify.cpp
-    Src/SIL/Validation/FlightControlValidation-CsvRows.cpp
-    Src/SIL/Validation/FlightControlValidation-CsvWriter.cpp
-)
-
-
-# Harness, physics scenarios and autonomous scenarios of the validation program
-# (.cppm + .cpp kept together in the same variable).
-set(TEST_SIMULATION_FILES
-    Tests/TestHarness.cppm
-    Tests/TestHarness.cpp
-    Tests/Scenarios/Scenarios.cppm
-    Tests/Scenarios/Scenarios-Cases.cpp
-    Tests/Scenarios/Scenarios-Catalog.cpp
-    Tests/Mission/MissionRunner.cppm
-    Tests/Mission/MissionRunner-Runner.cpp
-    Tests/Mission/MissionRunner-Loop.cpp
-    Tests/Mission/MissionRunner-Support.cpp
-    Tests/Scenarios/FlightScenarios.cppm
-    Tests/Scenarios/FlightScenarios-Axes.cpp
-    Tests/Scenarios/FlightScenarios-Mission.cpp
-)
-
 # Validation exercise of the physics (NOM-002..NOM-007) and autonomous mode-change
 # (MC-001..MC-004) scenarios (steps 5 and 6).
 add_executable(test_simulation Tests/Sim/main.cpp)
@@ -173,40 +43,20 @@ target_add_mixed_sources(test_simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
     ${TEST_SIMULATION_FILES}
+    Tests/Sim/SimCli.cppm
+    Tests/Sim/SimCli.cpp
 )
 set_property(TARGET test_simulation PROPERTY CXX_SCAN_FOR_MODULES ON)
 
 # Deterministic SIL test suite (NOM-001 nominal, FINJ-001..004 fault injection and
 # MC-FINJ-001 fault during climb) plus the observability and telemetry suites.
-set(TEST_SIL_FILES
-    Tests/Sil/SilScenarios.cppm
-    Tests/Sil/SilScenarios-Core.cpp
-    Tests/Sil/SilScenarios-Safety.cpp
-    Tests/Sil/Observability/SilObservability.cppm
-    Tests/Sil/Observability/SilObservability-Support.cpp
-    Tests/Sil/Observability/SilObservability-Heartbeat.cpp
-    Tests/Sil/Observability/SilObservability-Dropped.cpp
-    Tests/Sil/Observability/Faults/SilObservability-Faults.cpp
-    Tests/Sil/Observability/Faults/SilObservability-FaultMetadata.cpp
-    Tests/Sil/Observability/SilObservability-Comms.cpp
-    Tests/Sil/Observability/SilObservability-Logging.cpp
-    Tests/Sil/Observability/SilObservability-Trace.cpp
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry.cppm
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Sampling.cpp
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-FaultPath.cpp
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Hold.cpp
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Support.cpp
-    Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Runner.cpp
-)
-
 add_executable(test_sil Tests/Sil/main.cpp)
 target_add_mixed_sources(test_sil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
     ${SAFETY_FILES}
     ${SIL_FILES}
-    Tests/TestHarness.cppm
-    Tests/TestHarness.cpp
+    ${TEST_HARNESS_FILES}
     ${TEST_SIL_FILES}
 )
 
@@ -253,119 +103,9 @@ endif()
 target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
 
 # ----------------------------------------------------------------------------
-# HIL Hardware-in-the-Loop skeleton (step 13).
-# Hardware abstraction layer (HAL), binary HIL-Proto v1.0 protocol (types,
-# parser, codec), host (PC) simulation mocks and lockstep demo.
-# Each .cppm module keeps the interface; implementations live in the paired
-# .cpp files (<module>.cpp or <module>-<Suffix>.cpp).
+# HIL Hardware-in-the-Loop (step 13+): HAL, binary HIL-Proto v1.0 protocol, host
+# simulation mocks, lockstep smoke test, real-time runner and host FC emulator.
 # ----------------------------------------------------------------------------
-set(HIL_FILES
-    Src/Embedded/Hal/HalTypes.cppm
-    Src/Embedded/Hal/SensorInput.cppm
-    Src/Embedded/Hal/ActuatorOutput.cppm
-    Src/Embedded/Hal/Clock.cppm
-    Src/Embedded/Transport/Transport.cppm
-    Src/Embedded/Transport/HilProtocol.cppm
-    Src/Embedded/Transport/Parser/HilProtocolParser.cppm
-    Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
-    Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
-    Src/Embedded/Transport/Parser/HilProtocolParser-Frame.cpp
-    Src/Embedded/Transport/Codec/HilProtocolCodec.cppm
-    Src/Embedded/Transport/Codec/HilProtocolCodec-Sensor.cpp
-    Src/Embedded/Transport/Codec/HilProtocolCodec-Actuator.cpp
-    Src/Embedded/Sim/SimSensorInput.cppm
-    Src/Embedded/Sim/SimSensorInput.cpp
-    Src/Embedded/Sim/SimActuatorOutput.cppm
-    Src/Embedded/Sim/SimActuatorOutput.cpp
-    Src/Embedded/Sim/SimClock.cppm
-    Src/Embedded/Sim/LoopbackTransport.cppm
-    Src/Embedded/Sim/LoopbackTransport.cpp
-    Src/Embedded/Demo/Demo.cppm
-    Src/Embedded/Demo/Demo-Sensor.cpp
-    Src/Embedded/Demo/Demo-Actuator.cpp
-    Src/Embedded/Demo/Demo-Report.cpp
-    Src/Embedded/Demo/Demo-Step.cpp
-)
-
-# HIL transport/HAL/sim infrastructure shared by the smoke test, the runner and the host
-# FC emulator (excludes the one-step Demo, which lives in its own smoke test).
-set(HIL_TRANSPORT_FILES
-    Src/Embedded/Hal/HalTypes.cppm
-    Src/Embedded/Hal/SensorInput.cppm
-    Src/Embedded/Hal/ActuatorOutput.cppm
-    Src/Embedded/Hal/Clock.cppm
-    Src/Embedded/Transport/Transport.cppm
-    Src/Embedded/Transport/HilProtocol.cppm
-    Src/Embedded/Transport/Parser/HilProtocolParser.cppm
-    Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
-    Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
-    Src/Embedded/Transport/Parser/HilProtocolParser-Frame.cpp
-    Src/Embedded/Transport/Codec/HilProtocolCodec.cppm
-    Src/Embedded/Transport/Codec/HilProtocolCodec-Sensor.cpp
-    Src/Embedded/Transport/Codec/HilProtocolCodec-Actuator.cpp
-    Src/Embedded/Sim/SimSensorInput.cppm
-    Src/Embedded/Sim/SimSensorInput.cpp
-    Src/Embedded/Sim/SimActuatorOutput.cppm
-    Src/Embedded/Sim/SimActuatorOutput.cpp
-    Src/Embedded/Sim/SimClock.cppm
-    Src/Embedded/Sim/LoopbackTransport.cppm
-    Src/Embedded/Sim/LoopbackTransport.cpp
-)
-
-# SIL core reused by the HIL runner (fault vocabulary, bus, sensor chain).
-set(SIL_CORE_FILES
-    Src/SIL/Core/SilTypes.cppm
-    Src/SIL/Core/SilTypes.cpp
-    Src/SIL/Core/SilFaultScenario.cppm
-    Src/SIL/Core/SilFaultScenario-Core.cpp
-    Src/SIL/Core/SilFaultScenario-Names.cpp
-    Src/SIL/Core/SilFaultScenario-Semantics.cpp
-    Src/SIL/Core/FunctionalScenarios.cppm
-    Src/SIL/Core/FunctionalScenarios.cpp
-    Src/SIL/Faults/FaultInjectors.cppm
-    Src/SIL/Faults/FaultInjectors-Base.cpp
-    Src/SIL/Faults/FaultInjectors-Injectors.cpp
-    Src/SIL/Faults/FaultInjectors-Factory.cpp
-    Src/SIL/Core/CommsBus.cppm
-    Src/SIL/Core/CommsBus.cpp
-    Src/SIL/Core/Telemetry/Telemetry.cppm
-    Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
-    Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
-)
-
-# HIL runner infrastructure (config, clock, events, telemetry, timing, sensor model,
-# transport adaptors, FC target, orchestrator and scenario registry).
-set(HIL_INFRA_FILES
-    Src/Embedded/Hil/HilConfig.cppm
-    Src/Embedded/Hil/HilConfig.cpp
-    Src/Embedded/Hil/HilClock.cppm
-    Src/Embedded/Hil/HilClock.cpp
-    Src/Embedded/Hil/HilEvents.cppm
-    Src/Embedded/Hil/HilEvents.cpp
-    Src/Embedded/Hil/HilTelemetry.cppm
-    Src/Embedded/Hil/HilTelemetry.cpp
-    Src/Embedded/Hil/HilTiming.cppm
-    Src/Embedded/Hil/HilTiming.cpp
-    Src/Embedded/Hil/HilSensorModel.cppm
-    Src/Embedded/Hil/HilSensorModel.cpp
-    Src/Embedded/Hil/HilTransport.cppm
-    Src/Embedded/Hil/HilTransport.cpp
-    Src/Embedded/Hil/HilFcTarget.cppm
-    Src/Embedded/Hil/HilFcTarget-Host.cpp
-    Src/Embedded/Hil/HilRunnerContext.cppm
-    Src/Embedded/Hil/HilRunnerContext.cpp
-    Src/Embedded/Hil/HilRunner.cppm
-    Src/Embedded/Hil/HilRunner-Context.cpp
-    Src/Embedded/Hil/HilRunner-Events.cpp
-    Src/Embedded/Hil/HilRunner-Step.cpp
-    Src/Embedded/Hil/HilRunner-Loop.cpp
-    Src/Embedded/Hil/HilRunner-Metrics.cpp
-    Src/Embedded/Hil/HilRunner-Finalize.cpp
-    Src/Embedded/Hil/HilRunner-Report.cpp
-    Src/Embedded/Hil/HilScenarios.cppm
-    Src/Embedded/Hil/HilScenarios.cpp
-)
-
 function(hil_target_setup target)
     set_property(TARGET ${target} PROPERTY CXX_SCAN_FOR_MODULES ON)
     set_property(TARGET ${target} PROPERTY CXX_MODULE_STD ON)
@@ -387,10 +127,11 @@ target_add_mixed_sources(hil_step_smoke_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR
 hil_target_setup(hil_step_smoke_test)
 
 # HIL runner : real-time closed-loop mission against the FC target.
-add_executable(hil_runner Src/Embedded/Hil/Runner/main.cpp)
+add_executable(hil_runner Src/Embedded/Hil/Cli/main.cpp)
 target_add_mixed_sources(hil_runner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${HIL_CLI_FILES}
     ${HIL_INFRA_FILES}
-    ${HIL_TRANSPORT_FILES}
+    ${HIL_CHANNEL_FILES}
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
     ${SAFETY_FILES}
@@ -401,16 +142,12 @@ hil_target_setup(hil_runner)
 # Host FC emulator target : the real FC core driven over stdio frames. NOT the physical STM32.
 add_executable(fc1_hil_host Src/Embedded/Hil/FcHost/main.cpp)
 target_add_mixed_sources(fc1_hil_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
-    Src/Embedded/Hil/HilClock.cppm
-    Src/Embedded/Hil/HilClock.cpp
-    Src/Embedded/Hil/HilConfig.cppm
-    Src/Embedded/Hil/HilConfig.cpp
-    Src/Embedded/Hil/HilSensorModel.cppm
-    Src/Embedded/Hil/HilSensorModel.cpp
-    Src/Embedded/Hil/HilScenarios.cppm
-    Src/Embedded/Hil/HilScenarios.cpp
+    ${HIL_FC_HOST_FILES}
+    ${HIL_CLOCK_FILES}
+    ${HIL_CONFIG_FILES}
+    ${HIL_MODEL_FILES}
     ${SAFETY_FILES}
-    ${HIL_TRANSPORT_FILES}
+    ${HIL_CHANNEL_FILES}
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
     ${SIL_CORE_FILES}
@@ -418,22 +155,12 @@ target_add_mixed_sources(fc1_hil_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 hil_target_setup(fc1_hil_host)
 
 # HIL deterministic test suite (runner, protocol, data-integrity, fault tests).
-set(TEST_HIL_FILES
-    Tests/Hil/HilTests.cppm
-    Tests/Hil/HilTests-Core.cpp
-    Tests/Hil/HilTests-Runner.cpp
-    Tests/Hil/HilTests-Protocol.cpp
-    Tests/Hil/HilTests-Data.cpp
-    Tests/Hil/HilTests-Faults.cpp
-)
-
 add_executable(test_hil Tests/Hil/main.cpp)
 target_add_mixed_sources(test_hil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
-    Tests/TestHarness.cppm
-    Tests/TestHarness.cpp
+    ${TEST_HARNESS_FILES}
     ${TEST_HIL_FILES}
     ${HIL_INFRA_FILES}
-    ${HIL_TRANSPORT_FILES}
+    ${HIL_CHANNEL_FILES}
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
     ${SAFETY_FILES}
