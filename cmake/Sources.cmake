@@ -131,8 +131,9 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/FlightScenarios-Mission.cpp
 )
 
-# Deterministic SIL test suite (NOM-001 nominal, FINJ-001..004 fault injection and
-# MC-FINJ-001 fault during climb) plus the observability and telemetry suites.
+# Deterministic SIL test suite (NOMINAL-001 nominal, FAULT_INJECTOR-001..004 fault
+# injection and MONTE_CARLO_FAULT_INJECTOR-001 fault during climb) plus the
+# observability and telemetry suites.
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp

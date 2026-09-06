@@ -47,9 +47,9 @@ namespace {
 
     void test_nominal_run(sim::test::TestHarness& runner)
     {
-        runner.set_context("NOM-001_StationKeeping");
-        const sim::hil::HilConfig cfg = fast_config("NOM-001_StationKeeping", 30.0);
-        const sim::hil::HilScenarioRecord* record = sim::hil::HilScenarioCatalog::find("NOM-001_StationKeeping");
+        runner.set_context("NOMINAL-001");
+        const sim::hil::HilConfig cfg = fast_config("NOMINAL-001", 30.0);
+        const sim::hil::HilScenarioRecord* record = sim::hil::HilScenarioCatalog::find("NOMINAL-001");
         const std::array<sim::sil::FaultScenario, 1> scenarios{record->fault};
         sim::hil::HilRunner runner_obj{cfg};
         const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> outcome = runner_obj.run(scenarios);

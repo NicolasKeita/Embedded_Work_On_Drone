@@ -26,7 +26,7 @@ namespace {
     {
         sim::hil::HilConfig config = sim::hil::hil_base_config();
 
-        config.scenario_id = "NOM-001_StationKeeping";
+        config.scenario_id = "NOMINAL-001";
         config.duration_s = duration_s;
         config.real_time_pacing = false;
         config.clock_kind = sim::hil::ClockKind::Fast;

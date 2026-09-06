@@ -18,9 +18,11 @@ namespace sim::sil::validation {
 /*
 Samples the fault family and its activation window. The fault type is drawn
 first so that the rest of the scenario can branch on it (a sensor fault needs
-a corruption mode, a comms fault needs a loss probability, ...).
+a corruption mode, a comms fault needs a loss probability, ...). When a fault
+template is provided the drawn type is overridden with it after the draw, so
+the RNG stream (and therefore the campaign determinism) is unchanged.
 */
-void sample_fault_window(Scenario& scenario, std::mt19937_64& generator)
+void sample_fault_window(Scenario& scenario, std::mt19937_64& generator, std::optional<FaultType> fault_template)
 {
     std::uniform_real_distribution<std::float64_t> unit(0.0, 1.0);
     std::uniform_real_distribution<std::float64_t> time_window(2.0, 12.0);
@@ -28,6 +30,9 @@ void sample_fault_window(Scenario& scenario, std::mt19937_64& generator)
     const std::uint64_t                            fault_roll = generator() % 6;
 
     scenario.fault_type = static_cast<FaultType>(fault_roll);
+    if (fault_template.has_value()) {
+        scenario.fault_type = *fault_template;
+    }
     scenario.fault_start_time_s = time_window(generator);
     scenario.fault_duration_s = duration_window(generator);
     scenario.fault_profile = (unit(generator) < 0.5) ? FaultProfile::Permanent : FaultProfile::Temporary;

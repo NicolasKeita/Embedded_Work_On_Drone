@@ -1,7 +1,6 @@
 # HilSources.cmake — source lists of the HIL subsystem (.cppm + .cpp kept together in
 # the same variable). The HIL tree is organised by responsibility: Clock, Config,
-# Events, Model, Telemetry, Transport, Target, Runner (+ Context/Events/Report), Cli
-# and FcHost.
+# Events, Model, Telemetry, Transport, Target, Runner (+ Context/Events/Report) and Cli.
 
 # Hardware abstraction layer (byte transport, sensor/actuator interfaces).
 set(HAL_FILES
@@ -35,26 +34,11 @@ set(HIL_SIM_FILES
     Src/Embedded/Sim/LoopbackTransport.cpp
 )
 
-# Byte-channel infrastructure shared by the smoke test, the runner and the host FC
-# emulator (HAL + wire protocol + simulated hardware; excludes the one-step Demo).
+# Byte-channel infrastructure (HAL + wire protocol + simulated hardware).
 set(HIL_CHANNEL_FILES
     ${HAL_FILES}
     ${HIL_PROTOCOL_FILES}
     ${HIL_SIM_FILES}
-)
-
-# One-step lockstep demo (packet codec + transport connectivity smoke test).
-set(HIL_DEMO_FILES
-    Src/Embedded/Demo/Demo.cppm
-    Src/Embedded/Demo/Demo-Sensor.cpp
-    Src/Embedded/Demo/Demo-Actuator.cpp
-    Src/Embedded/Demo/Demo-Report.cpp
-    Src/Embedded/Demo/Demo-Step.cpp
-)
-
-set(HIL_FILES
-    ${HIL_CHANNEL_FILES}
-    ${HIL_DEMO_FILES}
 )
 
 # HIL clock and per-step timing statistics.
@@ -144,18 +128,11 @@ set(HIL_REPORT_FILES
     Src/Embedded/Hil/Runner/Report/HilReport-Live.cpp
 )
 
-# Command-line interface of the hil_runner executable.
+# Command-line interface of the HIL_RUNNER executable.
 set(HIL_CLI_FILES
     Src/Embedded/Hil/Cli/HilRunnerCli.cppm
     Src/Embedded/Hil/Cli/HilRunnerCli-Parse.cpp
     Src/Embedded/Hil/Cli/HilRunnerCli-Config.cpp
-)
-
-# Host FC emulator application (stdio frame loop of fc1_hil_host).
-set(HIL_FC_HOST_FILES
-    Src/Embedded/Hil/FcHost/FcHostApp.cppm
-    Src/Embedded/Hil/FcHost/FcHostApp-Frame.cpp
-    Src/Embedded/Hil/FcHost/FcHostApp-Loop.cpp
 )
 
 # HIL runner infrastructure (config, clock, events, telemetry, timing, sensor model,

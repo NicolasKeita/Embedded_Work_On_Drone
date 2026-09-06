@@ -31,7 +31,13 @@ export namespace sim::sil::validation {
 class ScenarioGenerator {
 public:
     explicit ScenarioGenerator(std::uint64_t master_seed);
-    [[nodiscard]] Scenario generate_scenario(std::uint64_t run_id);
+    /*
+    Generates one run scenario; when fault_template has a value the sampled fault
+    family is overridden with it (the RNG stream is unchanged, so the campaign
+    stays reproducible for a given master seed).
+    */
+    [[nodiscard]] Scenario generate_scenario(std::uint64_t run_id,
+                                             std::optional<FaultType> fault_template = std::nullopt);
     [[nodiscard]] std::uint64_t master_seed() const noexcept;
 private:
     static std::uint64_t mix_seed(std::uint64_t master_seed, std::uint64_t run_id);
@@ -55,6 +61,13 @@ private:
 class MonteCarloRunner {
 public:
     MonteCarloRunner(std::uint64_t master_seed, SilConfig config = {});
+    /*
+    Restricts every generated run to one fault family (the scenario template of
+    the campaign, e.g. FAULT_INJECTOR-002 forces CommunicationLoss); a nullopt
+    template keeps the fully random fault dispersion. FaultType::None produces
+    nominal-only runs.
+    */
+    void set_fault_template(std::optional<FaultType> fault_template) noexcept;
     [[nodiscard]] CampaignSummary run(std::uint64_t run_count);
     [[nodiscard]] const ResultCollector& collector() const noexcept;
     [[nodiscard]] ResultCollector& collector() noexcept;
@@ -66,9 +79,11 @@ private:
     ScenarioGenerator generator_;
     SilConfig         config_;
     ResultCollector   collector_;
+    std::optional<FaultType> fault_template_{};
 };
 
-void sample_fault_window(Scenario& scenario, std::mt19937_64& generator);
+void sample_fault_window(Scenario& scenario, std::mt19937_64& generator,
+                         std::optional<FaultType> fault_template = std::nullopt);
 void sample_fault_parameters(Scenario& scenario, std::mt19937_64& generator);
 void sample_environment(Scenario& scenario, std::mt19937_64& generator);
 void sample_initial_conditions(Scenario& scenario, std::mt19937_64& generator);

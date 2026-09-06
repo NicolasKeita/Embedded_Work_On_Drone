@@ -40,7 +40,7 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 }
 void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("NOM-001_StationKeeping", "Nominal station-keeping mission (no fault)");
+    runner.begin_scenario("NOMINAL-001", "Nominal station-keeping mission (no fault)");
     const FaultScenario scenario{};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
@@ -48,7 +48,7 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "NOM-001_StationKeeping", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "NOMINAL-001", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
@@ -60,13 +60,13 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
     runner.check(r.final_safety_mode == SafetyMode::NORMAL, "safety mode NORMAL");
     runner.check(!r.fault_detected, "no fault detected");
     runner.check(r.max_altitude_error_m <= 10.5, "altitude error bounded (<= 10.5 m)");
-    record = {.name = "NOM-001_StationKeeping", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = "NOMINAL-001", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FINJ-001_Fc1Failure", "FC1 failure injected at t = 20.0 s");
+    runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure injected at t = 20.0 s");
     const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
@@ -74,7 +74,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FINJ-001_Fc1Failure", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FAULT_INJECTOR-001", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
@@ -87,13 +87,13 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     runner.check(r.response_latency >= 0.0 && r.response_latency <= 0.20, "response latency <= 200 ms");
     runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED by the SafetyManager");
     runner.check(!r.mission_success && r.test_verdict, "verdict PASS with mission not successful");
-    record = {.name = "FINJ-001_Fc1Failure", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = "FAULT_INJECTOR-001", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FINJ-002_CommLoss", "Communication loss injected at t = 20.0 s");
+    runner.begin_scenario("FAULT_INJECTOR-002", "Communication loss injected at t = 20.0 s");
     const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::CommunicationLoss};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
@@ -101,7 +101,7 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FINJ-002_CommLoss", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FAULT_INJECTOR-002", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
@@ -113,7 +113,7 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
     runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "alert raised within 300 ms");
     runner.check(r.safe_mode_reached, "safety reaction engaged");
     runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED (step 10 rule)");
-    record = {.name = "FINJ-002_CommLoss", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = "FAULT_INJECTOR-002", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 }

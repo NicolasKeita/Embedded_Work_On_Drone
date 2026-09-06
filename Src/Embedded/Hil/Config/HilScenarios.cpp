@@ -1,7 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Config/HilScenarios.cpp
 Description: HIL scenario registry entries bound to the shared functional scenario
-IDs (NOM-001 nominal, FINJ-001..004 fault injection, MC-FINJ-001 fault during climb).
+IDs (NOMINAL-001 nominal, FAULT_INJECTOR-001..004 fault injection, MONTE_CARLO_FAULT_INJECTOR-001 fault during climb).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -52,39 +52,39 @@ namespace {
 
     const std::array<HilScenarioRecord, 6> kScenarios{{
     {
-            "NOM-001_StationKeeping",
+            "NOMINAL-001",
             "Nominal station-keeping mission (no fault)",
-            named("NOM-001_StationKeeping"),
+            named("NOMINAL-001"),
             sim::sil::FaultScenario{},
         },
     {
-            "FINJ-001_Fc1Failure",
+            "FAULT_INJECTOR-001",
             "FC1 failure during station keeping",
-            named("FINJ-001_Fc1Failure"),
-            hil_fault_for(*sim::test::find_functional_scenario("FINJ-001_Fc1Failure")),
+            named("FAULT_INJECTOR-001"),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-001")),
         },
     {
-            "FINJ-002_CommLoss",
+            "FAULT_INJECTOR-002",
             "Communication loss during station keeping",
-            named("FINJ-002_CommLoss"),
-            hil_fault_for(*sim::test::find_functional_scenario("FINJ-002_CommLoss")),
+            named("FAULT_INJECTOR-002"),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-002")),
         },
     {
-            "FINJ-003_SensorFault",
+            "FAULT_INJECTOR-003",
             "Altitude sensor fault (out of range) during station keeping",
-            named("FINJ-003_SensorFault"),
-            hil_fault_for(*sim::test::find_functional_scenario("FINJ-003_SensorFault")),
+            named("FAULT_INJECTOR-003"),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-003")),
         },
     {
-            "FINJ-004_ActuatorDegradation",
+            "FAULT_INJECTOR-004",
             "Main-rotor actuator degradation (efficiency 0.6) during station keeping",
-            named("FINJ-004_ActuatorDegradation"),
-            hil_fault_for(*sim::test::find_functional_scenario("FINJ-004_ActuatorDegradation")),
+            named("FAULT_INJECTOR-004"),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-004")),
         },
     {
-            "MC-FINJ-001_Fc1FailureDuringClimb",
+            "MONTE_CARLO_FAULT_INJECTOR-001",
             "FC1 failure injected during the climb mode-change transition",
-            named("MC-FINJ-001_Fc1FailureDuringClimb"),
+            named("MONTE_CARLO_FAULT_INJECTOR-001"),
             sim::sil::FaultScenario{.start_time = 2.0,
                                     .fault_type = sim::sil::FaultType::FC1Failure},
         },

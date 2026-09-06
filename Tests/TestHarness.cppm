@@ -44,7 +44,7 @@ command-line argument ("simulation", "sil", "hil").
 
 /*
 Uppercase tag used to pair a scenario ID with its execution target in the logs
-and reports ([NOM-001][SIL], [FINJ-001][HIL]).
+and reports ([NOMINAL-001][SIL], [FAULT_INJECTOR-001][HIL]).
 */
 [[nodiscard]] std::string_view run_target_tag(RunTarget target) noexcept;
 

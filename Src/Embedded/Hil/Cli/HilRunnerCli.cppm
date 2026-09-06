@@ -25,7 +25,8 @@ import SilFaultScenario;
 export namespace sim::hil {
 
 struct HilCliOptions {
-    std::string                   scenario_id{"NOM-001_StationKeeping"};
+    std::string                   scenario_id{"NOMINAL-001"};
+    std::string                   interface_name{"loopback"};
     std::optional<std::float64_t> duration{};
     std::optional<std::float64_t> telemetry_period{};
     std::optional<std::uint64_t>  seed{};
@@ -33,14 +34,16 @@ struct HilCliOptions {
     std::string                   clock_name{};
     std::string                   deadline_name{};
     bool                          no_realtime = false;
+    bool                          selftest = false;
     bool                          list_only = false;
     bool                          help = false;
+    bool                          invalid = false;
 };
 
-/* Parses the hil_runner command line into HilCliOptions. */
+/* Parses the HIL_RUNNER command line into HilCliOptions. */
 [[nodiscard]] HilCliOptions parse_hil_cli(int argc, char** argv);
 
-/* Prints the hil_runner usage. */
+/* Prints the HIL_RUNNER usage. */
 void print_hil_usage(std::string_view name);
 
 /* Lists the available HIL scenarios. */

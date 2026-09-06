@@ -70,7 +70,7 @@ struct HilConfig {
 
     /* Determinism identifiers. */
     std::uint64_t    seed = 42;
-    std::string_view scenario_id = "NOM-001_StationKeeping";
+    std::string_view scenario_id = "NOMINAL-001";
 
     /* Telemetry/report cadence: structured internal rate + 1 Hz human-readable. */
     std::float64_t telemetry_rate_hz = 20.0;

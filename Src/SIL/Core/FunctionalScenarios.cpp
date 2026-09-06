@@ -1,7 +1,7 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cpp
 Description: Definition of the target-agnostic functional scenario registry
-(NOM-001 nominal station keeping and FINJ-001..004 fault injection families).
+(NOMINAL-001 nominal station keeping and FAULT_INJECTOR-001..004 fault injection families).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -23,7 +23,7 @@ namespace {
 // initialization order fiasco).
 constexpr std::array<FunctionalScenario, 5> kScenarios{{
     {
-        "NOM-001_StationKeeping",
+        "NOMINAL-001",
         "Nominal station-keeping mission with no injected fault",
         FunctionalFamily::Nominal,
         sim::sil::FaultType::None,
@@ -31,7 +31,7 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
         false,
     },
     {
-        "FINJ-001_Fc1Failure",
+        "FAULT_INJECTOR-001",
         "FC1 (primary flight controller) failure",
         FunctionalFamily::FaultInjection,
         sim::sil::FaultType::FC1Failure,
@@ -39,7 +39,7 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
         true,
     },
     {
-        "FINJ-002_CommLoss",
+        "FAULT_INJECTOR-002",
         "FC1-FC2 communication loss",
         FunctionalFamily::FaultInjection,
         sim::sil::FaultType::CommunicationLoss,
@@ -47,7 +47,7 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
         true,
     },
     {
-        "FINJ-003_SensorFault",
+        "FAULT_INJECTOR-003",
         "Altitude sensor fault (out-of-range measurement)",
         FunctionalFamily::FaultInjection,
         sim::sil::FaultType::SensorFault,
@@ -58,7 +58,7 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
         true,
     },
     {
-        "FINJ-004_ActuatorDegradation",
+        "FAULT_INJECTOR-004",
         "Main-rotor actuator degradation (efficiency 0.6)",
         FunctionalFamily::FaultInjection,
         sim::sil::FaultType::ActuatorDegradation,

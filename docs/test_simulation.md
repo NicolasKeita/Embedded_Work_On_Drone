@@ -1,70 +1,76 @@
-# test_simulation — Physical simulator validation
+# SIL_RUNNER — Physical simulator validation
 
 Physical simulator validation (Heliblade-like). The binary exercises the aircraft
 physical model and the closed-loop flight controller against a catalog of deterministic
-scenarios and verifies their response.
+scenarios and verifies their response, running the full deterministic SIL suite at
+maximum CPU speed.
 
-Executable path: `build/Debug/test_simulation` (run as `test_simulation`).
+Executable path: `build/SIL_RUNNER` (run as `SIL_RUNNER`).
 
 ## Usage
 
 ```text
-Usage: test_simulation [--target=simulation] [scenario ...]
-- With no scenario argument, all scenarios are executed (in catalog order).
-- --target=simulation   Execution target (default: simulation, also accepts: sim). The target is paired with each scenario ID in the logs, e.g. [NOM-002_GroundedRest][SIM].
-- scenario              One or more functional scenario IDs from the table below.
-- -h, --help            Show this help and exit.
+Usage: SIL_RUNNER [--scenario <id>] [-v | --verbose]
+- With no scenario argument, the SIL engine suite and the deterministic physics/autonomous
+  catalog are executed in order.
+- --scenario <id>   Run one scenario (engine suite: NOMINAL-001, FAULT_INJECTOR-001..004,
+  MONTE_CARLO_FAULT_INJECTOR-001; physics/autonomous: NOMINAL-002..007, MONTE_CARLO-001..004).
+- -v, --verbose     Per-step telemetry logging.
+- -h, --help        Show this help and exit.
 - Any unknown argument is rejected with an error and the usage is printed.
 ```
 
 Examples:
 
 ```text
-# All scenarios (in catalog order)
-test_simulation
+# SIL engine suite + physics/autonomous catalog (in order)
+SIL_RUNNER
 
-# A single scenario (autonomous altitude hold)
-test_simulation MC-001_AltitudeHold
+# A single engine scenario (nominal station keeping)
+SIL_RUNNER --scenario NOMINAL-001
 
-# Several scenarios in sequence
-test_simulation NOM-002_GroundedRest NOM-004_Descent MC-004_FullMission
+# A single fault-injection scenario
+SIL_RUNNER --scenario FAULT_INJECTOR-001
+
+# A single autonomous scenario
+SIL_RUNNER --scenario MONTE_CARLO-001
 ```
 
 ## Available scenarios
 
 | ID | Description | Function |
 |----|-------------|----------|
-| `NOM-002_GroundedRest` | Grounded rest (RPM = 0, servos = 0) | `scenarios::rest` |
-| `NOM-003_VerticalClimb` | Vertical climb (RPM > hover) | `scenarios::climb` |
-| `NOM-004_Descent` | Descent (RPM < hover) | `scenarios::descent` |
-| `NOM-005_ForwardTranslation` | Forward translation (hover + pitch > 0) | `scenarios::move_x` |
-| `NOM-006_LateralTranslation` | Lateral translation (hover + roll > 0) | `scenarios::move_y` |
-| `NOM-007_CombinedTranslation` | Combined translation (RPM > hover, pitch > 0, roll < 0) | `scenarios::combined` |
-| `MC-001_AltitudeHold` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
-| `MC-002_PositionXHold` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
-| `MC-003_PositionYHold` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
-| `MC-004_FullMission` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
+| `NOMINAL-002` | Grounded rest (RPM = 0, servos = 0) | `scenarios::rest` |
+| `NOMINAL-003` | Vertical climb (RPM > hover) | `scenarios::climb` |
+| `NOMINAL-004` | Descent (RPM < hover) | `scenarios::descent` |
+| `NOMINAL-005` | Forward translation (hover + pitch > 0) | `scenarios::move_x` |
+| `NOMINAL-006` | Lateral translation (hover + roll > 0) | `scenarios::move_y` |
+| `NOMINAL-007` | Combined translation (RPM > hover, pitch > 0, roll < 0) | `scenarios::combined` |
+| `MONTE_CARLO-001` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
+| `MONTE_CARLO-002` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
+| `MONTE_CARLO-003` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
+| `MONTE_CARLO-004` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
 
-### Physics scenarios (NOM-002 – NOM-007)
+### Physics scenarios (NOMINAL-002 – NOMINAL-007)
 
 Deterministic open-loop scenarios: they verify the response of the physical model to
 motor and servo commands.
 
-- **NOM-002_GroundedRest — rest**: aircraft on the ground, no command; it must remain motionless.
-- **NOM-003_VerticalClimb — climb**: RPM above the theoretical hover value; vertical climb is expected.
-- **NOM-004_Descent — descent**: climb followed by throttle reduction; return to the ground is expected.
-- **NOM-005_ForwardTranslation — move_x**: positive mean servo command (+10 degrees) -> pitch > 0.
-- **NOM-006_LateralTranslation — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
-- **NOM-007_CombinedTranslation — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
+- **NOMINAL-002 — rest**: aircraft on the ground, no command; it must remain motionless.
+- **NOMINAL-003 — climb**: RPM above the theoretical hover value; vertical climb is expected.
+- **NOMINAL-004 — descent**: climb followed by throttle reduction; return to the ground is expected.
+- **NOMINAL-005 — move_x**: positive mean servo command (+10 degrees) -> pitch > 0.
+- **NOMINAL-006 — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
+- **NOMINAL-007 — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
 
-### Autonomous mode-change scenarios (MC-001 – MC-004)
+### Autonomous mission scenarios (MONTE_CARLO-001 – MONTE_CARLO-004)
 
 Closed-loop scenarios driving the flight controller.
 
-- **MC-001_AltitudeHold — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
-- **MC-002_PositionXHold — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
-- **MC-003_PositionYHold — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
-- **MC-004_FullMission — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
+- **MONTE_CARLO-001 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
+- **MONTE_CARLO-002 — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
+- **MONTE_CARLO-003 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
+- **MONTE_CARLO-004 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
 
 ## Execution conditions
 
@@ -82,12 +88,12 @@ Closed-loop scenarios driving the flight controller.
 
 ## SIL validation (Software-in-the-Loop)
 
-A dedicated executable, `test_sil`, validates the robustness of the system against faults
-(Software-in-the-Loop).
-
-The SIL suite is run via `test_sil --target=sil` and the HIL suite via
-`test_hil --target=hil`. The scenario IDs are shared (target-agnostic) and the target is
-paired with each ID in the logs (e.g. `[NOM-001][SIL]`, `[FINJ-001][HIL]`).
+`SIL_RUNNER` validates the robustness of the system against faults
+(Software-in-the-Loop) and executes the deterministic physics/autonomous catalog.
+Scenario IDs follow the standardised taxonomy (NOMINAL-xxx, FAULT_INJECTOR-xxx,
+MONTE_CARLO-xxx, MONTE_CARLO_FAULT_INJECTOR-xxx) and are paired with each ID in the
+logs (e.g. `[NOMINAL-001][SIL]`, `[FAULT_INJECTOR-001][SIL]`). The HIL suite lives in
+`HIL_RUNNER --selftest`.
 
 ### Implemented SIL scenarios
 
@@ -96,29 +102,29 @@ altitude of 10 meters**, over a total simulated duration of 90 seconds.
 
 The following scenarios are executed:
 
-- **NOM-001_StationKeeping [SIL] — Nominal flight with no fault**
+- **NOMINAL-001 [SIL] — Nominal flight with no fault**
   - **Description**: Full mission execution with no fault injection.
   - **Expectations**: The mission must complete with the `COMPLETE` status, the safety mode must remain `NORMAL`, no fault must be detected, and the altitude error must stay controlled (<= 10.5 m).
 
-- **FINJ-001_Fc1Failure [SIL] — Primary flight controller failure (FC1 failure)**
+- **FAULT_INJECTOR-001 [SIL] — Primary flight controller failure (FC1 failure)**
   - **Description**: Abrupt stop of the primary flight controller at t = 30.0 s (during altitude hold).
   - **Expectations**: The fault must be detected via a heartbeat timeout in less than 300 ms. The system must switch to `SAFE_MODE` with a response latency <= 200 ms, and the mission must be aborted.
 
-- **FINJ-002_CommLoss [SIL] — Total communication loss (Communication loss)**
+- **FAULT_INJECTOR-002 [SIL] — Total communication loss (Communication loss)**
   - **Description**: Communication link cut at t = 30.0 s.
   - **Expectations**: The `COMMUNICATION_LOST` alert must be raised in less than 300 ms. The system must engage a safety reaction (`SAFE_MODE`) and abort the mission.
 
-- **FINJ-003_SensorFault [SIL] — Sensor failure (Sensor fault)**
+- **FAULT_INJECTOR-003 [SIL] — Sensor failure (Sensor fault)**
   - **Description**: Corruption of the altitude sensor data (outlier value) at t = 20.0 s for 10 seconds.
   - **Expectations**: The outlier value must be invalidated in less than 500 ms. The `HealthMonitor` must enter the `DEGRADED` state, the `COMPENSATED` mode must be engaged to maintain flight, and the mission must not be aborted.
 
-- **FINJ-004_ActuatorDegradation [SIL] — Actuator degradation (Actuator degradation)**
+- **FAULT_INJECTOR-004 [SIL] — Actuator degradation (Actuator degradation)**
   - **Description**: Drop of an actuator efficiency to 60% of its capacity at t = 15.0 s (during the climb phase).
   - **Expectations**: The mismatch between the command and the physical response must be detected. The system must enter the `DEGRADED` state, engage a compensation setpoint, and continue the mission without aborting it.
 
 An additional SIL scenario is also available:
 
-- **MC-FINJ-001_Fc1FailureDuringClimb [SIL] — FC1 failure during the climb mode-change transition**
+- **MONTE_CARLO_FAULT_INJECTOR-001 [SIL] — FC1 failure during the climb mode-change transition**
   - **Description**: An FC1 failure is injected during the climb mode-change transition, exercising the safety chain across a mode switch rather than during steady station keeping.
   - **Expectations**: The failure must be detected through the heartbeat timeout, `SAFE_MODE` must be engaged within the required latency, and the mission must be aborted.
 

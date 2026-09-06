@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/Scenarios-Cases.cpp
-Description: Implementation of the deterministic validation scenarios (NOM-002 to NOM-007).
+Description: Implementation of the deterministic validation scenarios (NOMINAL-002 to NOMINAL-007).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -17,7 +17,7 @@ namespace sim::test::scenarios {
 
 void rest(TestHarness& runner, std::float64_t)
 {
-    runner.begin_scenario("NOM-002_GroundedRest", "Grounded rest (RPM = 0, servos = 0)");
+    runner.begin_scenario("NOMINAL-002", "Grounded rest (RPM = 0, servos = 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -32,7 +32,7 @@ void rest(TestHarness& runner, std::float64_t)
 
 void climb(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("NOM-003_VerticalClimb", "Vertical climb (RPM = 1.1 x hover, servos = 0)");
+    runner.begin_scenario("NOMINAL-003", "Vertical climb (RPM = 1.1 x hover, servos = 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -47,7 +47,7 @@ void climb(TestHarness& runner, std::float64_t hover_rpm)
 
 void descent(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("NOM-004_Descent", "Descent (climb then RPM = 0.6 x hover)");
+    runner.begin_scenario("NOMINAL-004", "Descent (climb then RPM = 0.6 x hover)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -65,7 +65,7 @@ void descent(TestHarness& runner, std::float64_t hover_rpm)
 
 void move_x(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("NOM-005_ForwardTranslation", "Forward translation (hover + pitch > 0)");
+    runner.begin_scenario("NOMINAL-005", "Forward translation (hover + pitch > 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -83,7 +83,7 @@ void move_x(TestHarness& runner, std::float64_t hover_rpm)
 
 void move_y(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("NOM-006_LateralTranslation", "Lateral translation (hover + roll > 0)");
+    runner.begin_scenario("NOMINAL-006", "Lateral translation (hover + roll > 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -101,7 +101,7 @@ void move_y(TestHarness& runner, std::float64_t hover_rpm)
 
 void combined(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("NOM-007_CombinedTranslation", "Combined translation (RPM > hover, pitch > 0, roll < 0)");
+    runner.begin_scenario("NOMINAL-007", "Combined translation (RPM > hover, pitch > 0, roll < 0)");
     runner.log_header();
 
     Aircraft aircraft;

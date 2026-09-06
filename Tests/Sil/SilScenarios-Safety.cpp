@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Sil/SilScenarios-Safety.cpp
-Description: SIL scenarios for the sensor and actuator faults (FINJ-003, FINJ-004):
+Description: SIL scenarios for the sensor and actuator faults (FAULT_INJECTOR-003, FAULT_INJECTOR-004):
 degraded handling with HealthMonitor DEGRADED and COMPENSATED thrust margin.
 
 Copyright (c) 2026 Nicolas K.
@@ -38,7 +38,7 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 
 void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FINJ-003_SensorFault", "Altitude sensor corruption injected at t = 20.0 s");
+    runner.begin_scenario("FAULT_INJECTOR-003", "Altitude sensor corruption injected at t = 20.0 s");
     const FaultScenario scenario{ .start_time = 20.0, .duration = 10.0, .fault_type = FaultType::SensorFault,
         .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange, .corrupted_altitude_m = 99999.0}};
     const std::array<FaultScenario, 1> scenarios{scenario};
@@ -46,7 +46,7 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FINJ-003_SensorFault", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FAULT_INJECTOR-003", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
     output = std::move(outcome).value();
@@ -58,13 +58,13 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     runner.check(r.degraded_reached, "HealthMonitor in DEGRADED state");
     runner.check(r.compensated_reached, "COMPENSATED mode engaged");
     runner.check(r.final_state != sim::control::MissionState::ABORTED, "mission not aborted");
-    record = {.name = "FINJ-003_SensorFault", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = "FAULT_INJECTOR-003", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
 void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FINJ-004_ActuatorDegradation", "Actuator efficiency 0.6 injected at t = 15.0 s");
+    runner.begin_scenario("FAULT_INJECTOR-004", "Actuator efficiency 0.6 injected at t = 15.0 s");
     const FaultScenario scenario{.start_time = 15.0, .duration = 0.0, .fault_type = FaultType::ActuatorDegradation,
                                  .parameters = {.efficiency = 0.6}};
     const std::array<FaultScenario, 1> scenarios{scenario};
@@ -72,7 +72,7 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FINJ-004_ActuatorDegradation", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = "FAULT_INJECTOR-004", .scenario = scenario, .result = SimulationResult{}};
         return;
     }
     output = std::move(outcome).value();
@@ -83,7 +83,7 @@ void actuator_degradation_scenario(TestHarness& runner, SilRunOutput& output, Sc
     runner.check(r.degraded_reached, "HealthMonitor in DEGRADED state");
     runner.check(r.compensated_reached, "compensation command engaged");
     runner.check(r.final_state != sim::control::MissionState::ABORTED, "mission not aborted");
-    record = {.name = "FINJ-004_ActuatorDegradation", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = "FAULT_INJECTOR-004", .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 

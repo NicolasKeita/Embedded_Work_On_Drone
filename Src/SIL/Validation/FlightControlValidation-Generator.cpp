@@ -45,13 +45,13 @@ is drawn first so that the rest of the sampling can branch on it. Distributions
 are scoped locally so that no shared state leaks between runs and the
 generation stays allocation-free.
 */
-Scenario ScenarioGenerator::generate_scenario(std::uint64_t run_id)
+Scenario ScenarioGenerator::generate_scenario(std::uint64_t run_id, std::optional<FaultType> fault_template)
 {
     const std::uint64_t seed = mix_seed(master_seed_, run_id);
     std::mt19937_64     generator(seed);
     Scenario            scenario{.run_id = run_id, .scenario_seed = seed};
 
-    sample_fault_window(scenario, generator);
+    sample_fault_window(scenario, generator, fault_template);
     sample_fault_parameters(scenario, generator);
     sample_environment(scenario, generator);
     sample_initial_conditions(scenario, generator);

@@ -162,7 +162,7 @@ At minimum, the baseline should contain:
 Example:
 
 ```text
-Scenario: NOM-001_StationKeeping
+Scenario: NOMINAL-001
 Target position: (0, 0)
 Target altitude: 100 m
 Mission duration: TBD
@@ -181,7 +181,7 @@ The exact numerical tolerances must come from the scenario definition and not be
 
 The HIL campaign is divided into several categories.
 
-### NOM-001_StationKeeping — Nominal startup
+### NOMINAL-001 — Nominal startup
 
 Objective:
 
@@ -229,7 +229,7 @@ Expected behavior:
 
 ---
 
-### NOM-001_StationKeeping — Nominal mission
+### NOMINAL-001 — Nominal mission
 
 Objective:
 
@@ -302,7 +302,7 @@ The measurements must use simulation timestamps and/or synchronized timestamps d
 
 ---
 
-### FINJ-003_SensorFault — Sensor fault
+### FAULT_INJECTOR-003 — Sensor fault
 
 Objective:
 
@@ -335,7 +335,7 @@ The fault must not be injected by directly modifying the expected HIL result.
 
 ---
 
-### FINJ-002_CommLoss — Communication loss
+### FAULT_INJECTOR-002 — Communication loss
 
 Objective:
 
@@ -668,7 +668,7 @@ This allows HIL to validate the complete chain instead of testing only the safet
 
 The first campaign should be deliberately small.
 
-### NOM-001_StationKeeping
+### NOMINAL-001
 Nominal startup.
 
 ### PROTO
@@ -677,7 +677,7 @@ Sensor packet exchange.
 ### PROTO
 Actuator packet exchange.
 
-### NOM-001_StationKeeping
+### NOMINAL-001
 Nominal station-keeping mission.
 
 ### TIMING
@@ -686,10 +686,10 @@ Timing/deadline measurement.
 ### TIMING
 Communication latency measurement.
 
-### FINJ-003_SensorFault
+### FAULT_INJECTOR-003
 Sensor fault injection.
 
-### FINJ-002_CommLoss
+### FAULT_INJECTOR-002
 Communication loss.
 
 ### SAFETY

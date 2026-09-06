@@ -39,13 +39,13 @@ namespace sim::test::hil {
     {
         runner.set_context("REALTIME");
         sim::hil::HilConfig realtime_cfg = sim::hil::hil_base_config();
-        realtime_cfg.scenario_id = "NOM-001_StationKeeping";
+        realtime_cfg.scenario_id = "NOMINAL-001";
         realtime_cfg.duration_s = 0.10;
         realtime_cfg.dt_s = 0.01;
         realtime_cfg.real_time_pacing = true;
         realtime_cfg.clock_kind = sim::hil::ClockKind::Monotonic;
         const std::array<sim::sil::FaultScenario, 1> rs{
-            sim::hil::HilScenarioCatalog::find("NOM-001_StationKeeping")->fault};
+            sim::hil::HilScenarioCatalog::find("NOMINAL-001")->fault};
         const auto t0 = std::chrono::steady_clock::now();
         sim::hil::HilRunner rt_runner{realtime_cfg};
         const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> rt = rt_runner.run(rs);

@@ -26,6 +26,11 @@ std::uint64_t MonteCarloRunner::master_seed() const noexcept
     return generator_.master_seed();
 }
 
+void MonteCarloRunner::set_fault_template(std::optional<FaultType> fault_template) noexcept
+{
+    fault_template_ = fault_template;
+}
+
 const ResultCollector& MonteCarloRunner::collector() const noexcept
 {
     return collector_;
@@ -59,7 +64,7 @@ recorded with FailureReason::RunnerError rather than propagated as exceptions.
 */
 void MonteCarloRunner::execute_run(std::uint64_t run_id)
 {
-    Scenario                     scenario = generator_.generate_scenario(run_id);
+    Scenario                     scenario = generator_.generate_scenario(run_id, fault_template_);
     const SilConfig              config = make_run_config(config_, scenario);
     const FaultScenario          fault = scenario.to_fault_scenario();
     const bool                   fault_expected = (scenario.fault_type != FaultType::None);

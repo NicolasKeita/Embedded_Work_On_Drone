@@ -16,19 +16,19 @@ import TestHarness;
 namespace sim::test {
 
 const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
-    {"NOM-002_GroundedRest",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
-    {"NOM-003_VerticalClimb",        "Vertical climb (RPM > hover)",              scenarios::climb},
-    {"NOM-004_Descent",             "Descent (RPM < hover)",                     scenarios::descent},
-    {"NOM-005_ForwardTranslation",  "Forward translation (hover + pitch > 0)",    scenarios::move_x},
-    {"NOM-006_LateralTranslation",  "Lateral translation (hover + roll > 0)",     scenarios::move_y},
-    {"NOM-007_CombinedTranslation", "Combined translation (RPM > hover, "
+    {"NOMINAL-002",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
+    {"NOMINAL-003",        "Vertical climb (RPM > hover)",              scenarios::climb},
+    {"NOMINAL-004",             "Descent (RPM < hover)",                     scenarios::descent},
+    {"NOMINAL-005",  "Forward translation (hover + pitch > 0)",    scenarios::move_x},
+    {"NOMINAL-006",  "Lateral translation (hover + roll > 0)",     scenarios::move_y},
+    {"NOMINAL-007", "Combined translation (RPM > hover, "
                                     "pitch > 0, roll < 0)",                      scenarios::combined},
-    {"MC-001_AltitudeHold",         "Autonomous altitude hold (z: 0 -> 100 m)",  flight_scenarios::autonomous_altitude},
-    {"MC-002_PositionXHold",        "Autonomous cascaded X axis (x: 20 -> 0)",
+    {"MONTE_CARLO-001",         "Autonomous altitude hold (z: 0 -> 100 m)",  flight_scenarios::autonomous_altitude},
+    {"MONTE_CARLO-002",        "Autonomous cascaded X axis (x: 20 -> 0)",
                                     flight_scenarios::autonomous_position_x},
-    {"MC-003_PositionYHold",        "Autonomous cascaded Y axis (y: -15 -> 0)",
+    {"MONTE_CARLO-003",        "Autonomous cascaded Y axis (y: -15 -> 0)",
                                     flight_scenarios::autonomous_position_y},
-    {"MC-004_FullMission",          "Autonomous full mission (TAKEOFF to COMPLETE)",
+    {"MONTE_CARLO-004",          "Autonomous full mission (TAKEOFF to COMPLETE)",
                                     flight_scenarios::autonomous_mission},
 }};
 

@@ -1,8 +1,9 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cppm
 Description: Target-agnostic functional scenario registry. Each entry binds a
-standardised scenario ID (NOM-xxx, FINJ-xxx) to its declarative fault identity
-(type and parameters) and expected outcome, shared by the SIL and HIL runners.
+standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx, MONTE_CARLO-xxx,
+MONTE_CARLO_FAULT_INJECTOR-xxx) to its declarative fault identity (type and
+parameters) and expected outcome, shared by the SIL and HIL runners.
 The execution target (SIL/HIL) is injected at runtime by the harness, so the
 scenario names never encode the execution environment.
 Exports:
@@ -26,8 +27,8 @@ export namespace sim::test {
 enum class FunctionalFamily : std::uint8_t {
     Nominal,
     FaultInjection,
-    ModeChange,
-    ModeChangeFaultInjection
+    MonteCarlo,
+    MonteCarloFaultInjection
 };
 
 /*
@@ -49,8 +50,9 @@ struct FunctionalScenario {
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;
 
 /*
-Resolves a functional scenario by its standardised ID (NOM-xxx, FINJ-xxx,
-MC-xxx, MC-FINJ-xxx); returns nullptr when the ID is unknown.
+Resolves a functional scenario by its standardised ID (NOMINAL-xxx,
+FAULT_INJECTOR-xxx, MONTE_CARLO-xxx, MONTE_CARLO_FAULT_INJECTOR-xxx); returns
+nullptr when the ID is unknown.
 */
 [[nodiscard]] const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept;
 
