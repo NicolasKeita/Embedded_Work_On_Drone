@@ -8,7 +8,8 @@ file count and module implementation count.
 
 The implementation lives in style_checks, comment_language_checks,
 cppm_checks, cppm_inline_function_checks, directory_checks,
-module_filename_checks, module_size_checks and reporting.
+main_filename_checks, module_filename_checks, module_size_checks and
+reporting.
 """
 
 import sys
@@ -34,6 +35,7 @@ from linter.cppm_inline_function_checks import (
     format_cppm_inline_function_message,
 )
 from linter.comment_language_checks import check_code_comments_language
+from linter.main_filename_checks import check_main_function_filename
 from linter.multiple_var_decl_checks import check_multiple_var_declarations
 from linter.uninitialized_decl_checks import check_uninitialized_declarations
 from linter.designated_init_checks import check_designated_init_candidates
@@ -57,6 +59,7 @@ from linter.reporting import (
     print_function_length_warnings,
     print_blank_line_after_initialization_warnings,
     print_multiple_var_decl_warnings,
+    print_main_filename_warnings,
     print_uninitialized_decl_warnings,
     print_designated_init_warnings,
     print_return_only_var_warnings,
@@ -78,6 +81,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         uninitialized_decl_violations = check_uninitialized_declarations(code)
         designated_init_violations = check_designated_init_candidates(code)
         return_only_var_violations = check_return_only_variable(code)
+        main_filename_violations = check_main_function_filename(code, file_path)
 
         has_issues = (
             len(cppm_violations) > 0
@@ -87,6 +91,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
             or len(uninitialized_decl_violations) > 0
             or len(designated_init_violations) > 0
             or len(return_only_var_violations) > 0
+            or len(main_filename_violations) > 0
         )
         if has_issues:
             print_issue_header(file_path)
@@ -94,6 +99,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
         print_comment_language_warnings(language_violations)
         print_multiple_var_decl_warnings(multiple_decl_violations)
+        print_main_filename_warnings(main_filename_violations)
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
         print_designated_init_warnings(designated_init_violations)
         print_return_only_var_warnings(return_only_var_violations)
@@ -111,6 +117,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     uninitialized_decl_violations = check_uninitialized_declarations(code)
     designated_init_violations = check_designated_init_candidates(code)
     return_only_var_violations = check_return_only_variable(code)
+    main_filename_violations = check_main_function_filename(code, file_path)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
@@ -122,6 +129,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         or len(uninitialized_decl_violations) > 0
         or len(designated_init_violations) > 0
         or len(return_only_var_violations) > 0
+        or len(main_filename_violations) > 0
     )
     if has_issues:
         print_issue_header(file_path)
@@ -132,6 +140,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_file_length_warning(file_too_long, file_line_count, max_lines=MAX_FILE_LENGTH)
         print_comment_language_warnings(language_violations)
         print_multiple_var_decl_warnings(multiple_decl_violations)
+        print_main_filename_warnings(main_filename_violations)
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
         print_designated_init_warnings(designated_init_violations)
         print_return_only_var_warnings(return_only_var_violations)
@@ -149,6 +158,7 @@ __all__ = [
     "check_function_length",
     "check_blank_line_after_initialization",
     "check_multiple_var_declarations",
+    "check_main_function_filename",
     "check_uninitialized_declarations",
     "check_designated_init_candidates",
     "check_return_only_variable",
@@ -170,6 +180,7 @@ __all__ = [
     "print_function_length_warnings",
     "print_blank_line_after_initialization_warnings",
     "print_multiple_var_decl_warnings",
+    "print_main_filename_warnings",
     "print_uninitialized_decl_warnings",
     "print_designated_init_warnings",
     "print_return_only_var_warnings",
