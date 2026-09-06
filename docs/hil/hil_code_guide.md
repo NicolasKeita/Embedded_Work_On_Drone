@@ -4,7 +4,7 @@
 **Version:** 1.0.0
 **Date:** 5 Septembre 2026
 **Auteur:** Nicolas Keita — Embedded Flight Control Systems Architect
-**Périmètre:** Skeleton HIL étape 13 — code sous `Src/Embedded/`, exécutable de démonstration `hil_demo`
+**Périmètre:** Skeleton HIL étape 13 — code sous `Src/Embedded/`, exécutable de démonstration `hil_step_smoke_test`
 
 ---
 
@@ -41,7 +41,7 @@ Tous les modules vivent sous `Src/Embedded/` et suivent la convention du dépôt
 | `SimSensorInput` | `Sim/SimSensorInput.cppm` + `.cpp` | `SimulatedSensorInput` : injecte un échantillon simulé, le FC le lit via `ISensorInput` |
 | `SimActuatorOutput` | `Sim/SimActuatorOutput.cppm` + `.cpp` | `SimulatedActuatorOutput` : enregistre la dernière commande émise par le FC |
 | `Demo` | `Demo/Demo.cppm` + `Demo-Sensor.cpp`, `Demo-Actuator.cpp`, `Demo-Step.cpp`, `Demo-Report.cpp` | Démonstration de fermeture de boucle d'un pas lockstep complet |
-| — | `main.cpp` | Point d'entrée de l'exécutable `hil_demo` (appelle `FlightCore::Demo::runLockstepStep()`) |
+| — | `main.cpp` | Point d'entrée de l'exécutable `hil_step_smoke_test` (appelle `FlightCore::Demo::runLockstepStep()`) |
 
 ---
 
@@ -97,16 +97,16 @@ La démonstration (`Demo/Demo-Step.cpp`) exécute une fermeture de boucle compl�
 
 ## 5. Construction et Exécution de la Démonstration
 
-La cible `hil_demo` est définie dans `CMakeLists.txt` (variable `HIL_FILES`, C++23, modules activés).
+La cible `hil_step_smoke_test` est définie dans `CMakeLists.txt` (variable `HIL_FILES`, C++23, modules activés).
 
 ```bash
 # Linux (Ninja)
 cmake -S . -B build-lin -G Ninja
-cmake --build build-lin --target hil_demo
-./build-lin/hil_demo
+cmake --build build-lin --target hil_step_smoke_test
+./build-lin/hil_step_smoke_test
 ```
 
-Sous Windows, utiliser les presets de `CMakePresets.json` (`default`, `debug`, `release`) puis `cmake --build build --target hil_demo`.
+Sous Windows, utiliser les presets de `CMakePresets.json` (`default`, `debug`, `release`) puis `cmake --build build --target hil_step_smoke_test`.
 
 Sortie attendue (mesurée sur ce dépôt) :
 
@@ -220,5 +220,5 @@ Pour ajouter un nouveau type de message (ex. `TimeSyncRequest`) :
 * [`hil_protocol.md`](hil_protocol.md) — spécification HIL-Proto v1.0 (header, payloads, CRC, temps, erreurs)
 * [`hil_architecture.md`](hil_architecture.md) — architecture matérielle cible, RTOS, HAL, validation SIL vs HIL
 * [`hil_validation.md`](hil_validation.md) — stratégie de validation du banc HIL
-* `CMakeLists.txt` — cible `hil_demo` et variable `HIL_FILES`
+* `CMakeLists.txt` — cible `hil_step_smoke_test` et variable `HIL_FILES`
 * Code : `Src/Embedded/` (modules listés en section 2)

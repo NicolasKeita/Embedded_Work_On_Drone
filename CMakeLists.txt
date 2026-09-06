@@ -284,24 +284,153 @@ set(HIL_FILES
     Src/Embedded/Demo/Demo-Step.cpp
 )
 
-# Demonstration : bouclage d'un pas de simulation lockstep
-# (SensorPacket -> parser -> ISensorInput -> FC factice -> IActuatorOutput ->
-#  ActuatorPacket).
-add_executable(hil_demo Src/Embedded/Main.cpp)
-target_add_mixed_sources(hil_demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+# HIL transport/HAL/sim infrastructure shared by the smoke test, the runner and the host
+# FC emulator (excludes the one-step Demo, which lives in its own smoke test).
+set(HIL_TRANSPORT_FILES
+    Src/Embedded/Hal/HalTypes.cppm
+    Src/Embedded/Hal/SensorInput.cppm
+    Src/Embedded/Hal/ActuatorOutput.cppm
+    Src/Embedded/Hal/Clock.cppm
+    Src/Embedded/Transport/Transport.cppm
+    Src/Embedded/Transport/HilProtocol.cppm
+    Src/Embedded/Transport/Parser/HilProtocolParser.cppm
+    Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
+    Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
+    Src/Embedded/Transport/Parser/HilProtocolParser-Frame.cpp
+    Src/Embedded/Transport/Codec/HilProtocolCodec.cppm
+    Src/Embedded/Transport/Codec/HilProtocolCodec-Sensor.cpp
+    Src/Embedded/Transport/Codec/HilProtocolCodec-Actuator.cpp
+    Src/Embedded/Sim/SimSensorInput.cppm
+    Src/Embedded/Sim/SimSensorInput.cpp
+    Src/Embedded/Sim/SimActuatorOutput.cppm
+    Src/Embedded/Sim/SimActuatorOutput.cpp
+    Src/Embedded/Sim/SimClock.cppm
+    Src/Embedded/Sim/LoopbackTransport.cppm
+    Src/Embedded/Sim/LoopbackTransport.cpp
+)
+
+# SIL core reused by the HIL runner (fault vocabulary, bus, sensor chain).
+set(SIL_CORE_FILES
+    Src/SIL/Core/SilTypes.cppm
+    Src/SIL/Core/SilTypes.cpp
+    Src/SIL/Core/SilFaultScenario.cppm
+    Src/SIL/Core/SilFaultScenario-Core.cpp
+    Src/SIL/Core/SilFaultScenario-Names.cpp
+    Src/SIL/Core/SilFaultScenario-Semantics.cpp
+    Src/SIL/Faults/FaultInjectors.cppm
+    Src/SIL/Faults/FaultInjectors-Base.cpp
+    Src/SIL/Faults/FaultInjectors-Injectors.cpp
+    Src/SIL/Faults/FaultInjectors-Factory.cpp
+    Src/SIL/Core/CommsBus.cppm
+    Src/SIL/Core/CommsBus.cpp
+    Src/SIL/Core/Telemetry/Telemetry.cppm
+    Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
+    Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
+)
+
+# HIL runner infrastructure (config, clock, events, telemetry, timing, sensor model,
+# transport adaptors, FC target, orchestrator and scenario registry).
+set(HIL_INFRA_FILES
+    Src/Embedded/Hil/HilConfig.cppm
+    Src/Embedded/Hil/HilConfig.cpp
+    Src/Embedded/Hil/HilClock.cppm
+    Src/Embedded/Hil/HilClock.cpp
+    Src/Embedded/Hil/HilEvents.cppm
+    Src/Embedded/Hil/HilEvents.cpp
+    Src/Embedded/Hil/HilTelemetry.cppm
+    Src/Embedded/Hil/HilTelemetry.cpp
+    Src/Embedded/Hil/HilTiming.cppm
+    Src/Embedded/Hil/HilTiming.cpp
+    Src/Embedded/Hil/HilSensorModel.cppm
+    Src/Embedded/Hil/HilSensorModel.cpp
+    Src/Embedded/Hil/HilTransport.cppm
+    Src/Embedded/Hil/HilTransport.cpp
+    Src/Embedded/Hil/HilFcTarget.cppm
+    Src/Embedded/Hil/HilFcTarget-Host.cpp
+    Src/Embedded/Hil/HilRunnerContext.cppm
+    Src/Embedded/Hil/HilRunnerContext.cpp
+    Src/Embedded/Hil/HilRunner.cppm
+    Src/Embedded/Hil/HilRunner-Context.cpp
+    Src/Embedded/Hil/HilRunner-Events.cpp
+    Src/Embedded/Hil/HilRunner-Step.cpp
+    Src/Embedded/Hil/HilRunner-Loop.cpp
+    Src/Embedded/Hil/HilRunner-Metrics.cpp
+    Src/Embedded/Hil/HilRunner-Finalize.cpp
+    Src/Embedded/Hil/HilRunner-Report.cpp
+    Src/Embedded/Hil/HilScenarios.cppm
+    Src/Embedded/Hil/HilScenarios.cpp
+)
+
+function(hil_target_setup target)
+    set_property(TARGET ${target} PROPERTY CXX_SCAN_FOR_MODULES ON)
+    set_property(TARGET ${target} PROPERTY CXX_MODULE_STD ON)
+    target_compile_features(${target} PRIVATE cxx_std_23)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /external:W0 /external:anglebrackets)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endfunction()
+
+# Smoke test : one lockstep step (packet codec + transport connectivity).
+# (SensorPacket -> parser -> ISensorInput -> placeholder FC -> IActuatorOutput -> ActuatorPacket).
+# NOT the mission-level HIL runner; uses a placeholder control law, not the real FC core.
+add_executable(hil_step_smoke_test Src/Embedded/Main.cpp)
+target_add_mixed_sources(hil_step_smoke_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_FILES}
 )
-set_property(TARGET hil_demo PROPERTY CXX_SCAN_FOR_MODULES ON)
-set_property(TARGET hil_demo PROPERTY CXX_MODULE_STD ON)
+hil_target_setup(hil_step_smoke_test)
 
-if(MSVC)
-    target_compile_options(hil_demo PRIVATE
-        /W4
-        /external:W0
-        /external:anglebrackets
-    )
-else()
-    target_compile_options(hil_demo PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+# HIL runner : real-time closed-loop mission against the FC target.
+add_executable(hil_runner Src/Embedded/Hil/HilRunnerMain.cpp)
+target_add_mixed_sources(hil_runner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${HIL_INFRA_FILES}
+    ${HIL_TRANSPORT_FILES}
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${SAFETY_FILES}
+    ${SIL_CORE_FILES}
+)
+hil_target_setup(hil_runner)
 
-target_compile_features(hil_demo PRIVATE cxx_std_23)
+# Host FC emulator target : the real FC core driven over stdio frames. NOT the physical STM32.
+add_executable(fc1_hil_host Src/Embedded/Hil/FcHostMain.cpp)
+target_add_mixed_sources(fc1_hil_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    Src/Embedded/Hil/HilClock.cppm
+    Src/Embedded/Hil/HilClock.cpp
+    Src/Embedded/Hil/HilConfig.cppm
+    Src/Embedded/Hil/HilConfig.cpp
+    Src/Embedded/Hil/HilSensorModel.cppm
+    Src/Embedded/Hil/HilSensorModel.cpp
+    Src/Embedded/Hil/HilScenarios.cppm
+    Src/Embedded/Hil/HilScenarios.cpp
+    ${HIL_TRANSPORT_FILES}
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${SIL_CORE_FILES}
+)
+hil_target_setup(fc1_hil_host)
+
+# HIL deterministic test suite (runner, protocol, data-integrity, fault tests).
+set(TEST_HIL_FILES
+    Tests/Hil/HilTests.cppm
+    Tests/Hil/HilTests-Core.cpp
+    Tests/Hil/HilTests-Runner.cpp
+    Tests/Hil/HilTests-Protocol.cpp
+    Tests/Hil/HilTests-Data.cpp
+    Tests/Hil/HilTests-Faults.cpp
+)
+
+add_executable(test_hil Tests/test_hil.cpp)
+target_add_mixed_sources(test_hil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    Tests/TestHarness.cppm
+    Tests/TestHarness.cpp
+    ${TEST_HIL_FILES}
+    ${HIL_INFRA_FILES}
+    ${HIL_TRANSPORT_FILES}
+    ${SIMULATION_FILES}
+    ${CONTROL_FILES}
+    ${SAFETY_FILES}
+    ${SIL_CORE_FILES}
+)
+hil_target_setup(test_hil)
