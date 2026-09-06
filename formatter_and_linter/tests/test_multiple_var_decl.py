@@ -55,6 +55,34 @@ class TestMultipleVarDeclarations(unittest.TestCase):
         ]
         self.assertEqual(check_code(code), [])
 
+    def test_multiline_function_call_continuation_is_not_a_violation(self):
+        code = [
+            'FlightCore::Transport::ActuatorDiagnostics diag{};',
+            'if (delivery.delivered) {',
+            '    const ReceiveResult result = ctx.transport.receiveActuator(*ctx.clock, sequence, ctx.sim_ts_us,',
+            '                                                                 sensor_send_wall, ctx.next_deadline_us,',
+            '                                                                 ctx.actuator_cmd, diag, ctx.this_rtt_us);',
+            '    ctx.this_received = (result == ReceiveResult::Ok);',
+            '}',
+        ]
+        self.assertEqual(check_code(code), [])
+
+    def test_grouped_declaration_after_multiline_call_is_still_reported(self):
+        code = [
+            'const ReceiveResult result = ctx.transport.receiveActuator(*ctx.clock, sequence,',
+            '                                                           ctx.actuator_cmd, diag);',
+            'bool fc1_was_alive = true, fault_active = false;',
+        ]
+        self.assertEqual(check_code(code), [3])
+
+    def test_multiline_parenthesized_expression_continuation_is_not_a_violation(self):
+        code = [
+            'const std::uint64_t elapsed = sensor_send_wall + static_cast<std::uint64_t>(',
+            '    std::max<std::int64_t>(0, ctx.this_rtt_us));',
+            'bool ok = true;',
+        ]
+        self.assertEqual(check_code(code), [])
+
     def test_comma_in_initializer_list_is_not_a_violation(self):
         code = [
             'std::array<int, 3> values = {1, 2, 3};',
