@@ -168,7 +168,7 @@ set(TEST_SIMULATION_FILES
 
 # Validation exercise of the physics (NOM-002..NOM-007) and autonomous mode-change
 # (MC-001..MC-004) scenarios (steps 5 and 6).
-add_executable(test_simulation Tests/test_simulation.cpp)
+add_executable(test_simulation Tests/Sim/main.cpp)
 target_add_mixed_sources(test_simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
@@ -199,7 +199,7 @@ set(TEST_SIL_FILES
     Tests/Sil/Observability/Telemetry/SilObservabilityTelemetry-Runner.cpp
 )
 
-add_executable(test_sil Tests/test_sil.cpp)
+add_executable(test_sil Tests/Sil/main.cpp)
 target_add_mixed_sources(test_sil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
     ${CONTROL_FILES}
@@ -380,14 +380,14 @@ endfunction()
 # Smoke test : one lockstep step (packet codec + transport connectivity).
 # (SensorPacket -> parser -> ISensorInput -> placeholder FC -> IActuatorOutput -> ActuatorPacket).
 # NOT the mission-level HIL runner; uses a placeholder control law, not the real FC core.
-add_executable(hil_step_smoke_test Src/Embedded/Main.cpp)
+add_executable(hil_step_smoke_test Src/Embedded/main.cpp)
 target_add_mixed_sources(hil_step_smoke_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_FILES}
 )
 hil_target_setup(hil_step_smoke_test)
 
 # HIL runner : real-time closed-loop mission against the FC target.
-add_executable(hil_runner Src/Embedded/Hil/HilRunnerMain.cpp)
+add_executable(hil_runner Src/Embedded/Hil/Runner/main.cpp)
 target_add_mixed_sources(hil_runner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_INFRA_FILES}
     ${HIL_TRANSPORT_FILES}
@@ -399,7 +399,7 @@ target_add_mixed_sources(hil_runner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 hil_target_setup(hil_runner)
 
 # Host FC emulator target : the real FC core driven over stdio frames. NOT the physical STM32.
-add_executable(fc1_hil_host Src/Embedded/Hil/FcHostMain.cpp)
+add_executable(fc1_hil_host Src/Embedded/Hil/FcHost/main.cpp)
 target_add_mixed_sources(fc1_hil_host PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Src/Embedded/Hil/HilClock.cppm
     Src/Embedded/Hil/HilClock.cpp
@@ -427,7 +427,7 @@ set(TEST_HIL_FILES
     Tests/Hil/HilTests-Faults.cpp
 )
 
-add_executable(test_hil Tests/test_hil.cpp)
+add_executable(test_hil Tests/Hil/main.cpp)
 target_add_mixed_sources(test_hil PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Tests/TestHarness.cppm
     Tests/TestHarness.cpp

@@ -1,5 +1,5 @@
 /*
-Filename: Src/Embedded/Hil/FcHostMain.cpp
+Filename: Src/Embedded/Hil/FcHost/main.cpp
 Description: Entry point of fc1_hil_host : the host FC emulator target. Reads HIL-Proto
 SensorPacket frames from standard input, runs the REAL sim::control::FlightController
 core (the same core the future fc1_stm32 firmware will run — not a HIL-specific

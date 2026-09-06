@@ -1,5 +1,5 @@
 /*
-Filename: Tests/test_simulation.cpp
+Filename: Tests/Sim/main.cpp
 Description: Entry point running the deterministic validation scenarios at 100 Hz.
 
 Copyright (c) 2026 Nicolas K.

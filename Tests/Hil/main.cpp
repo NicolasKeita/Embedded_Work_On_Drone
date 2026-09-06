@@ -1,10 +1,10 @@
 /*
-Filename: Tests/test_sil.cpp
-Description: Entry point running the deterministic SIL validation suite (nominal,
-fault-injection, observability and telemetry scenarios). The execution target
-(SIL) is selected at runtime with --target=sil and paired with each scenario ID
-in the logs ([NOM-001][SIL], [FINJ-001][SIL]); the scenario logic is shared with
-the HIL suite and never encodes the execution environment.
+Filename: Tests/Hil/main.cpp
+Description: Entry point running the deterministic HIL validation suite (runner,
+protocol, data-integrity and fault tests). The execution target (HIL) is selected
+at runtime with --target=hil and paired with each scenario ID in the logs
+([NOM-001][HIL], [FINJ-001][HIL]); the scenario logic is shared with the SIL
+suite and never encodes the execution environment.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,7 +12,7 @@ All rights reserved.
 
 import std;
 
-import SilScenarios;
+import HilTests;
 import TestHarness;
 
 namespace
@@ -20,7 +20,7 @@ namespace
     constexpr std::string_view kTargetPrefix = "--target=";
 
     struct CliOptions {
-        sim::test::RunTarget target = sim::test::RunTarget::SIL;
+        sim::test::RunTarget target = sim::test::RunTarget::HIL;
         bool                 help = false;
         bool                 invalid = false;
     };
@@ -39,7 +39,7 @@ namespace
             if (argument.starts_with(kTargetPrefix)) {
                 const std::string_view                 name = argument.substr(kTargetPrefix.size());
                 const std::optional<sim::test::RunTarget> parsed = sim::test::parse_run_target(name);
-                if (!parsed.has_value() || *parsed != sim::test::RunTarget::SIL) {
+                if (!parsed.has_value() || *parsed != sim::test::RunTarget::HIL) {
                     options.invalid = true;
                     return options;
                 }
@@ -54,9 +54,9 @@ namespace
 
     int print_usage()
     {
-        std::cout << "SIL validation suite." << std::endl;
-        std::cout << "Usage: test_sil [--target=sil]" << std::endl;
-        std::cout << "  --target=sil   Run the scenarios under the SIL configuration (default)." << std::endl;
+        std::cout << "HIL validation suite." << std::endl;
+        std::cout << "Usage: test_hil [--target=hil]" << std::endl;
+        std::cout << "  --target=hil   Run the scenarios under the HIL configuration (default)." << std::endl;
         std::cout << "  -h, --help     Show this help and exit." << std::endl;
         return 0;
     }
@@ -70,19 +70,19 @@ int main(int argc, char* argv[])
         return print_usage();
     }
     if (options.invalid) {
-        std::cout << "Error: invalid argument. This binary runs the SIL suite; use --target=sil."
+        std::cout << "Error: invalid argument. This binary runs the HIL suite; use --target=hil."
                   << std::endl;
         return 2;
     }
 
     sim::test::TestHarness runner{sim::test::HarnessConfig{.target = options.target}};
 
-    sim::test::sil::run_all_sil_scenarios(runner);
+    sim::test::hil::run_all_hil_tests(runner);
 
     if (runner.passed()) {
-        std::cout << "\nAll SIL scenarios passed." << std::endl;
+        std::cout << "\nAll HIL tests passed." << std::endl;
         return 0;
     }
-    std::cout << "\n" << runner.failure_count() << " SIL scenario failure(s)." << std::endl;
+    std::cout << "\n" << runner.failure_count() << " HIL test failure(s)." << std::endl;
     return 1;
 }

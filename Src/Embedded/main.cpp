@@ -1,5 +1,5 @@
 /*
-Filename: Src/Embedded/Main.cpp
+Filename: Src/Embedded/main.cpp
 Description: hil_step_smoke_test entry point : runs ONE full lockstep step
 (SensorPacket -> parser -> ISensorInput -> placeholder FC -> IActuatorOutput -> ActuatorPacket)
 through the Demo module. This is a one-step protocol smoke test (packet encoding/decoding,
