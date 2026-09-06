@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Exceptions and RTTI are disabled project-wide: embedded code relies on
+# std::expected / std::optional for error handling and value semantics only.
+if(MSVC)
+    add_compile_options(/EHs- /GR-)
+else()
+    add_compile_options(-fno-exceptions -fno-rtti)
+endif()
+
 # Source lists of every module and test suite (.cppm + .cpp kept together in the same
 # variable) live in cmake/Sources.cmake and cmake/HilSources.cmake.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

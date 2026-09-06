@@ -9,10 +9,12 @@ All rights reserved.
 
 module;
 
-#if defined(_WIN32)
 #include <cstdio>
+
+#if defined(_WIN32)
 #include <fcntl.h>
 #include <io.h>
+#endif
 
 module FcHostApp;
 

@@ -16,6 +16,7 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
+import SilReporting;
 import SilRunner;
 import SilTypes;
 import Telemetry;

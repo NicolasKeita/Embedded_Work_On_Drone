@@ -200,6 +200,7 @@ set(TEST_HIL_FILES
     Tests/Hil/HilTests.cppm
     Tests/Hil/HilTests-Core.cpp
     Tests/Hil/HilTests-Runner.cpp
+    Tests/Hil/HilTests-Timing.cpp
     Tests/Hil/HilTests-Protocol.cpp
     Tests/Hil/HilTests-Data.cpp
     Tests/Hil/HilTests-Faults.cpp
