@@ -56,14 +56,6 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
         r'\w+\s*::\s*operator\s*=\s*\([^)]*\)\s*(?:const\s*)?(?:final\s*|override\s*)?\s*(?:\{|$)'
     ]
 
-    for pattern_str in function_patterns:
-        pattern = re.compile(pattern_str, re.MULTILINE)
-        for match in pattern.finditer(code):
-            line_num = code[:match.start()].count('\n') + 1
-            line_content = match.group().strip()
-            if 'curl_easy_setopt' not in line_content:
-                function_lines.add(line_num)
-
     raw_string_pattern = re.compile(r'R"([^()]*)\((.*?)\)\1"', re.DOTALL)
     raw_string_ranges = []
     for match in raw_string_pattern.finditer(code):
@@ -83,7 +75,34 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
                 return True
         return False
 
+    multiline_pattern = re.compile(r'/\*.*?\*/', re.DOTALL)
     singleline_pattern = re.compile(r'//.*$', re.MULTILINE)
+
+    comment_ranges = []
+    def is_in_comment(pos):
+        for start, end in comment_ranges:
+            if start <= pos < end:
+                return True
+        return False
+
+    for match in multiline_pattern.finditer(code):
+        if is_in_string(match.start()):
+            continue
+        comment_ranges.append((match.start(), match.end()))
+    for match in singleline_pattern.finditer(code):
+        if is_in_string(match.start()) or is_in_comment(match.start()):
+            continue
+        comment_ranges.append((match.start(), match.end()))
+
+    for pattern_str in function_patterns:
+        pattern = re.compile(pattern_str, re.MULTILINE)
+        for match in pattern.finditer(code):
+            if is_in_comment(match.start()):
+                continue
+            line_num = code[:match.start()].count('\n') + 1
+            line_content = match.group().strip()
+            if 'curl_easy_setopt' not in line_content:
+                function_lines.add(line_num)
     for match in singleline_pattern.finditer(code):
         if is_in_string(match.start()):
             continue
