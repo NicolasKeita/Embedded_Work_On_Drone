@@ -65,10 +65,10 @@ void check_fault_window(TestHarness& runner, const SilRunOutput& output, const S
                                    && truth.z <= config.sensor_limits.max_altitude_m;
         }
     }
-    runner.check(faulty_recorded, "TELE-012 : mesure fausee 99999 m enregistree en telemetrie");
-    runner.check(truth_stays_physical, "TELE-012 : ground truth physique pendant la faulte");
+    runner.check(faulty_recorded, "99999 m faulty measurement recorded in telemetry");
+    runner.check(truth_stays_physical, "ground truth physical during the fault");
     runner.check(output.result.fault_detected && output.result.first_fault_domain == FaultDomain::Sensor,
-                 "TELE-012 : faulte capteur detectee par la validation");
+                 "sensor fault detected by validation");
 }
 
 }
@@ -80,6 +80,8 @@ measurement and the temporary fault closes with a FAULT_CLEARED event.
 */
 void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
 {
+    runner.set_context("TELE-012");
+
     const SilConfig config{.duration_s = 40.0};
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
@@ -92,7 +94,7 @@ void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
     const std::expected<SilRunOutput, SilError> faulted = SILRunner{config}.run(fault_scenarios);
 
     if (!nominal.has_value() || !faulted.has_value()) {
-        runner.check(false, "TELE-012 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -101,14 +103,14 @@ void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
 
     const SilEvent* cleared = find_first(faulted.value().events, SilEventType::FaultCleared);
 
-    runner.check(cleared != nullptr, "TELE-012 : evenement FAULT_CLEARED present");
+    runner.check(cleared != nullptr, "FAULT_CLEARED event present");
     if (cleared == nullptr) {
         return;
     }
     runner.check(std::abs(cleared->timestamp - kFaultEnd) <= config.dt,
-                 "TELE-012 : FAULT_CLEARED a la fermeture de la fenetre");
+                 "FAULT_CLEARED at window close");
     runner.check(cleared->detail == sim::sil::fault_type_name(FaultType::SensorFault),
-                 "TELE-012 : FAULT_CLEARED porte le type de faulte");
+                 "FAULT_CLEARED carries the fault type");
 }
 
 }

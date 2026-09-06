@@ -19,7 +19,7 @@ Runs the whole telemetry-path observability suite.
 */
 void run_telemetry_scenarios(TestHarness& runner)
 {
-    std::cout << "\n=== Suite telemetrie observabilite SIL ===" << std::endl;
+    std::cout << "\n=== SIL telemetry observability suite ===" << std::endl;
 
     telemetry_sampling_test(runner);
     telemetry_sensor_fault_path_test(runner);

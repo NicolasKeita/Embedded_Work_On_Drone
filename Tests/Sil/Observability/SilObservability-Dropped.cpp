@@ -30,12 +30,13 @@ OBS-002: dropped heartbeats are observable in the trace and in the statistics.
 */
 void dropped_heartbeats_test(TestHarness& runner)
 {
+    runner.set_context("OBS-002");
     const SilConfig                             config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario                         scenario{.start_time = 2.0, .fault_type = FaultType::CommunicationLoss};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-002 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -44,10 +45,10 @@ void dropped_heartbeats_test(TestHarness& runner)
     const std::size_t delivered = count_events(output.events, SilEventType::HeartbeatDelivered);
     const std::size_t dropped = count_events(output.events, SilEventType::HeartbeatDropped);
 
-    runner.check(dropped > 0, "OBS-002 : heartbeats perdus visibles dans la trace");
-    runner.check(sent == delivered + dropped, "OBS-002 : sent = delivered + dropped");
+    runner.check(dropped > 0, "dropped heartbeats visible in the trace");
+    runner.check(sent == delivered + dropped, "sent = delivered + dropped");
     runner.check(output.result.comms.dropped == dropped && output.result.comms.sent == sent,
-                 "OBS-002 : statistiques coherentes avec la trace");
+                 "statistics consistent with the trace");
 }
 
 }

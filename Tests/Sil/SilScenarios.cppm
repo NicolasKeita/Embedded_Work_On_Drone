@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Sil/SilScenarios.cppm
-Description: Interface of the deterministic SIL test suite (SIL-001 to SIL-005); observability tests live in the SilObservability module.
+Description: Interface of the deterministic SIL test suite (nominal and fault-injection scenarios); observability tests live in the SilObservability module.
 Exports:
     run_all_sil_scenarios()
 

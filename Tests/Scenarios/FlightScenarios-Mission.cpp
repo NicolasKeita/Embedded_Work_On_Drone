@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Mission.cpp
-Description: Implementation of the autonomous full-mission scenario J.
+Description: Implementation of the autonomous full-mission scenario (MC-004).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -22,26 +22,25 @@ using sim::control::FlightController;
 using sim::control::MissionState;
 
 /*
-Test 4: full mission from (20, -15, 0) to (0, 0, 100). Phase 1: station keeping
-at point (20, -15, 100), phase 2: station keeping on the final target. Validates
-the state sequence and the overall convergence inside the zone.
+MC-004_FullMission: full mission from (20, -15, 0) to (0, 0, 100).
+Phase 1: station keeping at point (20, -15, 100), phase 2: station keeping on the
+final target. Validates the state sequence and the overall convergence inside the zone.
 */
 void autonomous_mission(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario J : mission complete (20, -15, 0) -> (0, 0, 100) ==="
-              << std::endl;
+    runner.begin_scenario("MC-004_FullMission", "Full mission (20, -15, 0) -> (0, 0, 100)");
     runner.log_header();
 
     ControllerConfig config{.hover_rpm = hover_rpm};
     FlightController controller{config};
     Aircraft aircraft;
 
-    std::cout << "-- Phase 1 : mise en station au point (20, -15, 100) --" << std::endl;
+    std::cout << "-- Phase 1: station keeping at point (20, -15, 100) --" << std::endl;
     const MissionRunTrace approach = run_mission(controller, aircraft,
                     {.target = {.x = 20.0, .y = -15.0, .z = 100.0}, .duration = 240.0,
                      .axis = TrackingAxis::z_axis, .tolerance = 1.0, .stop_on_zone = true});
 
-    std::cout << "-- Phase 2 : station keeping sur la cible (0, 0, 100) --" << std::endl;
+    std::cout << "-- Phase 2: station keeping on target (0, 0, 100) --" << std::endl;
     const MissionRunTrace trace = run_mission(controller, aircraft,
                     {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 0.5});
 
@@ -61,10 +60,10 @@ void autonomous_mission(TestHarness& runner, std::float64_t hover_rpm)
     }
 
     runner.check(contains_mission_sequence(std::span<const MissionState>{visited.data(), visitedCount}),
-                 "J1 : sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
+                 "sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
     runner.check(std::abs(finalState.x) <= 1.0 && std::abs(finalState.y) <= 1.0,
-                 "J2 : position horizontale dans la zone cible (+/- 1 m)");
-    runner.check(std::abs(finalState.z - 100.0) <= 1.0, "J3 : altitude tenue autour de 100 m (+/- 1 m)");
+                 "horizontal position within target zone (+/- 1 m)");
+    runner.check(std::abs(finalState.z - 100.0) <= 1.0, "altitude held around 100 m (+/- 1 m)");
 }
 
 }

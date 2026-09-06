@@ -67,12 +67,13 @@ OBS-010: the FC1 failure scenario is fully reconstructible from the trace alone.
 */
 void trace_reconstruction_test(TestHarness& runner)
 {
+    runner.set_context("OBS-010");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-010 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -81,16 +82,16 @@ void trace_reconstruction_test(TestHarness& runner)
     const std::size_t fault_index =
         scan.injected == nullptr ? 0u : static_cast<std::size_t>(scan.injected - events.data());
 
-    runner.check(scan.injected != nullptr, "OBS-010 : FAULT_INJECTED present");
-    runner.check(scan.sent_before, "OBS-010 : heartbeats avant l'injection");
-    runner.check(!scan.sent_after, "OBS-010 : heartbeats s'arrettent apres injection");
+    runner.check(scan.injected != nullptr, "FAULT_INJECTED present");
+    runner.check(scan.sent_before, "heartbeats before injection");
+    runner.check(!scan.sent_after, "heartbeats stop after injection");
     runner.check(find_first_after(events, SilEventType::FaultDetected, fault_index) != nullptr,
-                 "OBS-010 : FAULT_DETECTED apres injection");
+                 "FAULT_DETECTED after injection");
     runner.check(find_first_after(events, SilEventType::WatchdogTimeout, fault_index) != nullptr,
-                 "OBS-010 : WATCHDOG_TIMEOUT apres injection");
+                 "WATCHDOG_TIMEOUT after injection");
     runner.check(find_first_after(events, SilEventType::SafetyResponse, fault_index) != nullptr,
-                 "OBS-010 : SAFETY_RESPONSE apres injection");
-    runner.check(outcome.value().result.final_state == MissionState::ABORTED, "OBS-010 : mission ABORTED reconstruite");
+                 "SAFETY_RESPONSE after injection");
+    runner.check(outcome.value().result.final_state == MissionState::ABORTED, "ABORTED mission reconstructed");
 }
 
 }

@@ -33,8 +33,8 @@ void write_scenario_section(std::ostream&         out,
 {
     const SimulationResult& r = record.result;
 
-    out << "### " << record.name << "\n\n";
-    out << "| Propriete | Valeur |\n|---|---|\n";
+    out << "### [" << record.name << "][SIL]\n\n";
+    out << "| Property | Value |\n|---|---|\n";
     write_scenario_fault_rows(out, record);
     write_scenario_outcome_rows(out, r);
     write_scenario_telemetry_sections(out, record, telemetry_report_interval_s);
@@ -45,12 +45,12 @@ Writes the summary table of the Markdown report.
 */
 void write_summary_table(std::ostream& out, std::span<const ScenarioRecord> records)
 {
-    out << "| Scenario | Faulte | Detectee | Latence det. (ms) | Latence rep. (ms) | Etat mission "
+    out << "| Scenario | Fault | Detected | Det. latency (ms) | Resp. latency (ms) | Mission state "
            "| Verdict |\n";
     out << "|---|---|---|---|---|---|---|\n";
     for (const ScenarioRecord& record : records) {
         const SimulationResult& r = record.result;
-        out << "| " << record.name << " | `" << fault_type_name(record.scenario.fault_type)
+        out << "| [" << record.name << "][SIL] | `" << fault_type_name(record.scenario.fault_type)
             << "` | " << yes_no(r.fault_detected) << " | ";
         write_metric(out, 1000.0 * r.detection_latency);
         out << " | ";
@@ -68,12 +68,12 @@ void write_markdown_report(std::ostream&                   out,
                            std::span<const ScenarioRecord> records,
                            std::float64_t                  telemetry_report_interval_s)
 {
-    out << "# Rapport de validation SIL\n\n";
-    out << "Validation Software-in-the-Loop du systeme de fault injection.\n\n";
-    out << "## Synthese\n\n";
+    out << "# SIL Validation Report\n\n";
+    out << "Software-in-the-Loop validation of the fault injection system (target: SIL).\n\n";
+    out << "## Summary\n\n";
     write_summary_table(out, records);
     out << "\n";
-    out << "## Resultats detailles\n\n";
+    out << "## Detailed results\n\n";
     for (const ScenarioRecord& record : records) {
         write_scenario_section(out, record, telemetry_report_interval_s);
     }

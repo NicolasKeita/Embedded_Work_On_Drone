@@ -32,12 +32,13 @@ detection events, and the detection latency is correctly derived.
 */
 void fc1_failure_events_test(TestHarness& runner)
 {
+    runner.set_context("OBS-003");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-003 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -46,28 +47,28 @@ void fc1_failure_events_test(TestHarness& runner)
     const SilEvent* failure = find_first(output.events, SilEventType::FCFailure);
     const SilEvent* detected = find_first(output.events, SilEventType::FaultDetected);
 
-    runner.check(injected != nullptr, "OBS-003 : evenement FAULT_INJECTED present");
-    runner.check(failure != nullptr, "OBS-003 : evenement FC_FAILURE present");
-    runner.check(detected != nullptr, "OBS-003 : evenement FAULT_DETECTED present");
+    runner.check(injected != nullptr, "FAULT_INJECTED event present");
+    runner.check(failure != nullptr, "FC_FAILURE event present");
+    runner.check(detected != nullptr, "FAULT_DETECTED event present");
     if (injected == nullptr || detected == nullptr || failure == nullptr) {
         return;
     }
-    runner.check(std::abs(injected->timestamp - 30.0) <= config.dt, "OBS-003 : FAULT_INJECTED horodate a l'injection");
+    runner.check(std::abs(injected->timestamp - 30.0) <= config.dt, "FAULT_INJECTED timestamped at injection");
     runner.check(injected->detail == sim::sil::fault_type_name(FaultType::FC1Failure),
-                 "OBS-003 : FAULT_INJECTED porte le type de faulte");
+                 "FAULT_INJECTED carries the fault type");
     runner.check(injected->reason.find("permanently") != std::string_view::npos,
-                 "OBS-003 : FAULT_INJECTED precise le caractere permanent");
-    runner.check(detected->timestamp >= 30.0 && output.result.fault_detected, "OBS-003 : detection apres l'injection");
+                 "FAULT_INJECTED specifies the permanent character");
+    runner.check(detected->timestamp >= 30.0 && output.result.fault_detected, "detection after injection");
     runner.check(output.result.detection_latency >= 0.0 && output.result.detection_latency <= 0.30,
-                 "OBS-004 : latence de detection dans la limite de 300 ms");
+                 "detection latency within 300 ms");
     runner.check(std::abs(output.result.detection_latency
                           - (output.result.detection_time - output.result.fault_injected_time)) < 1.0e-9,
-                 "OBS-004 : detection_latency = detection_time - fault_injected_time");
+                 "detection_latency = detection_time - fault_injected_time");
     runner.check(output.result.watchdog_triggered
                      && output.result.watchdog_trigger_time <= output.result.detection_time + 1.0e-9,
-                 "OBS-004 : watchdog declenche au plus tard a la detection");
+                 "watchdog triggered no later than detection");
     runner.check(output.result.safety_response_time >= output.result.detection_time,
-                 "OBS-004 : reponse de surete apres detection");
+                 "safety response after detection");
 }
 
 /*
@@ -76,12 +77,13 @@ new state and the reason that drove the change.
 */
 void state_transitions_test(TestHarness& runner)
 {
+    runner.set_context("OBS-005");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-005 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -89,8 +91,8 @@ void state_transitions_test(TestHarness& runner)
     const std::size_t mission_tx = count_events(output.events, SilEventType::MissionStateTransition);
     const std::size_t safety_tx = count_events(output.events, SilEventType::SafetyStateTransition);
 
-    runner.check(mission_tx >= 2, "OBS-005 : transitions mission observees");
-    runner.check(safety_tx >= 1, "OBS-005 : transition de surete observee");
+    runner.check(mission_tx >= 2, "mission transitions observed");
+    runner.check(safety_tx >= 1, "safety transition observed");
 
     bool has_documented_transition = false;
     for (const SilEvent& event : output.events) {
@@ -102,7 +104,7 @@ void state_transitions_test(TestHarness& runner)
             break;
         }
     }
-    runner.check(has_documented_transition, "OBS-005 : transitions portent previous/new/reason");
+    runner.check(has_documented_transition, "transitions carry previous/new/reason");
 }
 
 }

@@ -1,11 +1,11 @@
 /*
 Filename: Src/Embedded/Hil/HilScenarios.cppm
 Description: Deterministic HIL scenario registry. Each scenario binds a HilRunner
-configuration to a declarative fault scenario (reusing the SIL FaultScenario vocabulary)
-so the same runner drives mission-level and fault HIL tests. HIL-001 is the nominal
-station-keeping mission; HIL-002 injects FC1_FAILURE during station keeping; HIL-003
-communication loss, HIL-004 sensor fault and HIL-005 actuator degradation exercise the
-other fault families.
+configuration to a standardised functional scenario ID shared with the SIL
+suite (NOM-001 station keeping and the FINJ-001..004 fault injection families),
+reusing the SIL FaultScenario vocabulary so the same runner drives mission-level
+and fault HIL tests. The execution target (HIL) is injected at runtime, so the
+scenario names never encode the execution environment.
 Export summary: HilScenarioRecord, HilScenarioCatalog, hil_base_config()
 
 Copyright (c) 2026 Nicolas K.

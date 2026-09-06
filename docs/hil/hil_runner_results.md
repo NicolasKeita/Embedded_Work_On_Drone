@@ -7,13 +7,13 @@
 > `CMakePresets.json`. The figures are derived from the validated SIL baseline, the
 > project control rate (100 Hz / 10 ms ⇒ 3000 steps for 30 s) and the reused safety/health
 > detection chains. Run the executable on the configured toolchain to capture the real
-> artifacts — `./hil_runner --scenario HIL-001` and `./hil_runner --scenario HIL-002`.
+> artifacts — `./hil_runner --scenario NOM-001_StationKeeping` and `./hil_runner --scenario FINJ-001_Fc1Failure`.
 
-## HIL-001 — nominal station keeping
+## NOM-001_StationKeeping — nominal station keeping [HIL]
 
 ```
 ============================================
-HIL-001 : nominal station keeping
+NOM-001_StationKeeping : nominal station keeping [HIL]
 ============================================
 
 Host-target closed-loop validation (NO physical STM32 present).
@@ -82,11 +82,11 @@ Mission result
   > nominal mission completed with no abnormal behavior
 ```
 
-## HIL-002 — FC1 failure during station keeping
+## FINJ-001_Fc1Failure — FC1 failure during station keeping [HIL]
 
 ```
 ============================================
-HIL-002 : fault injection scenario
+FINJ-001_Fc1Failure : fault injection scenario [HIL]
 ============================================
 
 Configuration

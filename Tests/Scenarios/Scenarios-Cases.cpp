@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/Scenarios-Cases.cpp
-Description: Implementation of the deterministic validation scenarios (A to F).
+Description: Implementation of the deterministic validation scenarios (NOM-002 to NOM-007).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -17,22 +17,22 @@ namespace sim::test::scenarios {
 
 void rest(TestHarness& runner, std::float64_t)
 {
-    std::cout << "\n=== Scenario A : repos (RPM = 0, servos = 0) ===" << std::endl;
+    runner.begin_scenario("NOM-002_GroundedRest", "Grounded rest (RPM = 0, servos = 0)");
     runner.log_header();
 
     Aircraft aircraft;
     runner.run(aircraft, 3.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.z == 0.0, "A1 : l'appareil reste pose au sol (z = 0)");
-    runner.check(s.vx == 0.0 && s.vy == 0.0 && s.vz == 0.0, "A2 : vitesses nulles");
-    runner.check(s.pitch == 0.0 && s.roll == 0.0, "A3 : attitude neutre");
-    runner.check(s.actual_rpm == 0.0, "A4 : RPM effectif nul");
+    runner.check(s.z == 0.0, "aircraft stays grounded (z = 0)");
+    runner.check(s.vx == 0.0 && s.vy == 0.0 && s.vz == 0.0, "zero velocities");
+    runner.check(s.pitch == 0.0 && s.roll == 0.0, "neutral attitude");
+    runner.check(s.actual_rpm == 0.0, "zero effective RPM");
 }
 
 void climb(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario B : montee (RPM = 1.1 x hover, servos = 0) ===" << std::endl;
+    runner.begin_scenario("NOM-003_VerticalClimb", "Vertical climb (RPM = 1.1 x hover, servos = 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -40,14 +40,14 @@ void climb(TestHarness& runner, std::float64_t hover_rpm)
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.z > 1.0, "B1 : altitude en croissance (z > 1 m)");
-    runner.check(s.vz > 0.0, "B2 : vitesse verticale positive");
-    runner.check(s.actual_rpm > hover_rpm, "B3 : RPM effectif superieur au stationnaire");
+    runner.check(s.z > 1.0, "altitude increasing (z > 1 m)");
+    runner.check(s.vz > 0.0, "positive vertical velocity");
+    runner.check(s.actual_rpm > hover_rpm, "effective RPM above hover");
 }
 
 void descent(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario C : descente (montee puis RPM = 0.6 x hover) ===" << std::endl;
+    runner.begin_scenario("NOM-004_Descent", "Descent (climb then RPM = 0.6 x hover)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -58,14 +58,14 @@ void descent(TestHarness& runner, std::float64_t hover_rpm)
     runner.run(aircraft, 10.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.vz <= 0.0, "C1 : vitesse verticale negative en fin de phase");
-    runner.check(s.z < topAltitude, "C2 : altitude inferieure au sommet atteint");
-    runner.check(s.z == 0.0, "C3 : retour au sol (blocage a z = 0)");
+    runner.check(s.vz <= 0.0, "negative vertical velocity at end of phase");
+    runner.check(s.z < topAltitude, "altitude below reached peak");
+    runner.check(s.z == 0.0, "return to ground (clamped at z = 0)");
 }
 
 void move_x(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario D : deplacement X (hover + pitch > 0) ===" << std::endl;
+    runner.begin_scenario("NOM-005_ForwardTranslation", "Forward translation (hover + pitch > 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -75,15 +75,15 @@ void move_x(TestHarness& runner, std::float64_t hover_rpm)
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.pitch > 0.0, "D1 : tangage positif");
-    runner.check(s.vx > 0.0, "D2 : vitesse X positive");
-    runner.check(s.x > 1.0, "D3 : deplacement vers les X positifs (x > 1 m)");
-    runner.check(s.y == 0.0 && s.vy == 0.0, "D4 : pas de derivation laterale");
+    runner.check(s.pitch > 0.0, "positive pitch");
+    runner.check(s.vx > 0.0, "positive X velocity");
+    runner.check(s.x > 1.0, "displacement towards positive X (x > 1 m)");
+    runner.check(s.y == 0.0 && s.vy == 0.0, "no lateral drift");
 }
 
 void move_y(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario E : deplacement Y (hover + roll > 0) ===" << std::endl;
+    runner.begin_scenario("NOM-006_LateralTranslation", "Lateral translation (hover + roll > 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -93,15 +93,15 @@ void move_y(TestHarness& runner, std::float64_t hover_rpm)
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.roll > 0.0, "E1 : roulis positif");
-    runner.check(s.vy > 0.0, "E2 : vitesse Y positive");
-    runner.check(s.y > 1.0, "E3 : deplacement vers les Y positifs (y > 1 m)");
-    runner.check(s.x == 0.0 && s.vx == 0.0, "E4 : pas de derivation longitudinale");
+    runner.check(s.roll > 0.0, "positive roll");
+    runner.check(s.vy > 0.0, "positive Y velocity");
+    runner.check(s.y > 1.0, "displacement towards positive Y (y > 1 m)");
+    runner.check(s.x == 0.0 && s.vx == 0.0, "no longitudinal drift");
 }
 
 void combined(TestHarness& runner, std::float64_t hover_rpm)
 {
-    std::cout << "\n=== Scenario F : combine (RPM > hover, pitch > 0, roll < 0) ===" << std::endl;
+    runner.begin_scenario("NOM-007_CombinedTranslation", "Combined translation (RPM > hover, pitch > 0, roll < 0)");
     runner.log_header();
 
     Aircraft aircraft;
@@ -111,10 +111,10 @@ void combined(TestHarness& runner, std::float64_t hover_rpm)
     runner.run(aircraft, 6.0);
 
     const AircraftState& s = aircraft.state();
-    runner.check(s.pitch > 0.0 && s.roll < 0.0, "F1 : attitude combinee (pitch > 0, roll < 0)");
-    runner.check(s.vz > 0.0, "F2 : montee (vz > 0)");
-    runner.check(s.vx > 0.0 && s.x > 1.0, "F3 : deplacement X positif");
-    runner.check(s.vy < 0.0 && s.y < 0.0, "F4 : deplacement Y negatif");
+    runner.check(s.pitch > 0.0 && s.roll < 0.0, "combined attitude (pitch > 0, roll < 0)");
+    runner.check(s.vz > 0.0, "climb (vz > 0)");
+    runner.check(s.vx > 0.0 && s.x > 1.0, "positive X displacement");
+    runner.check(s.vy < 0.0 && s.y < 0.0, "negative Y displacement");
 }
 
 }

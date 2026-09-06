@@ -25,7 +25,7 @@ namespace {
     sim::hil::HilConfig noise_config(std::float64_t noise, std::float64_t duration_s)
     {
         sim::hil::HilConfig config = sim::hil::hil_base_config();
-        config.scenario_id = "HIL-001";
+        config.scenario_id = "NOM-001_StationKeeping";
         config.duration_s = duration_s;
         config.real_time_pacing = false;
         config.clock_kind = sim::hil::ClockKind::Fast;
@@ -43,18 +43,19 @@ namespace {
 
 void run_data_tests(sim::test::TestHarness& runner)
 {
+    runner.set_context("DATA");
     const sim::hil::HilConfig perfect = noise_config(0.0, 2.0);
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> perfect_outcome = run(perfect);
-    runner.check(perfect_outcome.has_value(), "data : perfect-sensor run executed");
+    runner.check(perfect_outcome.has_value(), "perfect-sensor run executed");
     if (!perfect_outcome.has_value()) {
         return;
     }
     const sim::hil::HilRunOutput& output = *perfect_outcome;
 
     runner.check(!output.ground_truth.empty() && !output.telemetry.empty(),
-                 "data : both truth and sensor streams recorded");
+                 "both truth and sensor streams recorded");
     runner.check(output.ground_truth.size() == output.telemetry.size(),
-                 "data : truth and sensor streams sampled in lockstep");
+                 "truth and sensor streams sampled in lockstep");
 
     bool sensor_matches_truth = true;
     for (std::size_t i = 0; i < output.telemetry.size() && i < output.ground_truth.size(); ++i) {
@@ -63,14 +64,14 @@ void run_data_tests(sim::test::TestHarness& runner)
             break;
         }
     }
-    runner.check(sensor_matches_truth, "data : with noise 0 the sensor stream equals the truth stream");
+    runner.check(sensor_matches_truth, "with noise 0 the sensor stream equals the truth stream");
 
     const double takeoff_z = output.ground_truth.back().z;
-    runner.check(takeoff_z > 0.0, "data : aircraft state evolved from FC actuator commands (took off, z>0)");
+    runner.check(takeoff_z > 0.0, "aircraft state evolved from FC actuator commands (took off, z>0)");
 
     const sim::hil::HilConfig noisy = noise_config(0.25, 3.0);
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> noisy_outcome = run(noisy);
-    runner.check(noisy_outcome.has_value(), "data : noisy-sensor run executed");
+    runner.check(noisy_outcome.has_value(), "noisy-sensor run executed");
     if (!noisy_outcome.has_value()) {
         return;
     }
@@ -82,7 +83,7 @@ void run_data_tests(sim::test::TestHarness& runner)
             break;
         }
     }
-    runner.check(streams_distinguishable, "data : with noise>0 the truth and sensor streams are distinguishable");
+    runner.check(streams_distinguishable, "with noise>0 the truth and sensor streams are distinguishable");
 }
 
 }

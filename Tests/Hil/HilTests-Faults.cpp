@@ -2,7 +2,7 @@
 Filename: Tests/Hil/HilTests-Faults.cpp
 Description: HIL fault tests : FC1 failure, communication loss, sensor fault and actuator
 degradation, asserting the fault is injected through the HIL data path, detected
-naturally by the reused safety/health core and handled per the expected safety behaviour.
+naturally by the reused safety/health core and handled per the expected safety behavior.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -41,57 +41,76 @@ namespace {
 void run_fault_tests(sim::test::TestHarness& runner)
 {
     {
-        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("HIL-002", 12.0);
-        runner.check(o.has_value(), "HIL-002 : run executed");
+        runner.set_context("FINJ-001_Fc1Failure");
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("FINJ-001_Fc1Failure", 12.0);
+        runner.check(o.has_value(), "run executed");
         if (!o) return;
         const sim::hil::HilResult& r = (*o).result;
-        runner.check(r.fault_detected, "HIL-002 : FC1 failure detected");
+        runner.check(r.fault_detected, "FC1 failure detected");
         runner.check(r.first_fault_domain == sim::safety::FaultDomain::FC1Heartbeat,
-                     "HIL-002 : fault classified as FC1 heartbeat");
-        runner.check(r.safe_mode_reached, "HIL-002 : SAFE_MODE engaged");
-        runner.check(r.final_state == sim::control::MissionState::ABORTED, "HIL-002 : mission ABORTED");
-        runner.check(r.test_verdict, "HIL-002 : verdict PASS on safety behaviour");
+                     "fault classified as FC1 heartbeat");
+        runner.check(r.safe_mode_reached, "SAFE_MODE engaged");
+        runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED");
+        runner.check(r.test_verdict, "verdict PASS on safety behavior");
     }
 
     {
-        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("HIL-003", 12.0);
-        runner.check(o.has_value(), "HIL-003 : run executed");
+        runner.set_context("FINJ-002_CommLoss");
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("FINJ-002_CommLoss", 12.0);
+        runner.check(o.has_value(), "run executed");
         if (!o) return;
         const sim::hil::HilResult& r = (*o).result;
-        runner.check(r.fault_detected, "HIL-003 : communication loss detected");
+        runner.check(r.fault_detected, "communication loss detected");
         runner.check(r.first_fault_domain == sim::safety::FaultDomain::Communication,
-                     "HIL-003 : fault classified as communication");
-        runner.check(r.safe_mode_reached, "HIL-003 : safety reaction engaged");
-        runner.check(r.final_state == sim::control::MissionState::ABORTED, "HIL-003 : mission ABORTED");
-        runner.check(r.test_verdict, "HIL-003 : verdict PASS on safety behaviour");
+                     "fault classified as communication");
+        runner.check(r.safe_mode_reached, "safety reaction engaged");
+        runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED");
+        runner.check(r.test_verdict, "verdict PASS on safety behavior");
     }
 
     {
-        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("HIL-004", 12.0);
-        runner.check(o.has_value(), "HIL-004 : run executed");
+        runner.set_context("FINJ-003_SensorFault");
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("FINJ-003_SensorFault", 12.0);
+        runner.check(o.has_value(), "run executed");
         if (!o) return;
         const sim::hil::HilResult& r = (*o).result;
-        runner.check(r.fault_detected, "HIL-004 : sensor fault detected");
+        runner.check(r.fault_detected, "sensor fault detected");
         runner.check(r.first_fault_domain == sim::safety::FaultDomain::Sensor,
-                     "HIL-004 : fault classified as sensor");
-        runner.check(r.degraded_reached, "HIL-004 : HealthMonitor went DEGRADED");
-        runner.check(r.compensated_reached, "HIL-004 : COMPENSATED mode engaged");
-        runner.check(r.final_state != sim::control::MissionState::ABORTED, "HIL-004 : mission not aborted");
-        runner.check(r.test_verdict, "HIL-004 : verdict PASS on degraded handling");
+                     "fault classified as sensor");
+        runner.check(r.degraded_reached, "HealthMonitor went DEGRADED");
+        runner.check(r.compensated_reached, "COMPENSATED mode engaged");
+        runner.check(r.final_state != sim::control::MissionState::ABORTED, "mission not aborted");
+        runner.check(r.test_verdict, "verdict PASS on degraded handling");
     }
 
     {
-        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("HIL-005", 12.0);
-        runner.check(o.has_value(), "HIL-005 : run executed");
+        runner.set_context("FINJ-004_ActuatorDegradation");
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario("FINJ-004_ActuatorDegradation", 12.0);
+        runner.check(o.has_value(), "run executed");
         if (!o) return;
         const sim::hil::HilResult& r = (*o).result;
-        runner.check(r.fault_detected, "HIL-005 : actuator degradation detected");
+        runner.check(r.fault_detected, "actuator degradation detected");
         runner.check(r.first_fault_domain == sim::safety::FaultDomain::Actuator,
-                     "HIL-005 : fault classified as actuator");
-        runner.check(r.degraded_reached, "HIL-005 : HealthMonitor went DEGRADED");
-        runner.check(r.compensated_reached, "HIL-005 : thrust compensation engaged");
-        runner.check(r.final_state != sim::control::MissionState::ABORTED, "HIL-005 : mission not aborted");
-        runner.check(r.test_verdict, "HIL-005 : verdict PASS on compensation");
+                     "fault classified as actuator");
+        runner.check(r.degraded_reached, "HealthMonitor went DEGRADED");
+        runner.check(r.compensated_reached, "thrust compensation engaged");
+        runner.check(r.final_state != sim::control::MissionState::ABORTED, "mission not aborted");
+        runner.check(r.test_verdict, "verdict PASS on compensation");
+    }
+
+    {
+        runner.set_context("MC-FINJ-001_Fc1FailureDuringClimb");
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o =
+            run_scenario("MC-FINJ-001_Fc1FailureDuringClimb", 12.0);
+        runner.check(o.has_value(), "run executed");
+        if (!o) return;
+        const sim::hil::HilResult& r = (*o).result;
+        runner.check(r.fault_detected, "FC1 failure detected during the climb transition");
+        runner.check(r.first_fault_domain == sim::safety::FaultDomain::FC1Heartbeat,
+                     "fault classified as FC1 heartbeat");
+        runner.check(r.safe_mode_reached, "SAFE_MODE engaged");
+        runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED");
+        runner.check(r.test_verdict, "verdict PASS on safety behavior");
     }
 }
 

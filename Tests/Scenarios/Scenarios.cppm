@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/Scenarios.cppm
-Description: Deterministic validation scenarios (A to F) and the launchable scenario registry.
+Description: Deterministic validation scenarios and the launchable scenario registry.
 Exports:
     struct ScenarioEntry,
     class ScenarioCatalog,
@@ -26,7 +26,7 @@ export namespace sim::test {
 using ScenarioFn = void (*)(TestHarness&, std::float64_t);
 
 struct ScenarioEntry {
-    char             key;
+    std::string_view id;
     std::string_view description;
     ScenarioFn       run;
 };
@@ -34,7 +34,7 @@ struct ScenarioEntry {
 class ScenarioCatalog {
 public:
     [[nodiscard]] static std::span<const ScenarioEntry> all() noexcept;
-    [[nodiscard]] static const ScenarioEntry* find(char argument) noexcept;
+    [[nodiscard]] static const ScenarioEntry* find(std::string_view id) noexcept;
     static void print_usage(std::string_view executableName);
 
 private:
@@ -45,22 +45,22 @@ private:
 
 export namespace sim::test::scenarios {
 
-// Scenario A: the vehicle is at rest, it must stay on the ground.
+// NOM-002_GroundedRest: the vehicle is at rest, it must stay on the ground.
 void rest(TestHarness& runner, std::float64_t hover_rpm);
 
-// Scenario B: RPM above hover, vertical climb.
+// NOM-003_VerticalClimb: RPM above hover, vertical climb.
 void climb(TestHarness& runner, std::float64_t hover_rpm);
 
-// Scenario C: climb then throttle down, return to the ground.
+// NOM-004_Descent: climb then throttle down, return to the ground.
 void descent(TestHarness& runner, std::float64_t hover_rpm);
 
-// Scenario D: positive servo mean command (+10 degrees) -> pitch > 0.
+// NOM-005_ForwardTranslation: positive servo mean command (+10 degrees) -> pitch > 0.
 void move_x(TestHarness& runner, std::float64_t hover_rpm);
 
-// Scenario E: opposed servos (+12 / -12 degrees), pure differential -> roll > 0 without pitch.
+// NOM-006_LateralTranslation: opposed servos (+12 / -12 degrees), pure differential -> roll > 0 without pitch.
 void move_y(TestHarness& runner, std::float64_t hover_rpm);
 
-// Scenario F: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
+// NOM-007_CombinedTranslation: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
 void combined(TestHarness& runner, std::float64_t hover_rpm);
 
 }

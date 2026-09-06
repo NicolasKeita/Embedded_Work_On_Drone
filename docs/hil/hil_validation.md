@@ -162,7 +162,7 @@ At minimum, the baseline should contain:
 Example:
 
 ```text
-Scenario: SIL-001
+Scenario: NOM-001_StationKeeping
 Target position: (0, 0)
 Target altitude: 100 m
 Mission duration: TBD
@@ -181,7 +181,7 @@ The exact numerical tolerances must come from the scenario definition and not be
 
 The HIL campaign is divided into several categories.
 
-### HIL-001 — Nominal startup
+### NOM-001_StationKeeping — Nominal startup
 
 Objective:
 
@@ -198,7 +198,7 @@ Expected behavior:
 
 ---
 
-### HIL-002 — Sensor packet exchange
+### PROTO — Sensor packet exchange
 
 Objective:
 
@@ -214,7 +214,7 @@ Expected behavior:
 
 ---
 
-### HIL-003 — Actuator command exchange
+### PROTO — Actuator command exchange
 
 Objective:
 
@@ -229,7 +229,7 @@ Expected behavior:
 
 ---
 
-### HIL-004 — Nominal mission
+### NOM-001_StationKeeping — Nominal mission
 
 Objective:
 
@@ -256,7 +256,7 @@ The HIL result should be compared with the SIL baseline.
 
 ---
 
-### HIL-005 — RTOS timing validation
+### TIMING — RTOS timing validation
 
 Objective:
 
@@ -284,7 +284,7 @@ The values are examples only; final requirements must be defined from the actual
 
 ---
 
-### HIL-006 — Communication latency
+### TIMING — Communication latency
 
 Objective:
 
@@ -302,7 +302,7 @@ The measurements must use simulation timestamps and/or synchronized timestamps d
 
 ---
 
-### HIL-007 — Sensor fault
+### FINJ-003_SensorFault — Sensor fault
 
 Objective:
 
@@ -335,7 +335,7 @@ The fault must not be injected by directly modifying the expected HIL result.
 
 ---
 
-### HIL-008 — Communication loss
+### FINJ-002_CommLoss — Communication loss
 
 Objective:
 
@@ -359,7 +359,7 @@ The test should record:
 
 ---
 
-### HIL-009 — Watchdog / task stall
+### SAFETY — Watchdog / task stall
 
 Objective:
 
@@ -668,31 +668,31 @@ This allows HIL to validate the complete chain instead of testing only the safet
 
 The first campaign should be deliberately small.
 
-### HIL-001
+### NOM-001_StationKeeping
 Nominal startup.
 
-### HIL-002
+### PROTO
 Sensor packet exchange.
 
-### HIL-003
+### PROTO
 Actuator packet exchange.
 
-### HIL-004
+### NOM-001_StationKeeping
 Nominal station-keeping mission.
 
-### HIL-005
+### TIMING
 Timing/deadline measurement.
 
-### HIL-006
+### TIMING
 Communication latency measurement.
 
-### HIL-007
+### FINJ-003_SensorFault
 Sensor fault injection.
 
-### HIL-008
+### FINJ-002_CommLoss
 Communication loss.
 
-### HIL-009
+### SAFETY
 Watchdog/task-stall test.
 
 Only after these tests are stable should the campaign be expanded.

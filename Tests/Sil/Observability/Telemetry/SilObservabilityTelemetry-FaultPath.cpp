@@ -52,6 +52,8 @@ reacts to the corrupted data.
 */
 void telemetry_sensor_fault_path_test(TestHarness& runner)
 {
+    runner.set_context("TELE-011");
+
     const SilConfig config{.duration_s = 35.0};
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
@@ -63,7 +65,7 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
     const std::expected<SilRunOutput, SilError> faulted = SILRunner{config}.run(fault_scenarios);
 
     if (!nominal.has_value() || !faulted.has_value()) {
-        runner.check(false, "TELE-011 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -73,18 +75,18 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
     const SilEvent* injected = find_first(faulted.value().events, SilEventType::FaultInjected);
     const SilEvent* sensor_fault = find_first(faulted.value().events, SilEventType::SensorFault);
 
-    runner.check(injected != nullptr, "TELE-011 : evenement FAULT_INJECTED present");
-    runner.check(sensor_fault != nullptr, "TELE-011 : evenement SENSOR_FAULT present");
+    runner.check(injected != nullptr, "FAULT_INJECTED event present");
+    runner.check(sensor_fault != nullptr, "SENSOR_FAULT event present");
     if (injected == nullptr) {
         return;
     }
     runner.check(injected->detail == sim::sil::fault_type_name(FaultType::SensorFault)
                      && injected->reason.find("EXTREME_NOISE") != std::string_view::npos
                      && injected->reason.find("temporarily") != std::string_view::npos,
-                 "TELE-011 : FAULT_INJECTED porte type, mode et duree");
+                 "FAULT_INJECTED carries type, mode and duration");
     runner.check(injected->has_duration
                      && std::abs(injected->duration_s - (kFaultEnd - kFaultStart)) <= 1.0e-9,
-                 "TELE-011 : FAULT_INJECTED porte la duree explicite de la faute temporaire");
+                 "FAULT_INJECTED carries the explicit duration of the temporary fault");
 }
 
 }

@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Reporting/Trace/SilReporting-Trace-Details.cpp
-Description: Details-object composer of the JSONL event trace : identity, temporality and numeric fields.
+Description: Details-object composer of the JSONL event trace: identity, temporality and numeric fields.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

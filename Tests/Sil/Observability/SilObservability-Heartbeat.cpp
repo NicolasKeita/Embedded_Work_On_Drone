@@ -62,11 +62,12 @@ trace level, and filtered out at the default info level.
 */
 void heartbeat_trace_test(TestHarness& runner)
 {
+    runner.set_context("OBS-001");
     const SilConfig                             config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, FaultScenario{});
 
     if (!outcome.has_value()) {
-        runner.check(false, "OBS-001 : moteur SIL en echec");
+        runner.check(false, "SIL runner failed");
         return;
     }
 
@@ -74,20 +75,20 @@ void heartbeat_trace_test(TestHarness& runner)
     const std::size_t sent = count_events(output.events, SilEventType::HeartbeatSent);
     const std::size_t delivered = count_events(output.events, SilEventType::HeartbeatDelivered);
 
-    runner.check(sent > 0 && sent == delivered, "OBS-001 : chaque heartbeat envoye est delivre");
-    runner.check(check_heartbeat_trace(output.events), "OBS-001 : sequences et latences valides");
+    runner.check(sent > 0 && sent == delivered, "every sent heartbeat is delivered");
+    runner.check(check_heartbeat_trace(output.events), "valid sequences and latencies");
 
     const SilConfig quiet_config{.duration_s = 5.0};
     const std::expected<SilRunOutput, SilError> quiet_outcome = run_traced(quiet_config, FaultScenario{});
 
     if (!quiet_outcome.has_value()) {
-        runner.check(false, "OBS-001 : moteur SIL (niveau info) en echec");
+        runner.check(false, "SIL runner failed (info level)");
         return;
     }
     const SilRunOutput& quiet = quiet_outcome.value();
     runner.check(count_events(quiet.events, SilEventType::HeartbeatSent) == 0
                      && count_events(quiet.events, SilEventType::SimulationStart) == 1,
-                 "OBS-001 : le niveau info filtre le trafic heartbeat");
+                 "info level filters heartbeat traffic");
 }
 
 }

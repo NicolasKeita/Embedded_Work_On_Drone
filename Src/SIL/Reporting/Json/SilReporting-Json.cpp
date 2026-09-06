@@ -40,7 +40,7 @@ void write_record_failure_reason(std::ostream& out, const SimulationResult& r)
 {
     out << "    \"failure_reason\": ";
     if (r.final_state == sim::control::MissionState::ABORTED) {
-        out << "\"Safe mode engage : ";
+        out << "\"Safe mode engaged: ";
         write_json_escaped(out, fault_domain_name(r.first_fault_domain));
         out << "\"";
     }

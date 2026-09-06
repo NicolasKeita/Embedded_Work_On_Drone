@@ -35,7 +35,7 @@ per-message traffic).
 */
 void write_event_table(std::ostream& out, std::span<const SilEvent> events)
 {
-    out << "| t(s) | Categorie | Evenement |\n|---|---|---|\n";
+    out << "| t(s) | Category | Event |\n|---|---|---|\n";
     for (const SilEvent& event : events) {
         if (!is_report_event(event.type)) {
             continue;

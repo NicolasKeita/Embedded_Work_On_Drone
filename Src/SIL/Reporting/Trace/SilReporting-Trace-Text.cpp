@@ -29,13 +29,13 @@ an actuator target, nested under the Target line of a fault block.
 void write_fault_physical_subtree(std::ostream& out, const SilEvent& event)
 {
     if (!event.physical_role.empty()) {
-        out << kFaultSubBranch << "Physical Role : " << event.physical_role << '\n';
+        out << kFaultSubBranch << "Physical Role: " << event.physical_role << '\n';
     }
     if (!event.physical_category.empty()) {
-        out << kFaultSubBranch << "Actuator Type : " << event.physical_category << '\n';
+        out << kFaultSubBranch << "Actuator Type: " << event.physical_category << '\n';
     }
     if (!event.physical_function.empty()) {
-        out << kFaultSubLast << "Function : " << event.physical_function << '\n';
+        out << kFaultSubLast << "Function: " << event.physical_function << '\n';
     }
 }
 
@@ -49,20 +49,20 @@ void write_fault_block(std::ostream& out, const SilEvent& event)
     out << '[';
     write_seconds(out, event.timestamp);
     out << "] [FAULT] [" << event_type_name(event.type) << "]\n";
-    out << kFaultBranch << "Type : " << event.detail;
+    out << kFaultBranch << "Type: " << event.detail;
     if (!event.subtype.empty()) {
         out << " (" << event.subtype << ')';
     }
     out << '\n';
-    out << kFaultBranch << "Target : " << event.target;
+    out << kFaultBranch << "Target: " << event.target;
     if (!event.target_signal.empty()) {
         out << " (" << event.target_signal << ')';
     }
     out << '\n';
     write_fault_physical_subtree(out, event);
-    out << kFaultBranch << "Profile : " << (event.has_profile ? fault_profile_name(event.profile) : "UNSPECIFIED")
+    out << kFaultBranch << "Profile: " << (event.has_profile ? fault_profile_name(event.profile) : "UNSPECIFIED")
         << '\n';
-    out << kFaultBranch << "Duration : ";
+    out << kFaultBranch << "Duration: ";
     if (event.has_duration) {
         write_metric(out, event.duration_s);
         out << "s (ends at t=";
@@ -74,11 +74,11 @@ void write_fault_block(std::ostream& out, const SilEvent& event)
     }
     out << '\n';
     if (event.value_kind != FaultValueKind::None) {
-        out << kFaultBranch << "Parameters : ";
+        out << kFaultBranch << "Parameters: ";
         write_fault_value(out, event);
         out << '\n';
     }
-    out << kFaultLast << "Expected Behavior : " << event.expected_behavior << '\n';
+    out << kFaultLast << "Expected Behavior: " << event.expected_behavior << '\n';
 }
 
 }

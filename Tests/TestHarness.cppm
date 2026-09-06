@@ -1,7 +1,13 @@
 /*
 Filename: Tests/TestHarness.cppm
-Description: Encapsulated test harness for aircraft simulation scenarios.
+Description: Encapsulated test harness for aircraft simulation scenarios. Carries
+the execution target (SIL/HIL/Simulation) so every assertion pairs the scenario
+ID with the target tag ([ID][TARGET]); scenarios stay target-agnostic.
 Exports:
+    enum class RunTarget,
+    run_target_name(),
+    run_target_tag(),
+    parse_run_target(),
     struct HarnessConfig,
     class TestHarness
 
@@ -17,14 +23,54 @@ import Aircraft;
 
 export namespace sim::test {
 
+/*
+Execution environment of a scenario. The scenario logic is target-agnostic: the
+same functional scenario ID runs under either the SIL or the HIL configuration,
+and the target only selects the runtime tag emitted by the harness
+([ID][SIL] or [ID][HIL]). Simulation marks the pure physics validation runs that
+do not exercise the SIL/HIL runners.
+*/
+enum class RunTarget : std::uint8_t {
+    Simulation,
+    SIL,
+    HIL
+};
+
+/*
+Lowercase runtime name of an execution target, matching the --target=<name>
+command-line argument ("simulation", "sil", "hil").
+*/
+[[nodiscard]] std::string_view run_target_name(RunTarget target) noexcept;
+
+/*
+Uppercase tag used to pair a scenario ID with its execution target in the logs
+and reports ([NOM-001][SIL], [FINJ-001][HIL]).
+*/
+[[nodiscard]] std::string_view run_target_tag(RunTarget target) noexcept;
+
+/*
+Parses the --target=<name> argument (case-insensitive) into a RunTarget; returns
+std::nullopt when the name is not a recognised execution target.
+*/
+[[nodiscard]] std::optional<RunTarget> parse_run_target(std::string_view name) noexcept;
+
 struct HarnessConfig {
     std::float64_t dt{0.01};
     std::size_t    log_interval_steps{100};
+    RunTarget      target{RunTarget::Simulation};
 };
 
 class TestHarness {
 public:
     explicit TestHarness(HarnessConfig config = {}) : config_(config) {}
+
+    [[nodiscard]] RunTarget target() const noexcept { return config_.target; }
+
+    // Sets the active scenario or sub-suite tag used by check() ([tag][target]).
+    void set_context(std::string_view tag);
+
+    // Sets the active scenario tag and prints a section header ([id][target] description).
+    void begin_scenario(std::string_view id, std::string_view description);
 
     // Assertions.
     void check(bool condition, std::string_view label);
@@ -42,10 +88,11 @@ public:
     void reset();
 
 private:
-    HarnessConfig  config_;
-    std::uint32_t  failures_{0};
-    std::float64_t current_time_{0.0};
-    std::size_t    step_count_{0};
+    HarnessConfig   config_;
+    std::uint32_t   failures_{0};
+    std::float64_t  current_time_{0.0};
+    std::size_t     step_count_{0};
+    std::string     context_;
 };
 
 }

@@ -31,13 +31,13 @@ function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
     endif()
 endfunction()
 
-# Sources du module de simulation (.cppm + .cpp conserves ensemble).
+# Sources of the simulation module (.cppm + .cpp kept together).
 set(SIMULATION_FILES
     Src/Simulation/Aircraft.cppm
     Src/Simulation/Aircraft.cpp
 )
 
-# Sources du module de controle de vol (.cppm + .cpp conserves ensemble dans la meme variable).
+# Sources of the flight control module (.cppm + .cpp kept together in the same variable).
 set(CONTROL_FILES
     Src/Control/FlightController.cppm
     Src/Control/FlightController-Core.cpp
@@ -47,7 +47,7 @@ set(CONTROL_FILES
     Src/Control/Types/FlightControllerTypes.cpp
 )
 
-# Sources du sous-systeme de surete FC2 (.cppm + .cpp conserves ensemble).
+# Sources of the FC2 safety subsystem (.cppm + .cpp kept together).
 set(SAFETY_FILES
     Src/Safety/HealthMonitor.cppm
     Src/Safety/HealthMonitor-Core.cpp
@@ -58,8 +58,8 @@ set(SAFETY_FILES
     Src/Safety/SafetyManager.cpp
 )
 
-# Sources du moteur de fault injection et de simulation SIL (.cppm + .cpp
-# conserves ensemble dans la meme variable).
+# Sources of the SIL fault injection and simulation engine (.cppm + .cpp kept
+# together in the same variable).
 set(SIL_FILES
     Src/SIL/Runner/SilRunner.cppm
     Src/SIL/Runner/SilRunner-Context.cpp
@@ -84,6 +84,8 @@ set(SIL_FILES
     Src/SIL/Core/SilFaultScenario-Core.cpp
     Src/SIL/Core/SilFaultScenario-Names.cpp
     Src/SIL/Core/SilFaultScenario-Semantics.cpp
+    Src/SIL/Core/FunctionalScenarios.cppm
+    Src/SIL/Core/FunctionalScenarios.cpp
     Src/SIL/Core/Telemetry/Telemetry.cppm
     Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
     Src/SIL/Core/Telemetry/Telemetry-Validation.cpp
@@ -128,10 +130,10 @@ set(SRC_FILES
     ${SIL_FILES}
 )
 
-# Sources du sous-systeme de validation statistique Monte-Carlo SIL (.cppm +
-# .cpp conserves ensemble dans la meme variable ; le vocabulaire commun vit
-# dans le sous-module ValidationTypes, l'interface principale re-exporte le
-# tout et regroupe le generateur, le collecteur et le runner).
+# Sources of the statistical Monte-Carlo SIL validation subsystem (.cppm + .cpp
+# kept together in the same variable; the shared vocabulary lives in the
+# ValidationTypes sub-module, the main interface re-exports everything and groups
+# the generator, collector and runner).
 set(VALIDATION_FILES
     Src/SIL/Validation/FlightControlValidation.cppm
     Src/SIL/Validation/Types/ValidationTypes.cppm
@@ -147,8 +149,8 @@ set(VALIDATION_FILES
 )
 
 
-# Harness, scenarios physiques et scenarios autonomes du programme de validation
-# (.cppm + .cpp conserves ensemble dans la meme variable).
+# Harness, physics scenarios and autonomous scenarios of the validation program
+# (.cppm + .cpp kept together in the same variable).
 set(TEST_SIMULATION_FILES
     Tests/TestHarness.cppm
     Tests/TestHarness.cpp
@@ -164,7 +166,8 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/FlightScenarios-Mission.cpp
 )
 
-# Exercice de validation des scenarios A a J (etapes 5 et 6).
+# Validation exercise of the physics (NOM-002..NOM-007) and autonomous mode-change
+# (MC-001..MC-004) scenarios (steps 5 and 6).
 add_executable(test_simulation Tests/test_simulation.cpp)
 target_add_mixed_sources(test_simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
@@ -173,8 +176,8 @@ target_add_mixed_sources(test_simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 set_property(TARGET test_simulation PROPERTY CXX_SCAN_FOR_MODULES ON)
 
-# Suite de tests SIL deterministes SIL-001 a SIL-005 (etape 11) et scenarios
-# d'observabilite.
+# Deterministic SIL test suite (NOM-001 nominal, FINJ-001..004 fault injection and
+# MC-FINJ-001 fault during climb) plus the observability and telemetry suites.
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp
@@ -223,9 +226,9 @@ foreach(target test_simulation test_sil)
     target_compile_features(${target} PRIVATE cxx_std_23)
 endforeach()
 
-# Campagne de validation statistique Monte-Carlo sur le moteur SIL : le point
-# d'entree Src/SIL/Validation/main.cpp lance N runs deterministes et exporte
-# les resultats au format CSV.
+# Statistical Monte-Carlo validation campaign over the SIL engine: the entry
+# point Src/SIL/Validation/Campaign/main.cpp launches N deterministic runs and
+# exports the results as CSV.
 add_executable(monte_carlo_validation Src/SIL/Validation/Campaign/main.cpp)
 target_add_mixed_sources(monte_carlo_validation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SIMULATION_FILES}
@@ -250,11 +253,11 @@ endif()
 target_compile_features(monte_carlo_validation PRIVATE cxx_std_23)
 
 # ----------------------------------------------------------------------------
-# HIL Hardware-in-the-Loop skeleton (etape 13).
-# Couche d'abstraction materielle (HAL), protocole binaire HIL-Proto v1.0
-# (types, parseur, codec), mocks de simulation hote (PC) et demo lockstep.
-# Chaque module .cppm garde l'interface ; les implementations vivent dans les
-# .cpp apparies (<module>.cpp ou <module>-<Suffix>.cpp).
+# HIL Hardware-in-the-Loop skeleton (step 13).
+# Hardware abstraction layer (HAL), binary HIL-Proto v1.0 protocol (types,
+# parser, codec), host (PC) simulation mocks and lockstep demo.
+# Each .cppm module keeps the interface; implementations live in the paired
+# .cpp files (<module>.cpp or <module>-<Suffix>.cpp).
 # ----------------------------------------------------------------------------
 set(HIL_FILES
     Src/Embedded/Hal/HalTypes.cppm
@@ -317,6 +320,8 @@ set(SIL_CORE_FILES
     Src/SIL/Core/SilFaultScenario-Core.cpp
     Src/SIL/Core/SilFaultScenario-Names.cpp
     Src/SIL/Core/SilFaultScenario-Semantics.cpp
+    Src/SIL/Core/FunctionalScenarios.cppm
+    Src/SIL/Core/FunctionalScenarios.cpp
     Src/SIL/Faults/FaultInjectors.cppm
     Src/SIL/Faults/FaultInjectors-Base.cpp
     Src/SIL/Faults/FaultInjectors-Injectors.cpp
