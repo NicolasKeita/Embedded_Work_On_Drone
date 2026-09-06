@@ -20,9 +20,9 @@ namespace
     constexpr std::string_view kTargetPrefix = "--target=";
 
     struct CliOptions {
-        RunTarget target = RunTarget::HIL;
-        bool      help = false;
-        bool      invalid = false;
+        sim::test::RunTarget target = sim::test::RunTarget::HIL;
+        bool                 help = false;
+        bool                 invalid = false;
     };
 
     CliOptions parse_cli(int argc, char* argv[])

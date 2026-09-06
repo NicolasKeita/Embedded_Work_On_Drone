@@ -69,6 +69,31 @@ Src/Control/FlightController.cppm
 Src/Control/FlightController-Core.cpp
 Src/Control/FlightController-Loops.cpp
 Src/Control/FlightController-Mission.cpp
+```
+
+### Module names are namespace-qualified in importing units
+
+* Types and functions exported through `export namespace sim::test { ... }` are **not** visible unqualified in translation units that `import` the module. Unqualified lookup never enters the module's namespace.
+* Always use the fully qualified name when consuming an imported module, including in struct members, default member initializers, and default arguments.
+* Symptom: `error: 'RunTarget' does not name a type` right after `import TestHarness;` — the fix is qualification, not a new import.
+
+```cpp
+// WRONG (fails to compile):
+import TestHarness;
+
+struct CliOptions {
+    RunTarget target = RunTarget::SIL;
+};
+
+// CORRECT:
+import TestHarness;
+
+struct CliOptions {
+    sim::test::RunTarget target = sim::test::RunTarget::SIL;
+};
+```
+
+* For a type used many times in one file, a single scoped alias at namespace scope is allowed: `using RunTarget = sim::test::RunTarget;` (never `using namespace` at global scope).
 
 ## Imports
 

@@ -15,7 +15,7 @@ import TestHarness;
 
 namespace sim::test {
 
-const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{{
+const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
     {"NOM-002_GroundedRest",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
     {"NOM-003_VerticalClimb",        "Vertical climb (RPM > hover)",              scenarios::climb},
     {"NOM-004_Descent",             "Descent (RPM < hover)",                     scenarios::descent},
