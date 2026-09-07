@@ -140,6 +140,54 @@ class TestCommentPlacement(unittest.TestCase):
         )
         self.assertEqual(placement_violations(code), [])
 
+    def test_comment_above_nodiscard_function_is_valid(self):
+        code = (
+            "/*\n"
+            "doc\n"
+            "*/\n"
+            "[[nodiscard]] int get_bar()\n"
+            "{\n"
+            "    return 1;\n"
+            "}\n"
+        )
+        self.assertEqual(placement_violations(code), [])
+
+    def test_comment_above_template_nodiscard_function_is_valid(self):
+        code = (
+            "/*\n"
+            "doc\n"
+            "*/\n"
+            "template<typename Number>\n"
+            "[[nodiscard]] Number get_bar(Number n)\n"
+            "{\n"
+            "    return n;\n"
+            "}\n"
+        )
+        self.assertEqual(placement_violations(code), [])
+
+    def test_comment_above_nodiscard_declaration_is_valid(self):
+        code = (
+            "/*\n"
+            "doc\n"
+            "*/\n"
+            "[[nodiscard]] int get_bar();\n"
+        )
+        self.assertEqual(placement_violations(code), [])
+
+    def test_comment_above_nodiscard_namespace_function_is_valid(self):
+        code = (
+            "namespace sim::hil {\n"
+            "/*\n"
+            "doc\n"
+            "*/\n"
+            "    [[nodiscard]] int get_bar()\n"
+            "    {\n"
+            "        return 1;\n"
+            "    }\n"
+            "}\n"
+        )
+        self.assertEqual(placement_violations(code), [])
+
 
 if __name__ == "__main__":
     unittest.main()

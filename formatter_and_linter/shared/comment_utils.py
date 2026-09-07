@@ -50,21 +50,23 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
         r'(?:\s*:\s*[^{;}]+?)?'
         r'\s*(?:\{|$)'
     )
+    attribute_specifier = r'(?:[ \t]*\[\[[^\]]*\]\])*[ \t]*'
     function_patterns = [
         r'^[ \t]*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        + template_type + r'\s+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
+        + attribute_specifier + template_type + r'\s+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
         r'^[ \t]*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'(?:' + template_type + r'\s*[*&]\s+)+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
+        + attribute_specifier + r'(?:' + template_type + r'\s*[*&]\s+)+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
         r'^[ \t]*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'(?:' + template_type + r'\s*[*&]?\s+)+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
+        + attribute_specifier + r'(?:' + template_type + r'\s*[*&]?\s+)+' + scoped_name + r'\s*\([^)]*\)' + function_suffix,
         r'^[ \t]*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'\w+\s*::\s*\w+\s*\([^)]*\)' + function_suffix,
+        + attribute_specifier + r'\w+\s*::\s*\w+\s*\([^)]*\)' + function_suffix,
         r'^[ \t]*(?:static\s+|inline\s+|virtual\s+|explicit\s+|constexpr\s+|const\s+)*'
-        r'\w+\s*::\s*operator\s*=\s*\([^)]*\)' + function_suffix,
+        + attribute_specifier + r'\w+\s*::\s*operator\s*=\s*\([^)]*\)' + function_suffix,
     ]
 
     declaration_pattern = re.compile(
         r'^[ \t]*(?:static[ \t]+|inline[ \t]+|constexpr[ \t]+|const[ \t]+|extern[ \t]+|mutable[ \t]+)*'
+        + attribute_specifier +
         r'(?:' + template_type + r'[ \t]*[*&]?[ \t]+)+'
         r'\w+[ \t]*(?:\[[^\]]*\])?[ \t]*(?:=|\{|\(|;)',
         re.MULTILINE,
@@ -141,6 +143,14 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
             if excluded_declaration_pattern.match(line_text) or line_text.startswith('#'):
                 continue
             declaration_lines.add(line_num)
+
+    template_prefix_pattern = re.compile(r'^[ \t]*template\s*<', re.MULTILINE)
+    for match in template_prefix_pattern.finditer(masked_code):
+        if is_in_string(match.start()) or is_in_comment(match.start()):
+            continue
+        line_num = code[:match.start()].count('\n') + 1
+        if (line_num + 1) in function_lines or (line_num + 1) in declaration_lines:
+            function_lines.add(line_num)
 
     for match in singleline_pattern.finditer(code):
         if is_in_string(match.start()):
