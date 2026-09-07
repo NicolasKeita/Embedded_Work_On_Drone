@@ -48,9 +48,11 @@ when the ID is unknown.
 
 /*
 Runs a single engine-level SIL scenario by ID; returns false when the ID is
-unknown. The scenario verdict is accumulated in the harness.
+unknown. The scenario verdict is accumulated in the harness and the periodic
+telemetry table is streamed to stdout at telemetry_report_interval_s.
 */
-bool run_sil_scenario(std::string_view id, sim::test::TestHarness& runner);
+bool run_sil_scenario(std::string_view id, sim::test::TestHarness& runner,
+                      std::float64_t telemetry_report_interval_s = 1.0);
 
 /* Runs the six scenarios, the observability suite and the report artifacts. */
 void run_all_sil_scenarios(TestHarness& runner);

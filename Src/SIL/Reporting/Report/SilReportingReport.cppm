@@ -84,13 +84,13 @@ stream, kept separate from the sensor telemetry.
 */
 void write_truth_csv(std::ostream& out, std::span<const ScenarioRecord> records);
 
+/* Writes the periodic telemetry table of one scenario (one row every interval_s). */
+void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> samples,
+                           std::float64_t interval_s);
+
 }
 
 namespace sim::sil {
-
-// Writes the periodic telemetry table of one scenario section.
-void write_telemetry_table(std::ostream& out, std::span<const TelemetrySample> samples,
-                           std::float64_t interval_s);
 
 // Writes one full aligned telemetry table over the selected time window.
 void write_telemetry_window(std::ostream& out, std::span<const TelemetrySample> samples,
