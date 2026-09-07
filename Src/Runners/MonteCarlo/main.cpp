@@ -36,11 +36,27 @@ int main(int argc, char* argv[])
     std::cout << "Master seed   : " << options.seed << std::endl;
     std::cout << "Run count     : " << options.runs << std::endl;
     std::cout << "Scenario      : " << options.scenario << std::endl;
+    if (!options.output_csv.empty()) {
+        std::cout << "CSV report    : " << options.output_csv << std::endl;
+    }
+    if (!options.output_json.empty()) {
+        std::cout << "JSON report   : " << options.output_json << std::endl;
+    }
     std::cout << std::endl;
     std::cout << "Running..." << std::endl;
 
     const sim::monte_carlo::CampaignStats stats = sim::monte_carlo::run_campaign(options);
     sim::monte_carlo::print_summary(stats);
+    if (!options.output_csv.empty()) {
+        if (sim::monte_carlo::export_campaign_csv(stats, options.output_csv)) {
+            std::cout << "CSV report written to " << options.output_csv << std::endl;
+        }
+    }
+    if (!options.output_json.empty()) {
+        if (sim::monte_carlo::export_campaign_json(stats, options.output_json)) {
+            std::cout << "JSON report written to " << options.output_json << std::endl;
+        }
+    }
     std::cout << "Monte Carlo campaign completed." << std::endl;
 
     return 0;

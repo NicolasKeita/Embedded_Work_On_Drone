@@ -59,11 +59,15 @@ public:
     */
     [[nodiscard]] PhysicsDispersion generate_run_dispersion(std::size_t run_index) const;
 
+    /*
+    Derives the deterministic run seed from the master seed and the run index.
+    Exposed so campaign tooling can record the per-run seed alongside the drawn
+    dispersion without breaking the deterministic derivation chain.
+    */
+    [[nodiscard]] std::uint64_t generate_run_seed(std::uint64_t base_seed, std::size_t run_index) const;
+
 private:
     std::uint64_t base_seed_;
-
-    // Seed generation for a specific run
-    [[nodiscard]] std::uint64_t generate_run_seed(std::uint64_t base_seed, std::size_t run_index) const;
 };
 
 }

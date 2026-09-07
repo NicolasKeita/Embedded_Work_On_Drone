@@ -43,38 +43,43 @@ namespace {
     }
 
     /* Accumulates one run outcome into the campaign statistics. */
-    void record_run(CampaignStats& stats, std::size_t run_index, const RunMetrics& run_metrics)
+    void record_run(CampaignStats& stats, const RunInputs& inputs, const RunMetrics& run_metrics)
     {
         if (run_metrics.passed) {
             ++stats.passed_runs;
         }
         else {
             ++stats.failed_runs;
-            stats.failed_run_indices.push_back(run_index);
         }
-        stats.overshoots.push_back(run_metrics.overshoot);
-        stats.settling_times.push_back(run_metrics.settling_time);
-        stats.steady_state_errors.push_back(run_metrics.steady_state_error);
-        stats.max_accelerations.push_back(run_metrics.max_acceleration);
+        stats.records.push_back(RunRecord{.inputs = inputs, .metrics = run_metrics});
     }
 }
 
 /*
-Executes the campaign: one dispersed scenario run per iteration, accumulating
-the tracking metrics and the failed-run indices.
+Executes the campaign: one dispersed scenario run per iteration, capturing the
+perturbed inputs and accumulating the per-run records.
 */
 CampaignStats run_campaign(const CliOptions& options)
 {
-    CampaignStats            stats{.total_runs = options.runs};
+    CampaignStats            stats{.master_seed = options.seed, .total_runs = options.runs};
     sim::DispersionGenerator dispersion_generator(options.seed);
+    stats.records.reserve(options.runs);
 
     for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {
+        const std::uint64_t          run_seed = dispersion_generator.generate_run_seed(options.seed, run_index);
         const sim::PhysicsDispersion dispersion = dispersion_generator.generate_run_dispersion(run_index);
+        const RunInputs              inputs{.run_id = run_index,
+                                            .master_seed = options.seed,
+                                            .run_seed = run_seed,
+                                            .dispersion = dispersion};
         if (options.verbose) {
-            print_dispersion(dispersion, options.seed, run_index, options.runs);
+            print_run_inputs(inputs, options.runs);
         }
         const RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion, options.verbose);
-        record_run(stats, run_index, run_metrics);
+        record_run(stats, inputs, run_metrics);
+        if (!options.verbose && !run_metrics.passed) {
+            print_run_inputs(inputs, options.runs);
+        }
         if ((run_index + 1) % 10 == 0 || run_index + 1 == options.runs) {
             std::cout << "Completed run " << (run_index + 1) << "/" << options.runs << std::endl;
         }
