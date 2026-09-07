@@ -80,9 +80,16 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    const std::size_t logIntervalSteps = options.verbose ? std::size_t{1} : std::size_t{100};
+    constexpr std::float64_t kDefaultTelemetryPeriodS = 1.0;
+    constexpr std::float64_t kSimulationTimeStepS     = 0.01;
+
+    const std::float64_t telemetryPeriodS = options.telemetry_period.value_or(kDefaultTelemetryPeriodS);
+    const std::size_t    logIntervalSteps
+        = options.verbose ? std::size_t{1}
+                          : static_cast<std::size_t>(telemetryPeriodS / kSimulationTimeStepS + 0.5);
+
     sim::test::HarnessConfig harnessConfig{
-        .dt = 0.01, .log_interval_steps = logIntervalSteps, .target = sim::test::RunTarget::SIL};
+        .dt = kSimulationTimeStepS, .log_interval_steps = logIntervalSteps, .target = sim::test::RunTarget::SIL};
     sim::test::TestHarness runner{harnessConfig};
 
     const int outcome = execute_runs(options, runner, executableName);

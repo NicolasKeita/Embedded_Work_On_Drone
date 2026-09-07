@@ -16,17 +16,19 @@ import SilScenarios;
 export namespace sim::test::sil {
 
 struct CliOptions {
-    std::optional<std::string> scenario;
-    bool                       all = false;
-    bool                       verbose = false;
-    bool                       help = false;
-    bool                       invalid = false;
+    std::optional<std::string>    scenario;
+    std::optional<std::float64_t> telemetry_period;
+    bool                          all = false;
+    bool                          verbose = false;
+    bool                          help = false;
+    bool                          invalid = false;
 };
 
 /*
 Parses the SIL_RUNNER command line: --scenario <id> (or --scenario=<id>),
---all, --verbose/-v and -h/--help. Any other argument, or --all combined with
---scenario, marks the options invalid.
+--telemetry-period <s> (or --telemetry-period=<s>), --all, --verbose/-v and
+-h/--help. Any other argument, or --all combined with --scenario, marks the
+options invalid.
 */
 [[nodiscard]] CliOptions parse_cli(int argc, char* argv[]);
 
