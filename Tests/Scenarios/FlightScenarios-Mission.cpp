@@ -38,10 +38,12 @@ void autonomous_mission(TestHarness&                  runner,
     std::cout << "-- Phase 1: station keeping at point (20, -15, 100) --" << std::endl;
     const MissionRunTrace approach = run_mission(controller, aircraft,
                     {.target = {.x = 20.0, .y = -15.0, .z = 100.0}, .duration = 240.0,
-                     .axis = TrackingAxis::z_axis, .tolerance = 1.0, .stop_on_zone = true}, dispersion);
+                     .axis = TrackingAxis::z_axis, .tolerance = 1.0, .stop_on_zone = true,
+                     .verbose = runner.verbose()}, dispersion);
     std::cout << "-- Phase 2: station keeping on target (0, 0, 100) --" << std::endl;
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 0.5},
+                    {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 0.5,
+                     .verbose = runner.verbose()},
                     dispersion);
     print_metrics_report("altitude", trace.metrics);
     runner.record_metrics(trace.metrics.overshoot_units, trace.metrics.time_within_tolerance,

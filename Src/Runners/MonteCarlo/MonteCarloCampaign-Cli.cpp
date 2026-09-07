@@ -1,6 +1,6 @@
 /*
 Filename: Src/Runners/MonteCarlo/MonteCarloCampaign-Cli.cpp
-Description: Command-line parsing and usage printing of the Monte-Carlo campaign.
+Description: Command-line parsing of the Monte-Carlo campaign.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -20,11 +20,8 @@ namespace {
         std::uint64_t                value = 0;
         const std::from_chars_result result = std::from_chars(text.data(), text.data() + text.size(), value);
 
-        if (result.ec != std::errc{}) {
-            return std::unexpected(result.ec);
-        }
-        if (result.ptr != text.data() + text.size()) {
-            return std::unexpected(std::errc::invalid_argument);
+        if (result.ec != std::errc{} || result.ptr != text.data() + text.size()) {
+            return std::unexpected(result.ec != std::errc{} ? result.ec : std::errc::invalid_argument);
         }
         return value;
     }
@@ -61,6 +58,19 @@ namespace {
         field = static_cast<Target>(value.value());
         return {};
     }
+
+    /* Parses "--option <n>" into the target field; returns false to stop parsing. */
+    template<typename Target>
+    bool parse_unsigned_option(CliOptions& options, int argc, char* argv[], int& index,
+                               Target& field, std::string_view label)
+    {
+        const std::expected<std::string, std::string> raw = value_of(argc, argv, index, label);
+
+        if (!raw.has_value()) { report_error(options, raw.error()); return false; }
+        const auto applied = apply_unsigned(field, raw.value(), label);
+        if (!applied.has_value()) { report_error(options, applied.error()); }
+        return true;
+    }
 }
 
 /* Parses the SIL_MONTE_CARLO command line into CliOptions. */
@@ -74,18 +84,16 @@ CliOptions parse_cli(int argc, char* argv[])
             options.help = true;
             return options;
         }
+        if (argument == "-v" || argument == "--verbose") {
+            options.verbose = true;
+            continue;
+        }
         if (argument == "--seed") {
-            const std::expected<std::string, std::string> raw = value_of(argc, argv, index, "--seed");
-            if (!raw.has_value()) { report_error(options, raw.error()); return options; }
-            const auto applied = apply_unsigned(options.seed, raw.value(), "--seed");
-            if (!applied.has_value()) { report_error(options, applied.error()); }
+            if (!parse_unsigned_option(options, argc, argv, index, options.seed, "--seed")) { return options; }
             continue;
         }
         if (argument == "--runs") {
-            const std::expected<std::string, std::string> raw = value_of(argc, argv, index, "--runs");
-            if (!raw.has_value()) { report_error(options, raw.error()); return options; }
-            const auto applied = apply_unsigned(options.runs, raw.value(), "--runs");
-            if (!applied.has_value()) { report_error(options, applied.error()); }
+            if (!parse_unsigned_option(options, argc, argv, index, options.runs, "--runs")) { return options; }
             continue;
         }
         if (argument == "--scenario") {
@@ -102,18 +110,6 @@ CliOptions parse_cli(int argc, char* argv[])
         return options;
     }
     return options;
-}
-
-/* Prints the SIL_MONTE_CARLO usage banner. */
-void print_usage(std::string_view executableName)
-{
-    std::cout << "SIL Monte-Carlo: accelerated statistical batch simulation." << std::endl;
-    std::cout << "Usage: " << executableName << " [--seed <n>] [--runs <n>] [--scenario <template>]" << std::endl;
-    std::cout << "  --seed <n>       Master RNG seed (default 42)." << std::endl;
-    std::cout << "  --runs <n>       Number of iterations (default 50)." << std::endl;
-    std::cout << "  --scenario <id>  Scenario to stress-test (default: NOMINAL-001)" << std::endl;
-    std::cout << "                     Examples: NOMINAL-001, NOMINAL-008, NOMINAL-009, NOMINAL-010" << std::endl;
-    std::cout << "  -h, --help       Show this help." << std::endl;
 }
 
 }

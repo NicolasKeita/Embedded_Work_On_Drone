@@ -58,6 +58,7 @@ struct HarnessConfig {
     std::float64_t dt{0.01};
     std::size_t    log_interval_steps{100};
     RunTarget      target{RunTarget::Simulation};
+    bool           verbose{true};
 };
 
 class TestHarness {
@@ -65,6 +66,9 @@ public:
     explicit TestHarness(HarnessConfig config = {}) : config_(config) {}
 
     [[nodiscard]] RunTarget target() const noexcept { return config_.target; }
+
+    // Reports whether verbose per-step output (telemetry table and scenario brief) is enabled.
+    [[nodiscard]] bool verbose() const noexcept { return config_.verbose; }
 
     // Sets the active scenario or sub-suite tag used by check() ([tag][target]).
     void set_context(std::string_view tag);

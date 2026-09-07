@@ -20,7 +20,8 @@ namespace sim::monte_carlo {
 namespace {
     /* Executes one dispersed scenario run and collects its tracking metrics. */
     RunMetrics execute_scenario_run(const std::string&            scenario_id,
-                                    const sim::PhysicsDispersion& dispersion)
+                                    const sim::PhysicsDispersion& dispersion,
+                                    bool                          verbose)
     {
         RunMetrics                      metrics{};
         const sim::test::ScenarioEntry* scenario_entry = sim::test::ScenarioCatalog::find(scenario_id);
@@ -30,7 +31,7 @@ namespace {
             metrics.passed = false;
             return metrics;
         }
-        sim::test::TestHarness runner;
+        sim::test::TestHarness runner{sim::test::HarnessConfig{.verbose = verbose}};
         const Aircraft reference{dispersion};
         scenario_entry->run(runner, reference.hover_rpm(), dispersion);
         metrics.passed = runner.passed();
@@ -69,7 +70,10 @@ CampaignStats run_campaign(const CliOptions& options)
 
     for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {
         const sim::PhysicsDispersion dispersion = dispersion_generator.generate_run_dispersion(run_index);
-        const RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion);
+        if (options.verbose) {
+            print_dispersion(dispersion, options.seed, run_index, options.runs);
+        }
+        const RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion, options.verbose);
         record_run(stats, run_index, run_metrics);
         if ((run_index + 1) % 10 == 0 || run_index + 1 == options.runs) {
             std::cout << "Completed run " << (run_index + 1) << "/" << options.runs << std::endl;

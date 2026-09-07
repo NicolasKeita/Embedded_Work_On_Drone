@@ -30,9 +30,11 @@ void TestHarness::begin_scenario(std::string_view id, std::string_view descripti
     context_ = std::string{id};
     std::cout << "\n=== [" << id << "][" << run_target_tag(config_.target) << "] "
               << description << " ===" << std::endl;
-    const std::string_view brief = scenario_brief(id);
-    if (!brief.empty()) {
-        std::cout << brief << std::endl;
+    if (config_.verbose) {
+        const std::string_view brief = scenario_brief(id);
+        if (!brief.empty()) {
+            std::cout << brief << std::endl;
+        }
     }
 }
 

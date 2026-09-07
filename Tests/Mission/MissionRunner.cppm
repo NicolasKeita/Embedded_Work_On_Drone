@@ -67,6 +67,7 @@ struct MissionRunRequest {
     TrackingAxis              axis = TrackingAxis::z_axis;
     std::float64_t            tolerance = 0.0;
     bool                      stop_on_zone = false;
+    bool                      verbose = true;
 };
 
 struct MissionRunTrace {
@@ -98,7 +99,7 @@ void print_state_row(const Aircraft& aircraft, std::float64_t timeSeconds);
 
 /* Records a state machine transition in the trace and reports it on the console. */
 void log_state_transition(MissionRunTrace& trace, sim::control::MissionState& previous,
-                          sim::control::MissionState current, std::float64_t time);
+                          sim::control::MissionState current, std::float64_t time, bool verbose);
 
 /* Reports whether the vehicle holds the target zone and the run should stop there. */
 bool zone_reached(const MissionRunRequest& run, sim::control::MissionState state,

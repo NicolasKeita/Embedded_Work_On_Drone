@@ -35,7 +35,8 @@ void autonomous_altitude(TestHarness&                  runner,
     Aircraft aircraft{dispersion};
 
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 90.0, .axis = TrackingAxis::z_axis, .tolerance = 2.0},
+                    {.target = {.z = 100.0}, .duration = 90.0, .axis = TrackingAxis::z_axis, .tolerance = 2.0,
+                     .verbose = runner.verbose()},
                     dispersion);
 
     print_metrics_report("altitude", trace.metrics);
@@ -65,11 +66,13 @@ void autonomous_position_x(TestHarness&                  runner,
 
     std::cout << "-- Phase 1: rendezvous with point (20, 0, 100) --" << std::endl;
     run_mission(controller, aircraft, {.target = {.x = 20.0, .z = 100.0}, .duration = 180.0,
-                 .axis = TrackingAxis::x_axis, .tolerance = 1.0, .stop_on_zone = true}, dispersion);
+                 .axis = TrackingAxis::x_axis, .tolerance = 1.0, .stop_on_zone = true,
+                 .verbose = runner.verbose()}, dispersion);
 
     std::cout << "-- Phase 2: return towards x = 0 --" << std::endl;
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 120.0, .axis = TrackingAxis::x_axis, .tolerance = 0.5},
+                    {.target = {.z = 100.0}, .duration = 120.0, .axis = TrackingAxis::x_axis, .tolerance = 0.5,
+                     .verbose = runner.verbose()},
                     dispersion);
 
     print_metrics_report("X axis", trace.metrics);
@@ -96,11 +99,13 @@ void autonomous_position_y(TestHarness&                  runner,
 
     std::cout << "-- Phase 1: rendezvous with point (0, -15, 100) --" << std::endl;
     run_mission(controller, aircraft, {.target = {.y = -15.0, .z = 100.0}, .duration = 180.0,
-                 .axis = TrackingAxis::y_axis, .tolerance = 1.0, .stop_on_zone = true}, dispersion);
+                 .axis = TrackingAxis::y_axis, .tolerance = 1.0, .stop_on_zone = true,
+                 .verbose = runner.verbose()}, dispersion);
 
     std::cout << "-- Phase 2: return towards y = 0 --" << std::endl;
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 120.0, .axis = TrackingAxis::y_axis, .tolerance = 0.5},
+                    {.target = {.z = 100.0}, .duration = 120.0, .axis = TrackingAxis::y_axis, .tolerance = 0.5,
+                     .verbose = runner.verbose()},
                     dispersion);
 
     print_metrics_report("Y axis", trace.metrics);
