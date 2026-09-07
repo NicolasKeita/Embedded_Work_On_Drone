@@ -15,7 +15,8 @@ import TestHarness;
 
 namespace sim::test {
 
-const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
+const std::array<ScenarioEntry, 11> ScenarioCatalog::scenarios_{{
+    {"NOMINAL-001",        "Autonomous altitude hold (z: 0 -> 10 m)",     flight_scenarios::autonomous_altitude_hold},
     {"NOMINAL-002",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
     {"NOMINAL-003",        "Vertical climb (RPM > hover)",              scenarios::climb},
     {"NOMINAL-004",             "Descent (RPM < hover)",                     scenarios::descent},

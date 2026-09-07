@@ -137,6 +137,7 @@ set(TEST_SIMULATION_FILES
     Tests/Mission/MissionRunner-Trace.cpp
     Tests/Mission/MissionRunner-Support.cpp
     Tests/Scenarios/FlightScenarios.cppm
+    Tests/Scenarios/FlightScenarios-Reference.cpp
     Tests/Scenarios/FlightScenarios-Axes.cpp
     Tests/Scenarios/FlightScenarios-Mission.cpp
 )

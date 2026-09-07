@@ -2,6 +2,7 @@
 Filename: Tests/Scenarios/FlightScenarios.cppm
 Description: Autonomous flight scenarios: altitude hold, cascaded X/Y position loops and full mission.
 Exports:
+    autonomous_altitude_hold(),
     autonomous_altitude(),
     autonomous_position_x(),
     autonomous_position_y(),
@@ -19,6 +20,9 @@ import PhysicsDispersion;
 import TestHarness;
 
 export namespace sim::test::flight_scenarios {
+
+// NOMINAL-001: no-fault reference run, climb to 10 m and hold altitude for the 30-second mission.
+void autonomous_altitude_hold(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion = {});
 
 // NOMINAL-011: autonomous altitude loop, convergence towards z = 100 m with metrics.
 void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion = {});
