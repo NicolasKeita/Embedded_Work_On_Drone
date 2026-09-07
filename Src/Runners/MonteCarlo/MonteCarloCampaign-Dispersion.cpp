@@ -1,6 +1,6 @@
 /*
 Filename: Src/Runners/MonteCarlo/MonteCarloCampaign-Dispersion.cpp
-Description: Dispersion parameter printing for the verbose Monte-Carlo campaign output.
+Description: Perturbed run-input printing for the verbose and failure-diagnostic Monte-Carlo campaign output.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -24,14 +24,12 @@ namespace {
     }
 }
 
-/* Prints the random dispersion parameters generated for one run. */
-void print_dispersion(const sim::PhysicsDispersion& d,
-                      std::uint64_t                 seed,
-                      std::uint32_t                 run_index,
-                      std::uint32_t                 run_count)
+/* Prints the perturbed input variables (RunInputs) generated for one run. */
+void print_run_inputs(const RunInputs& inputs, std::uint32_t run_count)
 {
-    std::cout << "  [Run " << (run_index + 1) << '/' << run_count << "] Dispersion (seed "
-              << seed << ", run " << run_index << "):" << std::endl;
+    const sim::PhysicsDispersion& d = inputs.dispersion;
+    std::cout << "  [Run " << (inputs.run_id + 1) << '/' << run_count << "] Inputs (master seed "
+              << inputs.master_seed << ", run seed " << inputs.run_seed << "):" << std::endl;
     std::cout << "    Aircraft:" << std::endl;
     print_dispersion_field("mass variation", d.mass_variation * 100.0, "%");
     print_dispersion_field("CoG offset x", d.cog_offset_x, "m");
