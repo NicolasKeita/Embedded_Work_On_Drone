@@ -200,6 +200,26 @@ namespace
                       ", Min: " << min_val << ", Max: " << max_val << std::endl;
             std::cout << "  3-sigma bounds: [" << (mean - 3.0 * std_dev) << ", " << (mean + 3.0 * std_dev) << "]" << std::endl;
         }
+
+        if (!stats.settling_times.empty()) {
+            std::float64_t mean;
+            std::float64_t std_dev;
+            std::float64_t min_val;
+            std::float64_t max_val;
+            compute_statistics(stats.settling_times, mean, std_dev, min_val, max_val);
+            std::cout << "Settling time: Mean: " << mean << ", StdDev: " << std_dev
+                      << ", Min: " << min_val << ", Max: " << max_val << std::endl;
+        }
+
+        if (!stats.max_accelerations.empty()) {
+            std::float64_t mean;
+            std::float64_t std_dev;
+            std::float64_t min_val;
+            std::float64_t max_val;
+            compute_statistics(stats.max_accelerations, mean, std_dev, min_val, max_val);
+            std::cout << "Max acceleration: Mean: " << mean << ", StdDev: " << std_dev
+                      << ", Min: " << min_val << ", Max: " << max_val << std::endl;
+        }
         
         if (!stats.failed_run_indices.empty()) {
             std::cout << "\n--- Failed Run Indices ---" << std::endl;
@@ -210,54 +230,25 @@ namespace
         }
     }
 
-    RunMetrics execute_scenario_run(const std::string& scenario_id, 
-                                    const sim::PhysicsDispersion& dispersion,
-                                    std::uint64_t run_index)
+    RunMetrics execute_scenario_run(const std::string& scenario_id,
+                                    const sim::PhysicsDispersion& dispersion)
     {
-        RunMetrics metrics;
-        metrics.passed = true;
-        
-        // Calculate hover RPM based on base aircraft
-        const std::float64_t hover_rpm = 10000.0;
-        
-        // For NOMINAL scenarios, execute the corresponding flight scenario with dispersion
-        if (scenario_id == "NOMINAL-001") {
-            sim::test::TestHarness runner;
-            sim::test::flight_scenarios::autonomous_altitude(runner, hover_rpm);
-            metrics.passed = runner.passed();
+        RunMetrics metrics{};
+        const sim::test::ScenarioEntry* scenario_entry = sim::test::ScenarioCatalog::find(scenario_id);
+        if (scenario_entry == nullptr) {
+            std::cerr << "Error: Unknown scenario " << scenario_id << std::endl;
+            metrics.passed = false;
+            return metrics;
         }
-        else if (scenario_id == "NOMINAL-008") {
-            sim::test::TestHarness runner;
-            sim::test::flight_scenarios::autonomous_position_x(runner, hover_rpm);
-            metrics.passed = runner.passed();
-        }
-        else if (scenario_id == "NOMINAL-009") {
-            sim::test::TestHarness runner;
-            sim::test::flight_scenarios::autonomous_position_y(runner, hover_rpm);
-            metrics.passed = runner.passed();
-        }
-        else if (scenario_id == "NOMINAL-010") {
-            sim::test::TestHarness runner;
-            sim::test::flight_scenarios::autonomous_mission(runner, hover_rpm);
-            metrics.passed = runner.passed();
-        }
-        else {
-            // Try to find and execute any other scenario from the catalog
-            const sim::test::ScenarioEntry* scenario_entry = sim::test::ScenarioCatalog::find(scenario_id);
-            if (scenario_entry) {
-                sim::test::TestHarness runner;
-                try {
-                    scenario_entry->run(runner, hover_rpm);
-                    metrics.passed = runner.passed();
-                } catch (...) {
-                    metrics.passed = false;
-                }
-            } else {
-                std::cerr << "Error: Unknown scenario " << scenario_id << std::endl;
-                metrics.passed = false;
-            }
-        }
-        
+
+        sim::test::TestHarness runner;
+        const Aircraft reference{dispersion};
+        scenario_entry->run(runner, reference.hover_rpm(), dispersion);
+        metrics.passed = runner.passed();
+        metrics.overshoot = runner.overshoot();
+        metrics.settling_time = runner.settling_time();
+        metrics.steady_state_error = runner.steady_state_error();
+        metrics.max_acceleration = runner.max_acceleration();
         return metrics;
     }
 }
@@ -289,7 +280,7 @@ int main(int argc, char* argv[])
 
     for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {
         sim::PhysicsDispersion dispersion = dispersion_generator.generate_run_dispersion(run_index);
-        RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion, run_index);
+        RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion);
         
         if (run_metrics.passed) {
             campaign_stats.passed_runs++;

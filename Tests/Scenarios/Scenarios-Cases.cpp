@@ -15,12 +15,12 @@ import TestHarness;
 
 namespace sim::test::scenarios {
 
-void rest(TestHarness& runner, std::float64_t)
+void rest(TestHarness& runner, std::float64_t, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-002", "Grounded rest (RPM = 0, servos = 0)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     runner.run(aircraft, 3.0);
 
     const AircraftState& s = aircraft.state();
@@ -30,12 +30,12 @@ void rest(TestHarness& runner, std::float64_t)
     runner.check(s.actual_rpm == 0.0, "zero effective RPM");
 }
 
-void climb(TestHarness& runner, std::float64_t hover_rpm)
+void climb(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-003", "Vertical climb (RPM = 1.1 x hover, servos = 0)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     aircraft.set_command({1.1 * hover_rpm, 0.0, 0.0});
     runner.run(aircraft, 6.0);
 
@@ -45,12 +45,12 @@ void climb(TestHarness& runner, std::float64_t hover_rpm)
     runner.check(s.actual_rpm > hover_rpm, "effective RPM above hover");
 }
 
-void descent(TestHarness& runner, std::float64_t hover_rpm)
+void descent(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-004", "Descent (climb then RPM = 0.6 x hover)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     runner.take_off(aircraft, hover_rpm);
     const std::float64_t topAltitude = aircraft.state().z;
 
@@ -63,12 +63,12 @@ void descent(TestHarness& runner, std::float64_t hover_rpm)
     runner.check(s.z == 0.0, "return to ground (clamped at z = 0)");
 }
 
-void move_x(TestHarness& runner, std::float64_t hover_rpm)
+void move_x(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-005", "Forward translation (hover + pitch > 0)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     runner.take_off(aircraft, hover_rpm);
 
     aircraft.set_command({hover_rpm, 10.0, 10.0});
@@ -81,12 +81,12 @@ void move_x(TestHarness& runner, std::float64_t hover_rpm)
     runner.check(s.y == 0.0 && s.vy == 0.0, "no lateral drift");
 }
 
-void move_y(TestHarness& runner, std::float64_t hover_rpm)
+void move_y(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-006", "Lateral translation (hover + roll > 0)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     runner.take_off(aircraft, hover_rpm);
 
     aircraft.set_command({hover_rpm, 12.0, -12.0});
@@ -99,12 +99,12 @@ void move_y(TestHarness& runner, std::float64_t hover_rpm)
     runner.check(s.x == 0.0 && s.vx == 0.0, "no longitudinal drift");
 }
 
-void combined(TestHarness& runner, std::float64_t hover_rpm)
+void combined(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-007", "Combined translation (RPM > hover, pitch > 0, roll < 0)");
     runner.log_header();
 
-    Aircraft aircraft;
+    Aircraft aircraft{dispersion};
     runner.take_off(aircraft, hover_rpm);
 
     aircraft.set_command({1.15 * hover_rpm, -5.0, 15.0});

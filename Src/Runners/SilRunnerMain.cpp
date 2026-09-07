@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         }
         else if (sim::test::ScenarioCatalog::find(scenarioId) != nullptr) {
             const Aircraft reference;
-            sim::test::ScenarioCatalog::find(scenarioId)->run(runner, reference.hover_rpm());
+            sim::test::ScenarioCatalog::find(scenarioId)->run(runner, reference.hover_rpm(), {});
         }
         else {
             std::cout << "Error: unknown scenario \"" << scenarioId << "\"." << std::endl;
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
         std::cout << "\n=== Physics and autonomous functional scenarios ===" << std::endl;
         const Aircraft reference;
         for (const sim::test::ScenarioEntry& entry : sim::test::ScenarioCatalog::all()) {
-            entry.run(runner, reference.hover_rpm());
+            entry.run(runner, reference.hover_rpm(), {});
         }
     }
 

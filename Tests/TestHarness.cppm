@@ -87,12 +87,23 @@ public:
     void take_off(Aircraft& aircraft, std::float64_t target_rpm);
     void reset();
 
+    void record_metrics(std::float64_t overshoot, std::float64_t settling_time,
+                        std::float64_t steady_state_error, std::float64_t max_acceleration);
+    [[nodiscard]] std::float64_t overshoot() const noexcept { return overshoot_; }
+    [[nodiscard]] std::float64_t settling_time() const noexcept { return settling_time_; }
+    [[nodiscard]] std::float64_t steady_state_error() const noexcept { return steady_state_error_; }
+    [[nodiscard]] std::float64_t max_acceleration() const noexcept { return max_acceleration_; }
+
 private:
     HarnessConfig  config_;
     std::uint32_t  failures_{0};
     std::float64_t current_time_{0.0};
     std::size_t    step_count_{0};
     std::string    context_;
+    std::float64_t overshoot_{0.0};
+    std::float64_t settling_time_{0.0};
+    std::float64_t steady_state_error_{0.0};
+    std::float64_t max_acceleration_{0.0};
 };
 
 }

@@ -47,6 +47,19 @@ void TestHarness::reset()
     failures_ = 0;
     current_time_ = 0.0;
     step_count_ = 0;
+    overshoot_ = 0.0;
+    settling_time_ = 0.0;
+    steady_state_error_ = 0.0;
+    max_acceleration_ = 0.0;
+}
+
+void TestHarness::record_metrics(std::float64_t overshoot, std::float64_t settling_time,
+                                 std::float64_t steady_state_error, std::float64_t max_acceleration)
+{
+    overshoot_ = overshoot;
+    settling_time_ = settling_time;
+    steady_state_error_ = steady_state_error;
+    max_acceleration_ = max_acceleration;
 }
 
 }

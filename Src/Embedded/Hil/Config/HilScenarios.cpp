@@ -50,38 +50,37 @@ namespace {
         return fault;
     }
 
-    const std::array<HilScenarioRecord, 6> kScenarios{{
-    {
+    const std::array<HilScenarioRecord, 5> kScenarios{{
+        {
             "NOMINAL-001",
             "Nominal station-keeping mission (no fault)",
             named("NOMINAL-001"),
-            sim::sil::FaultScenario{},
+            sim::sil::FaultScenario{}
         },
-    {
+        {
             "FAULT_INJECTOR-001",
             "FC1 failure during station keeping",
             named("FAULT_INJECTOR-001"),
-            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-001")),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-001"))
         },
-    {
+        {
             "FAULT_INJECTOR-002",
             "Communication loss during station keeping",
             named("FAULT_INJECTOR-002"),
-            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-002")),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-002"))
         },
-    {
+        {
             "FAULT_INJECTOR-003",
             "Altitude sensor fault (out of range) during station keeping",
             named("FAULT_INJECTOR-003"),
-            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-003")),
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-003"))
         },
-    {
+        {
             "FAULT_INJECTOR-004",
             "Main-rotor actuator degradation (efficiency 0.6) during station keeping",
             named("FAULT_INJECTOR-004"),
-            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-004")),
-        },
-    };
+            hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-004"))
+        }
     }};
 }
 

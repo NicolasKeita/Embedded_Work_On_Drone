@@ -108,6 +108,7 @@ target_link_libraries(HIL_RUNNER PRIVATE flight_sim_core)
 # ----------------------------------------------------------------------------
 add_executable(SIL_MONTE_CARLO Src/Runners/MonteCarloMain.cpp)
 target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${TEST_SIMULATION_FILES}
     ${VALIDATION_FILES}
 )
 project_target_setup(SIL_MONTE_CARLO)

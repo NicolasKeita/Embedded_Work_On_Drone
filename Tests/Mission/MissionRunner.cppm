@@ -38,6 +38,7 @@ struct MissionMetrics {
     std::float64_t overshoot_units = 0.0;
     std::float64_t steady_state_error = 0.0;
     std::float64_t final_error = 0.0;
+    std::float64_t max_acceleration = 0.0;
 
     [[nodiscard]] std::float64_t overshoot_percent() const noexcept;
 };
