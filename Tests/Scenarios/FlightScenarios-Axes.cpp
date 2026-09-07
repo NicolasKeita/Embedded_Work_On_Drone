@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Axes.cpp
-Description: Implementation of the autonomous axis scenarios (NOMINAL-001, NOMINAL-008, NOMINAL-009).
+Description: Implementation of the autonomous axis scenarios (NOMINAL-011, NOMINAL-008, NOMINAL-009).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -21,14 +21,14 @@ using sim::control::ControllerConfig;
 using sim::control::FlightController;
 
 /*
-NOMINAL-001: autonomous altitude loop from the ground up to 100 m;
+NOMINAL-011: autonomous altitude loop from the ground up to 100 m;
 measures the time to enter tolerance, the overshoot and the residual error.
 */
 void autonomous_altitude(TestHarness&                  runner,
                          std::float64_t                hover_rpm,
                          const sim::PhysicsDispersion& dispersion)
 {
-    runner.begin_scenario("NOMINAL-001", "Autonomous altitude hold (z: 0 -> 100 m)");
+    runner.begin_scenario("NOMINAL-011", "Autonomous altitude hold (z: 0 -> 100 m)");
     runner.log_header();
 
     FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};

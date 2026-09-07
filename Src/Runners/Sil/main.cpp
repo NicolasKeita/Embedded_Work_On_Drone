@@ -2,8 +2,8 @@
 Filename: Src/Runners/Sil/main.cpp
 Description: Entry point of SIL_RUNNER : deterministic software-in-the-loop test runner
 executing at maximum CPU speed. With no argument the usage helper is printed; --scenario
-selects one scenario (engine-level suite: NOMINAL-001, FAULT_INJECTOR-001..004; physics
-and autonomous catalog: NOMINAL-002..010) and --all sweeps every deterministic scenario.
+selects one scenario (NOMINAL-001..011, FAULT_INJECTOR-001..005) and --all sweeps every
+deterministic scenario.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

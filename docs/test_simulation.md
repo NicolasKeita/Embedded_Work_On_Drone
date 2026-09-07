@@ -13,10 +13,8 @@ Executable path: `build/SIL_RUNNER` (run as `SIL_RUNNER`).
 Usage: SIL_RUNNER [--scenario <id>] [--all] [-v | --verbose]
 - With no argument, the usage helper is printed: available options and the full
   pre-configured scenario catalog. Nothing is executed.
-- --scenario <id>   Run one scenario (engine suite: NOMINAL-001, FAULT_INJECTOR-001..004;
-  physics/autonomous: NOMINAL-002..010).
-- --all             Run the full deterministic sweep (SIL engine suite + physics/autonomous
-  catalog, in order).
+- --scenario <id>   Run one scenario (NOMINAL-001..011, FAULT_INJECTOR-001..005).
+- --all             Run the full deterministic sweep (every scenario, in order).
 - -v, --verbose     Per-step telemetry logging.
 - -h, --help        Show this help and exit.
 - Any unknown argument is rejected with an error and the usage is printed.
@@ -38,7 +36,7 @@ SIL_RUNNER --scenario NOMINAL-001
 SIL_RUNNER --scenario FAULT_INJECTOR-001
 
 # A single autonomous scenario
-SIL_RUNNER --scenario NOMINAL-001
+SIL_RUNNER --scenario NOMINAL-011
 ```
 
 ## Available scenarios
@@ -51,10 +49,10 @@ SIL_RUNNER --scenario NOMINAL-001
 | `NOMINAL-005` | Forward translation (hover + pitch > 0) | `scenarios::move_x` |
 | `NOMINAL-006` | Lateral translation (hover + roll > 0) | `scenarios::move_y` |
 | `NOMINAL-007` | Combined translation (RPM > hover, pitch > 0, roll < 0) | `scenarios::combined` |
-| `NOMINAL-001` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
 | `NOMINAL-008` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
 | `NOMINAL-009` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
 | `NOMINAL-010` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
+| `NOMINAL-011` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
 
 ### Physics scenarios (NOMINAL-002 – NOMINAL-007)
 
@@ -68,14 +66,14 @@ motor and servo commands.
 - **NOMINAL-006 — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
 - **NOMINAL-007 — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
 
-### Autonomous mission scenarios (NOMINAL-001, NOMINAL-008 – NOMINAL-010)
+### Autonomous mission scenarios (NOMINAL-008 – NOMINAL-011)
 
 Closed-loop scenarios driving the flight controller.
 
-- **NOMINAL-001 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
 - **NOMINAL-008 — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
 - **NOMINAL-009 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
 - **NOMINAL-010 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
+- **NOMINAL-011 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
 
 ## Execution conditions
 
@@ -95,8 +93,8 @@ Closed-loop scenarios driving the flight controller.
 
 `SIL_RUNNER` validates the robustness of the system against faults
 (Software-in-the-Loop) and executes the deterministic physics/autonomous catalog.
-Scenario IDs follow the standardised taxonomy (NOMINAL-xxx, FAULT_INJECTOR-xxx,
-NOMINAL-xxx, FAULT_INJECTOR-xxx) and are paired with each ID in the
+Scenario IDs follow the standardised taxonomy (NOMINAL-xxx, FAULT_INJECTOR-xxx) and are
+paired with each ID in the
 logs (e.g. `[NOMINAL-001][SIL]`, `[FAULT_INJECTOR-001][SIL]`). The HIL suite lives in
 `HIL_RUNNER --selftest`.
 
@@ -129,7 +127,7 @@ The following scenarios are executed:
 
 An additional SIL scenario is also available:
 
-- **FAULT_INJECTOR-001 [SIL] — FC1 failure during the climb transition**
+- **FAULT_INJECTOR-005 [SIL] — FC1 failure during the climb transition**
   - **Description**: An FC1 failure is injected during the climb mode-change transition, exercising the safety chain across a mode switch rather than during steady station keeping.
   - **Expectations**: The failure must be detected through the heartbeat timeout, `SAFE_MODE` must be engaged within the required latency, and the mission must be aborted.
 

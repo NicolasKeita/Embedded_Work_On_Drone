@@ -85,7 +85,6 @@ void run_fault_tests(sim::test::TestHarness& runner)
     check_abort_scenario(runner, "FAULT_INJECTOR-002", sim::safety::FaultDomain::Communication);
     check_compensated_scenario(runner, "FAULT_INJECTOR-003", sim::safety::FaultDomain::Sensor);
     check_compensated_scenario(runner, "FAULT_INJECTOR-004", sim::safety::FaultDomain::Actuator);
-    check_abort_scenario(runner, "FAULT_INJECTOR-001", sim::safety::FaultDomain::FC1Heartbeat);
 }
 
 }

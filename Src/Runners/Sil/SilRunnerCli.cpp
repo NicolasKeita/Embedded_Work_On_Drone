@@ -1,5 +1,5 @@
 /*
-Filename: Src/Runners/Sil/SilRunnerCli-Parse.cpp
+Filename: Src/Runners/Sil/SilRunnerCli.cpp
 Description: Option parsing and usage printing of the SIL_RUNNER command line.
 
 Copyright (c) 2026 Nicolas K.
@@ -67,7 +67,22 @@ CliOptions parse_cli(int argc, char* argv[])
     return options;
 }
 
-/* Prints the usage banner and the full deterministic scenario catalog. */
+/* Prints every catalog scenario whose standardised ID belongs to the given family. */
+void print_scenario_family(std::string_view familyPrefix)
+{
+    for (const SilScenarioEntry& entry : sil_scenarios()) {
+        if (entry.id.starts_with(familyPrefix)) {
+            std::cout << "  " << entry.id << " : " << entry.description << std::endl;
+        }
+    }
+    for (const sim::test::ScenarioEntry& entry : sim::test::ScenarioCatalog::all()) {
+        if (entry.id.starts_with(familyPrefix)) {
+            std::cout << "  " << entry.id << " : " << entry.description << std::endl;
+        }
+    }
+}
+
+/* Prints the usage banner and the full scenario catalog grouped by family. */
 void print_usage(std::string_view executableName)
 {
     std::cout << "SIL runner: deterministic software-in-the-loop execution at maximum CPU speed." << std::endl;
@@ -78,14 +93,10 @@ void print_usage(std::string_view executableName)
     std::cout << "  -v, --verbose    Per-step telemetry logging." << std::endl;
     std::cout << "  -h, --help       Show this help." << std::endl;
     std::cout << std::endl;
-    std::cout << "SIL engine scenarios:" << std::endl;
-    for (const SilScenarioEntry& entry : sil_scenarios()) {
-        std::cout << "  " << entry.id << " : " << entry.description << std::endl;
-    }
-    std::cout << "Physics and autonomous scenarios:" << std::endl;
-    for (const sim::test::ScenarioEntry& entry : sim::test::ScenarioCatalog::all()) {
-        std::cout << "  " << entry.id << " : " << entry.description << std::endl;
-    }
+    std::cout << "NOMINAL scenarios:" << std::endl;
+    print_scenario_family("NOMINAL");
+    std::cout << "FAULT_INJECTOR scenarios:" << std::endl;
+    print_scenario_family("FAULT_INJECTOR");
 }
 
 }

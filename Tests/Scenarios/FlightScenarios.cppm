@@ -20,7 +20,7 @@ import TestHarness;
 
 export namespace sim::test::flight_scenarios {
 
-// NOMINAL-001: autonomous altitude loop, convergence towards z = 100 m with metrics.
+// NOMINAL-011: autonomous altitude loop, convergence towards z = 100 m with metrics.
 void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion = {});
 
 // NOMINAL-008: cascaded X position -> pitch -> servos, return from x = 20 m to x = 0.
