@@ -30,7 +30,6 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const Missi
     const std::float64_t initial_value = component_value(craft.state(), run.axis);
     const std::float64_t direction = target_value >= initial_value ? 1.0 : -1.0;
 
-    // Set dispersion on aircraft for this run
     craft.set_dispersion(dispersion);
 
     trace.metrics.initial_gap = std::abs(target_value - initial_value);

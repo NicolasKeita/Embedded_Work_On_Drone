@@ -41,7 +41,6 @@ void TestHarness::check(bool condition, std::string_view label)
     }
 }
 
-// Fully resets the runner state: failure counter, simulated time and steps.
 void TestHarness::reset()
 {
     failures_ = 0;

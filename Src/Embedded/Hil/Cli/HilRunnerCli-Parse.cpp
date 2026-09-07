@@ -17,95 +17,132 @@ namespace sim::hil {
 namespace {
     /*
     Exception-free numeric view extraction: returns the argument converted with
-    std::from_chars, or std::nullopt when the value is missing or malformed.
+    std::from_chars, or std::errc when the value is missing or malformed.
     */
     template<typename Number>
-    [[nodiscard]] std::optional<Number> parse_number(std::string_view text)
+    [[nodiscard]] std::expected<Number, std::errc> parse_number(std::string_view text)
     {
         Number value{};
         const std::from_chars_result result =
             std::from_chars(text.data(), text.data() + text.size(), value);
-        if (result.ec != std::errc{} || result.ptr != text.data() + text.size()) {
-            return std::nullopt;
+        if (result.ec != std::errc{}) {
+            return std::unexpected(result.ec);
+        }
+        if (result.ptr != text.data() + text.size()) {
+            return std::unexpected(std::errc::invalid_argument);
         }
         return value;
     }
 
     /*
-    Reads the value of a "--option value" pair; reports and flags the options
-    as invalid when the value is missing.
+    Reads the value of a "--option value" pair and reports a missing value.
     */
-    std::optional<std::string> value_of(int argc, char** argv, int& i, std::string_view label, HilCliOptions& options)
+    [[nodiscard]] std::expected<std::string, std::string> value_of(int argc, char** argv, int index,
+                                                                    std::string_view label)
     {
-        if (i + 1 >= argc) {
-            std::cerr << "missing value for " << label << "\n";
-            options.invalid = true;
-            return std::nullopt;
+        if (index + 1 >= argc) {
+            return std::unexpected(std::format("missing value for {}", label));
         }
-        return std::string{argv[++i]};
+        return std::string{argv[index + 1]};
     }
 
-    void apply_float_option(std::optional<std::float64_t>& field, const std::string& raw,
-                            std::string_view label, HilCliOptions& options)
+    [[nodiscard]] std::expected<void, std::string> apply_float_option(std::optional<std::float64_t>& field,
+                                                                       const std::string& raw,
+                                                                       std::string_view label)
     {
-        const std::optional<std::float64_t> value = parse_number<std::float64_t>(raw);
+        const std::expected<std::float64_t, std::errc> value = parse_number<std::float64_t>(raw);
         if (!value.has_value()) {
-            std::cerr << "invalid numeric value for " << label << ": " << raw << "\n";
-            options.invalid = true;
-            return;
+            return std::unexpected(std::format("invalid numeric value for {}: {}", label, raw));
         }
-        field = value;
+        field = value.value();
+        return {};
     }
 
-    void apply_seed_option(HilCliOptions& options, const std::string& raw)
+    [[nodiscard]] std::expected<void, std::string> apply_seed_option(HilCliOptions& options,
+                                                                      const std::string& raw)
     {
-        const std::optional<std::uint64_t> value = parse_number<std::uint64_t>(raw);
+        const std::expected<std::uint64_t, std::errc> value = parse_number<std::uint64_t>(raw);
         if (!value.has_value()) {
-            std::cerr << "invalid seed value: " << raw << "\n";
-            options.invalid = true;
-            return;
+            return std::unexpected(std::format("invalid seed value: {}", raw));
         }
-        options.seed = value;
+        options.seed = value.value();
+        return {};
     }
 
-    bool apply_value_option(HilCliOptions& options, const std::string& arg, int argc, char** argv, int& i)
+    [[nodiscard]] std::expected<void, std::string> apply_string_option(std::string& field,
+                                                                        int argc,
+                                                                        char** argv,
+                                                                        int& i,
+                                                                        std::string_view label)
+    {
+        const auto value = value_of(argc, argv, i, label);
+        if (!value.has_value()) { return std::unexpected(value.error()); }
+        field = value.value();
+        ++i;
+        return {};
+    }
+
+    [[nodiscard]] std::expected<void, std::string> apply_float_argument(std::optional<std::float64_t>& field,
+                                                                          int argc,
+                                                                          char** argv,
+                                                                          int& i,
+                                                                          std::string_view label)
+    {
+        const auto value = value_of(argc, argv, i, label);
+        if (!value.has_value()) { return std::unexpected(value.error()); }
+        ++i;
+        const auto applied = apply_float_option(field, value.value(), label);
+        if (!applied.has_value()) { return std::unexpected(applied.error()); }
+        return {};
+    }
+
+    [[nodiscard]] std::expected<void, std::string> apply_seed_argument(HilCliOptions& options,
+                                                                         int argc,
+                                                                         char** argv,
+                                                                         int& i)
+    {
+        const auto value = value_of(argc, argv, i, "--seed");
+        if (!value.has_value()) { return std::unexpected(value.error()); }
+        ++i;
+        const auto applied = apply_seed_option(options, value.value());
+        if (!applied.has_value()) { return std::unexpected(applied.error()); }
+        return {};
+    }
+
+    [[nodiscard]] std::expected<void, std::string> apply_value_option(HilCliOptions& options,
+                                                                       const std::string& arg,
+                                                                       int argc,
+                                                                       char** argv,
+                                                                       int& i)
     {
         if (arg == "--scenario") {
-            if (const auto v = value_of(argc, argv, i, "--scenario", options)) { options.scenario_id = *v; }
+            return apply_string_option(options.scenario_id, argc, argv, i, "--scenario");
         }
         else if (arg == "--interface") {
-            if (const auto v = value_of(argc, argv, i, "--interface", options)) { options.interface_name = *v; }
+            return apply_string_option(options.interface_name, argc, argv, i, "--interface");
         }
         else if (arg == "--duration") {
-            if (const auto v = value_of(argc, argv, i, "--duration", options)) {
-                apply_float_option(options.duration, *v, "--duration", options);
-            }
+            return apply_float_argument(options.duration, argc, argv, i, "--duration");
         }
         else if (arg == "--telemetry-period") {
-            if (const auto v = value_of(argc, argv, i, "--telemetry-period", options)) {
-                apply_float_option(options.telemetry_period, *v, "--telemetry-period", options);
-            }
+            return apply_float_argument(options.telemetry_period, argc, argv, i, "--telemetry-period");
         }
         else if (arg == "--seed") {
-            if (const auto v = value_of(argc, argv, i, "--seed", options)) { apply_seed_option(options, *v); }
+            return apply_seed_argument(options, argc, argv, i);
         }
         else if (arg == "--noise") {
-            if (const auto v = value_of(argc, argv, i, "--noise", options)) {
-                apply_float_option(options.noise, *v, "--noise", options);
-            }
+            return apply_float_argument(options.noise, argc, argv, i, "--noise");
         }
         else if (arg == "--clock") {
-            if (const auto v = value_of(argc, argv, i, "--clock", options)) { options.clock_name = *v; }
+            return apply_string_option(options.clock_name, argc, argv, i, "--clock");
         }
         else if (arg == "--deadline") {
-            if (const auto v = value_of(argc, argv, i, "--deadline", options)) { options.deadline_name = *v; }
+            return apply_string_option(options.deadline_name, argc, argv, i, "--deadline");
         }
         else {
-            std::cerr << "unknown option: " << arg << "\n";
-            options.invalid = true;
-            return false;
+            return std::unexpected(std::format("unknown option: {}", arg));
         }
-        return true;
+        return {};
     }
 }
 
@@ -129,7 +166,11 @@ HilCliOptions parse_hil_cli(int argc, char** argv)
             return options;
         }
         else {
-            apply_value_option(options, arg, argc, argv, i);
+            const auto result = apply_value_option(options, arg, argc, argv, i);
+            if (!result.has_value()) {
+                std::cerr << result.error() << "\n";
+                options.invalid = true;
+            }
         }
     }
     return options;

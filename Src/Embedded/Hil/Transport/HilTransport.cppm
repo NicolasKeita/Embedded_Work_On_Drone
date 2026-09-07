@@ -22,6 +22,10 @@ import Transport;
 
 export namespace sim::hil {
 
+enum class FrameAcceptanceError : std::uint8_t {
+    NotActuatorFrame
+};
+
 using FlightCore::Transport::ActuatorDiagnostics;
 
 enum class ReceiveResult {
@@ -83,15 +87,16 @@ public:
     [[nodiscard]] const HilCommStats& stats() const noexcept;
 
 private:
-    /* Validates one complete actuator frame and fills the outputs; std::nullopt = keep draining. */
-    [[nodiscard]] std::optional<ReceiveResult> accept_frame(const FlightCore::Transport::HilHeader& header,
-                                                              std::uint16_t expected_sequence,
-                                                              std::uint64_t expected_echo_sim_us,
-                                                              std::uint64_t sensor_send_wall_us,
-                                                              std::uint64_t receive_wall,
-                                                              FlightCore::HAL::ActuatorCommands& out_cmds,
-                                                              FlightCore::Transport::ActuatorDiagnostics& out_diag,
-                                                              std::int64_t& out_rtt_us);
+    /* Validates one complete actuator frame and fills the outputs. */
+    [[nodiscard]] std::expected<ReceiveResult, FrameAcceptanceError> accept_frame(
+        const FlightCore::Transport::HilHeader& header,
+        std::uint16_t expected_sequence,
+        std::uint64_t expected_echo_sim_us,
+        std::uint64_t sensor_send_wall_us,
+        std::uint64_t receive_wall,
+        FlightCore::HAL::ActuatorCommands& out_cmds,
+        FlightCore::Transport::ActuatorDiagnostics& out_diag,
+        std::int64_t& out_rtt_us);
 
     FlightCore::Transport::ITransport*                           channel_;
     FlightCore::Transport::HilFrameParser                        parser_{};

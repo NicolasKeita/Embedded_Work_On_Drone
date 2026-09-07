@@ -50,9 +50,9 @@ and reports ([NOMINAL-001][SIL], [FAULT_INJECTOR-001][HIL]).
 
 /*
 Parses the --target=<name> argument (case-insensitive) into a RunTarget; returns
-std::nullopt when the name is not a recognised execution target.
+    std::errc::invalid_argument when the name is not a recognised execution target.
 */
-[[nodiscard]] std::optional<RunTarget> parse_run_target(std::string_view name) noexcept;
+[[nodiscard]] std::expected<RunTarget, std::errc> parse_run_target(std::string_view name) noexcept;
 
 struct HarnessConfig {
     std::float64_t dt{0.01};

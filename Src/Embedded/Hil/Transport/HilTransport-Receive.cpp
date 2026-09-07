@@ -34,18 +34,19 @@ namespace {
     }
 }
 
-std::optional<ReceiveResult> HilTransport::accept_frame(const FlightCore::Transport::HilHeader& header,
-                                                        std::uint16_t expected_sequence,
-                                                        std::uint64_t expected_echo_sim_us,
-                                                        std::uint64_t sensor_send_wall_us,
-                                                        std::uint64_t receive_wall,
-                                                        FlightCore::HAL::ActuatorCommands& out_cmds,
-                                                        FlightCore::Transport::ActuatorDiagnostics& out_diag,
-                                                        std::int64_t& out_rtt_us)
+std::expected<ReceiveResult, FrameAcceptanceError> HilTransport::accept_frame(
+    const FlightCore::Transport::HilHeader& header,
+    std::uint16_t expected_sequence,
+    std::uint64_t expected_echo_sim_us,
+    std::uint64_t sensor_send_wall_us,
+    std::uint64_t receive_wall,
+    FlightCore::HAL::ActuatorCommands& out_cmds,
+    FlightCore::Transport::ActuatorDiagnostics& out_diag,
+    std::int64_t& out_rtt_us)
 {
     if (header.msg_id != FlightCore::Transport::kMsgIdActuator) {
         stats_.record_dropped();
-        return std::nullopt;
+        return std::unexpected(FrameAcceptanceError::NotActuatorFrame);
     }
     if (header.sequence_num != expected_sequence) {
         stats_.record_sequence_error();
@@ -96,12 +97,12 @@ ReceiveResult HilTransport::receiveActuator(IWallClock&                         
                 FlightCore::Transport::HilHeader header{};
                 const std::uint64_t rejected_before = parser_.rejectedFrames();
                 if (parser_.processByte(rx[i], header, payload_buffer_)) {
-                    const std::optional<ReceiveResult> accepted =
+                    const std::expected<ReceiveResult, FrameAcceptanceError> accepted =
                         accept_frame(header, expected_sequence, expected_echo_sim_us, sensor_send_wall_us,
                                      clock.nowUs(), out_cmds, out_diag,
                                      out_rtt_us);
                     if (accepted.has_value()) {
-                        return *accepted;
+                        return accepted.value();
                     }
                 }
                 else if (parser_.rejectedFrames() > rejected_before) {

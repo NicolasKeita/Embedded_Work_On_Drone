@@ -31,37 +31,42 @@ namespace
         bool          invalid = false;
     };
 
-    std::optional<std::uint64_t> parse_unsigned(std::string_view text)
+    [[nodiscard]] std::expected<std::uint64_t, std::errc> parse_unsigned(std::string_view text)
     {
         std::uint64_t value = 0;
         const std::from_chars_result result =
             std::from_chars(text.data(), text.data() + text.size(), value);
-        if (result.ec != std::errc{} || result.ptr != text.data() + text.size()) {
-            return std::nullopt;
+        if (result.ec != std::errc{}) {
+            return std::unexpected(result.ec);
+        }
+        if (result.ptr != text.data() + text.size()) {
+            return std::unexpected(std::errc::invalid_argument);
         }
         return value;
     }
 
-    void apply_unsigned_uint64(std::uint64_t& field, std::string_view raw, std::string_view label, CliOptions& options)
+    [[nodiscard]] std::expected<void, std::string> apply_unsigned_uint64(std::uint64_t& field,
+                                                                          std::string_view raw,
+                                                                          std::string_view label)
     {
-        const std::optional<std::uint64_t> value = parse_unsigned(raw);
+        const std::expected<std::uint64_t, std::errc> value = parse_unsigned(raw);
         if (!value.has_value()) {
-            std::cerr << "Error: invalid value for " << label << ": " << raw << std::endl;
-            options.invalid = true;
-            return;
+            return std::unexpected(std::format("Error: invalid value for {}: {}", label, raw));
         }
-        field = *value;
+        field = value.value();
+        return {};
     }
 
-    void apply_unsigned_uint32(std::uint32_t& field, std::string_view raw, std::string_view label, CliOptions& options)
+    [[nodiscard]] std::expected<void, std::string> apply_unsigned_uint32(std::uint32_t& field,
+                                                                          std::string_view raw,
+                                                                          std::string_view label)
     {
-        const std::optional<std::uint64_t> value = parse_unsigned(raw);
+        const std::expected<std::uint64_t, std::errc> value = parse_unsigned(raw);
         if (!value.has_value()) {
-            std::cerr << "Error: invalid value for " << label << ": " << raw << std::endl;
-            options.invalid = true;
-            return;
+            return std::unexpected(std::format("Error: invalid value for {}: {}", label, raw));
         }
-        field = static_cast<std::uint32_t>(*value);
+        field = static_cast<std::uint32_t>(value.value());
+        return {};
     }
 
     CliOptions parse_cli(int argc, char* argv[])
@@ -83,7 +88,11 @@ namespace
                     return options;
                 }
                 ++index;
-                apply_unsigned_uint64(options.seed, argv[index] != nullptr ? argv[index] : "", "--seed", options);
+                const auto result = apply_unsigned_uint64(options.seed, argv[index] != nullptr ? argv[index] : "", "--seed");
+                if (!result.has_value()) {
+                    std::cerr << result.error() << std::endl;
+                    options.invalid = true;
+                }
                 continue;
             }
             if (argument == "--runs") {
@@ -93,7 +102,11 @@ namespace
                     return options;
                 }
                 ++index;
-                apply_unsigned_uint32(options.runs, argv[index] != nullptr ? argv[index] : "", "--runs", options);
+                const auto result = apply_unsigned_uint32(options.runs, argv[index] != nullptr ? argv[index] : "", "--runs");
+                if (!result.has_value()) {
+                    std::cerr << result.error() << std::endl;
+                    options.invalid = true;
+                }
                 continue;
             }
             if (argument == "--scenario") {

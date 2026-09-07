@@ -58,7 +58,6 @@ namespace
                   << " s -> " << mission_state_name(current) << std::endl;
     }
 
-    // True when the run may stop: vehicle airborne and holding the target zone.
     bool zone_reached(const MissionRunRequest& run, MissionState state, const AircraftState& s)
     {
         const bool airborne = state != MissionState::TAKEOFF && state != MissionState::CLIMB;

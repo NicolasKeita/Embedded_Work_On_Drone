@@ -48,7 +48,7 @@ std::string_view run_target_tag(RunTarget target) noexcept
     return "SIM";
 }
 
-std::optional<RunTarget> parse_run_target(std::string_view name) noexcept
+std::expected<RunTarget, std::errc> parse_run_target(std::string_view name) noexcept
 {
     std::string            lowered;
     const std::string_view normalised = lower_ascii(name, lowered);
@@ -62,7 +62,7 @@ std::optional<RunTarget> parse_run_target(std::string_view name) noexcept
     if (normalised == "sim" || normalised == "simulation" || normalised == "physics") {
         return RunTarget::Simulation;
     }
-    return std::nullopt;
+    return std::unexpected(std::errc::invalid_argument);
 }
 
 }
