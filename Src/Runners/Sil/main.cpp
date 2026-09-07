@@ -25,12 +25,13 @@ namespace
     */
     int execute_runs(const sim::test::sil::CliOptions& options,
                      sim::test::TestHarness&           runner,
-                     std::string_view                  executableName)
+                     std::string_view                  executableName,
+                     std::float64_t                     telemetryPeriodS)
     {
         if (options.scenario.has_value()) {
             const std::string& scenarioId = *options.scenario;
             if (sim::test::sil::find_sil_scenario(scenarioId) != nullptr) {
-                sim::test::sil::run_sil_scenario(scenarioId, runner);
+                sim::test::sil::run_sil_scenario(scenarioId, runner, telemetryPeriodS);
                 return 0;
             }
             if (sim::test::ScenarioCatalog::find(scenarioId) != nullptr) {
@@ -53,6 +54,21 @@ namespace
             entry.run(runner, reference.hover_rpm(), {});
         }
         return 0;
+    }
+
+    /* Prints the final verdict line (single scenario named or full sweep) and returns 0/1. */
+    int print_verdict(const sim::test::sil::CliOptions& options, const sim::test::TestHarness& runner)
+    {
+        const std::string subject = options.scenario.has_value()
+                                        ? "scenario " + *options.scenario
+                                        : "all executed scenarios";
+        std::cout << "\n>>> SIL_RUNNER: " << subject << ' ';
+        if (runner.passed()) {
+            std::cout << "passed." << std::endl;
+            return 0;
+        }
+        std::cout << "failed (" << runner.failure_count() << " verification(s) failed)." << std::endl;
+        return 1;
     }
 }
 
@@ -92,14 +108,9 @@ int main(int argc, char* argv[])
         .dt = kSimulationTimeStepS, .log_interval_steps = logIntervalSteps, .target = sim::test::RunTarget::SIL};
     sim::test::TestHarness runner{harnessConfig};
 
-    const int outcome = execute_runs(options, runner, executableName);
+    const int outcome = execute_runs(options, runner, executableName, telemetryPeriodS);
     if (outcome != 0) {
         return outcome;
     }
-    if (runner.passed()) {
-        std::cout << "\n>>> SIL_RUNNER: all executed scenarios passed." << std::endl;
-        return 0;
-    }
-    std::cout << "\n>>> SIL_RUNNER: " << runner.failure_count() << " verification(s) failed." << std::endl;
-    return 1;
+    return print_verdict(options, runner);
 }

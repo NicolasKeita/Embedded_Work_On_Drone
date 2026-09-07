@@ -21,7 +21,7 @@ using sim::sil::ScenarioRecord;
 using sim::sil::SilError;
 using sim::sil::SilRunOutput;
 
-bool run_sil_scenario(std::string_view id, TestHarness& runner)
+bool run_sil_scenario(std::string_view id, TestHarness& runner, std::float64_t telemetry_report_interval_s)
 {
     const SilScenarioEntry* entry = find_sil_scenario(id);
 
@@ -32,6 +32,9 @@ bool run_sil_scenario(std::string_view id, TestHarness& runner)
     SilRunOutput   output{};
     ScenarioRecord record{};
     entry->run(runner, output, record);
+
+    std::cout << "\n--- Mission telemetry (period " << telemetry_report_interval_s << " s) ---\n";
+    sim::sil::write_telemetry_table(std::cout, record.telemetry, telemetry_report_interval_s);
     return true;
 }
 
