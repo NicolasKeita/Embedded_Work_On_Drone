@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Axes.cpp
-Description: Implementation of the autonomous axis scenarios (MONTE_CARLO-001 to MONTE_CARLO-003).
+Description: Implementation of the autonomous axis scenarios (NOMINAL-001, NOMINAL-008, NOMINAL-009).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -21,12 +21,12 @@ using sim::control::ControllerConfig;
 using sim::control::FlightController;
 
 /*
-MONTE_CARLO-001: autonomous altitude loop from the ground up to 100 m;
+NOMINAL-001: autonomous altitude loop from the ground up to 100 m;
 measures the time to enter tolerance, the overshoot and the residual error.
 */
 void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("MONTE_CARLO-001", "Autonomous altitude hold (z: 0 -> 100 m)");
+    runner.begin_scenario("NOMINAL-001", "Autonomous altitude hold (z: 0 -> 100 m)");
     runner.log_header();
 
     FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}};
@@ -45,12 +45,12 @@ void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm)
 }
 
 /*
-MONTE_CARLO-002: cascaded X position -> pitch -> servos. Phase 1:
+NOMINAL-008: cascaded X position -> pitch -> servos. Phase 1:
 rendezvous with point (20, 0, 100), phase 2: return of x to 0 with metrics tracking.
 */
 void autonomous_position_x(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("MONTE_CARLO-002", "Autonomous cascaded X axis (x: 20 -> 0 m)");
+    runner.begin_scenario("NOMINAL-008", "Autonomous cascaded X axis (x: 20 -> 0 m)");
     runner.log_header();
 
     FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}};
@@ -71,12 +71,12 @@ void autonomous_position_x(TestHarness& runner, std::float64_t hover_rpm)
 }
 
 /*
-MONTE_CARLO-003: cascaded Y position -> roll -> servos. Phase 1:
+NOMINAL-009: cascaded Y position -> roll -> servos. Phase 1:
 rendezvous with point (0, -15, 100), phase 2: return of y to 0 with metrics tracking.
 */
 void autonomous_position_y(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("MONTE_CARLO-003", "Autonomous cascaded Y axis (y: -15 -> 0 m)");
+    runner.begin_scenario("NOMINAL-009", "Autonomous cascaded Y axis (y: -15 -> 0 m)");
     runner.log_header();
 
     FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}};

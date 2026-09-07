@@ -13,6 +13,7 @@ All rights reserved.
 export module Aircraft;
 
 import std;
+import PhysicsDispersion;
 
 export struct ControlCommand
 {
@@ -50,17 +51,23 @@ export struct AircraftState
 export class Aircraft
 {
 public:
+    Aircraft() = default;
+    explicit Aircraft(const sim::PhysicsDispersion& dispersion);
+
     void update(std::float64_t dt);
     void set_command(const ControlCommand& cmd);
+    void set_dispersion(const sim::PhysicsDispersion& dispersion);
 
     [[nodiscard]] const AircraftState& state() const;
     [[nodiscard]] std::float64_t hover_rpm() const;
+    [[nodiscard]] const sim::PhysicsDispersion& dispersion() const;
 
 private:
     void update_actuators();
     void update_attitude(std::float64_t dt);
     void update_translation(std::float64_t dt);
 
-    AircraftState  state_{};
-    ControlCommand command_{};
+    AircraftState       state_{};
+    ControlCommand      command_{};
+    sim::PhysicsDispersion   dispersion_{};
 };

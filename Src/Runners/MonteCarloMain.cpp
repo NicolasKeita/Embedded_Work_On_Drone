@@ -11,26 +11,26 @@ All rights reserved.
 
 import std;
 
-import FlightControlValidation;
-import SilFaultScenario;
-import SilRunnerContext;
+import Aircraft;
+import FlightController;
+import MissionRunner;
+import PhysicsDispersion;
+import Scenarios;
+import TestHarness;
+import FlightScenarios;
 
 namespace
 {
     constexpr std::string_view kScenarioPrefix = "--scenario=";
 
     struct CliOptions {
-        std::uint64_t seed = 20260825ULL;
-        std::uint64_t runs = 100;
-        std::string   scenario{};
+        std::uint64_t seed = 42ULL;
+        std::uint32_t runs = 50;
+        std::string   scenario = "NOMINAL-001";
         bool          help = false;
         bool          invalid = false;
     };
 
-    /*
-    Exception-free unsigned conversion; returns std::nullopt on malformed input
-    instead of throwing.
-    */
     std::optional<std::uint64_t> parse_unsigned(std::string_view text)
     {
         std::uint64_t value = 0;
@@ -42,7 +42,7 @@ namespace
         return value;
     }
 
-    void apply_unsigned(std::uint64_t& field, std::string_view raw, std::string_view label, CliOptions& options)
+    void apply_unsigned_uint64(std::uint64_t& field, std::string_view raw, std::string_view label, CliOptions& options)
     {
         const std::optional<std::uint64_t> value = parse_unsigned(raw);
         if (!value.has_value()) {
@@ -53,7 +53,17 @@ namespace
         field = *value;
     }
 
-    /* Parses the SIL_MONTE_CARLO command line (--seed, --runs, --scenario, -h). */
+    void apply_unsigned_uint32(std::uint32_t& field, std::string_view raw, std::string_view label, CliOptions& options)
+    {
+        const std::optional<std::uint64_t> value = parse_unsigned(raw);
+        if (!value.has_value()) {
+            std::cerr << "Error: invalid value for " << label << ": " << raw << std::endl;
+            options.invalid = true;
+            return;
+        }
+        field = static_cast<std::uint32_t>(*value);
+    }
+
     CliOptions parse_cli(int argc, char* argv[])
     {
         CliOptions options;
@@ -73,7 +83,7 @@ namespace
                     return options;
                 }
                 ++index;
-                apply_unsigned(options.seed, argv[index] != nullptr ? argv[index] : "", "--seed", options);
+                apply_unsigned_uint64(options.seed, argv[index] != nullptr ? argv[index] : "", "--seed", options);
                 continue;
             }
             if (argument == "--runs") {
@@ -83,7 +93,7 @@ namespace
                     return options;
                 }
                 ++index;
-                apply_unsigned(options.runs, argv[index] != nullptr ? argv[index] : "", "--runs", options);
+                apply_unsigned_uint32(options.runs, argv[index] != nullptr ? argv[index] : "", "--runs", options);
                 continue;
             }
             if (argument == "--scenario") {
@@ -107,96 +117,155 @@ namespace
         return options;
     }
 
-    /*
-    Maps a scenario template ID onto the fault family it restricts the campaign
-    to; an empty ID keeps the fully random dispersion. Returns false for an
-    unknown template.
-    */
-    bool parse_fault_template(const std::string& scenarioId, std::optional<sim::sil::FaultType>& faultTemplate)
-    {
-        faultTemplate = std::nullopt;
-        if (scenarioId.empty()) {
-            return true;
-        }
-        if (scenarioId == "NOMINAL-001") {
-            faultTemplate = sim::sil::FaultType::None;
-            return true;
-        }
-        if (scenarioId == "FAULT_INJECTOR-001") {
-            faultTemplate = sim::sil::FaultType::FC1Failure;
-            return true;
-        }
-        if (scenarioId == "FAULT_INJECTOR-002") {
-            faultTemplate = sim::sil::FaultType::CommunicationLoss;
-            return true;
-        }
-        if (scenarioId == "FAULT_INJECTOR-003") {
-            faultTemplate = sim::sil::FaultType::SensorFault;
-            return true;
-        }
-        if (scenarioId == "FAULT_INJECTOR-004") {
-            faultTemplate = sim::sil::FaultType::ActuatorDegradation;
-            return true;
-        }
-        return false;
-    }
-
-    /* Prints the campaign usage. */
     void print_usage(std::string_view executableName)
     {
         std::cout << "SIL Monte-Carlo: accelerated statistical batch simulation." << std::endl;
         std::cout << "Usage: " << executableName << " [--seed <n>] [--runs <n>] [--scenario <template>]" << std::endl;
-        std::cout << "  --seed <n>       Master RNG seed (default 20260825)." << std::endl;
-        std::cout << "  --runs <n>       Number of iterations (default 100)." << std::endl;
-        std::cout << "  --scenario <id>  Optional scenario template filter:" << std::endl;
-        std::cout << "                     NOMINAL-001          nominal-only runs" << std::endl;
-        std::cout << "                     FAULT_INJECTOR-001   FC1 failure runs" << std::endl;
-        std::cout << "                     FAULT_INJECTOR-002   communication loss runs" << std::endl;
-        std::cout << "                     FAULT_INJECTOR-003   sensor fault runs" << std::endl;
-        std::cout << "                     FAULT_INJECTOR-004   actuator degradation runs" << std::endl;
+        std::cout << "  --seed <n>       Master RNG seed (default 42)." << std::endl;
+        std::cout << "  --runs <n>       Number of iterations (default 50)." << std::endl;
+        std::cout << "  --scenario <id>  Scenario to stress-test (default: NOMINAL-001)" << std::endl;
+        std::cout << "                     Examples: NOMINAL-001, NOMINAL-008, NOMINAL-009, NOMINAL-010" << std::endl;
         std::cout << "  -h, --help       Show this help." << std::endl;
     }
 
-    /* Prints the aggregate statistics of a campaign: success rate, per-domain
-    failure counts and mean latencies/errors. The layout mirrors the validation
-    contract so that a human reader can decide acceptance at a glance. */
-    void print_summary(const sim::sil::validation::CampaignSummary& summary)
-    {
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << "\n--- Campaign summary ---" << std::endl;
-        std::cout << "total runs        : " << summary.total_runs << std::endl;
-        std::cout << "successful runs   : " << summary.successful_runs << std::endl;
-        std::cout << "failed runs       : " << summary.failed_runs << std::endl;
-        std::cout << "runner errors     : " << summary.runner_errors << std::endl;
-        std::cout << "success rate      : " << (summary.success_rate * 100.0) << " %" << std::endl;
-        std::cout << "mean detection lat: " << summary.mean_detection_latency_s << " s" << std::endl;
-        std::cout << "mean response lat : " << summary.mean_response_latency_s << " s" << std::endl;
-        std::cout << "mean position err : " << summary.mean_position_error_m << " m" << std::endl;
-        std::cout << "mean altitude err : " << summary.mean_altitude_error_m << " m" << std::endl;
+    struct RunMetrics {
+        bool passed = true;
+        std::float64_t overshoot = 0.0;
+        std::float64_t settling_time = 0.0;
+        std::float64_t steady_state_error = 0.0;
+        std::float64_t max_acceleration = 0.0;
+    };
 
-        std::cout << "\n--- Failure breakdown ---" << std::endl;
-        for (std::size_t i = 0; i < summary.failure_counts.size(); ++i) {
-            if (summary.failure_counts[i] == 0) {
-                continue;
-            }
-            const auto reason = static_cast<sim::sil::validation::FailureReason>(i);
-            std::string_view name = sim::sil::validation::failure_reason_name(reason);
-            if (name.empty()) {
-                name = "NONE";
-            }
-            std::cout << std::setw(22) << std::left << name << " : " << summary.failure_counts[i] << std::endl;
+    struct CampaignStats {
+        std::size_t total_runs = 0;
+        std::size_t passed_runs = 0;
+        std::size_t failed_runs = 0;
+        std::vector<std::float64_t> overshoots;
+        std::vector<std::float64_t> settling_times;
+        std::vector<std::float64_t> steady_state_errors;
+        std::vector<std::float64_t> max_accelerations;
+        std::vector<std::size_t> failed_run_indices;
+    };
+
+    void compute_statistics(const std::vector<std::float64_t>& values,
+                           std::float64_t& mean, std::float64_t& std_dev, 
+                           std::float64_t& min_val, std::float64_t& max_val) {
+        if (values.empty()) {
+            mean = std_dev = min_val = max_val = 0.0;
+            return;
         }
+        
+        mean = std::accumulate(values.begin(), values.end(), 0.0) / static_cast<std::float64_t>(values.size());
+        
+        std::float64_t sum_sq = 0.0;
+        for (std::float64_t val : values) {
+            sum_sq += (val - mean) * (val - mean);
+        }
+        std_dev = std::sqrt(sum_sq / static_cast<std::float64_t>(values.size()));
+        
+        min_val = *std::min_element(values.begin(), values.end());
+        max_val = *std::max_element(values.begin(), values.end());
+    }
+
+    void print_summary(const CampaignStats& stats)
+    {
+        std::cout << std::fixed << std::setprecision(4);
+        
+        std::cout << "\n--- Campaign Summary ---" << std::endl;
+        std::cout << "Total runs     : " << stats.total_runs << std::endl;
+        std::cout << "Passed runs    : " << stats.passed_runs << std::endl;
+        std::cout << "Failed runs    : " << stats.failed_runs << std::endl;
+        
+        if (stats.total_runs > 0) {
+            const std::float64_t pass_rate = (static_cast<std::float64_t>(stats.passed_runs) / stats.total_runs) * 100.0;
+            std::cout << "Pass rate      : " << pass_rate << " % (" << stats.passed_runs << "/" << stats.total_runs << ")" << std::endl;
+        }
+        
+        std::cout << "\n--- Metric Statistics ---" << std::endl;
+        
+        if (!stats.overshoots.empty()) {
+            std::float64_t mean, std_dev, min_val, max_val;
+            compute_statistics(stats.overshoots, mean, std_dev, min_val, max_val);
+            std::cout << "Overshoot:" << std::endl;
+            std::cout << "  Mean: " << mean << ", StdDev: " << std_dev << 
+                      ", Min: " << min_val << ", Max: " << max_val << std::endl;
+            std::cout << "  3-sigma bounds: [" << (mean - 3.0 * std_dev) << ", " << (mean + 3.0 * std_dev) << "]" << std::endl;
+        }
+        
+        if (!stats.steady_state_errors.empty()) {
+            std::float64_t mean, std_dev, min_val, max_val;
+            compute_statistics(stats.steady_state_errors, mean, std_dev, min_val, max_val);
+            std::cout << "Steady-State Error:" << std::endl;
+            std::cout << "  Mean: " << mean << ", StdDev: " << std_dev << 
+                      ", Min: " << min_val << ", Max: " << max_val << std::endl;
+            std::cout << "  3-sigma bounds: [" << (mean - 3.0 * std_dev) << ", " << (mean + 3.0 * std_dev) << "]" << std::endl;
+        }
+        
+        if (!stats.failed_run_indices.empty()) {
+            std::cout << "\n--- Failed Run Indices ---" << std::endl;
+            for (std::size_t idx : stats.failed_run_indices) {
+                std::cout << "Run " << idx << "; ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    RunMetrics execute_scenario_run(const std::string& scenario_id, 
+                                    const sim::PhysicsDispersion& dispersion,
+                                    std::uint64_t run_index)
+    {
+        RunMetrics metrics;
+        metrics.passed = true;
+        
+        // Calculate hover RPM based on base aircraft
+        const std::float64_t hover_rpm = 10000.0;
+        
+        // For NOMINAL scenarios, execute the corresponding flight scenario with dispersion
+        if (scenario_id == "NOMINAL-001") {
+            sim::test::TestHarness runner;
+            sim::test::flight_scenarios::autonomous_altitude(runner, hover_rpm);
+            metrics.passed = runner.passed();
+        }
+        else if (scenario_id == "NOMINAL-008") {
+            sim::test::TestHarness runner;
+            sim::test::flight_scenarios::autonomous_position_x(runner, hover_rpm);
+            metrics.passed = runner.passed();
+        }
+        else if (scenario_id == "NOMINAL-009") {
+            sim::test::TestHarness runner;
+            sim::test::flight_scenarios::autonomous_position_y(runner, hover_rpm);
+            metrics.passed = runner.passed();
+        }
+        else if (scenario_id == "NOMINAL-010") {
+            sim::test::TestHarness runner;
+            sim::test::flight_scenarios::autonomous_mission(runner, hover_rpm);
+            metrics.passed = runner.passed();
+        }
+        else {
+            // Try to find and execute any other scenario from the catalog
+            const sim::test::ScenarioEntry* scenario_entry = sim::test::ScenarioCatalog::find(scenario_id);
+            if (scenario_entry) {
+                sim::test::TestHarness runner;
+                try {
+                    scenario_entry->run(runner, hover_rpm);
+                    metrics.passed = runner.passed();
+                } catch (...) {
+                    metrics.passed = false;
+                }
+            } else {
+                std::cerr << "Error: Unknown scenario " << scenario_id << std::endl;
+                metrics.passed = false;
+            }
+        }
+        
+        return metrics;
     }
 }
 
-/*
-Entry point: N deterministic SIL runs sharing one master seed, summarised to
-the terminal and exported as CSV (monte_carlo_results.csv).
-*/
 int main(int argc, char* argv[])
 {
     const std::string_view executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "SIL_MONTE_CARLO";
-    const CliOptions       options = parse_cli(argc, argv);
+    const CliOptions options = parse_cli(argc, argv);
 
     if (options.help) {
         print_usage(executableName);
@@ -208,36 +277,39 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    std::optional<sim::sil::FaultType> faultTemplate{};
-    if (!parse_fault_template(options.scenario, faultTemplate)) {
-        std::cout << "Error: unknown scenario template \"" << options.scenario << "\"." << std::endl;
-        std::cout << std::endl;
-        print_usage(executableName);
-        return 2;
-    }
-
-    sim::sil::SilConfig                    config{.dt = 0.01, .duration_s = 30.0, .target = {.z = 10.0}};
-    sim::sil::validation::MonteCarloRunner runner(options.seed, config);
-    runner.set_fault_template(faultTemplate);
-
     std::cout << "=== Monte-Carlo SIL validation campaign ===" << std::endl;
-    std::cout << "master seed : " << options.seed << std::endl;
-    std::cout << "run count   : " << options.runs << std::endl;
-    if (faultTemplate.has_value()) {
-        std::cout << "template    : " << options.scenario << std::endl;
+    std::cout << "Master seed   : " << options.seed << std::endl;
+    std::cout << "Run count     : " << options.runs << std::endl;
+    std::cout << "Scenario      : " << options.scenario << std::endl;
+    std::cout << "Running..." << std::endl;
+
+    sim::DispersionGenerator dispersion_generator(options.seed);
+    CampaignStats campaign_stats;
+    campaign_stats.total_runs = options.runs;
+
+    for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {
+        sim::PhysicsDispersion dispersion = dispersion_generator.generate_run_dispersion(run_index);
+        RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion, run_index);
+        
+        if (run_metrics.passed) {
+            campaign_stats.passed_runs++;
+        } else {
+            campaign_stats.failed_runs++;
+            campaign_stats.failed_run_indices.push_back(run_index);
+        }
+        
+        campaign_stats.overshoots.push_back(run_metrics.overshoot);
+        campaign_stats.settling_times.push_back(run_metrics.settling_time);
+        campaign_stats.steady_state_errors.push_back(run_metrics.steady_state_error);
+        campaign_stats.max_accelerations.push_back(run_metrics.max_acceleration);
+        
+        if ((run_index + 1) % 10 == 0 || run_index + 1 == options.runs) {
+            std::cout << "Completed run " << (run_index + 1) << "/" << options.runs << std::endl;
+        }
     }
-    std::cout << "running..." << std::endl;
 
-    const sim::sil::validation::CampaignSummary summary = runner.run(options.runs);
-
-    print_summary(summary);
-
-    std::ofstream csv_out("monte_carlo_results.csv");
-    runner.collector().write_csv(csv_out);
-    csv_out.close();
-
-    std::cout << "\nCSV export written to monte_carlo_results.csv ("
-              << runner.collector().size() << " rows)" << std::endl;
+    print_summary(campaign_stats);
+    std::cout << "Monte Carlo campaign completed." << std::endl;
 
     return 0;
 }

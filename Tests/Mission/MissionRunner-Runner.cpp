@@ -12,6 +12,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import PhysicsDispersion;
 
 using sim::control::FlightController;
 
@@ -21,12 +22,16 @@ namespace sim::test {
 Runs the mission on the requested tracking axis and returns the accumulated
 trace.
 */
-MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run)
+MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run,
+                            const sim::PhysicsDispersion& dispersion)
 {
     MissionRunTrace      trace;
     const std::float64_t target_value = component_value(run.target, run.axis);
     const std::float64_t initial_value = component_value(craft.state(), run.axis);
     const std::float64_t direction = target_value >= initial_value ? 1.0 : -1.0;
+
+    // Set dispersion on aircraft for this run
+    craft.set_dispersion(dispersion);
 
     trace.metrics.initial_gap = std::abs(target_value - initial_value);
     trace.record(ctrl.state());

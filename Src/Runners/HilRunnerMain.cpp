@@ -2,7 +2,7 @@
 Filename: Src/Runners/HilRunnerMain.cpp
 Description: Entry point of HIL_RUNNER : hardware-in-the-loop real-time test runner
 (1 second of simulation time = 1 second of wall-clock time). Selects one scenario
-with --scenario (NOMINAL-001, FAULT_INJECTOR-001..004, MONTE_CARLO_FAULT_INJECTOR-001),
+with --scenario (NOMINAL-001, FAULT_INJECTOR-001..004),
 selects the hardware channel with --interface, or runs the deterministic HIL
 validation suite with --selftest.
 

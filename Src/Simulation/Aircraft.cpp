@@ -9,11 +9,12 @@ All rights reserved.
 module Aircraft;
 
 import std;
+import PhysicsDispersion;
 
 namespace
 {
     constexpr std::float64_t kGravityMps2 = 9.81;
-    constexpr std::float64_t kMassKg = 1.2;
+    constexpr std::float64_t kBaseMassKg = 1.2;
 
     constexpr std::float64_t kLiftCoeff = 1.77e-5;
     constexpr std::float64_t kPitchTargetGainRadPerDeg = 0.01;
@@ -32,6 +33,21 @@ namespace
     {
         return std::max(minValue, std::min(value, maxValue));
     }
+}
+
+Aircraft::Aircraft(const sim::PhysicsDispersion& dispersion)
+    : dispersion_{dispersion}
+{
+}
+
+void Aircraft::set_dispersion(const sim::PhysicsDispersion& dispersion)
+{
+    dispersion_ = dispersion;
+}
+
+const sim::PhysicsDispersion& Aircraft::dispersion() const
+{
+    return dispersion_;
 }
 
 /*
@@ -72,9 +88,10 @@ Ground contact: locked at z = 0 while the vertical velocity is downward.
 */
 void Aircraft::update_translation(std::float64_t dt)
 {
+    const std::float64_t current_mass = kBaseMassKg * (1.0 + dispersion_.mass_variation);
     const std::float64_t lift = kLiftCoeff * state_.actual_rpm * state_.actual_rpm;
-    const std::float64_t weight = kMassKg * kGravityMps2;
-    const std::float64_t az = (lift - weight) / kMassKg;
+    const std::float64_t weight = current_mass * kGravityMps2;
+    const std::float64_t az = (lift - weight) / current_mass;
     const std::float64_t ax = kPitchAccelGainMps2PerRad * state_.pitch;
     const std::float64_t ay = kRollAccelGainMps2PerRad * state_.roll;
 
@@ -113,5 +130,6 @@ const AircraftState& Aircraft::state() const
 
 std::float64_t Aircraft::hover_rpm() const
 {
-    return std::sqrt(kMassKg * kGravityMps2 / kLiftCoeff);
+    const std::float64_t current_mass = kBaseMassKg * (1.0 + dispersion_.mass_variation);
+    return std::sqrt(current_mass * kGravityMps2 / kLiftCoeff);
 }

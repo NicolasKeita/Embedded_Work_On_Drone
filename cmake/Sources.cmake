@@ -5,6 +5,8 @@
 set(SIMULATION_FILES
     Src/Simulation/Aircraft.cppm
     Src/Simulation/Aircraft.cpp
+    Src/Simulation/PhysicsDispersion.cppm
+    Src/Simulation/PhysicsDispersion.cpp
 )
 
 # Sources of the flight control module (.cppm + .cpp kept together in the same variable).
@@ -131,9 +133,8 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/FlightScenarios-Mission.cpp
 )
 
-# Deterministic SIL test suite (NOMINAL-001 nominal, FAULT_INJECTOR-001..004 fault
-# injection and MONTE_CARLO_FAULT_INJECTOR-001 fault during climb) plus the
-# observability and telemetry suites.
+# Deterministic SIL test suite (NOMINAL-001..010 nominal, FAULT_INJECTOR-001..004 fault
+# injection) plus the observability and telemetry suites.
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp

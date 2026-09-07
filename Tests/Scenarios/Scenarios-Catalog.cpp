@@ -23,13 +23,10 @@ const std::array<ScenarioEntry, 10> ScenarioCatalog::scenarios_{{
     {"NOMINAL-006",  "Lateral translation (hover + roll > 0)",     scenarios::move_y},
     {"NOMINAL-007", "Combined translation (RPM > hover, "
                                     "pitch > 0, roll < 0)",                      scenarios::combined},
-    {"MONTE_CARLO-001",         "Autonomous altitude hold (z: 0 -> 100 m)",  flight_scenarios::autonomous_altitude},
-    {"MONTE_CARLO-002",        "Autonomous cascaded X axis (x: 20 -> 0)",
-                                    flight_scenarios::autonomous_position_x},
-    {"MONTE_CARLO-003",        "Autonomous cascaded Y axis (y: -15 -> 0)",
-                                    flight_scenarios::autonomous_position_y},
-    {"MONTE_CARLO-004",          "Autonomous full mission (TAKEOFF to COMPLETE)",
-                                    flight_scenarios::autonomous_mission},
+    {"NOMINAL-001",          "Autonomous altitude hold (z: 0 -> 100 m)",           flight_scenarios::autonomous_altitude},
+    {"NOMINAL-008",         "Autonomous cascaded X axis (x: 20 -> 0)",             flight_scenarios::autonomous_position_x},
+    {"NOMINAL-009",         "Autonomous cascaded Y axis (y: -15 -> 0)",            flight_scenarios::autonomous_position_y},
+    {"NOMINAL-010",         "Autonomous full mission (TAKEOFF to COMPLETE)",       flight_scenarios::autonomous_mission},
 }};
 
 std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept

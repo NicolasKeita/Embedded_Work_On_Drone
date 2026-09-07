@@ -72,8 +72,7 @@ project_target_setup(flight_sim_core)
 
 # ----------------------------------------------------------------------------
 # SIL_RUNNER : deterministic software-in-the-loop test runner executing at maximum
-# CPU speed. --scenario selects one scenario (NOMINAL-001, FAULT_INJECTOR-001..004,
-# MODE_CHANGE_FAULT_INJECTOR-001, NOMINAL-002..007, MODE_CHANGE-001..004);
+# CPU speed. --scenario selects one scenario (NOMINAL-001..010, FAULT_INJECTOR-001..004);
 # -v/--verbose enables per-step logging.
 # ----------------------------------------------------------------------------
 add_executable(SIL_RUNNER Src/Runners/SilRunnerMain.cpp)

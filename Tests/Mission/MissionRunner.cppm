@@ -21,6 +21,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import PhysicsDispersion;
 
 using sim::control::FlightController;
 
@@ -82,7 +83,8 @@ and accumulates tracking metrics on the requested axis. With stop_on_zone, the
 loop stops as soon as the vehicle holds the target zone.
 */
 MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
-                            const MissionRunRequest& run);
+                            const MissionRunRequest& run,
+                            const sim::PhysicsDispersion& dispersion = {});
 
 }
 

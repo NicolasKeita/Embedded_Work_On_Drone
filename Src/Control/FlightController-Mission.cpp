@@ -11,6 +11,7 @@ module FlightController;
 import std;
 
 import Aircraft;
+import PhysicsDispersion;
 
 namespace sim::control {
 

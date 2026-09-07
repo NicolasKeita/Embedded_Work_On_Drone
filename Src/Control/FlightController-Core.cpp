@@ -11,6 +11,7 @@ module FlightController;
 import std;
 
 import Aircraft;
+import PhysicsDispersion;
 
 namespace
 {
@@ -24,7 +25,8 @@ namespace
 
 namespace sim::control {
 
-FlightController::FlightController(ControllerConfig config) : config_(config)
+FlightController::FlightController(ControllerConfig config, const sim::PhysicsDispersion& dispersion)
+    : config_(config), dispersion_(dispersion)
 {
     altitude_pid_.kp = config.kp_altitude;
     altitude_pid_.ki = config.ki_altitude;

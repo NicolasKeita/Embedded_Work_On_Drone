@@ -1,8 +1,7 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cppm
 Description: Target-agnostic functional scenario registry. Each entry binds a
-standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx, MONTE_CARLO-xxx,
-MONTE_CARLO_FAULT_INJECTOR-xxx) to its declarative fault identity (type and
+standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx) to its declarative fault identity (type and
 parameters) and expected outcome, shared by the SIL and HIL runners.
 The execution target (SIL/HIL) is injected at runtime by the harness, so the
 scenario names never encode the execution environment.
@@ -51,8 +50,7 @@ struct FunctionalScenario {
 
 /*
 Resolves a functional scenario by its standardised ID (NOMINAL-xxx,
-FAULT_INJECTOR-xxx, MONTE_CARLO-xxx, MONTE_CARLO_FAULT_INJECTOR-xxx); returns
-nullptr when the ID is unknown.
+FAULT_INJECTOR-xxx); returns nullptr when the ID is unknown.
 */
 [[nodiscard]] const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept;
 

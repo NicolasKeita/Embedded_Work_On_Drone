@@ -1,7 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Config/HilScenarios.cpp
 Description: HIL scenario registry entries bound to the shared functional scenario
-IDs (NOMINAL-001 nominal, FAULT_INJECTOR-001..004 fault injection, MONTE_CARLO_FAULT_INJECTOR-001 fault during climb).
+IDs (NOMINAL-001 nominal, FAULT_INJECTOR-001..004 fault injection).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -81,13 +81,7 @@ namespace {
             named("FAULT_INJECTOR-004"),
             hil_fault_for(*sim::test::find_functional_scenario("FAULT_INJECTOR-004")),
         },
-    {
-            "MONTE_CARLO_FAULT_INJECTOR-001",
-            "FC1 failure injected during the climb mode-change transition",
-            named("MONTE_CARLO_FAULT_INJECTOR-001"),
-            sim::sil::FaultScenario{.start_time = 2.0,
-                                    .fault_type = sim::sil::FaultType::FC1Failure},
-        },
+    };
     }};
 }
 

@@ -14,6 +14,7 @@ export module FlightController;
 import std;
 
 import Aircraft;
+import PhysicsDispersion;
 
 export import FlightControllerTypes;
 
@@ -21,7 +22,7 @@ export namespace sim::control {
 
 class FlightController {
 public:
-    explicit FlightController(ControllerConfig config);
+    explicit FlightController(ControllerConfig config, const sim::PhysicsDispersion& dispersion = {});
 
     [[nodiscard]] MissionState state() const;
 
@@ -64,6 +65,7 @@ private:
     AxisPid          x_position_pid_{};
     AxisPid          y_position_pid_{};
     std::float64_t   station_hold_timer_{0.0};
+    sim::PhysicsDispersion dispersion_{};
 };
 
 }

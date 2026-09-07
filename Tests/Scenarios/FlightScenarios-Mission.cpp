@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Mission.cpp
-Description: Implementation of the autonomous full-mission scenario (MONTE_CARLO-004).
+Description: Implementation of the autonomous full-mission scenario (NOMINAL-010).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -22,13 +22,13 @@ using sim::control::FlightController;
 using sim::control::MissionState;
 
 /*
-MONTE_CARLO-004: full mission from (20, -15, 0) to (0, 0, 100).
+NOMINAL-010: full mission from (20, -15, 0) to (0, 0, 100).
 Phase 1: station keeping at point (20, -15, 100), phase 2: station keeping on the
 final target. Validates the state sequence and the overall convergence inside the zone.
 */
 void autonomous_mission(TestHarness& runner, std::float64_t hover_rpm)
 {
-    runner.begin_scenario("MONTE_CARLO-004", "Full mission (20, -15, 0) -> (0, 0, 100)");
+    runner.begin_scenario("NOMINAL-010", "Full mission (20, -15, 0) -> (0, 0, 100)");
     runner.log_header();
 
     ControllerConfig config{.hover_rpm = hover_rpm};

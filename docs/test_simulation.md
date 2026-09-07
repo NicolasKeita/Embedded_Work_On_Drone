@@ -13,8 +13,8 @@ Executable path: `build/SIL_RUNNER` (run as `SIL_RUNNER`).
 Usage: SIL_RUNNER [--scenario <id>] [-v | --verbose]
 - With no scenario argument, the SIL engine suite and the deterministic physics/autonomous
   catalog are executed in order.
-- --scenario <id>   Run one scenario (engine suite: NOMINAL-001, FAULT_INJECTOR-001..004,
-  MONTE_CARLO_FAULT_INJECTOR-001; physics/autonomous: NOMINAL-002..007, MONTE_CARLO-001..004).
+- --scenario <id>   Run one scenario (engine suite: NOMINAL-001, FAULT_INJECTOR-001..004;
+  physics/autonomous: NOMINAL-002..010).
 - -v, --verbose     Per-step telemetry logging.
 - -h, --help        Show this help and exit.
 - Any unknown argument is rejected with an error and the usage is printed.
@@ -33,7 +33,7 @@ SIL_RUNNER --scenario NOMINAL-001
 SIL_RUNNER --scenario FAULT_INJECTOR-001
 
 # A single autonomous scenario
-SIL_RUNNER --scenario MONTE_CARLO-001
+SIL_RUNNER --scenario NOMINAL-001
 ```
 
 ## Available scenarios
@@ -46,10 +46,10 @@ SIL_RUNNER --scenario MONTE_CARLO-001
 | `NOMINAL-005` | Forward translation (hover + pitch > 0) | `scenarios::move_x` |
 | `NOMINAL-006` | Lateral translation (hover + roll > 0) | `scenarios::move_y` |
 | `NOMINAL-007` | Combined translation (RPM > hover, pitch > 0, roll < 0) | `scenarios::combined` |
-| `MONTE_CARLO-001` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
-| `MONTE_CARLO-002` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
-| `MONTE_CARLO-003` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
-| `MONTE_CARLO-004` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
+| `NOMINAL-001` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
+| `NOMINAL-008` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
+| `NOMINAL-009` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
+| `NOMINAL-010` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
 
 ### Physics scenarios (NOMINAL-002 – NOMINAL-007)
 
@@ -63,14 +63,14 @@ motor and servo commands.
 - **NOMINAL-006 — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
 - **NOMINAL-007 — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
 
-### Autonomous mission scenarios (MONTE_CARLO-001 – MONTE_CARLO-004)
+### Autonomous mission scenarios (NOMINAL-001, NOMINAL-008 – NOMINAL-010)
 
 Closed-loop scenarios driving the flight controller.
 
-- **MONTE_CARLO-001 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
-- **MONTE_CARLO-002 — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
-- **MONTE_CARLO-003 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
-- **MONTE_CARLO-004 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
+- **NOMINAL-001 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
+- **NOMINAL-008 — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
+- **NOMINAL-009 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
+- **NOMINAL-010 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
 
 ## Execution conditions
 
@@ -91,7 +91,7 @@ Closed-loop scenarios driving the flight controller.
 `SIL_RUNNER` validates the robustness of the system against faults
 (Software-in-the-Loop) and executes the deterministic physics/autonomous catalog.
 Scenario IDs follow the standardised taxonomy (NOMINAL-xxx, FAULT_INJECTOR-xxx,
-MONTE_CARLO-xxx, MONTE_CARLO_FAULT_INJECTOR-xxx) and are paired with each ID in the
+NOMINAL-xxx, FAULT_INJECTOR-xxx) and are paired with each ID in the
 logs (e.g. `[NOMINAL-001][SIL]`, `[FAULT_INJECTOR-001][SIL]`). The HIL suite lives in
 `HIL_RUNNER --selftest`.
 
@@ -124,7 +124,7 @@ The following scenarios are executed:
 
 An additional SIL scenario is also available:
 
-- **MONTE_CARLO_FAULT_INJECTOR-001 [SIL] — FC1 failure during the climb mode-change transition**
+- **FAULT_INJECTOR-001 [SIL] — FC1 failure during the climb transition**
   - **Description**: An FC1 failure is injected during the climb mode-change transition, exercising the safety chain across a mode switch rather than during steady station keeping.
   - **Expectations**: The failure must be detected through the heartbeat timeout, `SAFE_MODE` must be engaged within the required latency, and the mission must be aborted.
 

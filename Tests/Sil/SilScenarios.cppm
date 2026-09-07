@@ -3,7 +3,7 @@ Filename: Tests/Sil/SilScenarios.cppm
 Description: Interface of the deterministic SIL test suite (nominal and fault-injection scenarios);
 observability tests live in the SilObservability module. Exposes the engine-level scenario
 catalog so a runner can execute one scenario by its standardised ID (NOMINAL-001,
-FAULT_INJECTOR-001..004, MONTE_CARLO_FAULT_INJECTOR-001).
+FAULT_INJECTOR-001..004).
 Exports:
     struct SilScenarioEntry,
     sil_scenarios(),
