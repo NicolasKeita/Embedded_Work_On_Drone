@@ -110,12 +110,18 @@ set(VALIDATION_FILES
     Src/SIL/Validation/Types/ValidationTypes.cpp
 )
 
-# Shared test harness module (checks, logging, run loop).
+# Shared test harness module (checks, logging, run loop) and the non-technical
+# scenario brief lookup printed before each run.
 set(TEST_HARNESS_FILES
     Tests/TestHarness.cppm
     Tests/TestHarness-Target.cpp
     Tests/TestHarness-Checks.cpp
     Tests/TestHarness-Logging.cpp
+    Tests/ScenarioBrief.cppm
+    Tests/ScenarioBrief.cpp
+    Tests/ScenarioBrief-Nominal.cpp
+    Tests/ScenarioBrief-Autonomous.cpp
+    Tests/ScenarioBrief-Faults.cpp
 )
 
 # Harness, physics scenarios and autonomous scenarios of the validation program
