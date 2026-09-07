@@ -17,7 +17,8 @@ namespace sim::test::sil {
 
 /*
 Parses the SIL_RUNNER command line: --scenario <id> (or --scenario=<id>),
---verbose/-v and -h/--help. Any other argument marks the options invalid.
+--all, --verbose/-v and -h/--help. Any other argument, or --all combined with
+--scenario, marks the options invalid.
 */
 CliOptions parse_cli(int argc, char* argv[])
 {
@@ -31,6 +32,10 @@ CliOptions parse_cli(int argc, char* argv[])
         if (argument == "-h" || argument == "--help") {
             options.help = true;
             return options;
+        }
+        if (argument == "-a" || argument == "--all") {
+            options.all = true;
+            continue;
         }
         if (argument == "-v" || argument == "--verbose") {
             options.verbose = true;
@@ -54,6 +59,11 @@ CliOptions parse_cli(int argc, char* argv[])
         options.invalid = true;
         return options;
     }
+    if (options.all && options.scenario.has_value()) {
+        std::cerr << "Error: --all cannot be combined with --scenario." << std::endl;
+        options.invalid = true;
+        return options;
+    }
     return options;
 }
 
@@ -61,8 +71,10 @@ CliOptions parse_cli(int argc, char* argv[])
 void print_usage(std::string_view executableName)
 {
     std::cout << "SIL runner: deterministic software-in-the-loop execution at maximum CPU speed." << std::endl;
-    std::cout << "Usage: " << executableName << " [--scenario <id>] [-v | --verbose]" << std::endl;
-    std::cout << "  --scenario <id>  Run one scenario (all scenarios when omitted)." << std::endl;
+    std::cout << "Usage: " << executableName << " [--scenario <id>] [--all] [-v | --verbose]" << std::endl;
+    std::cout << "  With no argument, this help is printed and nothing is executed." << std::endl;
+    std::cout << "  --scenario <id>  Run one scenario from the catalog below." << std::endl;
+    std::cout << "  --all            Run the full deterministic sweep (every scenario)." << std::endl;
     std::cout << "  -v, --verbose    Per-step telemetry logging." << std::endl;
     std::cout << "  -h, --help       Show this help." << std::endl;
     std::cout << std::endl;

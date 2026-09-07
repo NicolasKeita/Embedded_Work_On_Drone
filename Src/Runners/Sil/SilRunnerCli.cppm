@@ -17,6 +17,7 @@ export namespace sim::test::sil {
 
 struct CliOptions {
     std::optional<std::string> scenario;
+    bool                       all = false;
     bool                       verbose = false;
     bool                       help = false;
     bool                       invalid = false;
@@ -24,7 +25,8 @@ struct CliOptions {
 
 /*
 Parses the SIL_RUNNER command line: --scenario <id> (or --scenario=<id>),
---verbose/-v and -h/--help. Any other argument marks the options invalid.
+--all, --verbose/-v and -h/--help. Any other argument, or --all combined with
+--scenario, marks the options invalid.
 */
 [[nodiscard]] CliOptions parse_cli(int argc, char* argv[]);
 

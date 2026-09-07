@@ -10,11 +10,13 @@ Executable path: `build/SIL_RUNNER` (run as `SIL_RUNNER`).
 ## Usage
 
 ```text
-Usage: SIL_RUNNER [--scenario <id>] [-v | --verbose]
-- With no scenario argument, the SIL engine suite and the deterministic physics/autonomous
-  catalog are executed in order.
+Usage: SIL_RUNNER [--scenario <id>] [--all] [-v | --verbose]
+- With no argument, the usage helper is printed: available options and the full
+  pre-configured scenario catalog. Nothing is executed.
 - --scenario <id>   Run one scenario (engine suite: NOMINAL-001, FAULT_INJECTOR-001..004;
   physics/autonomous: NOMINAL-002..010).
+- --all             Run the full deterministic sweep (SIL engine suite + physics/autonomous
+  catalog, in order).
 - -v, --verbose     Per-step telemetry logging.
 - -h, --help        Show this help and exit.
 - Any unknown argument is rejected with an error and the usage is printed.
@@ -23,8 +25,11 @@ Usage: SIL_RUNNER [--scenario <id>] [-v | --verbose]
 Examples:
 
 ```text
-# SIL engine suite + physics/autonomous catalog (in order)
+# Print the helper (options + pre-configured scenario catalog), run nothing
 SIL_RUNNER
+
+# SIL engine suite + physics/autonomous catalog (in order)
+SIL_RUNNER --all
 
 # A single engine scenario (nominal station keeping)
 SIL_RUNNER --scenario NOMINAL-001
