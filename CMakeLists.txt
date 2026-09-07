@@ -107,7 +107,8 @@ target_link_libraries(HIL_RUNNER PRIVATE flight_sim_core)
 # ----------------------------------------------------------------------------
 # SIL_MONTE_CARLO : accelerated statistical batch simulation over the SIL engine.
 # --seed selects the master RNG seed, --runs the iteration count and --scenario
-# optionally restricts the campaign to one scenario template.
+# optionally restricts the campaign to one scenario template; -v enables verbose
+# per-run output (telemetry, mission brief and dispersion parameters).
 # ----------------------------------------------------------------------------
 add_executable(SIL_MONTE_CARLO Src/Runners/MonteCarlo/main.cpp)
 target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -117,6 +118,7 @@ target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Src/Runners/MonteCarlo/MonteCarloCampaign-Cli.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Summary.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Run.cpp
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Dispersion.cpp
 )
 project_target_setup(SIL_MONTE_CARLO)
 target_link_libraries(SIL_MONTE_CARLO PRIVATE flight_sim_core)

@@ -1,6 +1,6 @@
 /*
 Filename: Src/Runners/MonteCarlo/MonteCarloCampaign-Summary.cpp
-Description: Campaign summary printing with per-metric statistics.
+Description: Campaign summary printing and usage banner.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -79,6 +79,18 @@ void print_summary(const CampaignStats& stats)
         }
         std::cout << std::endl;
     }
+}
+
+/* Prints the SIL_MONTE_CARLO usage banner. */
+void print_usage(std::string_view executableName)
+{
+    std::cout << "SIL Monte-Carlo: accelerated statistical batch simulation." << std::endl;
+    std::cout << "Usage: " << executableName << " [--seed <n>] [--runs <n>] [--scenario <id>] [-v]" << std::endl;
+    std::cout << "  --seed <n>       Master RNG seed (default 42)." << std::endl;
+    std::cout << "  --runs <n>       Number of iterations (default 50)." << std::endl;
+    std::cout << "  --scenario <id>  Scenario to stress-test (default: NOMINAL-001, also: 008, 009, 010)." << std::endl;
+    std::cout << "  -v, --verbose     Per-run telemetry, mission brief and dispersion parameters." << std::endl;
+    std::cout << "  -h, --help        Show this help." << std::endl;
 }
 
 }

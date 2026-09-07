@@ -68,6 +68,10 @@ namespace
             return samples > 0.0 ? error_sum / samples : fallback;
         }
     };
+
+    constexpr std::float64_t kDt = 0.01;
+    constexpr std::float64_t kSteadyWindowSeconds = 10.0;
+    constexpr std::uint32_t  kLogIntervalSteps = 250;
 }
 
 /* Executes the step-by-step simulation loop, accumulating the tracking metrics. */
@@ -78,9 +82,6 @@ void run_control_loop(FlightController&        ctrl,
                       std::float64_t           direction,
                       std::float64_t           target_value)
 {
-    constexpr std::float64_t kDt = 0.01;
-    constexpr std::float64_t kSteadyWindowSeconds = 10.0;
-    constexpr std::uint32_t  kLogIntervalSteps = 250;
     const std::float64_t     steady_start = std::max(std::float64_t{0.0}, run.duration - kSteadyWindowSeconds);
     StepMetrics              step{.direction = direction, .steady_start = steady_start,
                                   .previous_state = craft.state()};
@@ -88,7 +89,9 @@ void run_control_loop(FlightController&        ctrl,
     std::float64_t           time = 0.0;
     std::uint32_t            step_index = 0;
 
-    print_state_row(craft, time);
+    if (run.verbose) {
+        print_state_row(craft, time);
+    }
     while (time < run.duration) {
         craft.set_command(ctrl.update(run.target, craft.state(), kDt));
         craft.update(kDt);
@@ -97,15 +100,15 @@ void run_control_loop(FlightController&        ctrl,
         step.track_acceleration(kDt, craft.state());
         const std::float64_t error = target_value - component_value(craft.state(), run.axis);
         step.update(trace.metrics, time, error, run.tolerance);
-        log_state_transition(trace, previous_state, ctrl.state(), time);
-        if (step_index % kLogIntervalSteps == 0) {
+        log_state_transition(trace, previous_state, ctrl.state(), time, run.verbose);
+        if (run.verbose && step_index % kLogIntervalSteps == 0) {
             print_state_row(craft, time);
         }
         if (zone_reached(run, ctrl.state(), craft.state())) {
             break;
         }
     }
-    if (step_index % kLogIntervalSteps != 0 || time == run.duration) {
+    if (run.verbose && (step_index % kLogIntervalSteps != 0 || time == run.duration)) {
         print_state_row(craft, time);
     }
     step.close(trace.metrics, target_value, run.axis, craft.state());

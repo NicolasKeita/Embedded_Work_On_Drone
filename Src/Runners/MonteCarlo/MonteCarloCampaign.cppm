@@ -30,6 +30,7 @@ struct CliOptions {
     std::uint64_t seed = 42ULL;
     std::uint32_t runs = 50;
     std::string   scenario = "NOMINAL-001";
+    bool          verbose = false;
     bool          help = false;
     bool          invalid = false;
 };
@@ -69,5 +70,13 @@ the tracking metrics and the failed-run indices.
 
 /* Prints the campaign summary: run counts, pass rate and metric statistics. */
 void print_summary(const CampaignStats& stats);
+
+}
+
+namespace sim::monte_carlo {
+
+/* Prints the random dispersion parameters generated for one run. */
+void print_dispersion(const sim::PhysicsDispersion& dispersion, std::uint64_t seed,
+                      std::uint32_t run_index, std::uint32_t run_count);
 
 }

@@ -20,15 +20,21 @@ namespace sim::test {
 /*
 Records a state machine transition in the trace and reports it on the console.
 */
-void log_state_transition(MissionRunTrace& trace, MissionState& previous, MissionState current, std::float64_t time)
+void log_state_transition(MissionRunTrace& trace,
+                          MissionState&    previous,
+                          MissionState     current,
+                          std::float64_t   time,
+                          bool             verbose)
 {
     if (current == previous) {
         return;
     }
     previous = current;
     trace.record(current);
-    std::cout << "  [MISSION] t = " << std::fixed << std::setprecision(1) << time
-              << " s -> " << mission_state_name(current) << std::endl;
+    if (verbose) {
+        std::cout << "  [MISSION] t = " << std::fixed << std::setprecision(1) << time
+                  << " s -> " << mission_state_name(current) << std::endl;
+    }
 }
 
 /* Reports whether the vehicle holds the target zone and the run should stop there. */

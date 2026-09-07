@@ -22,6 +22,9 @@ namespace sim::test {
 
 void TestHarness::log_header() const
 {
+    if (!config_.verbose) {
+        return;
+    }
     std::cout << "     t(s)";
     std::cout << "   " << std::setw(11) << "x(m)" << std::setw(11) << "y(m)"
               << std::setw(11) << "z(m)";
@@ -42,6 +45,9 @@ advance their control loop manually, without going through run().
 */
 void TestHarness::log_step(const Aircraft& aircraft, std::float64_t time_seconds) const
 {
+    if (!config_.verbose) {
+        return;
+    }
     const AircraftState& s = aircraft.state();
 
     std::cout << std::fixed << std::setw(9) << std::setprecision(2) << time_seconds;
