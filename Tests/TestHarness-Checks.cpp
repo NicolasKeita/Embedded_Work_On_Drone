@@ -1,6 +1,7 @@
 /*
 Filename: Tests/TestHarness-Checks.cpp
-Description: Context tags, assertions and state reset of the shared validation harness.
+Description: Context tags, assertions, scenario-brief printing and state reset of the
+shared validation harness.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -10,6 +11,8 @@ module TestHarness;
 
 import std;
 
+import ScenarioBrief;
+
 namespace sim::test {
 
 void TestHarness::set_context(std::string_view tag)
@@ -17,11 +20,20 @@ void TestHarness::set_context(std::string_view tag)
     context_ = std::string{tag};
 }
 
+/*
+Sets the active scenario tag and prints the section header ([id][target] description)
+followed by the non-technical scenario brief so a non-technical reader understands
+what the scenario does before it runs.
+*/
 void TestHarness::begin_scenario(std::string_view id, std::string_view description)
 {
     context_ = std::string{id};
     std::cout << "\n=== [" << id << "][" << run_target_tag(config_.target) << "] "
               << description << " ===" << std::endl;
+    const std::string_view brief = scenario_brief(id);
+    if (!brief.empty()) {
+        std::cout << brief << std::endl;
+    }
 }
 
 /*

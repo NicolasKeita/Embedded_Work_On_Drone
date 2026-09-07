@@ -1,8 +1,9 @@
 /*
 Filename: Src/Embedded/Hil/Cli/main.cpp
-Description: Entry point of hil_runner : loads a HIL scenario, prints the run header,
-executes the real-time closed-loop mission against the host FC emulator with live
-telemetry/event streaming to the terminal, then prints the post-run summary report.
+Description: Entry point of hil_runner : loads a HIL scenario, prints the non-technical
+scenario brief and the run header, executes the real-time closed-loop mission against
+the host FC emulator with live telemetry/event streaming to the terminal, then prints
+the post-run summary report.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -15,6 +16,7 @@ import HilReport;
 import HilRunner;
 import HilRunnerCli;
 import HilRunnerTypes;
+import ScenarioBrief;
 import SilFaultScenario;
 
 int main(int argc, char** argv)
@@ -33,6 +35,12 @@ int main(int argc, char** argv)
     const sim::hil::HilConfig config = sim::hil::hil_config_from_options(options);
     const std::array<sim::sil::FaultScenario, 1> scenarios{sim::hil::hil_fault_from_options(options)};
     const bool fault_expected = scenarios[0].fault_type != sim::sil::FaultType::None;
+
+    const std::string_view brief = sim::test::scenario_brief(config.scenario_id);
+    if (!brief.empty()) {
+        std::cout << brief << std::endl;
+        std::cout << std::endl;
+    }
 
     sim::hil::write_header(std::cout, config, fault_expected);
 

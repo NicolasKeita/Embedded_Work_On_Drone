@@ -12,6 +12,7 @@ All rights reserved.
 import std;
 
 import MonteCarloCampaign;
+import ScenarioBrief;
 
 /*
 Entry point: parses the campaign options, executes the dispersed scenario runs
@@ -36,6 +37,13 @@ int main(int argc, char* argv[])
     std::cout << "Master seed   : " << options.seed << std::endl;
     std::cout << "Run count     : " << options.runs << std::endl;
     std::cout << "Scenario      : " << options.scenario << std::endl;
+
+    const std::string_view brief = sim::test::scenario_brief(options.scenario);
+    if (!brief.empty()) {
+        std::cout << std::endl;
+        std::cout << brief << std::endl;
+    }
+
     std::cout << "Running..." << std::endl;
 
     const sim::monte_carlo::CampaignStats stats = sim::monte_carlo::run_campaign(options);
