@@ -14,8 +14,11 @@ namespace sim::monte_carlo {
 
 namespace {
     /* Fills the mean, standard deviation, minimum and maximum of the sample set. */
-    void compute_statistics(const std::vector<std::float64_t>& values, std::float64_t& mean,
-                            std::float64_t& std_dev, std::float64_t& min_val, std::float64_t& max_val)
+    void compute_statistics(const std::vector<std::float64_t>& values,
+                            std::float64_t&                    mean,
+                            std::float64_t&                    std_dev,
+                            std::float64_t&                    min_val,
+                            std::float64_t&                    max_val)
     {
         if (values.empty()) {
             mean = 0.0;
@@ -24,8 +27,7 @@ namespace {
             max_val = 0.0;
             return;
         }
-        mean = std::accumulate(values.begin(), values.end(), 0.0)
-               / static_cast<std::float64_t>(values.size());
+        mean = std::accumulate(values.begin(), values.end(), 0.0) / static_cast<std::float64_t>(values.size());
         std::float64_t sum_sq = 0.0;
         for (std::float64_t val : values) {
             sum_sq += (val - mean) * (val - mean);

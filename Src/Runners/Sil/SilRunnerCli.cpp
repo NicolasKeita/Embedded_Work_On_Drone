@@ -21,7 +21,7 @@ Parses the SIL_RUNNER command line: --scenario <id> (or --scenario=<id>),
 */
 CliOptions parse_cli(int argc, char* argv[])
 {
-    CliOptions options;
+    CliOptions                 options;
     constexpr std::string_view kScenarioPrefix = "--scenario=";
 
     for (int index = 1; index < argc; ++index) {

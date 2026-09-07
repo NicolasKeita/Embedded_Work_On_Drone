@@ -24,7 +24,8 @@ using sim::control::FlightController;
 NOMINAL-001: autonomous altitude loop from the ground up to 100 m;
 measures the time to enter tolerance, the overshoot and the residual error.
 */
-void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm,
+void autonomous_altitude(TestHarness&                  runner,
+                         std::float64_t                hover_rpm,
                          const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-001", "Autonomous altitude hold (z: 0 -> 100 m)");
@@ -52,7 +53,8 @@ void autonomous_altitude(TestHarness& runner, std::float64_t hover_rpm,
 NOMINAL-008: cascaded X position -> pitch -> servos. Phase 1:
 rendezvous with point (20, 0, 100), phase 2: return of x to 0 with metrics tracking.
 */
-void autonomous_position_x(TestHarness& runner, std::float64_t hover_rpm,
+void autonomous_position_x(TestHarness&                  runner,
+                           std::float64_t                hover_rpm,
                            const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-008", "Autonomous cascaded X axis (x: 20 -> 0 m)");
@@ -82,7 +84,8 @@ void autonomous_position_x(TestHarness& runner, std::float64_t hover_rpm,
 NOMINAL-009: cascaded Y position -> roll -> servos. Phase 1:
 rendezvous with point (0, -15, 100), phase 2: return of y to 0 with metrics tracking.
 */
-void autonomous_position_y(TestHarness& runner, std::float64_t hover_rpm,
+void autonomous_position_y(TestHarness&                  runner,
+                           std::float64_t                hover_rpm,
                            const sim::PhysicsDispersion& dispersion)
 {
     runner.begin_scenario("NOMINAL-009", "Autonomous cascaded Y axis (y: -15 -> 0 m)");

@@ -44,8 +44,7 @@ namespace sim::test::hil {
         realtime_cfg.dt_s = 0.01;
         realtime_cfg.real_time_pacing = true;
         realtime_cfg.clock_kind = sim::hil::ClockKind::Monotonic;
-        const std::array<sim::sil::FaultScenario, 1> rs{
-            sim::hil::HilScenarioCatalog::find("NOMINAL-001")->fault};
+        const std::array<sim::sil::FaultScenario, 1> rs{ sim::hil::HilScenarioCatalog::find("NOMINAL-001")->fault};
         const auto t0 = std::chrono::steady_clock::now();
         sim::hil::HilRunner rt_runner{realtime_cfg};
         const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> rt = rt_runner.run(rs);

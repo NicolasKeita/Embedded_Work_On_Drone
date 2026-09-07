@@ -22,7 +22,9 @@ namespace sim::test {
 Runs the mission on the requested tracking axis and returns the accumulated
 trace.
 */
-MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run,
+MissionRunTrace run_mission(FlightController&             ctrl,
+                            Aircraft&                     craft,
+                            const MissionRunRequest&      run,
                             const sim::PhysicsDispersion& dispersion)
 {
     MissionRunTrace      trace;

@@ -24,6 +24,7 @@ using sim::sil::SilRunOutput;
 bool run_sil_scenario(std::string_view id, TestHarness& runner)
 {
     const SilScenarioEntry* entry = find_sil_scenario(id);
+
     if (entry == nullptr) {
         return false;
     }
@@ -37,8 +38,8 @@ bool run_sil_scenario(std::string_view id, TestHarness& runner)
 /* Runs the six scenarios, the observability suite and the report artifacts. */
 void run_all_sil_scenarios(TestHarness& runner)
 {
-    std::array<SilRunOutput, 6>   outputs{};
-    std::array<ScenarioRecord, 6> records{};
+    std::array<SilRunOutput, 6>             outputs{};
+    std::array<ScenarioRecord, 6>           records{};
     const std::span<const SilScenarioEntry> entries = sil_scenarios();
 
     for (std::size_t index = 0; index < entries.size(); ++index) {

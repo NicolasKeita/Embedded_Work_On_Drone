@@ -19,11 +19,12 @@ namespace sim::monte_carlo {
 
 namespace {
     /* Executes one dispersed scenario run and collects its tracking metrics. */
-    RunMetrics execute_scenario_run(const std::string& scenario_id,
+    RunMetrics execute_scenario_run(const std::string&            scenario_id,
                                     const sim::PhysicsDispersion& dispersion)
     {
-        RunMetrics metrics{};
+        RunMetrics                      metrics{};
         const sim::test::ScenarioEntry* scenario_entry = sim::test::ScenarioCatalog::find(scenario_id);
+
         if (scenario_entry == nullptr) {
             std::cerr << "Error: Unknown scenario " << scenario_id << std::endl;
             metrics.passed = false;
@@ -63,8 +64,9 @@ the tracking metrics and the failed-run indices.
 */
 CampaignStats run_campaign(const CliOptions& options)
 {
-    CampaignStats stats{.total_runs = options.runs};
+    CampaignStats            stats{.total_runs = options.runs};
     sim::DispersionGenerator dispersion_generator(options.seed);
+
     for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {
         const sim::PhysicsDispersion dispersion = dispersion_generator.generate_run_dispersion(run_index);
         const RunMetrics run_metrics = execute_scenario_run(options.scenario, dispersion);

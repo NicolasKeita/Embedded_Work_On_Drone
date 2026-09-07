@@ -9,6 +9,7 @@ All rights reserved.
 module Aircraft;
 
 import std;
+
 import PhysicsDispersion;
 
 namespace
@@ -75,5 +76,6 @@ const AircraftState& Aircraft::state() const
 std::float64_t Aircraft::hover_rpm() const
 {
     const std::float64_t current_mass = kBaseMassKg * (1.0 + dispersion_.mass_variation);
+
     return std::sqrt(current_mass * kGravityMps2 / kLiftCoeff);
 }

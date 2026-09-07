@@ -59,12 +59,12 @@ private:
                                         std::float64_t dt);
     [[nodiscard]] bool inside_target_zone(const TargetState& t, const AircraftState& a) const;
 
-    ControllerConfig config_;
-    MissionState     mission_state_{MissionState::TAKEOFF};
-    AxisPid          altitude_pid_{};
-    AxisPid          x_position_pid_{};
-    AxisPid          y_position_pid_{};
-    std::float64_t   station_hold_timer_{0.0};
+    ControllerConfig       config_;
+    MissionState           mission_state_{MissionState::TAKEOFF};
+    AxisPid                altitude_pid_{};
+    AxisPid                x_position_pid_{};
+    AxisPid                y_position_pid_{};
+    std::float64_t         station_hold_timer_{0.0};
     sim::PhysicsDispersion dispersion_{};
 };
 

@@ -67,7 +67,7 @@ private:
     void update_attitude(std::float64_t dt);
     void update_translation(std::float64_t dt);
 
-    AircraftState       state_{};
-    ControlCommand      command_{};
-    sim::PhysicsDispersion   dispersion_{};
+    AircraftState          state_{};
+    ControlCommand         command_{};
+    sim::PhysicsDispersion dispersion_{};
 };

@@ -22,26 +22,26 @@ Contains variations for mass, center of gravity, actuators, environment, and sen
 struct PhysicsDispersion
 {
     // Aircraft parameters
-    std::float64_t mass_variation = 0.0;             // Mass variation percentage (-1.0 to +1.0 = +/- 100%)
-    std::float64_t cog_offset_x = 0.0;              // Center of gravity offset in x direction (meters)
-    std::float64_t cog_offset_y = 0.0;              // Center of gravity offset in y direction (meters)
-    std::float64_t cog_offset_z = 0.0;              // Center of gravity offset in z direction (meters)
-    std::float64_t actuator_gain_dispersion = 0.0;   // Actuator gain variation percentage
-    std::float64_t actuator_lag_dispersion = 0.0;    // Actuator lag/latency variation (seconds)
+    std::float64_t mass_variation = 0.0; // Mass variation percentage (-1.0 to +1.0 = +/- 100%)
+    std::float64_t cog_offset_x = 0.0; // Center of gravity offset in x direction (meters)
+    std::float64_t cog_offset_y = 0.0; // Center of gravity offset in y direction (meters)
+    std::float64_t cog_offset_z = 0.0; // Center of gravity offset in z direction (meters)
+    std::float64_t actuator_gain_dispersion = 0.0; // Actuator gain variation percentage
+    std::float64_t actuator_lag_dispersion = 0.0; // Actuator lag/latency variation (seconds)
 
     // Environment parameters
-    std::float64_t wind_speed_mean = 0.0;           // Mean wind speed (m/s)
-    std::float64_t wind_heading_rad = 0.0;          // Wind heading (radians)
-    std::float64_t turbulence_intensity = 0.0;      // Turbulence intensity (0.0 to 1.0)
+    std::float64_t wind_speed_mean = 0.0; // Mean wind speed (m/s)
+    std::float64_t wind_heading_rad = 0.0; // Wind heading (radians)
+    std::float64_t turbulence_intensity = 0.0; // Turbulence intensity (0.0 to 1.0)
     std::float64_t atmospheric_density_offset = 0.0; // Atmospheric density offset percentage
     std::float64_t atmospheric_pressure_offset = 0.0; // Atmospheric pressure offset percentage
 
     // Sensor noise parameters
-    std::float64_t imu_accel_noise_std = 0.0;       // IMU accelerometer noise standard deviation (m/s²)
-    std::float64_t imu_gyro_noise_std = 0.0;        // IMU gyroscope noise standard deviation (rad/s)
-    std::float64_t barometer_bias = 0.0;            // Barometer bias (meters)
-    std::float64_t barometer_drift = 0.0;           // Barometer drift (meters/second)
-    std::float64_t gps_latency_jitter = 0.0;        // GPS latency jitter (seconds)
+    std::float64_t imu_accel_noise_std = 0.0; // IMU accelerometer noise standard deviation (m/s²)
+    std::float64_t imu_gyro_noise_std = 0.0; // IMU gyroscope noise standard deviation (rad/s)
+    std::float64_t barometer_bias = 0.0; // Barometer bias (meters)
+    std::float64_t barometer_drift = 0.0; // Barometer drift (meters/second)
+    std::float64_t gps_latency_jitter = 0.0; // GPS latency jitter (seconds)
 };
 
 /*
@@ -61,7 +61,7 @@ public:
 
 private:
     std::uint64_t base_seed_;
-    
+
     // Seed generation for a specific run
     [[nodiscard]] std::uint64_t generate_run_seed(std::uint64_t base_seed, std::size_t run_index) const;
 };

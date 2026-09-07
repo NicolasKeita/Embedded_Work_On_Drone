@@ -13,8 +13,8 @@ import std;
 
 import Aircraft;
 import Scenarios;
-import SilScenarios;
 import SilRunnerCli;
+import SilScenarios;
 import TestHarness;
 
 namespace
@@ -23,8 +23,9 @@ namespace
     Runs the requested scenario, or the whole deterministic sweep when none is
     given. Returns 2 when the requested scenario is unknown.
     */
-    int execute_runs(const sim::test::sil::CliOptions& options, sim::test::TestHarness& runner,
-                     std::string_view executableName)
+    int execute_runs(const sim::test::sil::CliOptions& options,
+                     sim::test::TestHarness&           runner,
+                     std::string_view                  executableName)
     {
         if (!options.scenario.has_value()) {
             std::cout
@@ -62,7 +63,7 @@ verdict (0 = all passed, 1 = at least one failure, 2 = command-line error).
 */
 int main(int argc, char* argv[])
 {
-    const std::string_view executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "SIL_RUNNER";
+    const std::string_view           executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "SIL_RUNNER";
     const sim::test::sil::CliOptions options = sim::test::sil::parse_cli(argc, argv);
 
     if (options.help) {
