@@ -16,9 +16,6 @@ import FlightController;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
-import SilObservability;
-import SilObservabilityTelemetry;
-import SilReporting;
 import SilRunner;
 import SilTypes;
 import Telemetry;
@@ -90,42 +87,6 @@ const SilScenarioEntry* find_sil_scenario(std::string_view id) noexcept
         }
     }
     return nullptr;
-}
-
-bool run_sil_scenario(std::string_view id, TestHarness& runner)
-{
-    const SilScenarioEntry* entry = find_sil_scenario(id);
-    if (entry == nullptr) {
-        return false;
-    }
-
-    SilRunOutput   output{};
-    ScenarioRecord record{};
-    entry->run(runner, output, record);
-    return true;
-}
-
-/* Runs the six scenarios, the observability suite and the report artifacts. */
-void run_all_sil_scenarios(TestHarness& runner)
-{
-    std::array<SilRunOutput, 6>   outputs{};
-    std::array<ScenarioRecord, 6> records{};
-
-    for (std::size_t index = 0; index < kSilScenarios.size(); ++index) {
-        kSilScenarios[index].run(runner, outputs[index], records[index]);
-    }
-
-    run_observability_scenarios(runner);
-    run_telemetry_scenarios(runner);
-
-    std::cout << "\n=== SIL report generation (docs/validation/data) ===" << std::endl;
-    const std::expected<void, sim::sil::ReportError> outcome = sim::sil::write_sil_report(records);
-    if (!outcome.has_value()) {
-        runner.check(false, "SIL report generation failed");
-        return;
-    }
-    std::cout << "Artifacts generated: sil.md, json, csv, trace jsonl, telemetry csv, truth csv" << std::endl;
-    sim::sil::write_markdown_report(std::cout, records);
 }
 
 }

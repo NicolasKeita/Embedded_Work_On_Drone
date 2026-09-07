@@ -4,7 +4,8 @@
 # Sources of the simulation module (.cppm + .cpp kept together).
 set(SIMULATION_FILES
     Src/Simulation/Aircraft.cppm
-    Src/Simulation/Aircraft.cpp
+    Src/Simulation/Aircraft-Core.cpp
+    Src/Simulation/Aircraft-Physics.cpp
     Src/Simulation/PhysicsDispersion.cppm
     Src/Simulation/PhysicsDispersion.cpp
 )
@@ -127,6 +128,7 @@ set(TEST_SIMULATION_FILES
     Tests/Mission/MissionRunner.cppm
     Tests/Mission/MissionRunner-Runner.cpp
     Tests/Mission/MissionRunner-Loop.cpp
+    Tests/Mission/MissionRunner-Trace.cpp
     Tests/Mission/MissionRunner-Support.cpp
     Tests/Scenarios/FlightScenarios.cppm
     Tests/Scenarios/FlightScenarios-Axes.cpp
@@ -140,6 +142,7 @@ set(TEST_SIL_FILES
     Tests/Sil/SilScenarios-Core.cpp
     Tests/Sil/SilScenarios-Safety.cpp
     Tests/Sil/SilScenarios-Suite.cpp
+    Tests/Sil/SilScenarios-Run.cpp
     Tests/Sil/Observability/SilObservability.cppm
     Tests/Sil/Observability/SilObservability-Support.cpp
     Tests/Sil/Observability/SilObservability-Heartbeat.cpp

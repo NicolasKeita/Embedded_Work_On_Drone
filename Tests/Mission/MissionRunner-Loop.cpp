@@ -26,6 +26,7 @@ namespace
         std::float64_t error_sum = 0.0;
         std::float64_t samples = 0.0;
         std::float64_t max_acceleration = 0.0;
+        AircraftState  previous_state{};
 
         void update(MissionMetrics& metrics, std::float64_t time, std::float64_t error, std::float64_t tolerance)
         {
@@ -40,40 +41,36 @@ namespace
             }
         }
 
+        /* Tracks the peak acceleration magnitude from the velocity delta of one step. */
+        void track_acceleration(std::float64_t dt, const AircraftState& current)
+        {
+            const std::float64_t ax = (current.vx - previous_state.vx) / dt;
+            const std::float64_t ay = (current.vy - previous_state.vy) / dt;
+            const std::float64_t az = (current.vz - previous_state.vz) / dt;
+
+            max_acceleration = std::max(max_acceleration, std::hypot(ax, ay, az));
+            previous_state = current;
+        }
+
+        /* Closes the tracking metrics with the final error and the peak acceleration. */
+        void close(MissionMetrics&      metrics,
+                   std::float64_t       target_value,
+                   TrackingAxis         axis,
+                   const AircraftState& final_state)
+        {
+            metrics.final_error = std::abs(target_value - component_value(final_state, axis));
+            metrics.steady_state_error = steady_state_error(metrics.final_error);
+            metrics.max_acceleration = max_acceleration;
+        }
+
         [[nodiscard]] std::float64_t steady_state_error(std::float64_t fallback) const
         {
             return samples > 0.0 ? error_sum / samples : fallback;
         }
     };
-
-    /* Records a state machine transition in the trace and reports it on the console. */
-    void log_state_transition(MissionRunTrace& trace, MissionState& previous, MissionState current, std::float64_t time)
-    {
-        if (current == previous) {
-            return;
-        }
-        previous = current;
-        trace.record(current);
-        std::cout << "  [MISSION] t = " << std::fixed << std::setprecision(1) << time
-                  << " s -> " << mission_state_name(current) << std::endl;
-    }
-
-    bool zone_reached(const MissionRunRequest& run, MissionState state, const AircraftState& s)
-    {
-        const bool airborne = state != MissionState::TAKEOFF && state != MissionState::CLIMB;
-        const bool inside = std::abs(run.target.x - s.x) <= run.tolerance
-            && std::abs(run.target.y - s.y) <= run.tolerance
-            && std::abs(run.target.z - s.z) <= run.tolerance;
-
-        return run.stop_on_zone && airborne && inside;
-    }
 }
 
-/*
-Executes the step-by-step simulation loop: applies the controller, integrates
-the physics, periodically logs the state, traces the transitions and accumulates
-the tracking metrics on the requested axis, then closes the metrics.
-*/
+/* Executes the step-by-step simulation loop, accumulating the tracking metrics. */
 void run_control_loop(FlightController&        ctrl,
                       Aircraft&                craft,
                       const MissionRunRequest& run,
@@ -85,11 +82,11 @@ void run_control_loop(FlightController&        ctrl,
     constexpr std::float64_t kSteadyWindowSeconds = 10.0;
     constexpr std::uint32_t  kLogIntervalSteps = 250;
     const std::float64_t     steady_start = std::max(std::float64_t{0.0}, run.duration - kSteadyWindowSeconds);
-    StepMetrics              step{direction, steady_start};
+    StepMetrics              step{.direction = direction, .steady_start = steady_start,
+                                  .previous_state = craft.state()};
     MissionState             previous_state = ctrl.state();
     std::float64_t           time = 0.0;
     std::uint32_t            step_index = 0;
-    AircraftState             previous_aircraft_state = craft.state();
 
     print_state_row(craft, time);
     while (time < run.duration) {
@@ -97,13 +94,7 @@ void run_control_loop(FlightController&        ctrl,
         craft.update(kDt);
         time += kDt;
         ++step_index;
-        const std::float64_t acceleration_x = (craft.state().vx - previous_aircraft_state.vx) / kDt;
-        const std::float64_t acceleration_y = (craft.state().vy - previous_aircraft_state.vy) / kDt;
-        const std::float64_t acceleration_z = (craft.state().vz - previous_aircraft_state.vz) / kDt;
-        step.max_acceleration = std::max(step.max_acceleration,
-            std::sqrt(acceleration_x * acceleration_x + acceleration_y * acceleration_y
-                      + acceleration_z * acceleration_z));
-        previous_aircraft_state = craft.state();
+        step.track_acceleration(kDt, craft.state());
         const std::float64_t error = target_value - component_value(craft.state(), run.axis);
         step.update(trace.metrics, time, error, run.tolerance);
         log_state_transition(trace, previous_state, ctrl.state(), time);
@@ -114,13 +105,10 @@ void run_control_loop(FlightController&        ctrl,
             break;
         }
     }
-
     if (step_index % kLogIntervalSteps != 0 || time == run.duration) {
         print_state_row(craft, time);
     }
-    trace.metrics.final_error = std::abs(target_value - component_value(craft.state(), run.axis));
-    trace.metrics.steady_state_error = step.steady_state_error(trace.metrics.final_error);
-    trace.metrics.max_acceleration = step.max_acceleration;
+    step.close(trace.metrics, target_value, run.axis, craft.state());
 }
 
 }

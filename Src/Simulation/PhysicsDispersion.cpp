@@ -19,8 +19,7 @@ DispersionGenerator::DispersionGenerator(std::uint64_t base_seed)
 
 std::uint64_t DispersionGenerator::generate_run_seed(std::uint64_t base_seed, std::size_t run_index) const
 {
-    std::uint64_t combined = base_seed + 2654435761ULL * static_cast<std::uint64_t>(run_index + 1);
-    return combined;
+    return base_seed + 2654435761ULL * static_cast<std::uint64_t>(run_index + 1);
 }
 
 PhysicsDispersion DispersionGenerator::generate_run_dispersion(std::size_t run_index) const
@@ -37,17 +36,12 @@ PhysicsDispersion DispersionGenerator::generate_run_dispersion(std::size_t run_i
     std::uniform_real_distribution<std::float64_t> uniform_0_to_2pi(0.0, 2.0 * std::numbers::pi);
     
     dispersion.mass_variation = normal_dist(generator) * 0.05;
-    
     dispersion.cog_offset_x = normal_dist(generator) * 0.05;
     dispersion.cog_offset_y = normal_dist(generator) * 0.05;
     dispersion.cog_offset_z = normal_dist(generator) * 0.02;
-    
     dispersion.actuator_gain_dispersion = normal_dist(generator) * 0.025;
-    
     dispersion.actuator_lag_dispersion = std::abs(normal_dist(generator)) * 0.025;
-    
     dispersion.wind_speed_mean = std::abs(normal_dist(generator)) * 2.0;
-    
     dispersion.wind_heading_rad = uniform_0_to_2pi(generator);
     
     dispersion.turbulence_intensity = uniform_0_to_1(generator) * 0.5;

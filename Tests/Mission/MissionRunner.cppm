@@ -96,6 +96,14 @@ Prints one timestamped state row of the aircraft during mission runs.
 */
 void print_state_row(const Aircraft& aircraft, std::float64_t timeSeconds);
 
+/* Records a state machine transition in the trace and reports it on the console. */
+void log_state_transition(MissionRunTrace& trace, sim::control::MissionState& previous,
+                          sim::control::MissionState current, std::float64_t time);
+
+/* Reports whether the vehicle holds the target zone and the run should stop there. */
+bool zone_reached(const MissionRunRequest& run, sim::control::MissionState state,
+                  const AircraftState& s);
+
 /*
 Executes the step-by-step simulation loop: applies the controller, integrates
 the physics, periodically logs the state, traces the transitions and accumulates

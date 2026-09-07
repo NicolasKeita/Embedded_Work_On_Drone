@@ -80,6 +80,7 @@ set(HIL_TRANSPORT_MODULE_FILES
     Src/Embedded/Hil/Transport/HilTransport.cppm
     Src/Embedded/Hil/Transport/HilTransport-Stats.cpp
     Src/Embedded/Hil/Transport/HilTransport-Receive.cpp
+    Src/Embedded/Hil/Transport/HilTransport-Accept.cpp
     Src/Embedded/Hil/Transport/HilTransport-Frames.cpp
 )
 
@@ -132,6 +133,8 @@ set(HIL_REPORT_FILES
 set(HIL_CLI_FILES
     Src/Embedded/Hil/Cli/HilRunnerCli.cppm
     Src/Embedded/Hil/Cli/HilRunnerCli-Parse.cpp
+    Src/Embedded/Hil/Cli/HilRunnerCli-Dispatch.cpp
+    Src/Embedded/Hil/Cli/HilRunnerCli-Usage.cpp
     Src/Embedded/Hil/Cli/HilRunnerCli-Config.cpp
 )
 

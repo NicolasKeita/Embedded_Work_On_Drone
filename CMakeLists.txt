@@ -75,11 +75,13 @@ project_target_setup(flight_sim_core)
 # CPU speed. --scenario selects one scenario (NOMINAL-001..010, FAULT_INJECTOR-001..004);
 # -v/--verbose enables per-step logging.
 # ----------------------------------------------------------------------------
-add_executable(SIL_RUNNER Src/Runners/SilRunnerMain.cpp)
+add_executable(SIL_RUNNER Src/Runners/Sil/main.cpp)
 target_add_mixed_sources(SIL_RUNNER PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${TEST_HARNESS_FILES}
     ${TEST_SIMULATION_FILES}
     ${TEST_SIL_FILES}
+    Src/Runners/Sil/SilRunnerCli.cppm
+    Src/Runners/Sil/SilRunnerCli.cpp
 )
 project_target_setup(SIL_RUNNER)
 target_link_libraries(SIL_RUNNER PRIVATE flight_sim_core)
@@ -90,7 +92,7 @@ target_link_libraries(SIL_RUNNER PRIVATE flight_sim_core)
 # selects one mission-level scenario, --interface selects the hardware channel,
 # --selftest runs the deterministic HIL validation suite.
 # ----------------------------------------------------------------------------
-add_executable(HIL_RUNNER Src/Runners/HilRunnerMain.cpp)
+add_executable(HIL_RUNNER Src/Runners/Hil/main.cpp)
 target_add_mixed_sources(HIL_RUNNER PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_CLI_FILES}
     ${HIL_INFRA_FILES}
@@ -106,10 +108,14 @@ target_link_libraries(HIL_RUNNER PRIVATE flight_sim_core)
 # --seed selects the master RNG seed, --runs the iteration count and --scenario
 # optionally restricts the campaign to one scenario template.
 # ----------------------------------------------------------------------------
-add_executable(SIL_MONTE_CARLO Src/Runners/MonteCarloMain.cpp)
+add_executable(SIL_MONTE_CARLO Src/Runners/MonteCarlo/main.cpp)
 target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${TEST_SIMULATION_FILES}
     ${VALIDATION_FILES}
+    Src/Runners/MonteCarlo/MonteCarloCampaign.cppm
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Cli.cpp
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Summary.cpp
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Run.cpp
 )
 project_target_setup(SIL_MONTE_CARLO)
 target_link_libraries(SIL_MONTE_CARLO PRIVATE flight_sim_core)

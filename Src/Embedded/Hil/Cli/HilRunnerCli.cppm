@@ -58,3 +58,21 @@ Builds the HilConfig of the selected scenario with the command-line overrides ap
 [[nodiscard]] sim::sil::FaultScenario hil_fault_from_options(const HilCliOptions& options);
 
 }
+
+namespace sim::hil {
+
+/* Applies a string-valued option to the requested field. */
+[[nodiscard]] std::expected<void, std::string> apply_string_option(std::string& field, int argc,
+                                                                   char** argv, int& i,
+                                                                   std::string_view label);
+
+/* Applies a float-valued option to the requested field. */
+[[nodiscard]] std::expected<void, std::string> apply_float_argument(std::optional<std::float64_t>& field,
+                                                                    int argc, char** argv, int& i,
+                                                                    std::string_view label);
+
+/* Applies the --seed option to the campaign options. */
+[[nodiscard]] std::expected<void, std::string> apply_seed_argument(HilCliOptions& options, int argc,
+                                                                   char** argv, int& i);
+
+}

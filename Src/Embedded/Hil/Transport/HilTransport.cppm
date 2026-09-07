@@ -69,12 +69,7 @@ public:
     /* Records an actuator response timeout without blocking (FC1 silent path). */
     void noteTimeoutFrame() noexcept;
 
-    /*
-    Waits for the ActuatorPacket answering sequence with an echoed sim timestamp of
-    expected_echo_sim_us, no later than deadline_wall_us on the wall clock. On success
-    fills out_cmds/out_diag and the round-trip wall time. Returns the typed failure
-    reason otherwise.
-    */
+    /* Waits for the ActuatorPacket answering sequence, no later than deadline_wall_us. */
     [[nodiscard]] ReceiveResult receiveActuator(IWallClock& clock,
                                                   std::uint16_t expected_sequence,
                                                   std::uint64_t expected_echo_sim_us,

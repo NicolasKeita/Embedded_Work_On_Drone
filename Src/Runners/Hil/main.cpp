@@ -1,5 +1,5 @@
 /*
-Filename: Src/Runners/HilRunnerMain.cpp
+Filename: Src/Runners/Hil/main.cpp
 Description: Entry point of HIL_RUNNER : hardware-in-the-loop real-time test runner
 (1 second of simulation time = 1 second of wall-clock time). Selects one scenario
 with --scenario (NOMINAL-001, FAULT_INJECTOR-001..004),
@@ -67,13 +67,9 @@ int main(int argc, char** argv)
 {
     const sim::hil::HilCliOptions options = sim::hil::parse_hil_cli(argc, argv);
 
-    if (options.help) {
+    if (options.help || options.invalid) {
         sim::hil::print_hil_usage(argv[0]);
-        return 0;
-    }
-    if (options.invalid) {
-        sim::hil::print_hil_usage(argv[0]);
-        return 2;
+        return options.invalid ? 2 : 0;
     }
     if (options.list_only) {
         sim::hil::list_hil_scenarios();

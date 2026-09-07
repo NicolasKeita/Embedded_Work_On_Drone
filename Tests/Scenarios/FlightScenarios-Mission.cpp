@@ -31,29 +31,23 @@ void autonomous_mission(TestHarness& runner, std::float64_t hover_rpm,
 {
     runner.begin_scenario("NOMINAL-010", "Full mission (20, -15, 0) -> (0, 0, 100)");
     runner.log_header();
-
     ControllerConfig config{.hover_rpm = hover_rpm};
     FlightController controller{config, dispersion};
     Aircraft aircraft{dispersion};
-
     std::cout << "-- Phase 1: station keeping at point (20, -15, 100) --" << std::endl;
     const MissionRunTrace approach = run_mission(controller, aircraft,
                     {.target = {.x = 20.0, .y = -15.0, .z = 100.0}, .duration = 240.0,
                      .axis = TrackingAxis::z_axis, .tolerance = 1.0, .stop_on_zone = true}, dispersion);
-
     std::cout << "-- Phase 2: station keeping on target (0, 0, 100) --" << std::endl;
     const MissionRunTrace trace = run_mission(controller, aircraft,
                     {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 0.5},
                     dispersion);
-
     print_metrics_report("altitude", trace.metrics);
     runner.record_metrics(trace.metrics.overshoot_units, trace.metrics.time_within_tolerance,
                           trace.metrics.steady_state_error, trace.metrics.max_acceleration);
     const AircraftState& finalState = aircraft.state();
-
     std::array<MissionState, kMaxVisitedStates> visited{};
     std::size_t visitedCount = 0;
-
     for (std::size_t i = 0; i < approach.visited_count && visitedCount < visited.size(); ++i) {
         visited[visitedCount] = approach.visited_states[i];
         ++visitedCount;
