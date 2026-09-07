@@ -39,7 +39,7 @@ public:
     static void print_usage(std::string_view executableName);
 
 private:
-    static const std::array<ScenarioEntry, 10> scenarios_;
+    static const std::array<ScenarioEntry, 11> scenarios_;
 };
 
 }
