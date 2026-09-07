@@ -32,19 +32,14 @@ Mission (sensor stream : FC-observed; ground truth recorded separately)
   t(s)     x(m)     y(m)     z(m)   vx(m/s)  vy(m/s)  vz(m/s)  pitch(deg) roll(deg)  rpm
 [HIL] t = 0.00 s -> HIL_RUN_START
   0.00     0.00     0.00     0.00    0.00     0.00     0.00      0.00     0.00       0
-    truth z=0.000 m  sensor z=0.000 m
 [MISSION] t = 0.77 s -> CLIMB
   1.00     0.00     0.00     0.71    0.00     0.00     0.71      0.00     0.00     897
-    truth z=0.710 m  sensor z=0.710 m
 [MISSION] t = 2.89 s -> STATION_KEEPING
   3.00     0.00     0.00     9.92    0.00     0.00     0.01      0.00     0.00     814
-    truth z=9.920 m  sensor z=9.920 m
 [MISSION] t = 7.91 s -> MISSION_COMPLETE
   8.00     0.00     0.00    10.00    0.00     0.00     0.00      0.00     0.00     815
-    truth z=10.000 m  sensor z=10.000 m
    ...continued to 30.0 s (station holding)...
  30.00     0.00     0.00    10.00    0.00     0.00     0.00      0.00     0.00     815
-    truth z=10.000 m  sensor z=10.000 m
 [HIL] t = 30.00 s -> HIL_RUN_END
 
 Events
@@ -106,12 +101,10 @@ Mission (sensor stream : FC-observed; ground truth recorded separately)
 [MISSION] t = 0.77 s -> CLIMB
 [MISSION] t = 2.89 s -> STATION_KEEPING
   5.00     0.00     0.00    10.00    0.00     0.00     0.00      0.00     0.00     815
-    truth z=10.000 m  sensor z=10.000 m
 [FAULT] t = 5.00 s -> FC1_FAILURE
 [SAFETY] t = 5.10 s -> heartbeat timeout
 [SAFETY] t = 5.10 s -> SAFE_MODE
   6.00     0.00     0.00     9.60    0.00     0.00    -0.40      0.00     0.00     774
-    truth z=9.600 m  sensor z=9.600 m
    ...controlled descent toward the ground...
  30.00     0.00     0.00     0.00    0.00     0.00     0.00      0.00     0.00       0
 [HIL] t = 30.00 s -> HIL_RUN_END

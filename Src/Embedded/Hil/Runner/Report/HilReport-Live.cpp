@@ -1,8 +1,8 @@
 /*
 Filename: Src/Embedded/Hil/Runner/Report/HilReport-Live.cpp
 Description: Live streaming of the HIL run : drains the trace events recorded since the
-previous call and prints one telemetry row (with the truth-vs-sensor altitude line) per
-report-period boundary crossed, flushed immediately.
+previous call and prints one telemetry row per report-period boundary crossed, flushed
+immediately.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -45,11 +45,6 @@ void stream_live_output(HilRunContext& ctx)
         }
         const HilSensorSample& sensor = ctx.telemetry_recorder.samples.back();
         write_table_row(out, sensor);
-        if (!ctx.telemetry_recorder.truth_samples.empty()) {
-            const HilTruthSample& truth = ctx.telemetry_recorder.truth_samples.back();
-            out << "    truth z=" << std::fixed << std::setprecision(3) << truth.z
-                << " m  sensor z=" << sensor.z << " m\n";
-        }
     }
     out << std::flush;
 }

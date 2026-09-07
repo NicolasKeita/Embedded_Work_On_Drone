@@ -1,8 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Runner/Report/HilReport-Report.cpp
 Description: Full HIL mission report : the 1 Hz telemetry table interleaved with the
-structured event timeline, the ground-truth vs sensor altitude comparison and the event
-list, closed by the post-run summary.
+structured event timeline and the event list, closed by the post-run summary.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -53,12 +52,6 @@ namespace {
             return;
         }
         write_table_row(out, output.telemetry[static_cast<std::size_t>(best)]);
-        if (best < static_cast<std::ptrdiff_t>(output.ground_truth.size())) {
-            const HilTruthSample& truth = output.ground_truth[static_cast<std::size_t>(best)];
-            const HilSensorSample& sensor = output.telemetry[static_cast<std::size_t>(best)];
-            out << "    truth z=" << std::fixed << std::setprecision(3) << truth.z
-                << " m  sensor z=" << sensor.z << " m\n";
-        }
     }
 
     void write_mission_timeline(std::ostream&                out,
