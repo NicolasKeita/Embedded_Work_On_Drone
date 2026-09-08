@@ -1,5 +1,5 @@
 /*
-Filename: Src/Simulation/Aircraft.cpp
+Filename: Src/Simulation/Aircraft-Core.cpp
 Description: Integration of the simplified Heliblade-like flight physics (actuators, attitude, translation).
 
 Copyright (c) 2026 Nicolas K.
