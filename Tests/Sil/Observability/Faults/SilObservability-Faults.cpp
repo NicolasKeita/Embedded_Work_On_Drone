@@ -18,7 +18,7 @@ import TestHarness;
 namespace sim::test::sil {
 
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
 using sim::sil::SilEvent;
@@ -27,14 +27,14 @@ using sim::sil::SilLogLevel;
 using sim::sil::SilRunOutput;
 
 /*
-OBS-003/004: an FC1 failure produces injection, FC failure, watchdog and
+OBS-003/004: an FC1 failure produces injection, FC failure, supervision and
 detection events, and the detection latency is correctly derived.
 */
 void fc1_failure_events_test(TestHarness& runner)
 {
     runner.set_context("OBS-003");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -54,8 +54,8 @@ void fc1_failure_events_test(TestHarness& runner)
         return;
     }
     runner.check(std::abs(injected->timestamp - 30.0) <= config.dt, "FAULT_INJECTED timestamped at injection");
-    runner.check(injected->detail == sim::sil::fault_type_name(FaultType::FC1Failure),
-                 "FAULT_INJECTED carries the fault type");
+    runner.check(injected->detail == sim::sil::failure_mode_name(FailureMode::FC1_UNAVAILABLE),
+                 "FAULT_INJECTED carries the failure mode");
     runner.check(injected->reason.find("permanently") != std::string_view::npos,
                  "FAULT_INJECTED specifies the permanent character");
     runner.check(detected->timestamp >= 30.0 && output.result.fault_detected, "detection after injection");
@@ -64,9 +64,9 @@ void fc1_failure_events_test(TestHarness& runner)
     runner.check(std::abs(output.result.detection_latency
                           - (output.result.detection_time - output.result.fault_injected_time)) < 1.0e-9,
                  "detection_latency = detection_time - fault_injected_time");
-    runner.check(output.result.watchdog_triggered
-                     && output.result.watchdog_trigger_time <= output.result.detection_time + 1.0e-9,
-                 "watchdog triggered no later than detection");
+    runner.check(output.result.supervision_triggered
+                     && output.result.supervision_trigger_time <= output.result.detection_time + 1.0e-9,
+                 "supervision triggered no later than detection");
     runner.check(output.result.safety_response_time >= output.result.detection_time, "safety response after detection");
 }
 
@@ -78,7 +78,7 @@ void state_transitions_test(TestHarness& runner)
 {
     runner.set_context("OBS-005");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

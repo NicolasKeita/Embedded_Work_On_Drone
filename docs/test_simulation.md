@@ -115,7 +115,7 @@ The following scenarios are executed:
 
 - **FAULT_INJECTOR-002 [SIL] — Total communication loss (Communication loss)**
   - **Description**: Communication link cut at t = 30.0 s.
-  - **Expectations**: The `COMMUNICATION_LOST` alert must be raised in less than 300 ms. The system must engage a safety reaction (`SAFE_MODE`) and abort the mission.
+  - **Expectations**: The `COMMUNICATION_TIMEOUT` detection event must be raised in less than 300 ms. The system must engage a safety reaction (`SAFE_MODE`) and abort the mission.
 
 - **FAULT_INJECTOR-003 [SIL] — Sensor failure (Sensor fault)**
   - **Description**: Corruption of the altitude sensor data (outlier value) at t = 20.0 s for 10 seconds.

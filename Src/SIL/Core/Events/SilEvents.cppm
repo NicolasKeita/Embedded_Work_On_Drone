@@ -25,7 +25,18 @@ import SilFaultScenario;
 
 export namespace sim::sil {
 
-// Typed simulation events emitted by the SIL pipeline (observability contract).
+/*
+Typed simulation events emitted by the SIL pipeline (observability contract).
+The vocabulary keeps the safety chain stages apart: FaultInjected /
+SensorFaultInjected / ActuatorFaultInjected mark the injection of a failure
+mode, SupervisionTimeout / FaultDetected / FaultClassified mark the detection
+and diagnosis, SafetyResponse / SafetyStateTransition mark the reaction and
+RecoveryStart / RecoveryEnd / SupervisionRecovery mark the recovery. The
+supervision events (SupervisionTimeout / SupervisionReset /
+SupervisionRecovery) belong to the FC1 heartbeat/link liveness supervision:
+no local task watchdog exists in the current system, so no event uses
+watchdog terminology.
+*/
 enum class SilEventType {
     SimulationStart,
     SimulationEnd,
@@ -36,21 +47,18 @@ enum class SilEventType {
     SafetyResponse,
     SafetyStateTransition,
     MissionStateTransition,
-    WatchdogTimeout,
-    WatchdogKick,
-    WatchdogRecovery,
+    SupervisionTimeout,
+    SupervisionReset,
+    SupervisionRecovery,
     FCStartup,
     FCShutdown,
     FCFailure,
-    MessageGenerated,
-    MessageDelivered,
-    MessageDropped,
     MessageTimeout,
     HeartbeatSent,
     HeartbeatDelivered,
     HeartbeatDropped,
-    SensorFault,
-    ActuatorFault,
+    SensorFaultInjected,
+    ActuatorFaultInjected,
     RecoveryStart,
     RecoveryEnd
 };

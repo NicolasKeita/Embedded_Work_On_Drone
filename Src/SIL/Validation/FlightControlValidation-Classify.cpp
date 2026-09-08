@@ -18,10 +18,10 @@ namespace sim::sil::validation {
 /*
 Root-cause classification of one SIL outcome. The first failing check wins so
 that the failure reason stays a single canonical domain per run; the order
-reflects the severity hierarchy (mission abort > undetected fault > watchdog >
-safety mode > physical bounds > comms). Position and altitude errors are also
-computed here from the SIL ground-truth fields so that the collector can
-aggregate them in a single pass.
+reflects the severity hierarchy (mission abort > undetected fault > heartbeat
+supervision > safety mode > physical bounds > comms). Position and altitude
+errors are also computed here from the SIL ground-truth fields so that the
+collector can aggregate them in a single pass.
 */
 SimulationResult MonteCarloRunner::classify(const Scenario&                   scenario,
                                             const sim::sil::SimulationResult& sil_result)
@@ -37,20 +37,20 @@ SimulationResult MonteCarloRunner::classify(const Scenario&                   sc
         result.failure_reason = FailureReason::MissionFailed;
     } else if (sil_result.final_state == sim::control::MissionState::ABORTED) {
         result.failure_reason = FailureReason::MissionAborted;
-    } else if (scenario.fault_type != FaultType::None && !sil_result.fault_detected) {
+    } else if (scenario.failure_mode != FailureMode::NONE && !sil_result.fault_detected) {
         result.failure_reason = FailureReason::FaultUndetected;
-    } else if (scenario.fault_type != FaultType::None && !sil_result.watchdog_triggered &&
-               scenario.fault_type != FaultType::ActuatorDegradation &&
-               scenario.fault_type != FaultType::SensorFault) {
-        result.failure_reason = FailureReason::WatchdogMissed;
-    } else if (scenario.fault_type != FaultType::None && !sil_result.safe_mode_reached &&
-               scenario.fault_type != FaultType::ActuatorDegradation) {
+    } else if (scenario.failure_mode != FailureMode::NONE && !sil_result.supervision_triggered &&
+               scenario.failure_mode != FailureMode::ACTUATOR_DEGRADED &&
+               scenario.failure_mode != FailureMode::INVALID_SENSOR_DATA) {
+        result.failure_reason = FailureReason::SupervisionMissed;
+    } else if (scenario.failure_mode != FailureMode::NONE && !sil_result.safe_mode_reached &&
+               scenario.failure_mode != FailureMode::ACTUATOR_DEGRADED) {
         result.failure_reason = FailureReason::SafetyModeNotReached;
     } else if (result.position_error_m > 50.0) {
         result.failure_reason = FailureReason::PositionExceeded;
     } else if (result.altitude_error_m > 25.0) {
         result.failure_reason = FailureReason::AltitudeExceeded;
-    } else if (sil_result.comms.timeouts > 0 && scenario.fault_type == FaultType::CommunicationLoss) {
+    } else if (sil_result.comms.timeouts > 0 && scenario.failure_mode == FailureMode::FC_COMMUNICATION_LOSS) {
         result.failure_reason = FailureReason::CommsTimeout;
     }
 

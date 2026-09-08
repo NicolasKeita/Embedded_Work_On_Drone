@@ -1,6 +1,6 @@
 /*
 Filename: Src/Safety/HealthMonitor-Evaluate.cpp
-Description: FC2 health evaluation : comms/heartbeat, sensor and actuator flag updates.
+Description: FC2 health evaluation : comms/heartbeat supervision, sensor and actuator detection flag updates.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -17,40 +17,41 @@ import Telemetry;
 namespace sim::safety {
 
 /*
-Communication link loss and FC1 heartbeat timeout raise latched flags: these are
-physical events that only a reset can clear.
+Communication link loss and FC1 heartbeat timeout raise latched detection
+flags: these are physical events that only a reset can clear.
 */
 void HealthMonitor::update_comms_flags(std::float64_t current_time, const sim::sil::CommsBus& comms)
 {
     if (!comms.link_up()) {
-        raise(FaultDomain::Communication, current_time);
+        raise(DetectionEvent::COMMUNICATION_TIMEOUT, current_time);
     }
     else {
         const std::float64_t last_received = comms.last_received_time();
         if (last_received >= 0.0 && current_time - last_received > config_.heartbeat_timeout_s) {
-            raise(FaultDomain::FC1Heartbeat, current_time);
+            raise(DetectionEvent::FC1_HEARTBEAT_TIMEOUT, current_time);
         }
     }
 }
 
 /*
-Sensor faults are re-evaluated continuously: the flag clears as soon as the
-telemetry validates again.
+Sensor validation is re-evaluated continuously: the detection flag clears as
+soon as the telemetry validates again.
 */
 void HealthMonitor::update_sensor_flags(std::float64_t                   current_time,
                                         const sim::sil::SensorTelemetry& telemetry)
 {
     if (!validate(telemetry, config_.sensor_limits).all_valid()) {
-        raise(FaultDomain::Sensor, current_time);
+        raise(DetectionEvent::SENSOR_VALIDATION_FAILED, current_time);
     }
     else {
-        flags_[domain_index(FaultDomain::Sensor)].raised = false;
+        flags_[detection_index(DetectionEvent::SENSOR_VALIDATION_FAILED)].raised = false;
     }
 }
 
 /*
 The commanded/actual RPM mismatch must be sustained during
-actuator_mismatch_hold_s before the flag is raised; otherwise it clears.
+actuator_mismatch_hold_s before the detection flag is raised; otherwise it
+clears.
 */
 void HealthMonitor::update_actuator_flags(std::float64_t                   current_time,
                                           const sim::sil::SensorTelemetry& telemetry,
@@ -67,16 +68,16 @@ void HealthMonitor::update_actuator_flags(std::float64_t                   curre
     }
     const bool sustained = mismatching && current_time - mismatch_since_ >= config_.actuator_mismatch_hold_s;
     if (sustained) {
-        raise(FaultDomain::Actuator, current_time);
+        raise(DetectionEvent::ACTUATOR_MISMATCH, current_time);
     }
     else {
-        flags_[domain_index(FaultDomain::Actuator)].raised = false;
+        flags_[detection_index(DetectionEvent::ACTUATOR_MISMATCH)].raised = false;
     }
 }
 
 /*
-Full health evaluation: updates the domain flags, recomputes the overall state
-and returns the report snapshot.
+Full health evaluation: updates the detection flags, recomputes the overall
+state and returns the report snapshot.
 */
 HealthReport HealthMonitor::evaluate(std::float64_t                   current_time,
                                      const sim::sil::CommsBus&        comms,

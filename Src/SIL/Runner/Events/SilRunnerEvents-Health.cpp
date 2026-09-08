@@ -34,12 +34,13 @@ void record_health_transition(RunContext& ctx, sim::safety::HealthState current)
                         .severity = EventSeverity::Info,
                         .previous_state = health_state_name(ctx.previous_health),
                         .new_state = health_state_name(current),
-                        .reason = current == HealthState::HEALTHY ? "all flags clear" : "fault flags raised"};
+                        .reason = current == HealthState::HEALTHY ? "all detection flags clear" : "detection flags raised"};
     ctx.trace.record(transition);
 }
 
 /*
-Records the recovery completion when health returns to HEALTHY after a fault.
+Records the recovery completion when health returns to HEALTHY after a fault,
+together with the heartbeat supervision recovery marker.
 */
 void record_recovery_end(RunContext& ctx, sim::safety::HealthState current)
 {
@@ -55,10 +56,10 @@ void record_recovery_end(RunContext& ctx, sim::safety::HealthState current)
                           .severity = EventSeverity::Info,
                           .reason = "health restored"};
 
-    SilEvent watchdog_recovery = recovery_end;
-    watchdog_recovery.type = SilEventType::WatchdogRecovery;
+    SilEvent supervision_recovery = recovery_end;
+    supervision_recovery.type = SilEventType::SupervisionRecovery;
     ctx.trace.record(recovery_end);
-    ctx.trace.record(watchdog_recovery);
+    ctx.trace.record(supervision_recovery);
 }
 
 }

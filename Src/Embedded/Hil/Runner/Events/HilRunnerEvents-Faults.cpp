@@ -20,20 +20,20 @@ import SilFaultScenario;
 namespace sim::hil {
 
 namespace {
-    sim::sil::FaultType active_fault_type(const HilRunContext& ctx)
+    sim::sil::FailureMode active_failure_mode(const HilRunContext& ctx)
     {
         for (std::size_t i = 0; i < ctx.injector_count; ++i) {
             if (ctx.injectors[i].is_active(ctx.time)) {
-                return ctx.injectors[i].scenario().fault_type;
+                return ctx.injectors[i].scenario().failure_mode;
             }
         }
-        return sim::sil::FaultType::None;
+        return sim::sil::FailureMode::NONE;
     }
 
-    void record_fault_injected(HilRunContext& ctx, sim::sil::FaultType active_type)
+    void record_fault_injected(HilRunContext& ctx, sim::sil::FailureMode active_mode)
     {
         ctx.fault_active = true;
-        ctx.last_fault_type = active_type;
+        ctx.last_failure_mode = active_mode;
         if (!ctx.fault_recorded) {
             ctx.fault_recorded = true;
             ctx.result.fault_injected_time = ctx.time;
@@ -43,9 +43,9 @@ namespace {
                                   .source = "FAULT_INJECTOR",
                                   .type = HilEventType::FaultInjected,
                                   .severity = HilEventSeverity::Info,
-                                  .detail = sim::sil::fault_type_name(active_type),
-                                  .reason = "fault injected into the HIL data path"});
-        if (active_type == sim::sil::FaultType::FC1Failure && ctx.fc1_was_alive) {
+                                  .detail = sim::sil::failure_mode_name(active_mode),
+                                  .reason = "failure mode injected into the HIL data path"});
+        if (active_mode == sim::sil::FailureMode::FC1_UNAVAILABLE && ctx.fc1_was_alive) {
             ctx.fc1_was_alive = false;
             record_fc1_failure_event(ctx);
         }
@@ -59,7 +59,7 @@ namespace {
                                   .source = "FAULT_INJECTOR",
                                   .type = HilEventType::FaultCleared,
                                   .severity = HilEventSeverity::Info,
-                                  .detail = sim::sil::fault_type_name(ctx.last_fault_type),
+                                  .detail = sim::sil::failure_mode_name(ctx.last_failure_mode),
                                   .reason = "fault window ended"});
     }
 }
@@ -72,7 +72,7 @@ void record_detection(HilRunContext& ctx, const sim::safety::HealthReport& repor
         return;
     }
     ctx.result.detection_time = detection;
-    ctx.result.first_fault_domain = report.first_fault_domain();
+    ctx.result.first_detection_event = report.first_detection_event();
     ctx.result.fault_detected = true;
     if (ctx.detection_recorded) {
         return;
@@ -83,18 +83,22 @@ void record_detection(HilRunContext& ctx, const sim::safety::HealthReport& repor
                               .source = "FC2",
                               .type = HilEventType::FaultDetected,
                               .severity = HilEventSeverity::Info,
-                              .detail = sim::safety::fault_domain_name(ctx.result.first_fault_domain),
+                              .detail = sim::safety::detection_event_name(ctx.result.first_detection_event),
                               .reason = "fault detected"});
-    if (ctx.result.first_fault_domain == sim::safety::FaultDomain::FC1Heartbeat) {
+    if (ctx.result.first_detection_event == sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT) {
         ctx.trace.record(HilEvent{.sim_time_s = detection,
                                   .wall_us = ctx.clock->nowUs(),
                                   .source = "FC2",
                                   .type = HilEventType::HeartbeatTimeout,
                                   .severity = HilEventSeverity::Warning,
-                                  .reason = "FC1 heartbeat / actuator-link timeout"});
+                                  .reason = "FC1 heartbeat supervision timeout"});
     }
 }
 
+/*
+Emits the FC1 failure event: the injection-side observable of the
+FC1_UNAVAILABLE failure mode (the detail names the failure mode).
+*/
 void record_fc1_failure_event(HilRunContext& ctx)
 {
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
@@ -102,17 +106,17 @@ void record_fc1_failure_event(HilRunContext& ctx)
                               .source = "FC1",
                               .type = HilEventType::Fc1Failure,
                               .severity = HilEventSeverity::Warning,
-                              .detail = "FC1_FAILURE"});
+                              .detail = sim::sil::failure_mode_name(sim::sil::FailureMode::FC1_UNAVAILABLE)});
 }
 
 void record_fault_events(HilRunContext& ctx)
 {
-    const sim::sil::FaultType active_type = active_fault_type(ctx);
+    const sim::sil::FailureMode active_mode = active_failure_mode(ctx);
 
-    if (active_type != sim::sil::FaultType::None && !ctx.fault_active) {
-        record_fault_injected(ctx, active_type);
+    if (active_mode != sim::sil::FailureMode::NONE && !ctx.fault_active) {
+        record_fault_injected(ctx, active_mode);
     }
-    else if (active_type == sim::sil::FaultType::None && ctx.fault_active) {
+    else if (active_mode == sim::sil::FailureMode::NONE && ctx.fault_active) {
         record_fault_cleared(ctx);
     }
 }

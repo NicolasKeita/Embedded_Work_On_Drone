@@ -38,7 +38,8 @@ void record_heartbeat(RunContext& ctx, const CommsDelivery& delivery)
 }
 
 /*
-Emits the delivery receipt with its latency and the FC2 watchdog kick.
+Emits the delivery receipt with its latency and the FC2 supervision reset
+(the heartbeat supervision timer is re-armed on each delivered heartbeat).
 */
 void record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery)
 {
@@ -55,7 +56,7 @@ void record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery)
 
     SilEvent kick{.timestamp = delivery.receive_time,
                   .source = "FC2",
-                  .type = SilEventType::WatchdogKick,
+                  .type = SilEventType::SupervisionReset,
                   .severity = EventSeverity::Debug,
                   .sequence = delivery.sequence,
                   .has_sequence = true};

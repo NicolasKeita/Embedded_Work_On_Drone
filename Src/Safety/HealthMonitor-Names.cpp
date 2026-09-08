@@ -1,6 +1,6 @@
 /*
 Filename: Src/Safety/HealthMonitor-Names.cpp
-Description: Readable naming helpers for health states and fault domains.
+Description: Readable naming helpers for health states and detection events.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,16 +12,16 @@ import std;
 
 namespace sim::safety {
 
-std::string_view fault_domain_name(FaultDomain domain)
+std::string_view detection_event_name(DetectionEvent event)
 {
-    switch (domain) {
-    case FaultDomain::FC1Heartbeat:
+    switch (event) {
+    case DetectionEvent::FC1_HEARTBEAT_TIMEOUT:
         return "FC1_HEARTBEAT_TIMEOUT";
-    case FaultDomain::Communication:
-        return "COMMUNICATION_LOST";
-    case FaultDomain::Sensor:
-        return "SENSOR_INVALID";
-    case FaultDomain::Actuator:
+    case DetectionEvent::COMMUNICATION_TIMEOUT:
+        return "COMMUNICATION_TIMEOUT";
+    case DetectionEvent::SENSOR_VALIDATION_FAILED:
+        return "SENSOR_VALIDATION_FAILED";
+    case DetectionEvent::ACTUATOR_MISMATCH:
         return "ACTUATOR_MISMATCH";
     }
     return "UNKNOWN";
@@ -36,8 +36,6 @@ std::string_view health_state_name(HealthState state)
         return "DEGRADED";
     case HealthState::SAFE:
         return "SAFE";
-    case HealthState::FAILED:
-        return "FAILED";
     }
     return "UNKNOWN";
 }

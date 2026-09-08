@@ -33,7 +33,7 @@ void SILRunner::update_monitoring(RunContext& ctx)
     const HealthReport report = ctx.health.evaluate(ctx.time, ctx.comms, ctx.telemetry, ctx.commanded_rpm);
 
     ctx.safety_command = ctx.safety.update(ctx.time, report);
-    record_watchdog_and_detection(ctx, report);
+    record_supervision_and_detection(ctx, report);
     record_health_transition(ctx, report.state);
     record_safety_transitions(ctx);
     record_recovery_end(ctx, report.state);

@@ -18,9 +18,9 @@ namespace sim::sil {
 
 /*
 Emits the fault injection chain rising edge: the generic injection marker
-carrying the numeric parameters, the fault identity metadata and the expected
-system response, followed by the typed sensor/actuator event when the fault
-family has one.
+carrying the failure mode, the numeric parameters, the fault identity metadata
+and the expected system response, followed by the typed sensor/actuator
+injection event when the failure mode has one.
 */
 void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
 {
@@ -28,7 +28,7 @@ void record_fault_activation(RunContext& ctx, const FaultScenario& scenario)
                       .source = "ENV",
                       .type = SilEventType::FaultInjected,
                       .severity = EventSeverity::Info,
-                      .detail = fault_type_name(scenario.fault_type),
+                      .detail = failure_mode_name(scenario.failure_mode),
                       .reason = fault_effect_reason(scenario)};
 
     write_fault_parameters(injected, scenario);
@@ -52,7 +52,7 @@ void record_fault_cleared(RunContext& ctx)
                      .source = "ENV",
                      .type = SilEventType::FaultCleared,
                      .severity = EventSeverity::Info,
-                     .detail = fault_type_name(ctx.last_fault_type),
+                     .detail = failure_mode_name(ctx.last_failure_mode),
                      .reason = "activation window closed",
                      .value = ctx.time - ctx.last_fault_start,
                      .has_value = true};
@@ -68,16 +68,18 @@ void record_fault_cleared(RunContext& ctx)
 }
 
 /*
-Emits the typed sensor/actuator fault event echoing the injection marker
-payload; fault families without a typed event emit nothing.
+Emits the typed sensor/actuator fault injection event echoing the injection
+marker payload; failure modes without a typed event emit nothing.
 */
 void record_typed_fault(RunContext& ctx, const FaultScenario& scenario, const SilEvent& injected)
 {
-    if (scenario.fault_type != FaultType::SensorFault && scenario.fault_type != FaultType::ActuatorDegradation) {
+    if (scenario.failure_mode != FailureMode::INVALID_SENSOR_DATA
+        && scenario.failure_mode != FailureMode::ACTUATOR_DEGRADED) {
         return;
     }
-    const SilEventType type = scenario.fault_type == FaultType::SensorFault ? SilEventType::SensorFault
-                                                                           : SilEventType::ActuatorFault;
+    const SilEventType type = scenario.failure_mode == FailureMode::INVALID_SENSOR_DATA
+                                  ? SilEventType::SensorFaultInjected
+                                  : SilEventType::ActuatorFaultInjected;
     SilEvent event{.timestamp = ctx.time,
                    .source = "ENV",
                    .type = type,

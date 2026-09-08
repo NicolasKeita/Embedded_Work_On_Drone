@@ -87,7 +87,7 @@ struct HilRunContext {
     bool                       safety_response_recorded = false;
     bool                       mission_abort_recorded = false;
     bool                       fc1_was_alive = true;
-    sim::sil::FaultType        last_fault_type = sim::sil::FaultType::None;
+    sim::sil::FailureMode     last_failure_mode = sim::sil::FailureMode::NONE;
 
     std::uint64_t  step = 0;
     std::float64_t time = 0.0;

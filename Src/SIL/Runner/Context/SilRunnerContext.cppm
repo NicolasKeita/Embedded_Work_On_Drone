@@ -31,7 +31,10 @@ export namespace sim::sil {
 // Maximum number of fault scenarios a single run can carry (fixed capacity).
 inline constexpr std::size_t kMaxFaultInjectors = 8;
 
-// Typed failures of a SIL run (no exception is ever thrown).
+/*
+Typed failures of a SIL run (infrastructure-domain errors: scenario list
+capacity and scenario validation; no exception is ever thrown).
+*/
 enum class SilError { TooManyScenarios, FaultScenarioRejected };
 
 struct SilConfig {
@@ -84,7 +87,7 @@ struct RunContext {
     SilTrace                                      trace;
     TelemetryRecorder                             telemetry_recorder{};
     CommsStats                                    comms_stats{};
-    std::array<bool, 4>                           previous_flags{};
+    std::array<bool, sim::safety::kDetectionEventCount> previous_flags{};
     sim::control::MissionState                    previous_mission_state = sim::control::MissionState::TAKEOFF;
     sim::safety::SafetyMode                       previous_safety_mode = sim::safety::SafetyMode::NORMAL;
     sim::safety::HealthState                      previous_health = sim::safety::HealthState::HEALTHY;
@@ -95,7 +98,7 @@ struct RunContext {
     bool                                          recovery_recorded = false;
     bool                                          safety_response_recorded = false;
     bool                                          mission_abort_recorded = false;
-    FaultType                                     last_fault_type = FaultType::None;
+    FailureMode                                   last_failure_mode = FailureMode::NONE;
     FaultTarget                                   last_fault_target = FaultTarget::Unspecified;
     std::float64_t                                last_fault_start = 0.0;
     std::float64_t                                commanded_rpm = 0.0;

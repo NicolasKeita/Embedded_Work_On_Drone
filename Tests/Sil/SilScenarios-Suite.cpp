@@ -23,10 +23,9 @@ import TestHarness;
 
 namespace sim::test::sil {
 
-using sim::safety::FaultDomain;
 using sim::safety::SafetyMode;
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::ScenarioRecord;
 using sim::sil::SilError;
 using sim::sil::SilRunOutput;
@@ -43,7 +42,7 @@ void fc1_failure_during_climb_scenario(TestHarness& runner, SilRunOutput& output
 {
     runner.begin_scenario("FAULT_INJECTOR-005",
                           "FC1 failure injected during the climb mode-change transition");
-    const FaultScenario scenario{.start_time = 2.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario scenario{.start_time = 2.0, .duration = 0.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::array<FaultScenario, 1> scenarios{scenario};
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {

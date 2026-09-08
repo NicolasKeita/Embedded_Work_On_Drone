@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 
     const sim::hil::HilConfig config = sim::hil::hil_config_from_options(options);
     const std::array<sim::sil::FaultScenario, 1> scenarios{sim::hil::hil_fault_from_options(options)};
-    const bool fault_expected = scenarios[0].fault_type != sim::sil::FaultType::None;
+    const bool fault_expected = scenarios[0].failure_mode != sim::sil::FailureMode::NONE;
 
     const std::string_view brief = sim::test::scenario_brief(config.scenario_id);
     if (!brief.empty()) {

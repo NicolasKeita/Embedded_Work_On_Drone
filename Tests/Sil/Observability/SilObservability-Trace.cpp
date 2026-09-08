@@ -20,7 +20,7 @@ namespace sim::test::sil {
 
 using sim::control::MissionState;
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
 using sim::sil::SilEvent;
@@ -69,7 +69,7 @@ void trace_reconstruction_test(TestHarness& runner)
 {
     runner.set_context("OBS-010");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -87,8 +87,8 @@ void trace_reconstruction_test(TestHarness& runner)
     runner.check(!scan.sent_after, "heartbeats stop after injection");
     runner.check(find_first_after(events, SilEventType::FaultDetected, fault_index) != nullptr,
                  "FAULT_DETECTED after injection");
-    runner.check(find_first_after(events, SilEventType::WatchdogTimeout, fault_index) != nullptr,
-                 "WATCHDOG_TIMEOUT after injection");
+    runner.check(find_first_after(events, SilEventType::SupervisionTimeout, fault_index) != nullptr,
+                 "SUPERVISION_TIMEOUT after injection");
     runner.check(find_first_after(events, SilEventType::SafetyResponse, fault_index) != nullptr,
                  "SAFETY_RESPONSE after injection");
     runner.check(outcome.value().result.final_state == MissionState::ABORTED, "ABORTED mission reconstructed");

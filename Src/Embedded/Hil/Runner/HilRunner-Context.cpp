@@ -28,7 +28,7 @@ HilRunner::HilRunner(HilConfig config) : config_{std::move(config)} {}
 bool any_fault_expected(std::span<const sim::sil::FaultScenario> scenarios)
 {
     for (const auto& scenario : scenarios) {
-        if (scenario.fault_type != sim::sil::FaultType::None) {
+        if (scenario.failure_mode != sim::sil::FailureMode::NONE) {
             return true;
         }
     }
@@ -45,7 +45,7 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
     auto ctx = std::make_unique<HilRunContext>(config);
 
     for (const sim::sil::FaultScenario& scenario : scenarios) {
-        if (scenario.fault_type == sim::sil::FaultType::None) {
+        if (scenario.failure_mode == sim::sil::FailureMode::NONE) {
             continue;
         }
         const std::expected<sim::sil::FaultInjector, sim::sil::InjectorError> made =
@@ -55,8 +55,8 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
         }
         ctx->injectors[ctx->injector_count] = std::move(made).value();
         ctx->injector_count += 1;
-        if (ctx->result.fault_type == sim::sil::FaultType::None) {
-            ctx->result.fault_type = scenario.fault_type;
+        if (ctx->result.failure_mode == sim::sil::FailureMode::NONE) {
+            ctx->result.failure_mode = scenario.failure_mode;
         }
     }
 

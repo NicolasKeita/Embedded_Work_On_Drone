@@ -20,7 +20,7 @@ namespace sim::test::sil {
 
 using sim::sil::FaultProfile;
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SensorCorruptionMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
@@ -39,7 +39,7 @@ void fault_metadata_test(TestHarness& runner)
     runner.set_context("OBS-011");
     const SilConfig config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario scenario{.start_time = 5.0,
-                                 .fault_type = FaultType::ActuatorDegradation,
+                                 .failure_mode = FailureMode::ACTUATOR_DEGRADED,
                                  .parameters = {.efficiency = 0.6}};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
@@ -80,7 +80,7 @@ void sensor_fault_metadata_test(TestHarness& runner)
     const SilConfig config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
     const FaultScenario scenario{.start_time = 10.0,
                                  .duration = 5.0,
-                                 .fault_type = FaultType::SensorFault,
+                                 .failure_mode = FailureMode::INVALID_SENSOR_DATA,
                                  .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange,
                                                 .corrupted_altitude_m = 99999.0}};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);

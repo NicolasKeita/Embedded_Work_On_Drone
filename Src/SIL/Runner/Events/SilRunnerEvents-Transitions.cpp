@@ -20,18 +20,15 @@ import SilTypes;
 namespace sim::sil {
 
 using sim::safety::HealthReport;
-using sim::safety::fault_domain_name;
+using sim::safety::detection_event_name;
+using sim::safety::safety_action_for;
+using sim::safety::safety_action_name;
 using sim::safety::safety_mode_name;
 
-/* Builds a safety-mode command label for the safety response event. */
-static std::string_view safety_command_name(sim::safety::SafetyMode mode)
-{
-    return mode == sim::safety::SafetyMode::SAFE_MODE      ? "ENTER_SAFE_MODE"
-           : mode == sim::safety::SafetyMode::COMPENSATED  ? "ENTER_COMPENSATED"
-                                                           : "RESUME_NORMAL";
-}
-
-/* Records the fault detection and classification chain on first detection. */
+/*
+Records the fault detection and classification chain on first detection: the
+detection event that fired, then its classification.
+*/
 void record_detection(RunContext& ctx, const HealthReport& report)
 {
     const std::float64_t detection = report.first_detection_time();
@@ -40,7 +37,7 @@ void record_detection(RunContext& ctx, const HealthReport& report)
         return;
     }
     ctx.result.detection_time = detection;
-    ctx.result.first_fault_domain = report.first_fault_domain();
+    ctx.result.first_detection_event = report.first_detection_event();
     ctx.result.fault_detected = true;
     if (ctx.detection_recorded) {
         return;
@@ -51,15 +48,19 @@ void record_detection(RunContext& ctx, const HealthReport& report)
                       .source = "FC2",
                       .type = SilEventType::FaultDetected,
                       .severity = EventSeverity::Info,
-                      .detail = fault_domain_name(ctx.result.first_fault_domain)};
+                      .detail = detection_event_name(ctx.result.first_detection_event)};
     ctx.trace.record(detected);
     SilEvent classified = detected;
     classified.type = SilEventType::FaultClassified;
-    classified.reason = "fault domain classification";
+    classified.reason = "detection event classification";
     ctx.trace.record(classified);
 }
 
-/* Records safety mode transitions and the first safety response command. */
+/*
+Records safety mode transitions and the first safety response: the response
+detail names the safety action (ENTER_SAFE_MODE / ENTER_COMPENSATED /
+RESUME_NORMAL), never a failure mode.
+*/
 void record_safety_transitions(RunContext& ctx)
 {
     const sim::safety::SafetyMode current = ctx.safety.mode();
@@ -73,7 +74,7 @@ void record_safety_transitions(RunContext& ctx)
                             .previous_state = safety_mode_name(ctx.previous_safety_mode),
                             .new_state = safety_mode_name(current),
                             .reason = current == sim::safety::SafetyMode::NORMAL
-                                          ? "health restored" : fault_domain_name(ctx.result.first_fault_domain)};
+                                          ? "health restored" : detection_event_name(ctx.result.first_detection_event)};
         ctx.trace.record(transition);
         ctx.previous_safety_mode = current;
     }
@@ -84,7 +85,7 @@ void record_safety_transitions(RunContext& ctx)
                           .source = "FC2",
                           .type = SilEventType::SafetyResponse,
                           .severity = EventSeverity::Info,
-                          .detail = safety_command_name(current)};
+                          .detail = safety_action_name(safety_action_for(current))};
         ctx.trace.record(response);
     }
 }

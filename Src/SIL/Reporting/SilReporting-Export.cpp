@@ -27,7 +27,7 @@ void write_csv_record_mission(std::ostream& out, const ScenarioRecord& record)
     const SimulationResult& r = record.result;
 
     write_csv_escaped(out, record.name);
-    out << ';' << fault_type_name(record.scenario.fault_type) << ';';
+    out << ';' << failure_mode_name(record.scenario.failure_mode) << ';';
     write_seconds(out, record.scenario.start_time);
     out << ';';
     write_seconds(out, record.scenario.duration);
@@ -82,11 +82,11 @@ void write_csv_record_aircraft(std::ostream& out, const SimulationResult& r)
 }
 
 /*
-Writes the watchdog, communication and verdict fields of one CSV record.
+Writes the supervision, communication and verdict fields of one CSV record.
 */
 void write_csv_record_comms(std::ostream& out, const SimulationResult& r)
 {
-    out << (r.watchdog_triggered ? 1 : 0) << ';' << r.comms.sent << ';' << r.comms.delivered << ';'
+    out << (r.supervision_triggered ? 1 : 0) << ';' << r.comms.sent << ';' << r.comms.delivered << ';'
         << r.comms.dropped << ';' << r.comms.timeouts << ';';
     write_seconds(out, r.comms.latency_min_s);
     out << ';';
@@ -103,12 +103,12 @@ Writes the full CSV payload of the SIL results into the given stream.
 */
 void write_csv_payload(std::ostream& out, std::span<const ScenarioRecord> records)
 {
-    out << "name;fault_type;start_time;duration;mission_success;final_state;mission_duration;"
+    out << "name;failure_mode;start_time;duration;mission_success;final_state;mission_duration;"
            "final_health;final_safety_mode;fault_detected;fault_injected_time;detection_time;"
            "safety_response_time;recovery_attempted;recovery_successful;recovery_time;"
            "detection_latency;response_latency;max_position_error;mean_position_error;"
            "max_altitude_error;mean_altitude_error;final_x;final_y;final_altitude;max_pitch_rad;"
-           "max_roll_rad;watchdog_triggered;comms_sent;comms_delivered;comms_dropped;comms_timeouts;"
+           "max_roll_rad;supervision_triggered;comms_sent;comms_delivered;comms_dropped;comms_timeouts;"
            "comms_latency_min;comms_latency_mean;comms_latency_max;test_verdict\n";
     for (const ScenarioRecord& record : records) {
         write_csv_record_mission(out, record);

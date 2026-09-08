@@ -22,8 +22,8 @@ bool HilResult::compute_verdict(bool fault_expected) const noexcept
     if (fault_expected != fault_detected) {
         return false;
     }
-    if (fault_detected && first_fault_domain != sim::safety::FaultDomain::FC1Heartbeat
-        && first_fault_domain != sim::safety::FaultDomain::Actuator && detection_latency > 0.5) {
+    if (fault_detected && first_detection_event != sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT
+        && first_detection_event != sim::safety::DetectionEvent::ACTUATOR_MISMATCH && detection_latency > 0.5) {
         return false;
     }
     if (final_state == sim::control::MissionState::ABORTED) {

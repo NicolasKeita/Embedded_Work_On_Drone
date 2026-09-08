@@ -25,7 +25,11 @@ export import SilFaultScenario;
 
 export namespace sim::sil {
 
-// Simulated environment that fault injectors are allowed to alter.
+/*
+Simulated environment that failure-mode injectors are allowed to alter: the
+physical representation levers of each failure mode (FC1 liveness, link state,
+packet loss probability, actuator efficiency, sensor corruption).
+*/
 struct SimulationState {
     bool                 fc1_alive = true;
     bool                 comms_link_up = true;
@@ -36,9 +40,10 @@ struct SimulationState {
 };
 
 /*
-Full structured outcome of one SIL run. Mission, fault, aircraft, communication,
-watchdog and verdict groups are kept independent so that automated validation
-(and future Monte Carlo campaigns) can consume every field individually.
+Full structured outcome of one SIL run. Mission, fault chain, aircraft,
+communication, heartbeat supervision and verdict groups are kept independent
+so that automated validation (and future Monte Carlo campaigns) can consume
+every field individually.
 */
 struct SimulationResult {
     // Mission (COMPLETE means success; ABORTED/FAILED are documented terminal states).
@@ -47,15 +52,15 @@ struct SimulationResult {
     std::float64_t             mission_duration_s = -1.0;
 
     // Safety.
-    sim::safety::HealthState final_health = sim::safety::HealthState::HEALTHY;
-    sim::safety::SafetyMode  final_safety_mode = sim::safety::SafetyMode::NORMAL;
-    bool                     degraded_reached = false;
-    bool                     compensated_reached = false;
-    bool                     safe_mode_reached = false;
-    sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
+    sim::safety::HealthState    final_health = sim::safety::HealthState::HEALTHY;
+    sim::safety::SafetyMode     final_safety_mode = sim::safety::SafetyMode::NORMAL;
+    bool                        degraded_reached = false;
+    bool                        compensated_reached = false;
+    bool                        safe_mode_reached = false;
+    sim::safety::DetectionEvent first_detection_event = sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT;
 
     // Fault chain: injection -> detection -> response -> recovery.
-    FaultType      fault_type = FaultType::None;
+    FailureMode    failure_mode = FailureMode::NONE;
     bool           fault_detected = false;
     std::float64_t fault_injected_time = -1.0;
     std::float64_t detection_time = -1.0;
@@ -80,9 +85,9 @@ struct SimulationResult {
     // Communication (FC1 <-> FC2).
     CommsStats comms{};
 
-    // Watchdog (heartbeat/comms supervision on FC2).
-    bool           watchdog_triggered = false;
-    std::float64_t watchdog_trigger_time = -1.0;
+    // Heartbeat supervision (FC1 liveness / link monitoring on FC2).
+    bool           supervision_triggered = false;
+    std::float64_t supervision_trigger_time = -1.0;
 
     // Test verdict: did the system behave as the scenario requires.
     bool test_verdict = false;

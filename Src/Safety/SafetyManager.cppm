@@ -1,12 +1,15 @@
 /*
 Filename: Src/Safety/SafetyManager.cppm
-Description: Safety manager : safety modes, mission abort and thrust compensation commands.
+Description: Safety manager : safety modes, safety actions, mission abort and thrust compensation commands.
 Exports:
     enum class SafetyMode,
+    enum class SafetyAction,
     struct SafetyCommand,
     struct SafetyManagerConfig,
     class SafetyManager,
-    safety_mode_name()
+    safety_mode_name(),
+    safety_action_name(),
+    safety_action_for()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -20,7 +23,18 @@ import HealthMonitor;
 
 export namespace sim::safety {
 
+/*
+Safety mode of the system (system state). NORMAL: nominal operation;
+COMPENSATED: degraded mode with a thrust margin; SAFE_MODE: conservative safe
+state with mission abort (irreversible).
+*/
 enum class SafetyMode { NORMAL, COMPENSATED, SAFE_MODE };
+
+/*
+Safety action commanded in reaction to a diagnosis (a reaction, not a state):
+the transition the SafetyManager orders when it engages a safety mode.
+*/
+enum class SafetyAction { RESUME_NORMAL, ENTER_COMPENSATED, ENTER_SAFE_MODE };
 
 struct SafetyCommand {
     bool           mission_abort = false;
@@ -51,5 +65,20 @@ private:
 };
 
 [[nodiscard]] std::string_view safety_mode_name(SafetyMode mode);
+[[nodiscard]] std::string_view safety_action_name(SafetyAction action);
+
+/* Safety action associated with engaging a safety mode. */
+[[nodiscard]] constexpr SafetyAction safety_action_for(SafetyMode mode) noexcept
+{
+    switch (mode) {
+    case SafetyMode::SAFE_MODE:
+        return SafetyAction::ENTER_SAFE_MODE;
+    case SafetyMode::COMPENSATED:
+        return SafetyAction::ENTER_COMPENSATED;
+    case SafetyMode::NORMAL:
+        break;
+    }
+    return SafetyAction::RESUME_NORMAL;
+}
 
 }

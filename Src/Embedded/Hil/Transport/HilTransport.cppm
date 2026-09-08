@@ -28,6 +28,10 @@ enum class FrameAcceptanceError : std::uint8_t {
 
 using FlightCore::Transport::ActuatorDiagnostics;
 
+/*
+Reception outcome of one actuator frame on the HIL bench transport
+(HIL-domain test-bench result, never an aircraft failure mode).
+*/
 enum class ReceiveResult {
     Ok,
     Timeout,

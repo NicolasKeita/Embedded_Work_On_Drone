@@ -27,7 +27,7 @@ void write_record_mission(std::ostream& out, const ScenarioRecord& record)
     out << "    \"name\": \"";
     write_json_escaped(out, record.name);
     out << "\",\n";
-    out << "    \"fault_type\": \"" << fault_type_name(record.scenario.fault_type) << "\",\n";
+    out << "    \"failure_mode\": \"" << failure_mode_name(record.scenario.failure_mode) << "\",\n";
     out << "    \"start_time\": ";
     write_seconds(out, record.scenario.start_time);
     out << ",\n";
@@ -66,7 +66,7 @@ void write_metric_field(std::ostream& out, std::string_view name, std::float64_t
 
 }
 
-/* Writes timing, metric, comms, watchdog and verdict fields, closing the object. */
+/* Writes timing, metric, comms, supervision and verdict fields, closing the object. */
 void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool last)
 {
     const SimulationResult& r = record.result;
@@ -86,8 +86,8 @@ void write_record_metrics(std::ostream& out, const ScenarioRecord& record, bool 
     write_metric_field(out, "final_altitude", r.final_altitude_m);
     write_metric_field(out, "max_pitch_rad", r.max_pitch_rad);
     write_metric_field(out, "max_roll_rad", r.max_roll_rad);
-    out << "    \"watchdog_triggered\": " << (r.watchdog_triggered ? "true" : "false") << ",\n";
-    write_seconds_field(out, "watchdog_trigger_time", r.watchdog_trigger_time);
+    out << "    \"supervision_triggered\": " << (r.supervision_triggered ? "true" : "false") << ",\n";
+    write_seconds_field(out, "supervision_trigger_time", r.supervision_trigger_time);
     out << "    \"telemetry_samples\": " << record.telemetry.size() << ",\n";
     out << "    \"ground_truth_samples\": " << record.ground_truth.size() << ",\n";
     out << "    \"comms\": {\"sent\": " << r.comms.sent << ", \"delivered\": " << r.comms.delivered

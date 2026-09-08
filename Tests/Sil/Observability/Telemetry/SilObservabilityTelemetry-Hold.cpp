@@ -22,9 +22,9 @@ import TestHarness;
 
 namespace sim::test::sil {
 
-using sim::safety::FaultDomain;
+using sim::safety::DetectionEvent;
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SensorCorruptionMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
@@ -67,7 +67,7 @@ void check_fault_window(TestHarness& runner, const SilRunOutput& output, const S
     }
     runner.check(faulty_recorded, "99999 m faulty measurement recorded in telemetry");
     runner.check(truth_stays_physical, "ground truth physical during the fault");
-    runner.check(output.result.fault_detected && output.result.first_fault_domain == FaultDomain::Sensor,
+    runner.check(output.result.fault_detected && output.result.first_detection_event == DetectionEvent::SENSOR_VALIDATION_FAILED,
                  "sensor fault detected by validation");
 }
 
@@ -85,7 +85,7 @@ void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
     const SilConfig config{.duration_s = 40.0};
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
-                              .fault_type = FaultType::SensorFault,
+                              .failure_mode = FailureMode::INVALID_SENSOR_DATA,
                               .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange,
                                              .corrupted_altitude_m = 99999.0}};
     const std::array<FaultScenario, 1> nominal_scenarios{FaultScenario{}};
@@ -108,8 +108,8 @@ void telemetry_sensor_hold_and_clear_test(TestHarness& runner)
         return;
     }
     runner.check(std::abs(cleared->timestamp - kFaultEnd) <= config.dt, "FAULT_CLEARED at window close");
-    runner.check(cleared->detail == sim::sil::fault_type_name(FaultType::SensorFault),
-                 "FAULT_CLEARED carries the fault type");
+    runner.check(cleared->detail == sim::sil::failure_mode_name(FailureMode::INVALID_SENSOR_DATA),
+                 "FAULT_CLEARED carries the failure mode");
 }
 
 }

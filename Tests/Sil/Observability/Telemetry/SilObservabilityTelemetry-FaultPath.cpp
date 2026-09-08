@@ -21,7 +21,7 @@ import TestHarness;
 namespace sim::test::sil {
 
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SensorCorruptionMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
@@ -57,7 +57,7 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
     const SilConfig config{.duration_s = 35.0};
     const FaultScenario fault{.start_time = kFaultStart,
                               .duration = kFaultEnd - kFaultStart,
-                              .fault_type = FaultType::SensorFault,
+                              .failure_mode = FailureMode::INVALID_SENSOR_DATA,
                               .parameters = {.corruption = SensorCorruptionMode::ExtremeNoise}};
     const std::array<FaultScenario, 1> nominal_scenarios{FaultScenario{}};
     const std::array<FaultScenario, 1> fault_scenarios{fault};
@@ -73,14 +73,14 @@ void telemetry_sensor_fault_path_test(TestHarness& runner)
     check_commands_diverge(runner, nominal.value(), faulted.value(), kFaultStart, kFaultEnd);
 
     const SilEvent* injected = find_first(faulted.value().events, SilEventType::FaultInjected);
-    const SilEvent* sensor_fault = find_first(faulted.value().events, SilEventType::SensorFault);
+    const SilEvent* sensor_fault = find_first(faulted.value().events, SilEventType::SensorFaultInjected);
 
     runner.check(injected != nullptr, "FAULT_INJECTED event present");
-    runner.check(sensor_fault != nullptr, "SENSOR_FAULT event present");
+    runner.check(sensor_fault != nullptr, "SENSOR_FAULT_INJECTED event present");
     if (injected == nullptr) {
         return;
     }
-    runner.check(injected->detail == sim::sil::fault_type_name(FaultType::SensorFault)
+    runner.check(injected->detail == sim::sil::failure_mode_name(FailureMode::INVALID_SENSOR_DATA)
                      && injected->reason.find("EXTREME_NOISE") != std::string_view::npos
                      && injected->reason.find("temporarily") != std::string_view::npos,
                  "FAULT_INJECTED carries type, mode and duration");

@@ -23,10 +23,10 @@ import TestHarness;
 
 namespace sim::test::sil {
 
-using sim::safety::FaultDomain;
+using sim::safety::DetectionEvent;
 using sim::safety::SafetyMode;
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::ScenarioRecord;
 using sim::sil::SilError;
 using sim::sil::SilRunOutput;
@@ -67,7 +67,7 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure injected at t = 20.0 s");
-    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
@@ -94,7 +94,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-002", "Communication loss injected at t = 20.0 s");
-    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .fault_type = FaultType::CommunicationLoss};
+    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS};
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
@@ -108,8 +108,8 @@ void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, Scen
     output = std::move(outcome).value();
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
-    runner.check(r.fault_detected && r.first_fault_domain == FaultDomain::Communication,
-                 "COMMUNICATION_LOST alert raised");
+    runner.check(r.fault_detected && r.first_detection_event == DetectionEvent::COMMUNICATION_TIMEOUT,
+                 "COMMUNICATION_TIMEOUT detection raised");
     runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "alert raised within 300 ms");
     runner.check(r.safe_mode_reached, "safety reaction engaged");
     runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED (step 10 rule)");

@@ -22,14 +22,11 @@ per-message traffic stay in the detailed trace only.
 bool is_report_event(SilEventType type)
 {
     switch (type) {
-    case SilEventType::MessageGenerated:
-    case SilEventType::MessageDelivered:
-    case SilEventType::MessageDropped:
     case SilEventType::MessageTimeout:
     case SilEventType::HeartbeatSent:
     case SilEventType::HeartbeatDelivered:
     case SilEventType::HeartbeatDropped:
-    case SilEventType::WatchdogKick:
+    case SilEventType::SupervisionReset:
         return false;
     default:
         return true;
@@ -46,18 +43,18 @@ std::string_view event_category(SilEventType type)
     case SilEventType::FaultCleared:
     case SilEventType::FaultDetected:
     case SilEventType::FaultClassified:
-    case SilEventType::SensorFault:
-    case SilEventType::ActuatorFault:
+    case SilEventType::SensorFaultInjected:
+    case SilEventType::ActuatorFaultInjected:
         return "FAULT";
     case SilEventType::SafetyResponse:
     case SilEventType::SafetyStateTransition:
-    case SilEventType::WatchdogTimeout:
+    case SilEventType::SupervisionTimeout:
         return "SAFETY";
     case SilEventType::MissionStateTransition:
         return "MISSION";
     case SilEventType::RecoveryStart:
     case SilEventType::RecoveryEnd:
-    case SilEventType::WatchdogRecovery:
+    case SilEventType::SupervisionRecovery:
         return "RECOVERY";
     case SilEventType::FCStartup:
     case SilEventType::FCShutdown:

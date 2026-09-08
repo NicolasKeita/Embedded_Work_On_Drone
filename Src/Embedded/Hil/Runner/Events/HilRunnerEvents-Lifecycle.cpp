@@ -60,7 +60,7 @@ void record_mission_transition(HilRunContext& ctx, sim::control::MissionState cu
                               .previous_state = sim::control::mission_state_name(ctx.previous_mission_state),
                               .new_state = sim::control::mission_state_name(current),
                               .reason = current == sim::control::MissionState::COMPLETE ? "station hold completed"
-                                                                                         : "controller progression"});
+                                                                                          : "controller progression"});
     ctx.previous_mission_state = current;
     if (current == sim::control::MissionState::COMPLETE && ctx.result.mission_end_time < 0.0) {
         ctx.result.mission_end_time = ctx.time;
@@ -78,8 +78,9 @@ void record_safety_transitions(HilRunContext& ctx)
     const sim::safety::SafetyMode current = ctx.safety.mode();
 
     if (current != ctx.previous_safety_mode) {
-        const std::string_view reason = current == sim::safety::SafetyMode::NORMAL ? "health restored"
-                                          : sim::safety::fault_domain_name(ctx.result.first_fault_domain);
+        const std::string_view reason = current == sim::safety::SafetyMode::NORMAL
+                                            ? "health restored"
+                                            : sim::safety::detection_event_name(ctx.result.first_detection_event);
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
                                    .wall_us = ctx.clock->nowUs(),
                                    .source = "FC2",
@@ -99,7 +100,8 @@ void record_safety_transitions(HilRunContext& ctx)
                                    .source = "FC2",
                                    .type = HilEventType::SafetyStateTransition,
                                    .severity = HilEventSeverity::Info,
-                                   .detail = sim::safety::safety_mode_name(current),
+                                   .detail = sim::safety::safety_action_name(
+                                       sim::safety::safety_action_for(current)),
                                    .reason = "safety response engaged"});
     }
 }
