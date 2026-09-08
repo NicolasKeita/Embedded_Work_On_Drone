@@ -127,17 +127,23 @@ Requires **CMake 4.1+** and a **C++23-modules-capable** compiler
 (`import std;`): MSVC 2026 or GCC 16+.
 
 ```text
-# Linux (Ninja + g++)
-cmake --preset linux-release
-cmake --build --preset linux-release        # build-lin/  → SIL_RUNNER HIL_RUNNER SIL_MONTE_CARLO
+# Linux (Ninja + GCC 16)
+cmake -S . -B build/linux -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++
+cmake --build build/linux
+
+# STM32 Nucleo-L476RG firmware
+west build -b nucleo_l476rg apps/fc1_stm32 -d build/fc1_stm32 --pristine
+west build -b nucleo_l476rg apps/fc2_stm32 -d build/fc2_stm32 --pristine
 
 # Windows (MSVC 2026)
 cmake --preset release
 cmake --build --preset release
 ```
 
-Executables are `SIL_RUNNER`, `HIL_RUNNER`, `SIL_MONTE_CARLO` (in the build
-directory). The default toolchain in `CMakePresets.json` is MSVC 2026.
+Executables are `sil_runner`, `hil_runner`, and `sil_monte_carlo`. Named deployable
+outputs are copied under `artifacts/linux/` and `artifacts/stm32/`. See
+[`docs/build/build_targets.md`](docs/build/build_targets.md) for exact paths,
+flashing commands, and the current physical-HIL boundary.
 
 > This report was prepared in an environment with only GCC 12.2 and no `cmake`,
 > which cannot compile `import std;`; the validation results in the docs are the
@@ -164,4 +170,3 @@ docs/
 ```
 
 More detail and a docs index: [`docs/README.md`](docs/README.md).
-

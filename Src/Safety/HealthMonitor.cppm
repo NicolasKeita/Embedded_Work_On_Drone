@@ -71,6 +71,11 @@ struct HealthMonitorConfig {
     sim::sil::SensorValidationLimits sensor_limits{};
 };
 
+struct LinkSupervision {
+    bool           link_up = true;
+    std::float64_t last_heartbeat_time = -1.0;
+};
+
 class HealthMonitor {
 public:
     explicit HealthMonitor(HealthMonitorConfig config = {});
@@ -83,12 +88,17 @@ public:
     [[nodiscard]] HealthReport evaluate(std::float64_t current_time, const sim::sil::CommsBus& comms,
                                         const sim::sil::SensorTelemetry& telemetry, std::float64_t commanded_rpm);
 
+    [[nodiscard]] HealthReport evaluate(std::float64_t current_time, const LinkSupervision& supervision,
+                                        const sim::sil::SensorTelemetry& telemetry, std::float64_t commanded_rpm);
+
     [[nodiscard]] HealthState state() const noexcept;
 
 private:
     void raise(DetectionEvent event, std::float64_t time);
 
     void update_comms_flags(std::float64_t current_time, const sim::sil::CommsBus& comms);
+
+    void update_comms_flags(std::float64_t current_time, const LinkSupervision& supervision);
 
     void update_sensor_flags(std::float64_t current_time, const sim::sil::SensorTelemetry& telemetry);
 

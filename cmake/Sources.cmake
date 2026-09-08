@@ -25,6 +25,7 @@ set(SAFETY_FILES
     Src/Safety/HealthMonitor.cppm
     Src/Safety/HealthMonitor-Core.cpp
     Src/Safety/HealthMonitor-Evaluate.cpp
+    Src/Safety/HealthMonitor-Host.cpp
     Src/Safety/HealthMonitor-Report.cpp
     Src/Safety/HealthMonitor-Names.cpp
     Src/Safety/SafetyManager.cppm
@@ -175,11 +176,4 @@ set(SRC_FILES
     ${CONTROL_FILES}
     ${SAFETY_FILES}
     ${SIL_FILES}
-)
-
-# Sources required by the current STM32 application entry point.
-set(FIRMWARE_FILES
-    Src/App/Application.cppm
-    Src/App/Application.cpp
-    ${SIMULATION_FILES}
 )

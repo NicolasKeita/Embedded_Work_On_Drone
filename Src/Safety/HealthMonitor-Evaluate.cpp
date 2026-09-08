@@ -20,13 +20,13 @@ namespace sim::safety {
 Communication link loss and FC1 heartbeat timeout raise latched detection
 flags: these are physical events that only a reset can clear.
 */
-void HealthMonitor::update_comms_flags(std::float64_t current_time, const sim::sil::CommsBus& comms)
+void HealthMonitor::update_comms_flags(std::float64_t current_time, const LinkSupervision& supervision)
 {
-    if (!comms.link_up()) {
+    if (!supervision.link_up) {
         raise(DetectionEvent::COMMUNICATION_TIMEOUT, current_time);
     }
     else {
-        const std::float64_t last_received = comms.last_received_time();
+        const std::float64_t last_received = supervision.last_heartbeat_time;
         if (last_received >= 0.0 && current_time - last_received > config_.heartbeat_timeout_s) {
             raise(DetectionEvent::FC1_HEARTBEAT_TIMEOUT, current_time);
         }
@@ -80,11 +80,11 @@ Full health evaluation: updates the detection flags, recomputes the overall
 state and returns the report snapshot.
 */
 HealthReport HealthMonitor::evaluate(std::float64_t                   current_time,
-                                     const sim::sil::CommsBus&        comms,
+                                     const LinkSupervision&           supervision,
                                      const sim::sil::SensorTelemetry& telemetry,
                                      std::float64_t                   commanded_rpm)
 {
-    update_comms_flags(current_time, comms);
+    update_comms_flags(current_time, supervision);
     update_sensor_flags(current_time, telemetry);
     update_actuator_flags(current_time, telemetry, commanded_rpm);
     state_ = compute_state(flags_);
