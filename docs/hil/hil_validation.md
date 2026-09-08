@@ -250,7 +250,7 @@ Expected behavior:
 - aircraft reaches the target altitude;
 - aircraft remains within the operational zone;
 - control remains stable;
-- no unexpected watchdog or timing faults occur.
+- no unexpected supervision or timing faults occur (heartbeat/link supervision and real-time deadline).
 
 The HIL result should be compared with the SIL baseline.
 

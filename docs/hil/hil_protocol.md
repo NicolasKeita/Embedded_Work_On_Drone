@@ -399,8 +399,9 @@ Comportements clés de la FSM (`HilProtocolParser-Sync.cpp` / `HilProtocolParser
 
 ## 8. Procédure de Traitement des Erreurs et Modes Degradés
 
-### 8.1 Perte de Communication (Watchdog Protocol)
-Un **Watchdog Télémétrique** est configuré sur la STM32 FC1 :
+### 8.1 Perte de Communication (Supervision du Lien)
+Une **supervision de réception** (timeout de heartbeat, aucun terme de watchdog : la surveillance
+de lien n'est pas un watchdog local de tâche) est configurée sur la STM32 FC1 :
 * Si aucun message `SensorPacket` valide n'est reçu pendant un intervalle $\Delta t > 50.0\text{ ms}$ (soit 5 trames consécutives perdues) :
   1. Le `HealthTask` de la STM32 déclare l'état **HIL_COMM_LOST**.
   2. Le Flight Controller bascule automatiquement le système en mode **SAFE_RECOVERY / HOVER_HOLD** (maintien d'assiette nulle, réduction progressive du RPM).
