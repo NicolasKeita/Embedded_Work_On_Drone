@@ -1,9 +1,9 @@
 # Fault Taxonomy and Safety Architecture Vocabulary
 
 This document is the canonical reference for the fault, detection and safety
-vocabulary of the testbed. It prepares the codebase for a future FMECA by
-keeping three concepts strictly separated in the code, the logs and the
-documentation:
+vocabulary of the testbed. It is the vocabulary basis of the project FMECA
+([`../fmeca/fmeca.md`](../fmeca/fmeca.md)) and keeps three concepts strictly separated
+in the code, the logs and the documentation:
 
 ```text
 Failure Mode ──► Detection Mechanism ──► Diagnosis / Classification
@@ -63,6 +63,7 @@ stays agnostic (the `HealthMonitor` never sees the injector).
 `sim::sil::failure_mode_implemented()` reports the honest coverage and
 `make_fault_injector()` rejects unimplemented modes with
 `InjectorError::UnsupportedFailureMode`.
+
 ### 2.1 Target coverage (honest component mapping)
 
 The `sim::sil::FaultTarget` vocabulary declares more components than the
@@ -244,9 +245,10 @@ root cause — it mixes the detection mechanism with the failure mode.
 
 ## 8. Scope Boundary
 
-Explicitly out of scope for this refactoring phase: full FMECA execution or
-matrix generation, new physical sensor/actuator hardware models, new flight
-dynamics, new RTOS scheduler features, new Monte-Carlo suites. This document
-only aligns the architecture and the vocabulary; the coverage matrix above is
+Out of scope here (the FMECA itself is in [`../fmeca/fmeca.md`](../fmeca/fmeca.md)):
+FMECA execution or matrix generation, new physical sensor/actuator hardware
+models, new flight dynamics, new RTOS scheduler features, new Monte-Carlo
+suites. This document only aligns the architecture and the vocabulary; the
+coverage matrix above is
 the honest statement of what exists.
 

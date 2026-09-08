@@ -1,5 +1,13 @@
 # Spécification du Protocole de Communication Inter-FC (FC1 ↔ FC2)
 
+> **Evolution note.** The concrete transports discussed here (`UDPTransport`,
+> `CANTransport`, `MessageHeader` byte envelope) are **not** implemented as such.
+> The current code uses the in-process `CommsBus` (SIL) and the HIL
+> `LoopbackTransport`/`HilTransport` with the real HIL-Proto codec (CRC16). The
+> transport *abstraction* (`Transport`) is real and underlies both. See
+> [`../architecture/overview.md`](../architecture/overview.md).
+
+
 ## 1. Vue d'Ensemble & Objectifs
 
 Ce document spécifie le protocole et l'architecture de communication entre le calculateur principal de vol (**FC1** - Primary Flight Controller) et le calculateur de sécurité / surveillance (**FC2** - Safety & Monitoring Flight Controller).

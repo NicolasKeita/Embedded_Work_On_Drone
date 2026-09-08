@@ -1,5 +1,12 @@
 # Architecture HIL (Hardware-in-the-Loop) — Document Technique
 
+> **Evolution note — not the current implementation.** This describes the
+> intended *physical-STM32 / FreeRTOS* HIL (real MCU tasks, CPU-load injection,
+> serial USB-UART). The current `HIL_RUNNER` uses an in-process **host FC
+> emulator** over a loopback byte channel — no STM32, no RTOS, no serial medium.
+> For the actual HIL, see [`../validation/hil.md`](../validation/hil.md).
+
+
 **Projet :** Flight Controller Embarqué pour Aéronef Autonome  
 **Étape :** 13 — Integration Hardware-in-the-Loop (HIL Niveau 1)  
 **Auteur :** Nicolas Keita / Embedded Systems Architecture  

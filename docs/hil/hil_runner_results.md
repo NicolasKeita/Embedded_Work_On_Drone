@@ -1,5 +1,8 @@
 # HIL Runner — Example Output (representative)
 
+> **Superseded by [`../validation/hil.md`](../validation/hil.md).** Kept for
+> reference — the canonical HIL description and timing analysis now live there.
+
 > **IMPORTANT:** these reports are *representative* of the expected output of the
 > implemented `HIL_RUNNER`. They were NOT captured by executing the binary, because this
 > development environment has no C++23-modules-capable toolchain (only GCC 12.2, which
