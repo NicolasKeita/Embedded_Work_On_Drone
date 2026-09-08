@@ -1,12 +1,79 @@
-cmake_minimum_required(VERSION 4.1)
+cmake_minimum_required(VERSION 4.4)
+
+set(ZEPHYR_TOOLCHAIN_VARIANT gnuarmemb
+    CACHE STRING "Zephyr toolchain variant")
+set(GNUARMEMB_TOOLCHAIN_PATH /usr
+    CACHE PATH "GNU Arm Embedded toolchain root")
+
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
     "f35a9ac6-8463-4d38-8eec-5d6008153e7d"
     CACHE STRING "Enable experimental C++ import std support")
+
+# GCC 15's installed bare-metal std.cc lacks availability guards that are
+# present upstream in GCC 16.  Prepare a checked, build-local copy without
+# changing the system toolchain.
+include(cmake/PrepareArmStdModule.cmake)
+
+# This initializes module scanning for targets created by Zephyr itself,
+# including the `app` target created while find_package(Zephyr) runs.
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(DroneFlightSim VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# Zephyr 3.7 force-configures cross compilers and consequently skips CMake's
+# native C++ feature discovery.  Load CMake's GCC module support and run that
+# discovery after Zephyr has selected GCC so CMake can expose cxx_std_23 and
+# construct its import-std target.
+include(Compiler/GNU-CXX)
+function(project_discover_cxx_features)
+    include(CMakeDetermineCompilerSupport)
+    cmake_determine_compiler_support(CXX)
+
+    foreach(feature_variable IN ITEMS
+            CMAKE_CXX_COMPILE_FEATURES
+            CMAKE_CXX98_COMPILE_FEATURES
+            CMAKE_CXX11_COMPILE_FEATURES
+            CMAKE_CXX14_COMPILE_FEATURES
+            CMAKE_CXX17_COMPILE_FEATURES
+            CMAKE_CXX20_COMPILE_FEATURES
+            CMAKE_CXX23_COMPILE_FEATURES
+            CMAKE_CXX26_COMPILE_FEATURES
+            CMAKE_CXX_COMPILER_IMPORT_STD
+            CMAKE_CXX_STDLIB_MODULES_JSON)
+        set(${feature_variable} "${${feature_variable}}" PARENT_SCOPE)
+    endforeach()
+endfunction()
+project_discover_cxx_features()
+
+# FindTargetTools.cmake sets CMAKE_CXX_COMPILER_FORCED, leaving the feature
+# registry empty even after the GCC support module has been loaded.  GCC 15.2
+# has native C++23 and import-std support; restore only those CMake metadata.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+   CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15.0)
+    list(APPEND CMAKE_CXX_COMPILE_FEATURES cxx_std_20 cxx_std_23)
+    list(APPEND CMAKE_CXX20_COMPILE_FEATURES cxx_std_20)
+    list(APPEND CMAKE_CXX23_COMPILE_FEATURES cxx_std_23)
+    set(CMAKE_CXX_COMPILER_IMPORT_STD 23)
+endif()
+
+# CMake's synthesized import-std target de-duplicates the repeated `-imacros`
+# token used by Zephyr 3.7 and leaves zephyr_stdint.h as a positional input.
+# Use GCC's joined spelling for that option so the pair remains indivisible.
+if(TARGET zephyr_interface AND CONFIG_ENFORCE_ZEPHYR_STDINT)
+    set(ZEPHYR_STDINT_HEADER
+        "${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h")
+    set(ZEPHYR_STDINT_SPLIT_OPTION
+        "SHELL: $<TARGET_PROPERTY:compiler,imacros> ${ZEPHYR_STDINT_HEADER}")
+    get_target_property(ZEPHYR_INTERFACE_COMPILE_OPTIONS
+        zephyr_interface INTERFACE_COMPILE_OPTIONS)
+    list(REMOVE_ITEM ZEPHYR_INTERFACE_COMPILE_OPTIONS
+        "${ZEPHYR_STDINT_SPLIT_OPTION}")
+    set_property(TARGET zephyr_interface PROPERTY INTERFACE_COMPILE_OPTIONS
+        "${ZEPHYR_INTERFACE_COMPILE_OPTIONS}")
+    target_compile_options(zephyr_interface INTERFACE
+        "$<TARGET_PROPERTY:compiler,imacros>${ZEPHYR_STDINT_HEADER}")
+endif()
 
 # Exceptions and RTTI are disabled project-wide: embedded code relies on
 # std::expected / std::optional for error handling and value semantics only.
@@ -33,6 +100,14 @@ function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
 
     if(IMPLEMENTATION_FILES)
         target_sources(${TARGET} ${VISIBILITY} ${IMPLEMENTATION_FILES})
+
+        # Implementation units remain ordinary CXX sources.  Explicitly scan
+        # them so `module M;` and `import M;` participate in Ninja's dyndep
+        # graph just like the module interface units below.
+        set_source_files_properties(${IMPLEMENTATION_FILES}
+            TARGET_DIRECTORY ${TARGET}
+            PROPERTIES CXX_SCAN_FOR_MODULES ON
+        )
     endif()
 
     if(INTERFACE_FILES)
@@ -45,15 +120,36 @@ function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
 endfunction()
 
 function(project_target_setup target)
+    target_compile_features(${target} PRIVATE cxx_std_23)
+
+    set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS OFF)
     set_property(TARGET ${target} PROPERTY CXX_SCAN_FOR_MODULES ON)
     set_property(TARGET ${target} PROPERTY CXX_MODULE_STD ON)
-    target_compile_features(${target} PRIVATE cxx_std_23)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W4 /external:W0 /external:anglebrackets)
     else()
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
     endif()
 endfunction()
+
+if(TARGET app)
+    add_library(flight_firmware_core STATIC)
+    target_add_mixed_sources(flight_firmware_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+        ${FIRMWARE_FILES}
+    )
+    project_target_setup(flight_firmware_core)
+
+    project_target_setup(app)
+    target_link_libraries(app PRIVATE flight_firmware_core)
+    target_sources(app PRIVATE Src/main.cpp)
+
+    set_source_files_properties(Src/main.cpp
+        TARGET_DIRECTORY app
+        PROPERTIES CXX_SCAN_FOR_MODULES ON
+    )
+
+    return()
+endif()
 
 # ----------------------------------------------------------------------------
 # flight_sim_core : common static library. The simulation physics, flight control
@@ -63,10 +159,7 @@ endfunction()
 # ----------------------------------------------------------------------------
 add_library(flight_sim_core STATIC)
 target_add_mixed_sources(flight_sim_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
-    ${SIMULATION_FILES}
-    ${CONTROL_FILES}
-    ${SAFETY_FILES}
-    ${SIL_FILES}
+    ${SRC_FILES}
 )
 project_target_setup(flight_sim_core)
 

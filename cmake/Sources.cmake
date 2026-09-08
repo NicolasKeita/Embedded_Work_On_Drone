@@ -176,3 +176,10 @@ set(SRC_FILES
     ${SAFETY_FILES}
     ${SIL_FILES}
 )
+
+# Sources required by the current STM32 application entry point.
+set(FIRMWARE_FILES
+    Src/App/Application.cppm
+    Src/App/Application.cpp
+    ${SIMULATION_FILES}
+)
