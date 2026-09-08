@@ -8,8 +8,8 @@ Exports:
     record_heartbeat(),
     record_heartbeat_delivered(),
     record_heartbeat_dropped(),
-    record_watchdog_and_detection(),
-    record_watchdog_events(),
+    record_supervision_and_detection(),
+    record_supervision_events(),
     record_recovery_start(),
     record_detection(),
     record_health_transition(),
@@ -42,8 +42,8 @@ void record_fc1_failure(RunContext& ctx);
 void record_heartbeat(RunContext& ctx, const CommsDelivery& delivery);
 void record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery);
 void record_heartbeat_dropped(RunContext& ctx, const CommsDelivery& delivery);
-void record_watchdog_and_detection(RunContext& ctx, const sim::safety::HealthReport& report);
-void record_watchdog_events(RunContext& ctx, const sim::safety::HealthReport& report);
+void record_supervision_and_detection(RunContext& ctx, const sim::safety::HealthReport& report);
+void record_supervision_events(RunContext& ctx, const sim::safety::HealthReport& report);
 void record_recovery_start(RunContext& ctx, const sim::safety::HealthReport& report);
 void record_detection(RunContext& ctx, const sim::safety::HealthReport& report);
 void record_health_transition(RunContext& ctx, sim::safety::HealthState current);

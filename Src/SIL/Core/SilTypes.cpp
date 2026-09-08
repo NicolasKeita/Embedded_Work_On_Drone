@@ -21,17 +21,17 @@ namespace sim::sil {
 
 /*
 Synthetic assertion summary: mission success, safety reaction consistent with
-the fault (SAFE_MODE for critical faults, COMPENSATED for degrading faults) and
-bounded detection latency, except for the actuator fault whose detection depends
-on the flight dynamics.
+the failure mode (SAFE_MODE for critical faults, COMPENSATED for degrading
+faults) and bounded detection latency, except for the actuator degradation
+whose detection depends on the flight dynamics.
 */
 bool SimulationResult::compute_verdict(bool fault_expected) const
 {
     if (fault_expected != fault_detected) {
         return false;
     }
-    if (fault_detected && first_fault_domain != sim::safety::FaultDomain::FC1Heartbeat
-        && first_fault_domain != sim::safety::FaultDomain::Actuator && detection_latency > 0.5) {
+    if (fault_detected && first_detection_event != sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT
+        && first_detection_event != sim::safety::DetectionEvent::ACTUATOR_MISMATCH && detection_latency > 0.5) {
         return false;
     }
     if (final_state == sim::control::MissionState::ABORTED) {

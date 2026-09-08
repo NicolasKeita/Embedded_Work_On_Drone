@@ -24,7 +24,7 @@ void write_scenario_fault_rows(std::ostream& out, const ScenarioRecord& record)
 {
     const SimulationResult& r = record.result;
 
-    out << "| Fault type | `" << fault_type_name(record.scenario.fault_type) << "` |\n";
+    out << "| Failure mode | `" << failure_mode_name(record.scenario.failure_mode) << "` |\n";
     out << "| Start (s) | ";
     write_seconds(out, record.scenario.start_time);
     out << " |\n";
@@ -59,7 +59,7 @@ void write_scenario_outcome_rows(std::ostream& out, const SimulationResult& r)
     out << "| Final altitude (m) | ";
     write_metric(out, r.final_altitude_m);
     out << " |\n";
-    out << "| Watchdog triggered | " << yes_no(r.watchdog_triggered) << " |\n";
+    out << "| Supervision triggered | " << yes_no(r.supervision_triggered) << " |\n";
     out << "| Messages sent / received / lost | " << r.comms.sent << " / " << r.comms.delivered << " / "
         << r.comms.dropped << " |\n";
     out << "| Last received sequence | " << r.comms.last_sequence << " |\n";

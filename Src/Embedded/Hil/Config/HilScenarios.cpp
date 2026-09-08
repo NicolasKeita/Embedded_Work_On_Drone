@@ -34,17 +34,17 @@ namespace {
 
     /*
     Builds the target-specific FaultScenario for the HIL execution of one shared
-    functional scenario: the fault identity (type and parameters) comes from the
+    functional scenario: the fault identity (failure mode and parameters) comes from the
     target-agnostic registry, the activation timing is the HIL policy (injection
     at t = 5.0 s, permanent for FC1/comms/actuator and temporary for the sensor
     fault over a 20 s window).
     */
     sim::sil::FaultScenario hil_fault_for(const sim::test::FunctionalScenario& scenario)
     {
-        using sim::sil::FaultType;
+        using sim::sil::FailureMode;
         sim::sil::FaultScenario fault{
-            .start_time = 5.0, .fault_type = scenario.fault_type, .parameters = scenario.parameters};
-        if (scenario.fault_type == FaultType::SensorFault) {
+            .start_time = 5.0, .failure_mode = scenario.failure_mode, .parameters = scenario.parameters};
+        if (scenario.failure_mode == FailureMode::INVALID_SENSOR_DATA) {
             fault.duration = 20.0;
         }
         return fault;

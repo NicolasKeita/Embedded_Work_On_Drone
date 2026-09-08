@@ -63,7 +63,9 @@ void record_run_end(RunContext& ctx)
 }
 
 /*
-Emits the FC1 failure event when the environment kills the flight computer.
+Emits the FC1 failure event when the environment stops the flight computer:
+the injection-side observable of the FC1_UNAVAILABLE failure mode (the detail
+names the failure mode, the detection stays on the FC2 supervision side).
 */
 void record_fc1_failure(RunContext& ctx)
 {
@@ -71,7 +73,7 @@ void record_fc1_failure(RunContext& ctx)
                      .source = "FC1",
                      .type = SilEventType::FCFailure,
                      .severity = EventSeverity::Warning,
-                     .detail = "FC1_FAILURE"};
+                     .detail = failure_mode_name(FailureMode::FC1_UNAVAILABLE)};
 
     ctx.trace.record(failure);
 }

@@ -58,9 +58,10 @@ std::expected<RunContext, SilError> SILRunner::make_context(const SilConfig&    
 
 /*
 Injection step: the environment restarts from a nominal state then each value
-injector alters the domain it owns. Rising edges become structured injection
-events, falling edges become fault-cleared events (temporary faults); the first
-activation time and type are stored in the result.
+injector applies the physical representation of its failure mode. Rising edges
+become structured injection events, falling edges become fault-cleared events
+(temporary faults); the first activation time and failure mode are stored in
+the result.
 */
 void SILRunner::apply_injectors(RunContext& ctx)
 {
@@ -77,7 +78,7 @@ void SILRunner::apply_injectors(RunContext& ctx)
     }
     if (injected && !ctx.fault_active && active_scenario != nullptr) {
         ctx.fault_active = true;
-        ctx.last_fault_type = active_scenario->fault_type;
+        ctx.last_failure_mode = active_scenario->failure_mode;
         ctx.last_fault_target = effective_fault_target(*active_scenario);
         ctx.last_fault_start = ctx.time;
         record_fault_activation(ctx, *active_scenario);
@@ -89,7 +90,7 @@ void SILRunner::apply_injectors(RunContext& ctx)
     if (injected && !ctx.fault_recorded && active_scenario != nullptr) {
         ctx.fault_recorded = true;
         ctx.result.fault_injected_time = ctx.time;
-        ctx.result.fault_type = active_scenario->fault_type;
+        ctx.result.failure_mode = active_scenario->failure_mode;
     }
     if (ctx.fc1_was_alive && !ctx.env.fc1_alive) {
         record_fc1_failure(ctx);

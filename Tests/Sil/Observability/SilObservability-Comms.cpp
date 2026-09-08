@@ -18,7 +18,7 @@ import TestHarness;
 namespace sim::test::sil {
 
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
 using sim::sil::SilEventType;
@@ -33,7 +33,7 @@ void comms_statistics_test(TestHarness& runner)
 {
     runner.set_context("OBS-006");
     const SilConfig                             config{.duration_s = 32.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{ .start_time = 30.0, .fault_type = FaultType::CommunicationLoss
+    const FaultScenario                         scenario{ .start_time = 30.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS
                                                 };
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
@@ -62,7 +62,7 @@ void verdict_independence_test(TestHarness& runner)
 {
     runner.set_context("OBS-007");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

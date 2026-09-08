@@ -28,7 +28,7 @@ enum class FailureReason : std::uint8_t {
     MissionAborted       = 1,
     MissionFailed        = 2,
     FaultUndetected      = 3,
-    WatchdogMissed       = 4,
+    SupervisionMissed    = 4,
     SafetyModeNotReached = 5,
     PositionExceeded     = 6,
     AltitudeExceeded     = 7,
@@ -39,7 +39,7 @@ enum class FailureReason : std::uint8_t {
 struct Scenario {
     std::uint64_t        run_id = 0;
     std::uint64_t        scenario_seed = 0;
-    FaultType            fault_type = FaultType::None;
+    FailureMode         failure_mode = FailureMode::NONE;
     FaultTarget          fault_target = FaultTarget::Unspecified;
     FaultProfile         fault_profile = FaultProfile::Permanent;
     std::float64_t       fault_start_time_s = 0.0;

@@ -34,12 +34,6 @@ std::string_view lifecycle_event_name(SilEventType type)
         return "FC_SHUTDOWN";
     case SilEventType::FCFailure:
         return "FC_FAILURE";
-    case SilEventType::MessageGenerated:
-        return "MESSAGE_GENERATED";
-    case SilEventType::MessageDelivered:
-        return "MESSAGE_DELIVERED";
-    case SilEventType::MessageDropped:
-        return "MESSAGE_DROPPED";
     case SilEventType::MessageTimeout:
         return "MESSAGE_TIMEOUT";
     case SilEventType::HeartbeatSent:
@@ -54,9 +48,9 @@ std::string_view lifecycle_event_name(SilEventType type)
 }
 
 /*
-Names of the fault, safety and recovery events: injections, detections,
-watchdog activity, safety responses and recovery progress. Types outside
-this group yield an empty name.
+Names of the fault, supervision, safety and recovery events: injections,
+detections, heartbeat supervision activity, safety responses and recovery
+progress. Types outside this group yield an empty name.
 */
 std::string_view incident_event_name(SilEventType type)
 {
@@ -69,20 +63,20 @@ std::string_view incident_event_name(SilEventType type)
         return "FAULT_DETECTED";
     case SilEventType::FaultClassified:
         return "FAULT_CLASSIFIED";
-    case SilEventType::SensorFault:
-        return "SENSOR_FAULT";
-    case SilEventType::ActuatorFault:
-        return "ACTUATOR_FAULT";
+    case SilEventType::SensorFaultInjected:
+        return "SENSOR_FAULT_INJECTED";
+    case SilEventType::ActuatorFaultInjected:
+        return "ACTUATOR_FAULT_INJECTED";
     case SilEventType::SafetyResponse:
         return "SAFETY_RESPONSE";
     case SilEventType::SafetyStateTransition:
         return "SAFETY_STATE_TRANSITION";
-    case SilEventType::WatchdogTimeout:
-        return "WATCHDOG_TIMEOUT";
-    case SilEventType::WatchdogKick:
-        return "WATCHDOG_KICK";
-    case SilEventType::WatchdogRecovery:
-        return "WATCHDOG_RECOVERY";
+    case SilEventType::SupervisionTimeout:
+        return "SUPERVISION_TIMEOUT";
+    case SilEventType::SupervisionReset:
+        return "SUPERVISION_RESET";
+    case SilEventType::SupervisionRecovery:
+        return "SUPERVISION_RECOVERY";
     case SilEventType::RecoveryStart:
         return "RECOVERY_START";
     case SilEventType::RecoveryEnd:
@@ -97,7 +91,7 @@ std::string_view incident_event_name(SilEventType type)
 /*
 Returns the machine-readable name of an event type for trace and report
 output: lifecycle, controller and messaging names are resolved first, then
-fault, safety and recovery ones, with UNKNOWN as the fallback.
+fault, supervision, safety and recovery ones, with UNKNOWN as the fallback.
 */
 std::string_view event_type_name(SilEventType type)
 {

@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Faults/FaultInjectors.cppm
-Description: Fault injection family : value-semantic injector, timed activation and validated factory.
+Description: Fault injection family : value-semantic injector of declarative failure modes, timed activation and validated factory.
 Exports:
     enum class InjectorError,
     class FaultInjector,
@@ -19,13 +19,18 @@ import SilTypes;
 export namespace sim::sil {
 
 /*
-Typed reasons why a declarative scenario cannot be turned into an injector.
-NoFault is a benign outcome (nominal scenario skipped by callers), the other
-values are real configuration errors.
+Typed reasons why a declarative scenario cannot be turned into an injector
+(infrastructure-domain configuration errors, never aircraft failures).
+NoFault is a benign outcome (nominal scenario skipped by callers);
+UnsupportedFailureMode marks documented failure modes without an injection
+path yet; UnsupportedFaultTarget marks a target the current injection
+machinery cannot disturb honestly (e.g. IMU/GNSS sensors or servo actuators).
 */
 enum class InjectorError {
     NoFault,
-    UnknownFaultType,
+    UnknownFailureMode,
+    UnsupportedFailureMode,
+    UnsupportedFaultTarget,
     InvalidLossProbability,
     InvalidSensorCorruption,
     InvalidEfficiency
@@ -42,9 +47,11 @@ public:
 
     /*
     Alters only the simulated environment (SimulationState) while the timed
-    activation window of the owned scenario is open. The injector never
-    communicates with the HealthMonitor nor the SafetyManager: fault detection
-    stays agnostic.
+    activation window of the owned scenario is open: the injector applies the
+    physical representation of the failure mode (heartbeat silence, link
+    cutoff, packet loss, sensor corruption, actuator efficiency loss). It
+    never communicates with the HealthMonitor nor the SafetyManager: fault
+    detection stays agnostic.
     */
     void inject(SimulationState& state, std::float64_t current_time) const;
 
@@ -57,9 +64,12 @@ private:
 };
 
 /*
-Single dispatch point turning declarative fault scenarios into value injectors:
-FaultType::None yields InjectorError::NoFault (skipped by callers), unknown
-fault types and out-of-range scenario parameters yield typed errors.
+Single dispatch point turning declarative fault scenarios into value
+injectors: FailureMode::NONE yields InjectorError::NoFault (skipped by
+callers), documented-but-unimplemented failure modes yield
+UnsupportedFailureMode, targets without an honest injection path yield
+UnsupportedFaultTarget and out-of-range scenario parameters yield typed
+errors.
 */
 [[nodiscard]] std::expected<FaultInjector, InjectorError> make_fault_injector(const FaultScenario& scenario);
 
@@ -67,9 +77,10 @@ fault types and out-of-range scenario parameters yield typed errors.
 
 namespace sim::sil {
 
-void inject_fc1_failure(const FaultScenario& scenario, SimulationState& state);
-void inject_communication_fault(const FaultScenario& scenario, SimulationState& state);
-void inject_sensor_fault(const FaultScenario& scenario, SimulationState& state);
-void inject_actuator_fault(const FaultScenario& scenario, SimulationState& state);
+void inject_fc1_unavailable(const FaultScenario& scenario, SimulationState& state);
+void inject_communication_loss(const FaultScenario& scenario, SimulationState& state);
+void inject_communication_degraded(const FaultScenario& scenario, SimulationState& state);
+void inject_invalid_sensor_data(const FaultScenario& scenario, SimulationState& state);
+void inject_actuator_degraded(const FaultScenario& scenario, SimulationState& state);
 
 }

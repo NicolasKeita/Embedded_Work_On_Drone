@@ -32,7 +32,7 @@ constexpr std::array<BriefEntry, 5> kBriefs{{
      "  Goal      : Climb to and hold 10 m, then survive a sudden FC1 failure.\n"
      "  Faults    : FC1 (primary flight controller) stops working at t = 20 s\n"
      "              for the rest of the mission.\n"
-     "  Outcome   : The backup watchdog must notice the failure within 0.3 s,\n"
+     "  Outcome   : The backup heartbeat supervision must notice the failure within 0.3 s,\n"
      "              switch to safe mode and abort the mission (controlled\n"
      "              descent)."},
     {"FAULT_INJECTOR-002",

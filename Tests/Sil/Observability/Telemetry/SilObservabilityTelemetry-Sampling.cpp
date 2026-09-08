@@ -22,7 +22,7 @@ import TestHarness;
 namespace sim::test::sil {
 
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
 using sim::sil::SilRunOutput;
@@ -82,7 +82,7 @@ void telemetry_rate_neutrality_test(TestHarness& runner)
 {
     runner.set_context("TELE-013");
 
-    const FaultScenario                         scenario{.start_time = 30.0, .fault_type = FaultType::FC1Failure};
+    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const SilConfig                             slow{.duration_s = 35.0, .telemetry_rate_hz = 5.0};
     const SilConfig                             standard{.duration_s = 35.0, .telemetry_rate_hz = 20.0};
     const SilConfig                             fast{.duration_s = 35.0, .telemetry_rate_hz = 50.0};

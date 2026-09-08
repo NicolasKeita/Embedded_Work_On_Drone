@@ -1,5 +1,5 @@
 /*
-Filename: Src/SIL/Core/Telemetry/Telemetry-Chain.cppm
+Filename: Src/SIL/Core/Telemetry/Telemetry.cppm
 Description: Simulated sensor chain, range validation layer and environment-side corruption.
 Exports:
     enum class SensorCorruptionMode,

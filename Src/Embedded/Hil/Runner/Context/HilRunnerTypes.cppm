@@ -26,6 +26,10 @@ import SilFaultScenario;
 
 export namespace sim::hil {
 
+/*
+Typed failures of a HIL run (infrastructure/HIL-bench domain errors: scenario
+list capacity, scenario validation, configuration; never aircraft failures).
+*/
 enum class HilError {
     TooManyScenarios,
     FaultScenarioRejected,
@@ -46,9 +50,9 @@ struct HilResult {
     bool                     degraded_reached = false;
     bool                     compensated_reached = false;
     bool                     safe_mode_reached = false;
-    sim::safety::FaultDomain first_fault_domain = sim::safety::FaultDomain::FC1Heartbeat;
+    sim::safety::DetectionEvent first_detection_event = sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT;
 
-    sim::sil::FaultType fault_type = sim::sil::FaultType::None;
+    sim::sil::FailureMode failure_mode = sim::sil::FailureMode::NONE;
     bool                fault_detected = false;
     std::float64_t      fault_injected_time = -1.0;
     std::float64_t      detection_time = -1.0;

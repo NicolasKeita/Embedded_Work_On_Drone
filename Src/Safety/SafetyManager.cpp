@@ -27,6 +27,19 @@ std::string_view safety_mode_name(SafetyMode mode)
     return "UNKNOWN";
 }
 
+std::string_view safety_action_name(SafetyAction action)
+{
+    switch (action) {
+    case SafetyAction::RESUME_NORMAL:
+        return "RESUME_NORMAL";
+    case SafetyAction::ENTER_COMPENSATED:
+        return "ENTER_COMPENSATED";
+    case SafetyAction::ENTER_SAFE_MODE:
+        return "ENTER_SAFE_MODE";
+    }
+    return "UNKNOWN";
+}
+
 SafetyManager::SafetyManager(SafetyManagerConfig config) : config_{config} {}
 
 SafetyMode SafetyManager::mode() const noexcept
@@ -49,10 +62,10 @@ void SafetyManager::engage(std::float64_t current_time, SafetyMode mode, std::fl
 }
 
 /*
-Safety transitions: SAFE -> SAFE_MODE (mission abort, conservative),
-DEGRADED -> COMPENSATED with a thrust margin only on proven actuator mismatch
-(otherwise the fault is a sensor one and thrust must stay nominal),
-HEALTHY -> NORMAL. The SAFE_MODE transition is irreversible.
+Safety transitions: SAFE -> ENTER_SAFE_MODE (mission abort, conservative),
+DEGRADED -> ENTER_COMPENSATED with a thrust margin only on proven actuator
+mismatch (otherwise the detection is a sensor one and thrust must stay
+nominal), HEALTHY -> RESUME_NORMAL. The SAFE_MODE transition is irreversible.
 */
 SafetyCommand SafetyManager::update(std::float64_t current_time, const HealthReport& report)
 {
@@ -61,8 +74,8 @@ SafetyCommand SafetyManager::update(std::float64_t current_time, const HealthRep
     }
     else if (mode_ != SafetyMode::SAFE_MODE) {
         if (report.state == HealthState::DEGRADED) {
-            const bool actuator_fault = report.flag(FaultDomain::Actuator).raised;
-            engage(current_time, SafetyMode::COMPENSATED, actuator_fault ? config_.degraded_thrust_margin : 1.0, false);
+            const bool actuator_detected = report.flag(DetectionEvent::ACTUATOR_MISMATCH).raised;
+            engage(current_time, SafetyMode::COMPENSATED, actuator_detected ? config_.degraded_thrust_margin : 1.0, false);
         }
         else {
             engage(current_time, SafetyMode::NORMAL, 1.0, false);

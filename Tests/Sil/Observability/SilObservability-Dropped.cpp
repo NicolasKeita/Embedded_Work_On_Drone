@@ -18,7 +18,7 @@ import TestHarness;
 namespace sim::test::sil {
 
 using sim::sil::FaultScenario;
-using sim::sil::FaultType;
+using sim::sil::FailureMode;
 using sim::sil::SilConfig;
 using sim::sil::SilError;
 using sim::sil::SilEventType;
@@ -32,7 +32,7 @@ void dropped_heartbeats_test(TestHarness& runner)
 {
     runner.set_context("OBS-002");
     const SilConfig                             config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 2.0, .fault_type = FaultType::CommunicationLoss};
+    const FaultScenario                         scenario{.start_time = 2.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

@@ -1,5 +1,13 @@
 # Extraction des erreurs et comportements logiciels pour FMECA
 
+> **⚠️ Note de vocabulaire (après refactorisation)** : cette extraction est un
+> instantané daté du code, réalisé **avant** l'harmonisation de la taxonomie.
+> Les identifiants cités ci-dessous ont été renommés depuis :
+> `FaultType` → `FailureMode`, `FaultDomain` (safety) → `sim::safety::DetectionEvent`,
+> `watchdog_*` (supervision réseau) → `supervision_*`, etc. La référence
+> canonique actuelle est [`docs/safety/fault_taxonomy.md`](docs/safety/fault_taxonomy.md) ;
+> en cas de divergence, la taxonomie fait foi.
+
 **Périmètre analysé :** l'intégralité du dépôt (219 fichiers C++23 `.cppm`/`.cpp` sous `Src/` et `Tests/`, plus `docs/system/fault_handling.md`). Analyse statique ligne par ligne, sans compilation. Chaque élément est référencé `chemin:ligne`. Aucun comportement n'est extrapolé au-delà du code présent.
 
 **Architecture de sécurité identifiée :** deux calculateurs — **FC1** (contrôle de vol, `Src/Control/FlightController*`) et **FC2** (supervision : `Src/Safety/HealthMonitor*` + `Src/Safety/SafetyManager*`). Chaîne de traitement d'une défaillance (`docs/system/fault_handling.md:24-28`) : `FAILURE → DETECTION → DIAGNOSIS → RESPONSE → RECOVERY / SAFE MODE`. Le moteur SIL (`Src/SIL/Runner/`) et le runner HIL (`Src/Embedded/Hil/Runner/`) réutilisent **les mêmes** noyaux `HealthMonitor`/`SafetyManager`, ce qui garantit une détection identique en simulation et sur cible hôte.

@@ -1,7 +1,7 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cppm
 Description: Target-agnostic functional scenario registry. Each entry binds a
-standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx) to its declarative fault identity (type and
+standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx) to its declarative fault identity (failure mode and
 parameters) and expected outcome, shared by the SIL and HIL runners.
 The execution target (SIL/HIL) is injected at runtime by the harness, so the
 scenario names never encode the execution environment.
@@ -32,16 +32,17 @@ enum class FunctionalFamily : std::uint8_t {
 
 /*
 Target-agnostic description of one functional scenario: its standardised ID,
-human-readable description, the declarative fault identity (type and parameters;
-FaultType::None for nominal scenarios), whether a fault is expected, and the
-family used to group the scenario in the taxonomy. The fault activation timing
-(start time and duration) is target-specific and applied by each runner.
+human-readable description, the declarative fault identity (failure mode and
+parameters; FailureMode::NONE for nominal scenarios), whether a fault is
+expected, and the family used to group the scenario in the taxonomy. The fault
+activation timing (start time and duration) is target-specific and applied by
+each runner.
 */
 struct FunctionalScenario {
     std::string_view          id;
     std::string_view          description;
     FunctionalFamily          family;
-    sim::sil::FaultType       fault_type;
+    sim::sil::FailureMode     failure_mode;
     sim::sil::FaultParameters parameters;
     bool                      fault_expected;
 };

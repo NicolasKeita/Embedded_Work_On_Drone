@@ -27,7 +27,7 @@ static void write_scenario_fields(std::ostream& out, const SimulationResult& res
     const Scenario& s = result.scenario;
 
     out << result.run_id << ';' << result.scenario_seed << ';'
-        << static_cast<std::uint32_t>(s.fault_type) << ';' << fault_type_name(s.fault_type) << ';'
+        << static_cast<std::uint32_t>(s.failure_mode) << ';' << failure_mode_name(s.failure_mode) << ';'
         << static_cast<std::uint32_t>(s.fault_target) << ';' << fault_target_name(s.fault_target) << ';'
         << static_cast<std::uint32_t>(s.fault_profile) << ';' << s.fault_start_time_s << ';'
         << s.fault_duration_s << ';' << s.fault_loss_probability << ';'
@@ -42,7 +42,7 @@ static void write_scenario_fields(std::ostream& out, const SimulationResult& res
 
 /*
 Writes the SIL-result-side columns of one CSV row: mission, safety, fault
-chain, aircraft, comms, watchdog and verdict fields. The Monte-Carlo verdict
+chain, aircraft, comms, supervision and verdict fields. The Monte-Carlo verdict
 and failure reason close the row.
 */
 static void write_sil_result_fields(std::ostream& out, const SimulationResult& result)
@@ -64,7 +64,7 @@ static void write_sil_result_fields(std::ostream& out, const SimulationResult& r
         << r.max_altitude_error_m << ';' << r.mean_altitude_error_m << ';' << r.final_x_m << ';'
         << r.final_y_m << ';' << r.final_altitude_m << ';' << r.max_pitch_rad << ';' << r.max_roll_rad << ';'
         << r.comms.sent << ';' << r.comms.delivered << ';' << r.comms.dropped << ';'
-        << r.comms.timeouts << ';' << (r.watchdog_triggered ? 1 : 0) << ';' << r.watchdog_trigger_time << ';'
+        << r.comms.timeouts << ';' << (r.supervision_triggered ? 1 : 0) << ';' << r.supervision_trigger_time << ';'
         << (r.test_verdict ? 1 : 0) << ';' << (result.verdict ? 1 : 0) << ';'
         << static_cast<std::uint32_t>(result.failure_reason) << ';'
         << failure_reason_id(result.failure_reason) << ';' << failure_reason_name(result.failure_reason) << ';'

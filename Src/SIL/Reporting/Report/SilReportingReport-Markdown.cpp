@@ -45,12 +45,12 @@ Writes the summary table of the Markdown report.
 */
 void write_summary_table(std::ostream& out, std::span<const ScenarioRecord> records)
 {
-    out << "| Scenario | Fault | Detected | Det. latency (ms) | Resp. latency (ms) | Mission state "
+    out << "| Scenario | Failure mode | Detected | Det. latency (ms) | Resp. latency (ms) | Mission state "
            "| Verdict |\n";
     out << "|---|---|---|---|---|---|---|\n";
     for (const ScenarioRecord& record : records) {
         const SimulationResult& r = record.result;
-        out << "| [" << record.name << "][SIL] | `" << fault_type_name(record.scenario.fault_type)
+        out << "| [" << record.name << "][SIL] | `" << failure_mode_name(record.scenario.failure_mode)
             << "` | " << yes_no(r.fault_detected) << " | ";
         write_metric(out, 1000.0 * r.detection_latency);
         out << " | ";

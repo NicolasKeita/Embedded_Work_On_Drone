@@ -1,5 +1,10 @@
 # Guide d'Architecture : Sûreté de Fonctionnement et Gestion des Fautes (Fault Management)
 
+> **Référence canonique** : la taxonomie des fautes (domaines, modes de défaillance, événements de
+> détection, actions de sécurité et matrice de couverture) est définie dans
+> [`docs/safety/fault_taxonomy.md`](../safety/fault_taxonomy.md). En cas de divergence entre ce guide
+> et le code, la taxonomie fait foi.
+
 ## 1. Philosophie et Principes Fondamentaux
 
 L'objectif principal de cette étape (Étape 10) est d'assurer la **sûreté de fonctionnement** (*dependability*) et la **gestion des défaillances** (*fault management*) de l'aéronef. Nous faisons évoluer l'architecture d'un fonctionnement nominal (*« ça fonctionne quand tout va bien »*) vers un système tolérant aux pannes et résilient (*« le système sait quoi faire en cas d'anomalie »*).
@@ -49,7 +54,7 @@ Le système maintient un état de santé global calculé en temps réel. Les ét
    - Mission : `ABORT` (Abandon immédiat)
    - Contrôle de vol : `SAFE MODE` (Mode conservateur)
 
-4. **`FAILED`** : Le système ne peut plus garantir son intégrité ni assurer le contrôle de vol de sécurité. Dans notre prototype, cet état sert d'indicateur ultime de diagnostic et de gestion d'urgence maximale.
+4. **`FAILED`** *(réservé, non implémenté)* : Perte d'intégrité totale. Cet état était déclaré dans l'énumération `HealthState` mais aucune chaîne de détection ne le produisait (état mort) ; il a été retiré de l'enumération et sera réintroduit lorsqu'un mécanisme de détection de perte d'intégrité existera. Voir `docs/safety/fault_taxonomy.md`.
 
 ### 2.2 Diagramme de transition d'états
 
@@ -192,7 +197,7 @@ $$	ext{Error} = | 	ext{commanded\_rpm} - 	ext{measured\_rpm} | > 	ext{threshold\
 $$	ext{Condition} : 	ext{Error maintenue pendant } t > t_{	ext{persistence}}$$
 
 #### Traitement
-1. **Detection** : Le sous-système de contrôle moteur lève un drapeau `ACTUATOR_FAULT`.
+1. **Detection** : Le moniteur de santé lève l'événement de détection `ACTUATOR_MISMATCH` (écart consigne/mesure RPM soutenu).
 2. **Diagnosis** : `HealthMonitor` enregistre `actuator_health = DEGRADED`.
 3. **Response** : Le `SafetyManager` réduit l'enveloppe de vol autorisée ou déclenche le `SAFE_MODE` si la poussée minimale de sécurité n'est plus garantie.
 
@@ -210,7 +215,7 @@ FC1 ─────────── X ───────────► FC2
 #### Traitement
 1. **Distinction essentielle** : La perte de communication ne signifie pas nécessairement que FC1 est mort, mais qu'aucun calculateur ne peut plus vérifier l'état de santé de l'autre.
 2. **Philosophie conservatrice** :
-   - `COMMUNICATION_LOST` détecté par timeout.
+   - `COMMUNICATION_TIMEOUT` détecté par la supervision du lien.
    - En l'absence de certitude quant à la coordination multi-calculateur, le système applique la règle de prudence maximale.
    - Passage immédiat en **`SAFE_MODE`**.
 
@@ -382,14 +387,15 @@ Afin de valider la robustesse du système embarqué, la suite de tests unitaires
 - **Résultat attendu** :
   - Le `WatchdogManager` détecte l'absence de rafraîchissement de la tâche critique.
   - Invalidation de la séquence d'armement (*Kick denied*).
-  - Expiration du Watchdog (Timeout) $ightarrow$ Activation du mode d'urgence / Reset.
+  - Expiration du Watchdog (Timeout) $
+ightarrow$ Activation du mode d'urgence / Reset.
 
 ### Test E — Rupture de la liaison de communication inter-FC
 - **Condition initiale** : FC1 et FC2 en fonctionnement nominal.
 - **Action** : Perte totale des messages inter-calculateurs (Drop 100% des paquets).
 - **Résultat attendu** :
   - Détection du timeout de communication par FC2.
-  - Déclaratif `COMMUNICATION_LOST`.
+  - Déclaratif `COMMUNICATION_TIMEOUT`.
   - Transition immédiate du système vers le **`SAFE_MODE`**.
 
 ---

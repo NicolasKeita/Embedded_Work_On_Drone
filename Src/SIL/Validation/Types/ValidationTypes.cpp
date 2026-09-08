@@ -31,8 +31,8 @@ std::string_view failure_reason_name(FailureReason reason)
         return "MISSION_FAILED";
     case FailureReason::FaultUndetected:
         return "FAULT_UNDETECTED";
-    case FailureReason::WatchdogMissed:
-        return "WATCHDOG_MISSED";
+    case FailureReason::SupervisionMissed:
+        return "SUPERVISION_MISSED";
     case FailureReason::SafetyModeNotReached:
         return "SAFETY_MODE_NOT_REACHED";
     case FailureReason::PositionExceeded:
@@ -66,7 +66,7 @@ FaultScenario Scenario::to_fault_scenario() const
 {
     return FaultScenario{.start_time = fault_start_time_s,
                          .duration = (fault_profile == FaultProfile::Permanent) ? 0.0 : fault_duration_s,
-                         .fault_type = fault_type,
+                         .failure_mode = failure_mode,
                          .target = fault_target,
                          .parameters = {.loss_probability = fault_loss_probability,
                                         .corruption = sensor_corruption,

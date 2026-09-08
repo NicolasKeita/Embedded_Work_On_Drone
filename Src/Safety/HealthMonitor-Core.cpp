@@ -18,9 +18,9 @@ namespace sim::safety {
 
 HealthMonitor::HealthMonitor(HealthMonitorConfig config) : config_{config} {}
 
-std::size_t HealthMonitor::domain_index(FaultDomain domain)
+std::size_t HealthMonitor::detection_index(DetectionEvent event)
 {
-    return static_cast<std::size_t>(domain);
+    return static_cast<std::size_t>(event);
 }
 
 HealthState HealthMonitor::state() const noexcept
@@ -28,9 +28,9 @@ HealthState HealthMonitor::state() const noexcept
     return state_;
 }
 
-void HealthMonitor::raise(FaultDomain domain, std::float64_t time)
+void HealthMonitor::raise(DetectionEvent event, std::float64_t time)
 {
-    FaultFlag& item = flags_[domain_index(domain)];
+    DetectionFlag& item = flags_[detection_index(event)];
 
     if (!item.raised) {
         item.raised = true;
@@ -38,16 +38,16 @@ void HealthMonitor::raise(FaultDomain domain, std::float64_t time)
     }
 }
 
-HealthState HealthMonitor::compute_state(const std::array<FaultFlag, 4>& flags)
+HealthState HealthMonitor::compute_state(const std::array<DetectionFlag, kDetectionEventCount>& flags)
 {
-    const bool critical = flags[domain_index(FaultDomain::FC1Heartbeat)].raised
-        || flags[domain_index(FaultDomain::Communication)].raised;
+    const bool critical = flags[detection_index(DetectionEvent::FC1_HEARTBEAT_TIMEOUT)].raised
+        || flags[detection_index(DetectionEvent::COMMUNICATION_TIMEOUT)].raised;
 
     if (critical) {
         return HealthState::SAFE;
     }
-    const bool degraded = flags[domain_index(FaultDomain::Sensor)].raised
-        || flags[domain_index(FaultDomain::Actuator)].raised;
+    const bool degraded = flags[detection_index(DetectionEvent::SENSOR_VALIDATION_FAILED)].raised
+        || flags[detection_index(DetectionEvent::ACTUATOR_MISMATCH)].raised;
     if (degraded) {
         return HealthState::DEGRADED;
     }
