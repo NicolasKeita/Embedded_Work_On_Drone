@@ -1,5 +1,12 @@
 # Architecture Distribuée (Étape 8) : Double Calculateur de Vol (FC1 / FC2)
 
+> **Evolution note — not the current implementation.** This describes the
+> *intended future* topology (independent OS processes, UDP transport, physical
+> targets). The current code is a **single process** with an in-process simulated
+> communication bus (`CommsBus`) and a host FC emulator. For what is actually
+> built today, see [`../architecture/overview.md`](../architecture/overview.md).
+
+
 ## 1. Vue d'Ensemble et Justification (Pourquoi deux FC ?)
 
 Jusqu'à présent, le système de contrôle reposait sur un monobloc applicatif (un seul *Flight Controller*). Dans le cadre d'un système critique ou embarqué à forte exigence de sûreté de fonctionnement (SdL / Dependability), la tolérance aux pannes repose sur la redondance et le cloisonnement des responsabilités.
