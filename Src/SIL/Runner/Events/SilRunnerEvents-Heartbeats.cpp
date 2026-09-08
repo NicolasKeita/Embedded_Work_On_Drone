@@ -54,13 +54,13 @@ void record_heartbeat_delivered(RunContext& ctx, const CommsDelivery& delivery)
 
     ctx.trace.record(delivered);
 
-    SilEvent kick{.timestamp = delivery.receive_time,
+    SilEvent reset{.timestamp = delivery.receive_time,
                   .source = "FC2",
                   .type = SilEventType::SupervisionReset,
                   .severity = EventSeverity::Debug,
                   .sequence = delivery.sequence,
                   .has_sequence = true};
-    ctx.trace.record(kick);
+    ctx.trace.record(reset);
 }
 
 /*
