@@ -40,7 +40,8 @@ void log_state_transition(MissionRunTrace& trace,
 /* Reports whether the vehicle holds the target zone and the run should stop there. */
 bool zone_reached(const MissionRunRequest& run, MissionState state, const AircraftState& s)
 {
-    const bool airborne = state != MissionState::TAKEOFF && state != MissionState::CLIMB;
+    const bool airborne = state != MissionState::SPIN_UP && state != MissionState::TAKEOFF
+        && state != MissionState::CLIMB;
     const bool inside = std::abs(run.target.x - s.x) <= run.tolerance
         && std::abs(run.target.y - s.y) <= run.tolerance
         && std::abs(run.target.z - s.z) <= run.tolerance;

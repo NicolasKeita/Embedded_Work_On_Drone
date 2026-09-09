@@ -1,7 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Cli/HilRunnerCli-Config.cpp
 Description: HilConfig assembly of hil_runner : selected scenario record plus the
-command-line overrides (duration, cadence, seed, noise, pacing, clock, deadline policy).
+command-line overrides (duration, cadence, seed, noise and deadline policy).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -36,13 +36,6 @@ HilConfig hil_config_from_options(const HilCliOptions& options)
     if (options.noise) {
         config.sensor_noise_stddev = *options.noise;
     }
-    if (options.no_realtime) {
-        config.real_time_pacing = false;
-    }
-    if (options.clock_name == "Fast") {
-        config.clock_kind = ClockKind::Fast;
-    }
-    else if (options.clock_name == "Monotonic") { config.clock_kind = ClockKind::Monotonic; }
     if (options.deadline_name == "Fail") {
         config.deadline_policy = DeadlinePolicy::Fail;
     }

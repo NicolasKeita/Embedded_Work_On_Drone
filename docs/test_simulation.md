@@ -53,6 +53,12 @@ SIL_RUNNER --scenario NOMINAL-011
 | `NOMINAL-009` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
 | `NOMINAL-010` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
 | `NOMINAL-011` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
+| `NOMINAL-012` | Low vertical takeoff (30 s, z = 5 m) | `flight_scenarios::low_vertical_takeoff` |
+| `NOMINAL-013` | Low forward takeoff (30 s, x = 4 m, z = 6 m) | `flight_scenarios::low_forward_takeoff` |
+| `NOMINAL-014` | Low lateral takeoff (30 s, y = -4 m, z = 7 m) | `flight_scenarios::low_lateral_takeoff` |
+| `NOMINAL-015` | Low diagonal takeoff (30 s, x = 3 m, y = 3 m, z = 8 m) | `flight_scenarios::low_diagonal_takeoff` |
+| `NOMINAL-016` | Low offset takeoff (30 s, x = -3 m, y = 2 m, z = 9 m) | `flight_scenarios::low_offset_takeoff` |
+| `NOMINAL-017` | Stratosphere climb (about 9 h, z = 20 km) | `flight_scenarios::stratosphere_climb` |
 
 ### Physics scenarios (NOMINAL-002 – NOMINAL-007)
 
@@ -66,7 +72,7 @@ motor and servo commands.
 - **NOMINAL-006 — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
 - **NOMINAL-007 — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
 
-### Autonomous mission scenarios (NOMINAL-008 – NOMINAL-011)
+### Autonomous mission scenarios (NOMINAL-008 – NOMINAL-016)
 
 Closed-loop scenarios driving the flight controller.
 
@@ -74,10 +80,16 @@ Closed-loop scenarios driving the flight controller.
 - **NOMINAL-009 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
 - **NOMINAL-010 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
 - **NOMINAL-011 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
+- **NOMINAL-012 to NOMINAL-016 — low takeoff profiles**: five 30-second flights from rest at 5 m to 9 m,
+  combining vertical hold, forward, lateral, and diagonal translations. They intentionally end airborne.
+- **NOMINAL-017 — stratosphere_climb**: 20 km climb at a capped 0.617 m/s, reaching the target after
+  approximately nine real hours because HIL always runs at a 1:1 wall-clock rate.
 
 ## Execution conditions
 
 - Deterministic single-thread loop at 100 Hz (`dt = 0.01 s`).
+- Autonomous takeoff starts with a 3-second rotor spin-up, followed by a 12-second smoothstep transition
+  toward the 0.617 m/s Heliblade-derived climb speed.
 - A single shared harness accumulates the failure counter across all launched scenarios.
 - The theoretical hover RPM is computed from the reference aircraft parameters and printed at startup.
 

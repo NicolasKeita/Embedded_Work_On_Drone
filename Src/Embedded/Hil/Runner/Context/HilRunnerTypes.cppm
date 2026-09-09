@@ -42,7 +42,7 @@ inline constexpr std::size_t kHilMaxFaultScenarios = 8;
 
 struct HilResult {
     bool                       mission_success = false;
-    sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
+    sim::control::MissionState final_state = sim::control::MissionState::SPIN_UP;
     std::float64_t             mission_end_time = -1.0;
 
     sim::safety::HealthState    final_health = sim::safety::HealthState::HEALTHY;
@@ -70,7 +70,6 @@ struct HilResult {
 
     HilCommStats     comms{};
     HilTimingStats   timing{};
-    bool             real_time_pacing = true;
     std::string_view scenario_id{};
     bool             fault_expected = false;
     bool             test_verdict = false;

@@ -31,9 +31,7 @@ struct HilCliOptions {
     std::optional<std::float64_t> telemetry_period{};
     std::optional<std::uint64_t>  seed{};
     std::optional<std::float64_t> noise{};
-    std::string                   clock_name{};
     std::string                   deadline_name{};
-    bool                          no_realtime = false;
     bool                          selftest = false;
     bool                          list_only = false;
     bool                          help = false;

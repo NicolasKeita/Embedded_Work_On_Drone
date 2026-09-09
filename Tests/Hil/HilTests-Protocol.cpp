@@ -38,7 +38,7 @@ namespace {
     struct Fixture {
         FlightCore::Sim::LoopbackTransport channel;
         sim::hil::HilTransport             transport{&channel};
-        sim::hil::FastClock                clock;
+        sim::hil::MonotonicClock           clock;
 
         sim::hil::ReceiveResult receive(std::uint16_t expected_seq, std::uint64_t expected_echo)
         {

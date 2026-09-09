@@ -51,7 +51,7 @@ PC (single process)
 | Control iterations | 3000 | `hil_step_count` = `duration / dt` (asserted by self-test) |
 | Heartbeat timeout | 0.10 s | `HilConfig::heartbeat_timeout_s` |
 | Fault injection time | t = 5.0 s | `HilScenarios::hil_fault_for` |
-| Real-time pacing | on (default) | `HilConfig::real_time_pacing` |
+| Real-time pacing | always on | monotonic `std::chrono::steady_clock` |
 | Deadline policy | Warn (default) | `HilConfig::deadline_policy` |
 
 The loop schedules each step to an **absolute wall-clock deadline**
@@ -180,7 +180,6 @@ the deterministic outcome of their SIL counterparts (see
 HIL_RUNNER --list                       # list scenarios
 HIL_RUNNER --scenario NOMINAL-001       # nominal, 30 s, real-time paced
 HIL_RUNNER --scenario FAULT_INJECTOR-001   # FC1 failure
-HIL_RUNNER --no-realtime --scenario NOMINAL-001   # fast (no wall pacing)
 HIL_RUNNER --selftest                   # deterministic HIL validation suite
 ```
 
@@ -193,4 +192,3 @@ HIL_RUNNER --selftest                   # deterministic HIL validation suite
 * **No jitter statistic**; no printed elapsed wall-clock time.
 * **No HIL `FAULT_INJECTOR-005`** (the climb-transition FC1 failure is SIL-only).
 * Monte Carlo is not run against HIL (it remains a SIL technique).
-

@@ -52,7 +52,6 @@ struct HilRunContext {
     explicit HilRunContext(const HilConfig& cfg);
 
     const HilConfig                    config;
-    ClockKind                          clock_kind;
     Aircraft                           aircraft;
     sim::sil::CommsBus                 comms;
     sim::safety::HealthMonitor         health;
@@ -62,7 +61,7 @@ struct HilRunContext {
     FlightCore::Sim::LoopbackTransport channel;
     HilTransport                       transport;
     std::unique_ptr<IFcTarget>         fc_target;
-    std::unique_ptr<IWallClock>        clock;
+    MonotonicClock                     clock;
 
     std::array<sim::sil::FaultInjector, kHilMaxFaultScenarios> injectors{};
     std::size_t                                                injector_count = 0;
@@ -78,7 +77,7 @@ struct HilRunContext {
     HilTelemetryRecorder              telemetry_recorder{};
     HilTimingStats                    timing{};
 
-    sim::control::MissionState previous_mission_state = sim::control::MissionState::TAKEOFF;
+    sim::control::MissionState previous_mission_state = sim::control::MissionState::SPIN_UP;
     sim::safety::SafetyMode    previous_safety_mode = sim::safety::SafetyMode::NORMAL;
     sim::safety::HealthState   previous_health = sim::safety::HealthState::HEALTHY;
     bool                       fault_active = false;

@@ -24,7 +24,7 @@ not applicable.
 
 | Test ID | Requirement / behavior | Method | Expected result | Status | Executable / scenario | Ref |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| MIS-01 | TAKEOFF arming + transition to CLIMB at takeoff altitude | SIL deterministic | arms at `takeoff_rpm_factor×hover_rpm`; switches to CLIMB at `z ≥ takeoff_altitude_m` (2 m) | PASS | `SIL_RUNNER --scenario NOMINAL-010` | [sil.md](sil.md) |
+| MIS-01 | Progressive spin-up and takeoff transition | SIL deterministic | 3 s SPIN_UP, then 12 s smoothstep to 0.617 m/s before CLIMB | PASS | `SIL_RUNNER --scenario NOMINAL-012` | [sil.md](sil.md) |
 | MIS-02 | CLIMB to target altitude (10 m) | SIL deterministic | altitude loop drives RPM; transition to STATION_KEEPING within `altitude_tolerance_m` (0.5 m) | PASS | `SIL_RUNNER --scenario NOMINAL-001` | [sil.md](sil.md) |
 | MIS-03 | STATION_KEEPING holds zone for `station_hold_seconds` (5 s) | SIL deterministic | hold timer accumulates inside zone; mission COMPLETE | PASS | `SIL_RUNNER --scenario NOMINAL-001` | [sil.md](sil.md) |
 | MIS-04 | COMPLETE terminal state on success | SIL deterministic | `final_state == COMPLETE`, `mission_success == true` | PASS | `SIL_RUNNER --scenario NOMINAL-001` | [sil.md](sil.md) |
@@ -142,4 +142,3 @@ Requirement / mission behavior
 | HIL-05 | Fault injection through the HIL path | host-side injection → reused safety core | same detection/action as SIL baseline | PASS | `FAULT_INJECTOR-001..004` | [hil.md](hil.md) |
 | HIL-06 | Physical-MCU (STM32) HIL | real target | — | **NOT IMPLEMENTED** | — | [hil.md](hil.md) |
 | HIL-07 | Deterministic selftest suite | `--selftest` (runner/timing/protocol/data/faults) | all HIL tests pass | PASS | `HIL_RUNNER --selftest` | [hil.md](hil.md) |
-

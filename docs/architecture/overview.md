@@ -143,9 +143,9 @@ for each step (dt):
 
 There is no RTOS and no task scheduler in the current code: the "tasks"
 (SensorTask/ControlTask/MissionTask/HealthTask/…) referenced in the legacy
-design notes are a single sequential pipeline here. The HIL runner's
-`--clock Fast` mode advances instantly for deterministic unit tests while still
-exercising the same pipeline and deadline accounting.
+design notes are a single sequential pipeline here. The HIL runner always uses
+`std::chrono::steady_clock`, with one simulated second corresponding to one
+wall-clock second.
 
 ## 6. Known limitations
 
@@ -191,4 +191,3 @@ For the failure → detection → response chain and the per-mode analysis, see
 the [FMECA](../fmeca/fmeca.md) and the
 [fault taxonomy](../safety/fault_taxonomy.md). For the diagram, see
 [`architecture.svg`](architecture.svg).
-

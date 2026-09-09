@@ -33,7 +33,7 @@ void record_detection(HilRunContext& ctx, const sim::safety::HealthReport& repor
     }
     ctx.detection_recorded = true;
     ctx.trace.record(HilEvent{.sim_time_s = detection,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "FC2",
                               .type = HilEventType::FaultDetected,
                               .severity = HilEventSeverity::Info,
@@ -41,7 +41,7 @@ void record_detection(HilRunContext& ctx, const sim::safety::HealthReport& repor
                               .reason = "fault detected"});
     if (ctx.result.first_detection_event == sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT) {
         ctx.trace.record(HilEvent{.sim_time_s = detection,
-                                  .wall_us = ctx.clock->nowUs(),
+                                  .wall_us = ctx.clock.nowUs(),
                                   .source = "FC2",
                                   .type = HilEventType::HeartbeatTimeout,
                                   .severity = HilEventSeverity::Warning,
@@ -56,7 +56,7 @@ FC1_UNAVAILABLE failure mode (the detail names the failure mode).
 void record_fc1_failure_event(HilRunContext& ctx)
 {
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "FC1",
                               .type = HilEventType::Fc1Failure,
                               .severity = HilEventSeverity::Warning,

@@ -20,6 +20,8 @@ controller itself never enters them.
 std::string_view mission_state_name(MissionState state)
 {
     switch (state) {
+    case MissionState::SPIN_UP:
+        return "SPIN_UP";
     case MissionState::TAKEOFF:
         return "TAKEOFF";
     case MissionState::CLIMB:

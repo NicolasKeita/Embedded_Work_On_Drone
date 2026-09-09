@@ -48,7 +48,7 @@ void handle_deadline(HilRunContext& ctx, const HilStepTiming& timing)
     const std::uint64_t period_us = static_cast<std::uint64_t>(std::llround(ctx.config.dt_s * 1e6));
 
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "HIL_RUNNER",
                               .type = HilEventType::DeadlineMissed,
                               .severity = HilEventSeverity::Warning,

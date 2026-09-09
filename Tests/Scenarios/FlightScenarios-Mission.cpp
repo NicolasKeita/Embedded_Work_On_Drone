@@ -61,7 +61,7 @@ void autonomous_mission(TestHarness&                  runner,
     }
 
     runner.check(contains_mission_sequence(std::span<const MissionState>{visited.data(), visitedCount}),
-                 "sequence TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
+                 "sequence SPIN_UP -> TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE");
     runner.check(std::abs(finalState.x) <= 1.0 && std::abs(finalState.y) <= 1.0,
                  "horizontal position within target zone (+/- 1 m)");
     runner.check(std::abs(finalState.z - 100.0) <= 1.0, "altitude held around 100 m (+/- 1 m)");

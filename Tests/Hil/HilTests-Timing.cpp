@@ -42,14 +42,12 @@ namespace sim::test::hil {
         realtime_cfg.scenario_id = "NOMINAL-001";
         realtime_cfg.duration_s = 0.10;
         realtime_cfg.dt_s = 0.01;
-        realtime_cfg.real_time_pacing = true;
-        realtime_cfg.clock_kind = sim::hil::ClockKind::Monotonic;
         const std::array<sim::sil::FaultScenario, 1> rs{ sim::hil::HilScenarioCatalog::find("NOMINAL-001")->fault};
         const auto t0 = std::chrono::steady_clock::now();
         sim::hil::HilRunner rt_runner{realtime_cfg};
         const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> rt = rt_runner.run(rs);
         const auto t1 = std::chrono::steady_clock::now();
-        const double elapsed_s = std::chrono::duration<double>(t1 - t0).count();
+        const std::float64_t elapsed_s = std::chrono::duration<std::float64_t>(t1 - t0).count();
         runner.check(rt.has_value(), "HIL: real-time run executed");
         runner.check(elapsed_s >= 0.09, "HIL: real-time pacing active (wall clock elapses ~ duration)");
     }

@@ -46,11 +46,4 @@ void MonotonicClock::sleepUntilUs(std::uint64_t abs_us) noexcept
     std::this_thread::sleep_for(target - now);
 }
 
-void FastClock::sleepUntilUs(std::uint64_t abs_us) noexcept
-{
-    if (abs_us > now_us_) {
-        now_us_ = abs_us;
-    }
-}
-
 }

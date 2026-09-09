@@ -36,7 +36,7 @@ namespace {
             ctx.result.mission_end_time = ctx.time;
         }
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                                  .wall_us = ctx.clock->nowUs(),
+                                  .wall_us = ctx.clock.nowUs(),
                                   .source = "FC2",
                                   .type = HilEventType::MissionAborted,
                                   .severity = HilEventSeverity::Warning,

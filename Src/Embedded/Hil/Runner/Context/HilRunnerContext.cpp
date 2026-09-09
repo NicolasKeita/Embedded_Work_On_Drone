@@ -38,7 +38,6 @@ namespace sim::hil {
 
 HilRunContext::HilRunContext(const HilConfig& cfg)
     : config{cfg},
-      clock_kind{cfg.clock_kind},
       aircraft{},
       comms{cfg.seed},
       health{sim::safety::HealthMonitorConfig{
@@ -66,13 +65,12 @@ HilRunContext::HilRunContext(const HilConfig& cfg)
       trace{},
       telemetry_recorder{},
       timing{},
-      previous_mission_state{sim::control::MissionState::TAKEOFF},
+      previous_mission_state{sim::control::MissionState::SPIN_UP},
       previous_safety_mode{sim::safety::SafetyMode::NORMAL},
       previous_health{sim::safety::HealthState::HEALTHY},
       fc1_was_alive{true}
 {
     telemetry_recorder.interval_s = (cfg.telemetry_rate_hz > 0.0) ? 1.0 / cfg.telemetry_rate_hz : 0.05;
-    result.real_time_pacing = cfg.real_time_pacing;
     result.scenario_id = cfg.scenario_id;
 }
 

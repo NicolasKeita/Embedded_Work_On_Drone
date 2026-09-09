@@ -16,6 +16,7 @@ set(CONTROL_FILES
     Src/Control/FlightController-Core.cpp
     Src/Control/FlightController-Loops.cpp
     Src/Control/FlightController-Mission.cpp
+    Src/Control/FlightController-Takeoff.cpp
     Src/Control/Types/FlightControllerTypes.cppm
     Src/Control/Types/FlightControllerTypes.cpp
 )
@@ -141,6 +142,8 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/FlightScenarios-Reference.cpp
     Tests/Scenarios/FlightScenarios-Axes.cpp
     Tests/Scenarios/FlightScenarios-Mission.cpp
+    Tests/Scenarios/FlightScenarios-Profiles.cpp
+    Tests/Scenarios/Altitude/FlightScenarios-Stratosphere.cpp
 )
 
 # Deterministic SIL test suite (NOMINAL-001..010 nominal, FAULT_INJECTOR-001..004 fault

@@ -35,7 +35,7 @@ namespace {
         ctx.sim_ts_us = ctx.step * period_us;
 
         HilStepTiming timing{.scheduled_us = ctx.start_wall_us + ctx.step * period_us,
-                             .actual_start_us = ctx.clock->nowUs()};
+                             .actual_start_us = ctx.clock.nowUs()};
 
         apply_injectors(ctx);
         exchange_actuators(ctx);
@@ -49,8 +49,8 @@ namespace {
         }
         update_metrics(ctx);
         stream_live_output(ctx);
-        timing.aircraft_update_us = ctx.clock->nowUs();
-        timing.step_completion_us = ctx.clock->nowUs();
+        timing.aircraft_update_us = ctx.clock.nowUs();
+        timing.step_completion_us = ctx.clock.nowUs();
 
         ctx.timing.record(timing, period_us);
         if (timing.deadline_missed(period_us)) {
@@ -72,7 +72,7 @@ void HilRunner::execute(HilRunContext& ctx)
     const std::uint64_t period_us = static_cast<std::uint64_t>(std::llround(cfg.dt_s * 1.0e6));
     const std::uint64_t total_steps = hil_step_count(cfg);
 
-    ctx.start_wall_us = ctx.clock->nowUs();
+    ctx.start_wall_us = ctx.clock.nowUs();
     ctx.next_deadline_us = ctx.start_wall_us + period_us;
     record_run_start(ctx);
 
@@ -81,9 +81,7 @@ void HilRunner::execute(HilRunContext& ctx)
         if (ctx.aborted_on_deadline) {
             break;
         }
-        if (cfg.real_time_pacing) {
-            ctx.clock->sleepUntilUs(ctx.next_deadline_us);
-        }
+        ctx.clock.sleepUntilUs(ctx.next_deadline_us);
         ctx.next_deadline_us += period_us;
     }
 

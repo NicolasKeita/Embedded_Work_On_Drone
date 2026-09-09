@@ -37,9 +37,6 @@ namespace {
         if (arg == "--noise") {
             return apply_float_argument(options.noise, argc, argv, i, "--noise");
         }
-        if (arg == "--clock") {
-            return apply_string_option(options.clock_name, argc, argv, i, "--clock");
-        }
         if (arg == "--deadline") {
             return apply_string_option(options.deadline_name, argc, argv, i, "--deadline");
         }
@@ -55,9 +52,6 @@ HilCliOptions parse_hil_cli(int argc, char** argv)
         const std::string arg = argv[i];
         if (arg == "--list") {
             options.list_only = true;
-        }
-        else if (arg == "--no-realtime") {
-            options.no_realtime = true;
         }
         else if (arg == "--selftest") {
             options.selftest = true;

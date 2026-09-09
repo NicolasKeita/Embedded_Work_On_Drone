@@ -88,7 +88,7 @@ struct RunContext {
     TelemetryRecorder                                   telemetry_recorder{};
     CommsStats                                          comms_stats{};
     std::array<bool, sim::safety::kDetectionEventCount> previous_flags{};
-    sim::control::MissionState                          previous_mission_state = sim::control::MissionState::TAKEOFF;
+    sim::control::MissionState                          previous_mission_state = sim::control::MissionState::SPIN_UP;
     sim::safety::SafetyMode                             previous_safety_mode = sim::safety::SafetyMode::NORMAL;
     sim::safety::HealthState                            previous_health = sim::safety::HealthState::HEALTHY;
     bool                                                fc1_was_alive = true;

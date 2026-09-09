@@ -68,7 +68,7 @@ public:
     void noteTimeoutFrame() noexcept;
 
     /* Waits for the ActuatorPacket answering sequence, no later than deadline_wall_us. */
-    [[nodiscard]] ReceiveResult receiveActuator(IWallClock& clock,
+    [[nodiscard]] ReceiveResult receiveActuator(MonotonicClock& clock,
                                                   std::uint16_t expected_sequence,
                                                   std::uint64_t expected_echo_sim_us,
                                                   std::uint64_t sensor_send_wall_us,

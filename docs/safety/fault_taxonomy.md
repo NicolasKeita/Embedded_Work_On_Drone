@@ -184,7 +184,7 @@ Every enum of the fault/safety vocabulary classified by concept:
 | `SilError` / `ReportError` | SIL modules | INFRASTRUCTURE error |
 | `HilError` | `HilRunnerTypes` | INFRASTRUCTURE / HIL-bench error |
 | `ReceiveResult` / `FrameAcceptanceError` | `HilTransport` | HIL bench transport outcome |
-| `DeadlinePolicy` / `ClockKind` | `HilConfig` | HIL bench configuration |
+| `DeadlinePolicy` | `HilConfig` | HIL bench deadline configuration |
 | `FailureReason` | `ValidationTypes` | Test-verdict classification (INFRASTRUCTURE) |
 | `FunctionalFamily` | `FunctionalScenarios` | Test taxonomy |
 
@@ -251,4 +251,3 @@ models, new flight dynamics, new RTOS scheduler features, new Monte-Carlo
 suites. This document only aligns the architecture and the vocabulary; the
 coverage matrix above is
 the honest statement of what exists.
-

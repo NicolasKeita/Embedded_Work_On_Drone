@@ -75,7 +75,7 @@ fc1_stm32 build.
 class HostFcTarget final : public IFcTarget {
 public:
     HostFcTarget(FlightCore::Transport::ITransport& channel,
-                 IWallClock& clock,
+                 MonotonicClock& clock,
                  const sim::control::TargetState& target,
                  const sim::control::ControllerConfig& controller,
                  std::float64_t dt,
@@ -95,7 +95,7 @@ private:
     bool send_actuators(const ControlCommand& command, FcStepOutcome& outcome);
 
     FlightCore::Transport::ITransport&                           channel_;
-    IWallClock&                                                  clock_;
+    MonotonicClock&                                              clock_;
     sim::control::FlightController                               fc_;
     FlightCore::Sim::SimulatedSensorInput                        sensor_input_;
     FlightCore::Sim::SimulatedActuatorOutput                     actuator_output_;

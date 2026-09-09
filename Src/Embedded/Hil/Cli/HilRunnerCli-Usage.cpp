@@ -25,8 +25,6 @@ void print_hil_usage(std::string_view name)
         << "  --telemetry-period <s>  override human-readable report period (default 1 s)\n";
     std::cout << "  --seed <n>              random seed\n";
     std::cout << "  --noise <stddev>        sensor measurement noise std dev in meters\n";
-    std::cout << "  --no-realtime           run as fast as possible (no wall-clock pacing)\n";
-    std::cout << "  --clock <Monotonic|Fast> wall-clock source (default Monotonic; Fast for tests)\n";
     std::cout << "  --deadline <Warn|Fail|Abort>  deadline-miss policy (default Warn)\n";
     std::cout << "  --selftest              run the deterministic HIL validation suite\n";
     std::cout << "  --list                  list available scenarios\n";

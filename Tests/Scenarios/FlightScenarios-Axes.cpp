@@ -35,7 +35,7 @@ void autonomous_altitude(TestHarness&                  runner,
     Aircraft aircraft{dispersion};
 
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 100.0}, .duration = 90.0, .axis = TrackingAxis::z_axis, .tolerance = 2.0,
+                    {.target = {.z = 100.0}, .duration = 180.0, .axis = TrackingAxis::z_axis, .tolerance = 2.0,
                      .verbose = runner.verbose()},
                     dispersion);
 

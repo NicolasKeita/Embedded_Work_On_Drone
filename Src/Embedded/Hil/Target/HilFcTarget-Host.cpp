@@ -28,7 +28,7 @@ import Transport;
 namespace sim::hil {
 
 HostFcTarget::HostFcTarget(FlightCore::Transport::ITransport& channel,
-                            IWallClock& clock,
+                            MonotonicClock& clock,
                             const sim::control::TargetState& target,
                             const sim::control::ControllerConfig& controller,
                             std::float64_t dt,

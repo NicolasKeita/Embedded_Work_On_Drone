@@ -60,13 +60,7 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
         }
     }
 
-    if (config.clock_kind == ClockKind::Monotonic) {
-        ctx->clock = std::make_unique<MonotonicClock>();
-    }
-    else {
-        ctx->clock = std::make_unique<FastClock>();
-    }
-    ctx->fc_target = std::make_unique<HostFcTarget>(ctx->channel, *ctx->clock, config.target,
+    ctx->fc_target = std::make_unique<HostFcTarget>(ctx->channel, ctx->clock, config.target,
                                                      config.controller, config.dt_s, config.sensor_limits);
     ctx->fault_expected = any_fault_expected(scenarios);
     return ctx;

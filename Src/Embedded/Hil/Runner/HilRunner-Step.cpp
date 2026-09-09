@@ -46,7 +46,7 @@ namespace {
             ctx.transport.noteDroppedFrame();
             return;
         }
-        const ReceiveResult result = ctx.transport.receiveActuator(*ctx.clock, sequence, ctx.sim_ts_us,
+        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, sequence, ctx.sim_ts_us,
                                                                    sensor_send_wall, ctx.next_deadline_us,
                                                                    ctx.actuator_cmd, diag,
                                                                    ctx.this_rtt_us);
@@ -77,7 +77,7 @@ void exchange_actuators(HilRunContext& ctx)
     ctx.last_sensor_data = wire;
 
     const std::uint16_t sequence = static_cast<std::uint16_t>(ctx.step);
-    const std::uint64_t sensor_send_wall = ctx.clock->nowUs();
+    const std::uint64_t sensor_send_wall = ctx.clock.nowUs();
     ctx.sensor_send_wall_us = sensor_send_wall;
     ctx.actuator_receive_wall_us = 0;
     if (!ctx.transport.sendSensor(wire, sequence)) {

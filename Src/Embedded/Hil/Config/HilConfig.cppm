@@ -1,8 +1,8 @@
 /*
 Filename: Src/Embedded/Hil/Config/HilConfig.cppm
 Description: Public interface of the HIL runner configuration : control period, mission
-window, target/controller (re-used from the existing project config), real-time pacing,
-deadline policy, transport timeout and report cadence.
+window, target/controller (re-used from the existing project config), deadline policy,
+transport timeout and report cadence.
 Exports:
     enum class DeadlinePolicy,
     struct HilConfig
@@ -30,16 +30,6 @@ enum class DeadlinePolicy {
     Warn,
     Fail,
     Abort
-};
-
-/*
-Wall-clock source selection. Monotonic uses std::chrono::steady_clock (real wall
-clock for actual HIL runs); Fast advances instantly in absolute steps for
-deterministic, accelerated unit tests while still exercising the scheduler.
-*/
-enum class ClockKind {
-    Monotonic,
-    Fast
 };
 
 struct HilConfig {
@@ -84,10 +74,6 @@ struct HilConfig {
     */
     std::float64_t sensor_noise_stddev = 0.0;
 
-    /* Real-time pacing: when true the loop sleeps to an absolute wall-clock deadline;
-    when false it runs the closed loop as fast as possible (for fast unit tests). */
-    bool real_time_pacing = true;
-
     DeadlinePolicy deadline_policy = DeadlinePolicy::Warn;
 
     /*
@@ -95,7 +81,6 @@ struct HilConfig {
     period so a single missed response is detectable before the next deadline.
     */
     std::uint64_t transport_timeout_us = 10000;
-    ClockKind     clock_kind = ClockKind::Monotonic;
 };
 
 /* Human-readable name of a deadline policy. */

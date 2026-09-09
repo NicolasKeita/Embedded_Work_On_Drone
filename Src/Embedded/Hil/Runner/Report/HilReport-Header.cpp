@@ -34,7 +34,7 @@ void write_header(std::ostream& out, const HilConfig& cfg, bool fault_expected)
     out << "  Target altitude       : " << std::fixed << std::setprecision(1) << cfg.target.z << " m\n";
     out << "  Sensor noise stddev   : " << std::setprecision(3) << cfg.sensor_noise_stddev << " m\n";
     const std::string_view policy = deadline_policy_name(cfg.deadline_policy);
-    out << "  Real-time pacing      : " << yes_no(cfg.real_time_pacing) << " (" << policy << ")\n";
+    out << "  Real-time pacing      : YES, monotonic steady clock (" << policy << ")\n";
     out << "  FC target             : in-process host FC emulator core (STM32 target is FUTURE)\n\n";
 
     out << "Mission (sensor stream : FC-observed; ground truth recorded separately)\n";

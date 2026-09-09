@@ -15,7 +15,7 @@ import TestHarness;
 
 namespace sim::test {
 
-const std::array<ScenarioEntry, 11> ScenarioCatalog::scenarios_{{
+const std::array<ScenarioEntry, 17> ScenarioCatalog::scenarios_{{
     {"NOMINAL-001",        "Autonomous altitude hold (z: 0 -> 10 m)",     flight_scenarios::autonomous_altitude_hold},
     {"NOMINAL-002",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
     {"NOMINAL-003",        "Vertical climb (RPM > hover)",              scenarios::climb},
@@ -32,6 +32,18 @@ const std::array<ScenarioEntry, 11> ScenarioCatalog::scenarios_{{
      flight_scenarios::autonomous_mission},
     {"NOMINAL-011",        "Autonomous altitude hold (z: 0 -> 100 m)",
      flight_scenarios::autonomous_altitude},
+    {"NOMINAL-012", "Low vertical takeoff (30 s, z = 5 m)",
+     flight_scenarios::low_vertical_takeoff},
+    {"NOMINAL-013", "Low forward takeoff (30 s, x = 4 m, z = 6 m)",
+     flight_scenarios::low_forward_takeoff},
+    {"NOMINAL-014", "Low lateral takeoff (30 s, y = -4 m, z = 7 m)",
+     flight_scenarios::low_lateral_takeoff},
+    {"NOMINAL-015", "Low diagonal takeoff (30 s, x = 3 m, y = 3 m, z = 8 m)",
+     flight_scenarios::low_diagonal_takeoff},
+    {"NOMINAL-016", "Low offset takeoff (30 s, x = -3 m, y = 2 m, z = 9 m)",
+     flight_scenarios::low_offset_takeoff},
+    {"NOMINAL-017", "Stratosphere climb (approximately 9 h, z = 20 km)",
+     flight_scenarios::stratosphere_climb},
 }};
 
 std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept

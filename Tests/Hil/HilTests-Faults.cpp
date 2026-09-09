@@ -32,8 +32,6 @@ namespace {
 
         config.scenario_id = id;
         config.duration_s = duration_s;
-        config.real_time_pacing = false;
-        config.clock_kind = sim::hil::ClockKind::Fast;
         sim::hil::HilRunner runner{config};
         const std::array<sim::sil::FaultScenario, 1> scenarios{record->fault};
         return runner.run(scenarios);

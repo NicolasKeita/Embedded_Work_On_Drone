@@ -40,7 +40,7 @@ public:
 
     /*
     Executes the configured scenario(s) and returns the structured run output, or a
-    typed error. The run is real-time paced when config.real_time_pacing is set.
+    typed error. The run is paced in real time by a monotonic steady clock.
     */
     [[nodiscard]] std::expected<HilRunOutput, HilError> run(std::span<const sim::sil::FaultScenario> scenarios);
 

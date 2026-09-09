@@ -38,7 +38,7 @@ namespace {
             ctx.result.fault_injected_time = ctx.time;
         }
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                                  .wall_us = ctx.clock->nowUs(),
+                                  .wall_us = ctx.clock.nowUs(),
                                   .source = "FAULT_INJECTOR",
                                   .type = HilEventType::FaultInjected,
                                   .severity = HilEventSeverity::Info,
@@ -54,7 +54,7 @@ namespace {
     {
         ctx.fault_active = false;
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                                  .wall_us = ctx.clock->nowUs(),
+                                  .wall_us = ctx.clock.nowUs(),
                                   .source = "FAULT_INJECTOR",
                                   .type = HilEventType::FaultCleared,
                                   .severity = HilEventSeverity::Info,

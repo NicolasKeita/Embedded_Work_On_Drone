@@ -26,6 +26,7 @@ struct TargetState {
 };
 
 enum class MissionState {
+    SPIN_UP,
     TAKEOFF,
     CLIMB,
     STATION_KEEPING,
@@ -46,11 +47,13 @@ struct ControllerConfig {
     std::float64_t max_tilt_deg{15.0};
     std::float64_t min_rpm{300.0};
     std::float64_t max_rpm{12000.0};
-    std::float64_t takeoff_rpm_factor{1.1};
-    std::float64_t takeoff_altitude_m{2.0};
     std::float64_t altitude_tolerance_m{0.5};
     std::float64_t position_tolerance_m{1.0};
     std::float64_t station_hold_seconds{5.0};
+    std::float64_t spin_up_seconds{3.0};
+    std::float64_t takeoff_transition_seconds{12.0};
+    std::float64_t climb_speed_mps{0.617};
+    std::float64_t vertical_speed_gain{1.5};
 };
 
 // Tilt setpoints produced by the position loop (outer loop).

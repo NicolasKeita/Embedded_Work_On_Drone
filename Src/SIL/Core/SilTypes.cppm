@@ -48,7 +48,7 @@ every field individually.
 struct SimulationResult {
     // Mission (COMPLETE means success; ABORTED/FAILED are documented terminal states).
     bool                       mission_success = false;
-    sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
+    sim::control::MissionState final_state = sim::control::MissionState::SPIN_UP;
     std::float64_t             mission_duration_s = -1.0;
 
     // Safety.

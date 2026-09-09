@@ -23,15 +23,13 @@ import TestHarness;
 namespace sim::test::hil {
 
 namespace {
-    sim::hil::HilConfig fast_config(std::string_view id, std::float64_t duration_s)
+    sim::hil::HilConfig test_config(std::string_view id, std::float64_t duration_s)
     {
         const sim::hil::HilScenarioRecord* record = sim::hil::HilScenarioCatalog::find(id);
         sim::hil::HilConfig                config = record ? record->config : sim::hil::hil_base_config();
 
         config.scenario_id = id;
         config.duration_s = duration_s;
-        config.real_time_pacing = false;
-        config.clock_kind = sim::hil::ClockKind::Fast;
         return config;
     }
 
@@ -48,7 +46,7 @@ namespace {
     void test_nominal_run(sim::test::TestHarness& runner)
     {
         runner.set_context("NOMINAL-001");
-        const sim::hil::HilConfig cfg = fast_config("NOMINAL-001", 30.0);
+        const sim::hil::HilConfig cfg = test_config("NOMINAL-001", 30.0);
         const sim::hil::HilScenarioRecord* record = sim::hil::HilScenarioCatalog::find("NOMINAL-001");
         const std::array<sim::sil::FaultScenario, 1> scenarios{record->fault};
         sim::hil::HilRunner runner_obj{cfg};

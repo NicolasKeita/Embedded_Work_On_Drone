@@ -36,4 +36,28 @@ void autonomous_position_y(TestHarness& runner, std::float64_t hover_rpm, const 
 // NOMINAL-010: full mission TAKEOFF -> CLIMB -> STATION_KEEPING -> COMPLETE.
 void autonomous_mission(TestHarness& runner, std::float64_t hover_rpm, const sim::PhysicsDispersion& dispersion = {});
 
+/* NOMINAL-012: 30-second low-altitude vertical takeoff and hold at 5 m. */
+void low_vertical_takeoff(TestHarness& runner, std::float64_t hover_rpm,
+                          const sim::PhysicsDispersion& dispersion = {});
+
+/* NOMINAL-013: 30-second low-altitude takeoff with forward translation. */
+void low_forward_takeoff(TestHarness& runner, std::float64_t hover_rpm,
+                         const sim::PhysicsDispersion& dispersion = {});
+
+/* NOMINAL-014: 30-second low-altitude takeoff with lateral translation. */
+void low_lateral_takeoff(TestHarness& runner, std::float64_t hover_rpm,
+                         const sim::PhysicsDispersion& dispersion = {});
+
+/* NOMINAL-015: 30-second low-altitude takeoff with diagonal translation. */
+void low_diagonal_takeoff(TestHarness& runner, std::float64_t hover_rpm,
+                          const sim::PhysicsDispersion& dispersion = {});
+
+/* NOMINAL-016: 30-second low-altitude takeoff with a different diagonal. */
+void low_offset_takeoff(TestHarness& runner, std::float64_t hover_rpm,
+                        const sim::PhysicsDispersion& dispersion = {});
+
+/* NOMINAL-017: approximately nine-hour climb to the 20 km stratosphere target. */
+void stratosphere_climb(TestHarness& runner, std::float64_t hover_rpm,
+                        const sim::PhysicsDispersion& dispersion = {});
+
 }

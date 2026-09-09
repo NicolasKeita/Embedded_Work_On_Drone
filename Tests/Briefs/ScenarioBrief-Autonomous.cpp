@@ -58,7 +58,7 @@ constexpr std::array<BriefEntry, 4> kBriefs{{
      "  Mission   : The drone climbs on its own from the ground to 100 m and\n"
      "              then holds that altitude steady.\n"
      "  Start     : On the ground at (0, 0, 0), motors off.\n"
-     "  Goal      : Reach and hold 100 m altitude (+/- 2 m) within a 90-second\n"
+     "  Goal      : Reach and hold 100 m altitude (+/- 2 m) within a 180-second\n"
      "              window.\n"
      "  Faults    : None.\n"
      "  Outcome   : The drone reaches 100 m with less than 10 % overshoot and\n"

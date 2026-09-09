@@ -23,13 +23,13 @@ namespace sim::hil {
 void record_run_start(HilRunContext& ctx)
 {
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "HIL_RUNNER",
                               .type = HilEventType::HilRunStart,
                               .severity = HilEventSeverity::Info,
                               .reason = "HIL run started"});
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "FC1",
                               .type = HilEventType::HilRunStart,
                               .severity = HilEventSeverity::Info,
@@ -39,7 +39,7 @@ void record_run_start(HilRunContext& ctx)
 void record_run_end(HilRunContext& ctx)
 {
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "HIL_RUNNER",
                               .type = HilEventType::HilRunEnd,
                               .severity = HilEventSeverity::Info,
@@ -53,7 +53,7 @@ void record_mission_transition(HilRunContext& ctx, sim::control::MissionState cu
         return;
     }
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "FC1",
                               .type = HilEventType::MissionStateTransition,
                               .severity = HilEventSeverity::Info,
@@ -65,7 +65,7 @@ void record_mission_transition(HilRunContext& ctx, sim::control::MissionState cu
     if (current == sim::control::MissionState::COMPLETE && ctx.result.mission_end_time < 0.0) {
         ctx.result.mission_end_time = ctx.time;
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                                   .wall_us = ctx.clock->nowUs(),
+                                   .wall_us = ctx.clock.nowUs(),
                                    .source = "FC1",
                                    .type = HilEventType::MissionComplete,
                                    .severity = HilEventSeverity::Info,
@@ -82,7 +82,7 @@ void record_safety_transitions(HilRunContext& ctx)
                                             ? "health restored"
                                             : sim::safety::detection_event_name(ctx.result.first_detection_event);
         ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                                   .wall_us = ctx.clock->nowUs(),
+                                   .wall_us = ctx.clock.nowUs(),
                                    .source = "FC2",
                                    .type = HilEventType::SafetyStateTransition,
                                    .severity = HilEventSeverity::Info,
@@ -96,7 +96,7 @@ void record_safety_transitions(HilRunContext& ctx)
         ctx.safety_response_recorded = true;
         ctx.result.safety_response_time = response_time;
         ctx.trace.record(HilEvent{.sim_time_s = response_time,
-                                   .wall_us = ctx.clock->nowUs(),
+                                   .wall_us = ctx.clock.nowUs(),
                                    .source = "FC2",
                                    .type = HilEventType::SafetyStateTransition,
                                    .severity = HilEventSeverity::Info,

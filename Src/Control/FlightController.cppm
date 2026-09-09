@@ -53,18 +53,20 @@ private:
     ServoMix updateAttitudeControl(TiltTargets tilt, const AircraftState& s) const;
     ControlCommand station_keeping_command(const TargetState& t, const AircraftState& a,
                                            std::float64_t dt);
-    ControlCommand takeoff_command(const AircraftState& actual);
+    ControlCommand spin_up_command(std::float64_t dt);
+    ControlCommand takeoff_command(const AircraftState& actual, std::float64_t dt);
     ControlCommand climb_command(const TargetState& target, const AircraftState& actual, std::float64_t dt);
     ControlCommand station_keeping_step(const TargetState& target, const AircraftState& actual,
                                         std::float64_t dt);
     [[nodiscard]] bool inside_target_zone(const TargetState& t, const AircraftState& a) const;
 
     ControllerConfig       config_;
-    MissionState           mission_state_{MissionState::TAKEOFF};
+    MissionState           mission_state_{MissionState::SPIN_UP};
     AxisPid                altitude_pid_{};
     AxisPid                x_position_pid_{};
     AxisPid                y_position_pid_{};
     std::float64_t         station_hold_timer_{0.0};
+    std::float64_t         phase_elapsed_seconds_{0.0};
     sim::PhysicsDispersion dispersion_{};
 };
 

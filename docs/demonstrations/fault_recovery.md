@@ -107,7 +107,7 @@ Test verdict      : PASS
 ```text
 HIL_RUNNER --scenario FAULT_INJECTOR-003            # HIL, recovery within 30 s
 SIL_RUNNER --scenario FAULT_INJECTOR-003            # SIL (window 20→30 s; recovery at boundary)
-HIL_RUNNER --no-realtime --scenario FAULT_INJECTOR-003   # fast, no wall pacing
+HIL_RUNNER --scenario FAULT_INJECTOR-003   # real-time HIL execution
 ```
 
 ## 7. Limitations of this demo
@@ -118,4 +118,3 @@ HIL_RUNNER --no-realtime --scenario FAULT_INJECTOR-003   # fast, no wall pacing
   is **not** detected.
 * The SIL window (20→30 s) clears exactly at run end, so the HIL scenario is the
   cleaner demonstration of recovery.
-

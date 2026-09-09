@@ -44,7 +44,7 @@ namespace {
 void record_step_error(HilRunContext& ctx, ReceiveResult result)
 {
     ctx.trace.record(HilEvent{.sim_time_s = ctx.time,
-                              .wall_us = ctx.clock->nowUs(),
+                              .wall_us = ctx.clock.nowUs(),
                               .source = "HIL_RUNNER",
                               .type = HilEventType::HilStepError,
                               .severity = HilEventSeverity::Warning,

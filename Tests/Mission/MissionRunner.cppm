@@ -57,7 +57,7 @@ void print_metrics_report(std::string_view label, const MissionMetrics& metrics)
 
 /*
 Checks that the visited states contain the expected mission flow, in order:
-TAKEOFF then CLIMB then STATION_KEEPING then COMPLETE.
+SPIN_UP then TAKEOFF, CLIMB, STATION_KEEPING and COMPLETE.
 */
 bool contains_mission_sequence(std::span<const sim::control::MissionState> visited);
 

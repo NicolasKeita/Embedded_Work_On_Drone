@@ -28,8 +28,6 @@ namespace {
 
         config.scenario_id = "NOMINAL-001";
         config.duration_s = duration_s;
-        config.real_time_pacing = false;
-        config.clock_kind = sim::hil::ClockKind::Fast;
         config.sensor_noise_stddev = noise;
         return config;
     }
@@ -45,7 +43,7 @@ namespace {
 
 bool check_perfect_sensors(sim::test::TestHarness& runner)
 {
-    const sim::hil::HilConfig                                       perfect = noise_config(0.0, 2.0);
+    const sim::hil::HilConfig                                       perfect = noise_config(0.0, 5.0);
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> perfect_outcome = run(perfect);
 
     runner.check(perfect_outcome.has_value(), "perfect-sensor run executed");
@@ -66,7 +64,7 @@ bool check_perfect_sensors(sim::test::TestHarness& runner)
     }
     runner.check(sensor_matches_truth, "with noise 0 the sensor stream equals the truth stream");
 
-    const double takeoff_z = output.ground_truth.back().z;
+    const std::float64_t takeoff_z = output.ground_truth.back().z;
     runner.check(takeoff_z > 0.0, "aircraft state evolved from FC actuator commands (took off, z>0)");
     return true;
 }

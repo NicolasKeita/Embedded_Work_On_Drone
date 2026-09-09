@@ -30,8 +30,8 @@ struct HilScenarioRecord {
 
 /*
 Base configuration shared by every HIL scenario: project control rate (100 Hz / 10 ms),
-30 s mission window, validated nominal target (10 m), 20 Hz structured telemetry, 1 Hz
-report, conservative Warn deadline policy. Scenarios clone this and set their id/fault.
+30 s nominal mission window, validated nominal target (10 m), structured telemetry and
+conservative Warn deadline policy. Scenarios clone this and set their flight target and duration.
 */
 [[nodiscard]] HilConfig hil_base_config();
 

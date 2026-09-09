@@ -41,7 +41,6 @@ void HilRunner::finalize(HilRunContext& ctx)
 
     result.comms = ctx.transport.stats();
     result.timing = ctx.timing;
-    result.real_time_pacing = ctx.config.real_time_pacing;
     result.fault_expected = ctx.fault_expected;
 
     result.test_verdict = result.compute_verdict(ctx.fault_expected);
