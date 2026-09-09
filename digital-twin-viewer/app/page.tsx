@@ -43,6 +43,8 @@ export default function Home() {
         socket.onopen = () => setConnected(true);
         socket.onclose = () => {
           setConnected(false);
+          setSnapshots([]);
+          setCursor(0);
           if (!disposed) retryTimer = window.setTimeout(connect, 500);
         };
         socket.onerror = () => socket?.close();
