@@ -7,8 +7,10 @@ Entry point for the formatter_and_linter package.
 
 import sys
 import os
+import io
 import shutil
 import threading
+import contextlib
 from typing import NoReturn
 
 
@@ -45,10 +47,19 @@ class ProgressBar:
         self.tick = 0
         self.current_file = ""
         self.stop_event = threading.Event()
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.thread = threading.Thread(target=self.run, daemon=True)
+        self.active = False
+        self._prev_len = 0
+        self._stream = sys.stdout
+        self._last_logged_done = -1
 
     def start(self) -> None:
+        with self.lock:
+            self.active = True
+            self._stream = sys.stdout
+            self._prev_len = 0
+            self._last_logged_done = -1
         self.render()
         self.thread.start()
 
@@ -70,7 +81,7 @@ class ProgressBar:
                 self.tick += 1
             self.render()
 
-    def render(self) -> None:
+    def build_line(self) -> str:
         with self.lock:
             done = self.done
             tick = self.tick
@@ -80,18 +91,94 @@ class ProgressBar:
         bar = "#" * filled + "-" * (self.width - filled)
         percent = ratio * 100.0
         spinner = "|/-\\"[tick % 4]
-        line = (
-            f"\r[{bar}] {done}/{self.total} "
-            f"({percent:5.1f}%) {spinner} {current_file}"
-        )
-        columns = shutil.get_terminal_size(fallback=(120, 20)).columns
-        line = line[:columns].ljust(columns - 1)
-        print(line, end="\r", flush=True, file=sys.stderr)
+        return f"[{bar}] {done}/{self.total} ({percent:5.1f}%) {spinner} {current_file}"
+
+    def is_tty_stream(self) -> bool:
+        try:
+            return bool(self._stream.isatty())
+        except (AttributeError, ValueError):
+            return False
+
+    def emit_output_locked(self, output: str, stream) -> None:
+        if not output:
+            return
+        sys.stderr.write(output)
+        if not output.endswith("\n"):
+            sys.stderr.write("\n")
+        sys.stderr.flush()
+
+    def render_locked(self) -> None:
+        line = self.build_line()
+        if self.is_tty_stream():
+            try:
+                columns = shutil.get_terminal_size().columns
+            except OSError:
+                columns = 120
+            if columns > 1:
+                line = line[: columns - 1]
+            padding = " " * max(0, self._prev_len - len(line))
+            self._stream.write("\r" + line + padding + "\x1b[K")
+            self._stream.flush()
+            self._prev_len = len(line)
+            return
+        if self.done != self._last_logged_done:
+            self._stream.write(line + "\n")
+            self._stream.flush()
+            self._last_logged_done = self.done
+
+    def render(self) -> None:
+        with self.lock:
+            if not self.active:
+                return
+            self.render_locked()
+
+    def clear_locked(self) -> None:
+        if not self.is_tty_stream():
+            return
+        self._stream.write("\r" + " " * self._prev_len + "\r")
+        self._stream.flush()
+        self._prev_len = 0
+
+    def clear(self) -> None:
+        with self.lock:
+            if not self.active:
+                return
+            self.clear_locked()
+
+    def run_with_captured_output(self, func, *args, **kwargs):
+        with self.lock:
+            stream = self._stream
+        buffer = io.StringIO()
+        with contextlib.redirect_stderr(buffer):
+            result = func(*args, **kwargs)
+        output = buffer.getvalue()
+        with self.lock:
+            if not self.active:
+                self.emit_output_locked(output, stream)
+                return result
+            self.clear_locked()
+            self.emit_output_locked(output, stream)
+            self.render_locked()
+        return result
 
     def stop(self) -> None:
         self.stop_event.set()
         self.thread.join(timeout=2.0)
-        print("", flush=True, file=sys.stderr)
+        with self.lock:
+            if not self.active:
+                return
+            self.active = False
+            line = self.build_line()
+            if self.is_tty_stream():
+                padding = " " * max(0, self._prev_len - len(line))
+                self._stream.write("\r" + line + padding + "\n")
+                self._stream.flush()
+                self._prev_len = 0
+                return
+            if self._last_logged_done != self.done:
+                self._stream.write(line + "\n")
+                self._stream.flush()
+                self._last_logged_done = self.done
 
 
 def to_pascal_case(name: str) -> str:
@@ -264,7 +351,9 @@ def main() -> NoReturn:
     try:
         for input_file in input_files:
             progress.set_file(input_file)
-            has_long_lines = format_file(input_file, in_place, check_only)
+            has_long_lines = progress.run_with_captured_output(
+                format_file, input_file, in_place, check_only
+            )
             progress.advance()
             if has_long_lines:
                 has_any_long_lines = True
@@ -272,9 +361,9 @@ def main() -> NoReturn:
         progress.stop()
 
     if has_any_long_lines or has_directory_violations:
-        print("\n[FAIL] Style issues detected!")
+        print("[FAIL] Style issues detected!")
     else:
-        print("\n[PASS] All files pass style checks!")
+        print("[PASS] All files pass style checks!")
 
     exit_code = 1 if (has_any_long_lines or has_directory_violations) else 0
     sys.exit(exit_code)
