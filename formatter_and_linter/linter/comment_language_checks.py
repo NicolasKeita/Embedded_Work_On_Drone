@@ -63,17 +63,9 @@ def _get_detector():
 
 
 def _get_string_ranges(code: str) -> List[Tuple[int, int]]:
-    ranges = []
-
-    raw_string_pattern = re.compile(r'R"([^()]*)\((.*?)\)\1"', re.DOTALL)
-    for match in raw_string_pattern.finditer(code):
-        ranges.append((match.start(), match.end()))
-
-    string_pattern = re.compile(r'"(?:[^"\\]|\\.)*"')
-    for match in string_pattern.finditer(code):
-        ranges.append((match.start(), match.end()))
-
-    return ranges
+    from shared.comment_utils import scan_string_and_comment_ranges
+    string_ranges, _ = scan_string_and_comment_ranges(code)
+    return list(string_ranges)
 
 
 def _is_in_range(pos: int, ranges: List[Tuple[int, int]]) -> bool:
@@ -91,31 +83,35 @@ def _clean_multiline_text(raw_text: str) -> str:
 
 
 def extract_comment_texts(code: str) -> List[Tuple[int, str]]:
+    from shared.comment_utils import scan_string_and_comment_ranges
     comments = []
-    string_ranges = _get_string_ranges(code)
+    string_ranges, comment_ranges = scan_string_and_comment_ranges(code)
 
     block_comment_ranges = []
-    block_pattern = re.compile(r'/\*.*?\*/', re.DOTALL)
-    for match in block_pattern.finditer(code):
-        if _is_in_range(match.start(), string_ranges):
+    for start, end in comment_ranges:
+        if code[start:start + 2] != '/*':
             continue
-        line_num = code[:match.start()].count('\n') + 1
-        text = _clean_multiline_text(match.group(0)[2:-2])
+        line_num = code[:start].count('\n') + 1
+        text = _clean_multiline_text(code[start:end][2:-2])
         if text:
             comments.append((line_num, text))
-        block_comment_ranges.append((match.start(), match.end()))
+        block_comment_ranges.append((start, end))
 
     def is_in_string_or_block(pos: int) -> bool:
         if _is_in_range(pos, string_ranges):
             return True
         return _is_in_range(pos, block_comment_ranges)
 
-    singleline_pattern = re.compile(r'//.*$', re.MULTILINE)
-    for match in singleline_pattern.finditer(code):
-        if is_in_string_or_block(match.start()):
+    for start, end in comment_ranges:
+        if code[start:start + 2] != '//':
             continue
-        line_num = code[:match.start()].count('\n') + 1
-        text = match.group(0)[2:].strip()
+        if is_in_string_or_block(start):
+            continue
+        line_num = code[:start].count('\n') + 1
+        end_pos = code.find('\n', start)
+        if end_pos == -1:
+            end_pos = len(code)
+        text = code[start + 2:end_pos].strip()
         if text:
             comments.append((line_num, text))
 

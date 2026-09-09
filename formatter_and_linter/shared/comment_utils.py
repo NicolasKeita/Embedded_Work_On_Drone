@@ -12,22 +12,111 @@ from typing import Tuple, List, Set
 COMMENT_PLACEHOLDER = "___COMMENT_{}___"
 
 
+def _raw_string_prefix_start(code: str, quote_index: int) -> int:
+    if quote_index <= 0 or code[quote_index - 1] != 'R':
+        return -1
+    r_index = quote_index - 1
+    before_r = r_index - 1
+    if before_r < 0:
+        return r_index
+    previous = code[before_r]
+    if previous in ('u', 'U', 'L'):
+        before_prefix = before_r - 1
+        if before_prefix >= 0 and (code[before_prefix].isalnum() or code[before_prefix] == '_'):
+            return -1
+        return before_r
+    if previous == '8' and before_r - 1 >= 0 and code[before_r - 1] == 'u':
+        before_prefix = before_r - 2
+        if before_prefix >= 0 and (code[before_prefix].isalnum() or code[before_prefix] == '_'):
+            return -1
+        return before_r - 1
+    if previous.isalnum() or previous == '_':
+        return -1
+    return r_index
+
+
+def scan_string_and_comment_ranges(code: str) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]]]:
+    length = len(code)
+    string_ranges: List[Tuple[int, int]] = []
+    comment_ranges: List[Tuple[int, int]] = []
+    index = 0
+    while index < length:
+        char = code[index]
+        following = code[index + 1] if index + 1 < length else ''
+        if char == '/' and following == '/':
+            end = code.find('\n', index)
+            if end == -1:
+                end = length
+            comment_ranges.append((index, end))
+            index = end
+            continue
+        if char == '/' and following == '*':
+            end = code.find('*/', index + 2)
+            if end == -1:
+                end = length
+            else:
+                end += 2
+            comment_ranges.append((index, end))
+            index = end
+            continue
+        if char == '"':
+            prefix_start = _raw_string_prefix_start(code, index)
+            if prefix_start != -1:
+                delimiter_end = code.find('(', index + 1, index + 17)
+                delimiter = code[index + 1:delimiter_end] if delimiter_end != -1 else ''
+                if delimiter_end != -1 and not any(item in ' \\()' for item in delimiter):
+                    terminator = ')' + delimiter + '"'
+                    term_index = code.find(terminator, delimiter_end + 1)
+                    if term_index != -1:
+                        end = term_index + len(terminator)
+                        string_ranges.append((prefix_start, end))
+                        index = end
+                        continue
+            closing = index + 1
+            closed = False
+            while closing < length and code[closing] != '\n':
+                if code[closing] == '\\':
+                    closing += 2
+                    continue
+                if code[closing] == '"':
+                    closed = True
+                    break
+                closing += 1
+            if closed:
+                string_ranges.append((index, closing + 1))
+                index = closing + 1
+            else:
+                index += 1
+            continue
+        if char == "'":
+            closing = index + 1
+            if closing < length and code[closing] == '\\':
+                closing += 2
+            else:
+                closing += 1
+            if closing < length and code[closing] == "'" and '\n' not in code[index:closing + 1]:
+                string_ranges.append((index, closing + 1))
+                index = closing + 1
+            else:
+                index += 1
+            continue
+        index += 1
+    return string_ranges, comment_ranges
+
+
 def remove_comments(code: str) -> Tuple[str, List[str]]:
     comments = []
-
-    def save_multiline_comment(match: re.Match) -> str:
-        comments.append(match.group(0))
-        return COMMENT_PLACEHOLDER.format(len(comments) - 1)
-
-    code = re.sub(r'/\*.*?\*/', save_multiline_comment, code, flags=re.DOTALL)
-
-    def save_singleline_comment(match: re.Match) -> str:
-        comments.append(match.group(0))
-        return COMMENT_PLACEHOLDER.format(len(comments) - 1)
-
-    code = re.sub(r'//.*?$', save_singleline_comment, code, flags=re.MULTILINE)
-
-    return code, comments
+    string_ranges, comment_ranges = scan_string_and_comment_ranges(code)
+    comment_ranges = sorted(comment_ranges)
+    parts: List[str] = []
+    cursor = 0
+    for start, end in comment_ranges:
+        parts.append(code[cursor:start])
+        parts.append(COMMENT_PLACEHOLDER.format(len(comments)))
+        comments.append(code[start:end])
+        cursor = end
+    parts.append(code[cursor:])
+    return ''.join(parts), comments
 
 
 def restore_comments(code: str, comments: List[str]) -> str:
@@ -75,46 +164,26 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
     alias_declaration_pattern = re.compile(r'^[ \t]*using[ \t]+[\w:]+(?:<[^<>]*>)?[ \t]*=', re.MULTILINE)
     excluded_declaration_pattern = re.compile(r'^[ \t]*(?:import[ \t]|export[ \t]|module[ \t])')
 
-    raw_string_pattern = re.compile(r'R"([^()]*)\((.*?)\)\1"', re.DOTALL)
-    raw_string_ranges = []
-    for match in raw_string_pattern.finditer(code):
-        raw_string_ranges.append((match.start(), match.end()))
-
-    string_pattern = re.compile(r'"(?:[^"\\]|\\.)*"')
-    string_ranges = []
-    for match in string_pattern.finditer(code):
-        string_ranges.append((match.start(), match.end()))
+    string_ranges: List[Tuple[int, int]] = []
+    comment_ranges: List[Tuple[int, int]] = []
+    scanned_strings, scanned_comments = scan_string_and_comment_ranges(code)
+    string_ranges = list(scanned_strings)
+    comment_ranges = list(scanned_comments)
 
     def is_in_string(pos):
-        for start, end in raw_string_ranges:
-            if start <= pos < end:
-                return True
         for start, end in string_ranges:
             if start <= pos < end:
                 return True
         return False
 
-    multiline_pattern = re.compile(r'/\*.*?\*/', re.DOTALL)
-    singleline_pattern = re.compile(r'//.*$', re.MULTILINE)
-
-    comment_ranges = []
     def is_in_comment(pos):
         for start, end in comment_ranges:
             if start <= pos < end:
                 return True
         return False
 
-    for match in multiline_pattern.finditer(code):
-        if is_in_string(match.start()):
-            continue
-        comment_ranges.append((match.start(), match.end()))
-    for match in singleline_pattern.finditer(code):
-        if is_in_string(match.start()) or is_in_comment(match.start()):
-            continue
-        comment_ranges.append((match.start(), match.end()))
-
     masked_chars = list(code)
-    for start, end in raw_string_ranges + string_ranges + comment_ranges:
+    for start, end in string_ranges + comment_ranges:
         for i in range(start, end):
             if masked_chars[i] != '\n':
                 masked_chars[i] = ' '
@@ -152,21 +221,17 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
         if (line_num + 1) in function_lines or (line_num + 1) in declaration_lines:
             function_lines.add(line_num)
 
-    for match in singleline_pattern.finditer(code):
-        if is_in_string(match.start()):
+    for start, end in comment_ranges:
+        start_line = code[:start].count('\n') + 1
+        end_line = code[:end].count('\n') + 1
+        if code[start:start + 2] == '//':
+            line_num = start_line
+            line_start = code.rfind('\n', 0, start) + 1
+            if code[line_start:start].strip():
+                comments.append((line_num, "inline"))
+            else:
+                comments.append((line_num, "singleline"))
             continue
-        line_num = code[:match.start()].count('\n') + 1
-        line_content = match.group(0).strip()
-        if line_content.startswith('//'):
-            comments.append((line_num, "singleline"))
-        else:
-            comments.append((line_num, "inline"))
-
-    for match in multiline_pattern.finditer(code):
-        if is_in_string(match.start()):
-            continue
-        start_line = code[:match.start()].count('\n') + 1
-        end_line = code[:match.end()].count('\n') + 1
         comments.append((start_line, "multiline_start"))
         if start_line != end_line:
             for line_num in range(start_line + 1, end_line):
