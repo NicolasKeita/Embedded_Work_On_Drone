@@ -7,6 +7,8 @@ Entry point for the formatter_and_linter package.
 
 import sys
 import os
+import shutil
+import threading
 from typing import NoReturn
 
 
@@ -32,6 +34,64 @@ import formatter.declaration_blank_line_formatter as declaration_blank_line_form
 import formatter.local_variable_alignment_formatter as local_variable_alignment_formatter
 import formatter.designated_init_split_formatter as designated_init_split_formatter
 from formatter.join_lines import join_lines
+
+
+class ProgressBar:
+    def __init__(self, total: int, width: int = 30, interval_sec: float = 1.0) -> None:
+        self.total = max(total, 1)
+        self.width = width
+        self.interval_sec = interval_sec
+        self.done = 0
+        self.tick = 0
+        self.current_file = ""
+        self.stop_event = threading.Event()
+        self.lock = threading.Lock()
+        self.thread = threading.Thread(target=self.run, daemon=True)
+
+    def start(self) -> None:
+        self.render()
+        self.thread.start()
+
+    def set_file(self, filename: str) -> None:
+        with self.lock:
+            self.tick = 0
+            self.current_file = filename
+        self.render()
+
+    def advance(self) -> None:
+        with self.lock:
+            self.done += 1
+            self.tick = 0
+        self.render()
+
+    def run(self) -> None:
+        while not self.stop_event.wait(self.interval_sec):
+            with self.lock:
+                self.tick += 1
+            self.render()
+
+    def render(self) -> None:
+        with self.lock:
+            done = self.done
+            tick = self.tick
+            current_file = self.current_file
+        ratio = min(done / self.total, 1.0)
+        filled = int(ratio * self.width)
+        bar = "#" * filled + "-" * (self.width - filled)
+        percent = ratio * 100.0
+        spinner = "|/-\\"[tick % 4]
+        line = (
+            f"\r[{bar}] {done}/{self.total} "
+            f"({percent:5.1f}%) {spinner} {current_file}"
+        )
+        columns = shutil.get_terminal_size(fallback=(120, 20)).columns
+        line = line[:columns].ljust(columns - 1)
+        print(line, end="\r", flush=True, file=sys.stderr)
+
+    def stop(self) -> None:
+        self.stop_event.set()
+        self.thread.join(timeout=2.0)
+        print("", flush=True, file=sys.stderr)
 
 
 def to_pascal_case(name: str) -> str:
@@ -199,10 +259,17 @@ def main() -> NoReturn:
         print("Renaming files to PascalCase...")
         rename_files_to_pascal_case("Src")
 
-    for input_file in input_files:
-        has_long_lines = format_file(input_file, in_place, check_only)
-        if has_long_lines:
-            has_any_long_lines = True
+    progress = ProgressBar(total=len(input_files), interval_sec=1.0)
+    progress.start()
+    try:
+        for input_file in input_files:
+            progress.set_file(input_file)
+            has_long_lines = format_file(input_file, in_place, check_only)
+            progress.advance()
+            if has_long_lines:
+                has_any_long_lines = True
+    finally:
+        progress.stop()
 
     if has_any_long_lines or has_directory_violations:
         print("\n[FAIL] Style issues detected!")
