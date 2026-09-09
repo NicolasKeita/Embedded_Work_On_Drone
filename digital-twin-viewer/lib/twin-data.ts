@@ -10,6 +10,24 @@ export interface TwinSnapshot {
   hil: { loop_hz: number; deadline_misses: number }; events: TwinEvent[];
 }
 const healthy = { mcu: 'HEALTHY', transport: 'HEALTHY', sensors: 'HEALTHY', control: 'HEALTHY', actuators: 'HEALTHY', supervision: 'HEALTHY', safety: 'HEALTHY' } as Record<string, ComponentState>;
+const unknown = { mcu: 'UNKNOWN', transport: 'UNKNOWN', sensors: 'UNKNOWN', control: 'UNKNOWN', actuators: 'UNKNOWN', supervision: 'UNKNOWN', safety: 'UNKNOWN' } as Record<string, ComponentState>;
+
+export function createIdleSnapshot(): TwinSnapshot {
+  return {
+    time_s: 0,
+    aircraft: { x_m: 0, y_m: 0, z_m: 0, altitude_m: 0, pitch_rad: 0, roll_rad: 0, airspeed_ms: 0 },
+    target: { x_m: 0, y_m: 0, altitude_m: 10 },
+    actuators: { rotor_rpm: 0, left_servo_deg: 0, right_servo_deg: 0 },
+    mission: 'WAITING',
+    health: 'UNKNOWN',
+    safety_mode: 'STANDBY',
+    active_fault: null,
+    fc1: { status: 'OFFLINE', components: { ...unknown } },
+    fc2: { status: 'OFFLINE', components: { ...unknown } },
+    hil: { loop_hz: 0, deadline_misses: 0 },
+    events: [],
+  };
+}
 export function createDemoSnapshots(): TwinSnapshot[] {
   const events: TwinEvent[] = [
     { time_s: 0, type: 'SYSTEM', message: 'HIL session initialized', level: 'info' }, { time_s: 1.2, type: 'FC1', message: 'Flight controller online', level: 'info' }, { time_s: 1.4, type: 'FC2', message: 'Safety controller online', level: 'info' }, { time_s: 3, type: 'MISSION', message: 'Takeoff authorized', level: 'info' }, { time_s: 12, type: 'MISSION', message: 'STATION_KEEPING', level: 'info' }, { time_s: 15, type: 'FAULT', message: 'INVALID_SENSOR_DATA', level: 'warn' }, { time_s: 15.01, type: 'DETECTION', message: 'SENSOR_VALIDATION_FAILED', level: 'warn' }, { time_s: 15.02, type: 'SAFETY', message: 'COMPENSATED', level: 'warn' }, { time_s: 18, type: 'RECOVERY', message: 'SENSOR_VALID', level: 'info' }, { time_s: 18.01, type: 'HEALTH', message: 'HEALTHY · NORMAL', level: 'info' },

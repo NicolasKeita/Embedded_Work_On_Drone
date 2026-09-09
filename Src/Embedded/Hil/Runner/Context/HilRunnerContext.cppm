@@ -109,6 +109,7 @@ struct HilRunContext {
 
     std::ostream* live_out = nullptr;
     std::size_t   live_event_cursor = 0;
+    std::size_t   live_telemetry_cursor = 0;
     std::uint64_t live_report_index = 0;
 };
 

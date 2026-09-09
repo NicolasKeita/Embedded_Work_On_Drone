@@ -73,6 +73,8 @@ set(HIL_MODEL_FILES
 set(HIL_TELEMETRY_FILES
     Src/Embedded/Hil/Telemetry/HilTelemetry.cppm
     Src/Embedded/Hil/Telemetry/HilTelemetry.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher.cppm
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher.cpp
 )
 
 # Frame-level HIL transport (send/receive + communication statistics).

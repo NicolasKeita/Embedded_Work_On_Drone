@@ -5,7 +5,7 @@ import { Activity, AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Pla
 import { AircraftScene } from '@/components/aircraft-scene';
 import { AvionicsScene } from '@/components/avionics-scene';
 import { TelemetryCharts } from '@/components/telemetry-charts';
-import { createDemoSnapshots, type TwinSnapshot } from '@/lib/twin-data';
+import { createDemoSnapshots, createIdleSnapshot, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
 
@@ -14,13 +14,14 @@ function Metric({ label, value, unit }: { label: string; value: string; unit?: s
 
 export default function Home() {
   const demo = useMemo(() => createDemoSnapshots(), []);
-  const [mode, setMode] = useState<'replay' | 'live'>('replay');
+  const idle = useMemo(() => createIdleSnapshot(), []);
+  const [mode, setMode] = useState<'replay' | 'live'>('live');
   const [playing, setPlaying] = useState(true);
-  const [cursor, setCursor] = useState(54);
-  const [snapshots, setSnapshots] = useState(demo);
+  const [cursor, setCursor] = useState(0);
+  const [snapshots, setSnapshots] = useState<TwinSnapshot[]>([]);
   const [connected, setConnected] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? demo[0];
+  const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? idle;
 
   useEffect(() => {
     if (mode !== 'replay' || !playing) return;
@@ -31,18 +32,41 @@ export default function Home() {
   useEffect(() => {
     if (mode !== 'live') return;
     let socket: WebSocket | undefined;
-    try {
-      socket = new WebSocket(WS_URL);
-      socket.onopen = () => setConnected(true);
-      socket.onclose = () => setConnected(false);
-      socket.onerror = () => setConnected(false);
-      socket.onmessage = (event) => {
-        const next = JSON.parse(event.data) as TwinSnapshot;
-        setSnapshots((items) => [...items.slice(-179), next]);
-        setCursor((value) => value + 1);
-      };
-    } catch { setConnected(false); }
-    return () => socket?.close();
+    let retryTimer: number | undefined;
+    let disposed = false;
+    setSnapshots([]);
+    setCursor(0);
+    const connect = () => {
+      if (disposed) return;
+      try {
+        socket = new WebSocket(WS_URL);
+        socket.onopen = () => setConnected(true);
+        socket.onclose = () => {
+          setConnected(false);
+          if (!disposed) retryTimer = window.setTimeout(connect, 500);
+        };
+        socket.onerror = () => socket?.close();
+        socket.onmessage = (event) => {
+          try {
+            const next = JSON.parse(event.data) as TwinSnapshot;
+            setSnapshots((items) => {
+              const updated = [...items.slice(-179), next];
+              setCursor(updated.length - 1);
+              return updated;
+            });
+          } catch { setConnected(false); }
+        };
+      } catch {
+        setConnected(false);
+        retryTimer = window.setTimeout(connect, 500);
+      }
+    };
+    connect();
+    return () => {
+      disposed = true;
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      socket?.close();
+    };
   }, [mode]);
 
   const stale = mode === 'live' && !connected;
@@ -84,7 +108,7 @@ export default function Home() {
         </aside>
       </section>
       <footer className="controlbar">
-        <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => setMode('replay')}><Play size={13} />REPLAY</button></div>
+        <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => { setSnapshots(demo); setCursor(0); setMode('replay'); }}><Play size={13} />REPLAY</button></div>
         <button className="icon-button" onClick={() => setPlaying((value) => !value)} disabled={mode === 'live'}>{playing ? <Pause size={16} /> : <Play size={16} />}</button><span className="elapsed">{current.time_s.toFixed(2)} s</span>
         <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, snapshots.length - 1)} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); }} disabled={mode === 'live'} /><span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
         <button className="icon-button" onClick={() => setCursor(0)} disabled={mode === 'live'}><RotateCcw size={15} /></button><button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
