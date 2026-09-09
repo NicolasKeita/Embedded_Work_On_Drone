@@ -45,20 +45,20 @@ struct HilResult {
     sim::control::MissionState final_state = sim::control::MissionState::TAKEOFF;
     std::float64_t             mission_end_time = -1.0;
 
-    sim::safety::HealthState final_health = sim::safety::HealthState::HEALTHY;
-    sim::safety::SafetyMode  final_safety_mode = sim::safety::SafetyMode::NORMAL;
-    bool                     degraded_reached = false;
-    bool                     compensated_reached = false;
-    bool                     safe_mode_reached = false;
+    sim::safety::HealthState    final_health = sim::safety::HealthState::HEALTHY;
+    sim::safety::SafetyMode     final_safety_mode = sim::safety::SafetyMode::NORMAL;
+    bool                        degraded_reached = false;
+    bool                        compensated_reached = false;
+    bool                        safe_mode_reached = false;
     sim::safety::DetectionEvent first_detection_event = sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT;
 
     sim::sil::FailureMode failure_mode = sim::sil::FailureMode::NONE;
-    bool                fault_detected = false;
-    std::float64_t      fault_injected_time = -1.0;
-    std::float64_t      detection_time = -1.0;
-    std::float64_t      safety_response_time = -1.0;
-    std::float64_t      detection_latency = -1.0;
-    std::float64_t      response_latency = -1.0;
+    bool                  fault_detected = false;
+    std::float64_t        fault_injected_time = -1.0;
+    std::float64_t        detection_time = -1.0;
+    std::float64_t        safety_response_time = -1.0;
+    std::float64_t        detection_latency = -1.0;
+    std::float64_t        response_latency = -1.0;
 
     std::float64_t max_position_error_m = 0.0;
     std::float64_t max_altitude_error_m = 0.0;

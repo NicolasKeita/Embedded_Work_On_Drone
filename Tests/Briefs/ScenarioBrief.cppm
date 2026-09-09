@@ -1,5 +1,5 @@
 /*
-Filename: Tests/ScenarioBrief.cppm
+Filename: Tests/Briefs/ScenarioBrief.cppm
 Description: Human-readable, non-technical scenario briefs keyed by standardised
 scenario ID. Each brief explains the mission, the starting and target state, the
 altitude-hold requirement and the expected outcome so a non-technical reader can

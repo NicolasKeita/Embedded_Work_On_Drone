@@ -32,7 +32,10 @@ void dropped_heartbeats_test(TestHarness& runner)
 {
     runner.set_context("OBS-002");
     const SilConfig                             config{.duration_s = 5.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 2.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS};
+    const FaultScenario                         scenario{
+                                                    .start_time = 2.0,
+                                                    .failure_mode = FailureMode::FC_COMMUNICATION_LOSS,
+                                                };
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

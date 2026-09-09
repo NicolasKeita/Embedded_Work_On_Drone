@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Core/SilFaultScenario-Semantics.cpp
-Description: Actuator semantic mapping : physical role, hardware category and aerodynamic function of fault targets.
+Description: Failure-mode semantics : domain, implementation coverage and physical mapping of fault targets.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -11,6 +11,25 @@ module SilFaultScenario;
 import std;
 
 namespace sim::sil {
+
+/*
+Domain of a failure mode: every injectable failure mode is an aircraft /
+embedded system failure; bench and infrastructure problems use typed errors.
+*/
+FaultDomain failure_mode_domain(FailureMode) noexcept
+{
+    return FaultDomain::SYSTEM;
+}
+
+/*
+Honest implementation coverage of a failure mode: FC1 unavailability,
+communication loss/degradation, invalid sensor data and actuator degradation
+have an injection path; the documented timing and numerical modes do not yet.
+*/
+bool failure_mode_implemented(FailureMode mode) noexcept
+{
+    return mode != FailureMode::CONTROL_DEADLINE_MISSED && mode != FailureMode::INVALID_NUMERICAL_STATE;
+}
 
 /*
 Physical role of a fault target: the functional name of the affected component,

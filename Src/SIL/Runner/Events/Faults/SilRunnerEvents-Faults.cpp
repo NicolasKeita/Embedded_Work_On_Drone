@@ -78,8 +78,7 @@ void record_typed_fault(RunContext& ctx, const FaultScenario& scenario, const Si
         return;
     }
     const SilEventType type = scenario.failure_mode == FailureMode::INVALID_SENSOR_DATA
-                                  ? SilEventType::SensorFaultInjected
-                                  : SilEventType::ActuatorFaultInjected;
+                                  ? SilEventType::SensorFaultInjected : SilEventType::ActuatorFaultInjected;
     SilEvent event{.timestamp = ctx.time,
                    .source = "ENV",
                    .type = type,

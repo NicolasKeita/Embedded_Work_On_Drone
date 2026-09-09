@@ -38,32 +38,6 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 {
     return SILRunner{}.run(scenarios);
 }
-void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
-{
-    runner.begin_scenario("NOMINAL-001", "Nominal station-keeping mission (no fault)");
-    const FaultScenario scenario{};
-    const std::array<FaultScenario, 1> scenarios{scenario};
-
-    const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
-    if (!outcome.has_value()) {
-        runner.check(false, "SIL runner failed");
-        output = SilRunOutput{};
-        record = {.name = "NOMINAL-001", .scenario = scenario, .result = SimulationResult{}};
-        return;
-    }
-
-    output = std::move(outcome).value();
-    SimulationResult& r = output.result;
-    r.test_verdict = r.compute_verdict(false);
-    runner.check(r.mission_success, "mission completed COMPLETE with no fault");
-    runner.check(r.final_state == sim::control::MissionState::COMPLETE, "terminal state COMPLETE");
-    runner.check(r.final_safety_mode == SafetyMode::NORMAL, "safety mode NORMAL");
-    runner.check(!r.fault_detected, "no fault detected");
-    runner.check(r.max_altitude_error_m <= 10.5, "altitude error bounded (<= 10.5 m)");
-    record = {.name = "NOMINAL-001", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
-}
-
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure injected at t = 20.0 s");
@@ -94,7 +68,11 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
 void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-002", "Communication loss injected at t = 20.0 s");
-    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS};
+    const FaultScenario scenario{
+                            .start_time = 20.0,
+                            .duration = 0.0,
+                            .failure_mode = FailureMode::FC_COMMUNICATION_LOSS,
+                        };
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);

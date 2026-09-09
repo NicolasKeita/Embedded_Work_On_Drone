@@ -1,5 +1,5 @@
 /*
-Filename: Tests/ScenarioBrief-Nominal.cpp
+Filename: Tests/Briefs/ScenarioBrief-Nominal.cpp
 Description: Non-technical briefs for the nominal scenarios (NOMINAL-001..007).
 
 Copyright (c) 2026 Nicolas K.
@@ -82,8 +82,7 @@ constexpr std::array<BriefEntry, 7> kBriefs{{
      "  Goal      : Combine a climb with forward (X) and lateral (Y) movement.\n"
      "  Faults    : None.\n"
      "  Outcome   : Nose-down pitch, opposite-side roll, climbing speed, and\n"
-     "              displacement in both X and Y."},
-}};
+     "              displacement in both X and Y."}, }};
 
 }
 

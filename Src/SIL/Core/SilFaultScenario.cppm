@@ -2,25 +2,11 @@
 Filename: Src/SIL/Core/SilFaultScenario.cppm
 Description: Declarative fault taxonomy : fault domain, failure mode, target, temporality, value kind, parameters and activation window.
 Exports:
-    enum class FaultDomain,
-    enum class FailureMode,
-    enum class FaultTarget,
-    enum class FaultProfile,
-    enum class FaultValueKind,
-    struct FaultParameters,
-    struct FaultScenario,
-    fault_domain_name(),
-    failure_mode_name(),
-    failure_mode_domain(),
-    failure_mode_implemented(),
-    fault_target_name(),
-    fault_target_signal(),
-    fault_target_physical_role(),
-    fault_target_category(),
-    fault_target_function(),
-    effective_fault_target(),
-    fault_profile_name(),
-    fault_value_kind_name()
+    FaultDomain, FailureMode, FaultTarget, FaultProfile, FaultValueKind, FaultParameters,
+    FaultScenario, fault_domain_name(), failure_mode_name(), failure_mode_domain(),
+    failure_mode_implemented(), fault_target_name(), fault_target_signal(),
+    fault_target_physical_role(), fault_target_category(), fault_target_function(),
+    effective_fault_target(), fault_profile_name(), fault_value_kind_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -36,10 +22,9 @@ export namespace sim::sil {
 
 /*
 Top-level problem taxonomy: the domain a fault or error belongs to. SYSTEM
-covers real aircraft / embedded system failures (the only domain the FMECA
-focuses on), HIL covers hardware-in-the-loop bench and protocol failures and
-INFRASTRUCTURE covers test framework, filesystem, CLI and configuration
-errors.
+covers real aircraft / embedded system failures, HIL covers bench and
+protocol failures, INFRASTRUCTURE covers test framework, filesystem, CLI
+and configuration errors.
 */
 enum class FaultDomain { SYSTEM, HIL, INFRASTRUCTURE };
 
@@ -47,10 +32,8 @@ enum class FaultDomain { SYSTEM, HIL, INFRASTRUCTURE };
 Failure modes of the aircraft / embedded system (all FaultDomain::SYSTEM). A
 failure mode names the root cause only, never the detection mechanism: the
 detection events produced by the FC2 supervision live in
-sim::safety::DetectionEvent. CONTROL_DEADLINE_MISSED and
-INVALID_NUMERICAL_STATE are documented taxonomy entries without an injection
-path yet; failure_mode_implemented() reports the honest coverage and the
-injector factory rejects them.
+sim::safety::DetectionEvent. CONTROL_DEADLINE_MISSED and INVALID_NUMERICAL_STATE
+are documented entries without an injection path yet.
 */
 enum class FailureMode {
     NONE,
@@ -66,25 +49,15 @@ enum class FailureMode {
 // Targeted component of a fault injection (canonical identifier per value).
 enum class FaultTarget {
     Unspecified,
-    ActuatorMainRotor,
-    ActuatorLeftServo,
-    ActuatorRightServo,
-    SensorBarometer,
-    SensorImu,
-    SensorGnss,
-    SensorRpmFeedback,
-    ProcessorFc1,
-    LinkFc1Fc2
+    ActuatorMainRotor, ActuatorLeftServo, ActuatorRightServo,
+    SensorBarometer, SensorImu, SensorGnss, SensorRpmFeedback,
+    ProcessorFc1, LinkFc1Fc2
 };
 
 // Temporality of a fault activation window (duration <= 0 means permanent).
 enum class FaultProfile { Permanent, Temporary };
 
-/*
-Semantic of the numeric parameter carried by a fault event: actuator
-efficiency, communication loss probability, forced altitude measurement or
-noise amplitude.
-*/
+/* Semantic of the numeric parameter carried by a fault event (efficiency, loss probability, altitude, noise). */
 enum class FaultValueKind { None, Efficiency, LossProbability, Altitude, AltitudeNoise };
 
 struct FaultParameters {
@@ -108,26 +81,14 @@ struct FaultScenario {
 // Human-readable name of a failure mode for reports.
 [[nodiscard]] std::string_view failure_mode_name(FailureMode mode);
 
-/*
-Domain of a failure mode: every injectable failure mode is an aircraft /
-embedded system failure (FaultDomain::SYSTEM). HIL bench and infrastructure
-problems are reported through their own typed errors, never as failure modes.
-*/
-[[nodiscard]] constexpr FaultDomain failure_mode_domain(FailureMode) noexcept
-{
-    return FaultDomain::SYSTEM;
-}
+/* Domain of a failure mode: every injectable failure mode is an aircraft / embedded system failure. */
+[[nodiscard]] FaultDomain failure_mode_domain(FailureMode mode) noexcept;
 
 /*
-Honest implementation coverage of a failure mode: FC1 unavailability,
-communication loss/degradation, invalid sensor data and actuator degradation
-have an injection path; the documented timing and numerical failure modes do
-not yet.
+Honest implementation coverage of a failure mode: the four injected failure
+modes have an injection path; the documented timing and numerical modes do not.
 */
-[[nodiscard]] constexpr bool failure_mode_implemented(FailureMode mode) noexcept
-{
-    return mode != FailureMode::CONTROL_DEADLINE_MISSED && mode != FailureMode::INVALID_NUMERICAL_STATE;
-}
+[[nodiscard]] bool failure_mode_implemented(FailureMode mode) noexcept;
 
 /* Canonical identifier of a fault target for the Target field of the injection logs. */
 [[nodiscard]] std::string_view fault_target_name(FaultTarget target);
@@ -147,10 +108,9 @@ not yet.
 /*
 Target actually disturbed by the scenario: the explicit target when the
 scenario names one, otherwise the canonical component altered by the failure
-mode (FC1 processor, FC1-FC2 link, altitude channel or main-rotor actuator).
+mode.
 */
 [[nodiscard]] FaultTarget effective_fault_target(const FaultScenario& scenario);
-
 // Human-readable temporality profile of a fault activation window.
 [[nodiscard]] std::string_view fault_profile_name(FaultProfile profile);
 

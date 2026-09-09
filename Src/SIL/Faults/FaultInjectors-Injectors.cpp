@@ -1,6 +1,6 @@
 /*
 Filename: Src/SIL/Faults/FaultInjectors-Injectors.cpp
-Description: Failure-mode-specific injection implementations : the physical representation of each failure mode in the simulated environment.
+Description: Failure-mode injection implementations : physical representation of each failure mode.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

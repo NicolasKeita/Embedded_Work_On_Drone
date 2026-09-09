@@ -1,7 +1,6 @@
 /*
 Filename: Src/Embedded/Hil/Transport/HilTransport.cppm
-Description: Frame-level HIL-Proto exchange and communication statistics over the
-ITransport byte channel (runner side and host-FC-target side share the channel).
+Description: Frame-level HIL-Proto exchange and communication statistics over the ITransport byte channel.
 Exports: ActuatorDiagnostics (re-export), ReceiveResult, HilCommStats, HilTransport,
 send_sensor_frame(), send_actuator_frame(), receive_frame().
 
@@ -22,16 +21,11 @@ import Transport;
 
 export namespace sim::hil {
 
-enum class FrameAcceptanceError : std::uint8_t {
-    NotActuatorFrame
-};
+enum class FrameAcceptanceError : std::uint8_t { NotActuatorFrame };
 
 using FlightCore::Transport::ActuatorDiagnostics;
 
-/*
-Reception outcome of one actuator frame on the HIL bench transport
-(HIL-domain test-bench result, never an aircraft failure mode).
-*/
+/* Reception outcome of one actuator frame on the HIL bench transport (never an aircraft failure mode). */
 enum class ReceiveResult {
     Ok,
     Timeout,

@@ -34,7 +34,8 @@ void record_health_transition(RunContext& ctx, sim::safety::HealthState current)
                         .severity = EventSeverity::Info,
                         .previous_state = health_state_name(ctx.previous_health),
                         .new_state = health_state_name(current),
-                        .reason = current == HealthState::HEALTHY ? "all detection flags clear" : "detection flags raised"};
+                        .reason = current == HealthState::HEALTHY
+                                      ? "all detection flags clear" : "detection flags raised"};
     ctx.trace.record(transition);
 }
 

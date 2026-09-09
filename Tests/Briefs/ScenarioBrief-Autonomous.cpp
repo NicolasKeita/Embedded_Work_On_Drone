@@ -1,5 +1,5 @@
 /*
-Filename: Tests/ScenarioBrief-Autonomous.cpp
+Filename: Tests/Briefs/ScenarioBrief-Autonomous.cpp
 Description: Non-technical briefs for the autonomous flight scenarios
 (NOMINAL-008..011).
 
@@ -62,8 +62,7 @@ constexpr std::array<BriefEntry, 4> kBriefs{{
      "              window.\n"
      "  Faults    : None.\n"
      "  Outcome   : The drone reaches 100 m with less than 10 % overshoot and\n"
-     "              under 1 m residual error, then holds station."},
-}};
+     "              under 1 m residual error, then holds station."}, }};
 
 }
 

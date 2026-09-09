@@ -1,5 +1,5 @@
 /*
-Filename: Tests/ScenarioBrief-Faults.cpp
+Filename: Tests/Briefs/ScenarioBrief-Faults.cpp
 Description: Non-technical briefs for the fault-injection scenarios
 (FAULT_INJECTOR-001..005).
 
@@ -76,8 +76,7 @@ constexpr std::array<BriefEntry, 5> kBriefs{{
      "  Faults    : FC1 (primary flight controller) stops working at t = 2 s\n"
      "              during the climb.\n"
      "  Outcome   : The failure must be detected within 0.3 s, safe mode must\n"
-     "              engage and the mission must be aborted."},
-}};
+     "              engage and the mission must be aborted."}, }};
 
 }
 

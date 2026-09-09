@@ -13,6 +13,21 @@ import std;
 
 import MonteCarloCampaign;
 
+namespace
+{
+    /* Writes the requested CSV / JSON campaign reports and prints the outcome lines. */
+    void export_reports(const sim::monte_carlo::CliOptions&    options,
+                        const sim::monte_carlo::CampaignStats& stats)
+    {
+        if (!options.output_csv.empty() && sim::monte_carlo::export_campaign_csv(stats, options.output_csv)) {
+            std::cout << "CSV report written to " << options.output_csv << std::endl;
+        }
+        if (!options.output_json.empty() && sim::monte_carlo::export_campaign_json(stats, options.output_json)) {
+            std::cout << "JSON report written to " << options.output_json << std::endl;
+        }
+    }
+}
+
 /*
 Entry point: parses the campaign options, executes the dispersed scenario runs
 and prints the statistical summary of the whole campaign.
@@ -47,16 +62,7 @@ int main(int argc, char* argv[])
 
     const sim::monte_carlo::CampaignStats stats = sim::monte_carlo::run_campaign(options);
     sim::monte_carlo::print_summary(stats);
-    if (!options.output_csv.empty()) {
-        if (sim::monte_carlo::export_campaign_csv(stats, options.output_csv)) {
-            std::cout << "CSV report written to " << options.output_csv << std::endl;
-        }
-    }
-    if (!options.output_json.empty()) {
-        if (sim::monte_carlo::export_campaign_json(stats, options.output_json)) {
-            std::cout << "JSON report written to " << options.output_json << std::endl;
-        }
-    }
+    export_reports(options, stats);
     std::cout << "Monte Carlo campaign completed." << std::endl;
 
     return 0;

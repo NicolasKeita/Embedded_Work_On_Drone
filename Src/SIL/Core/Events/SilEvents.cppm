@@ -2,15 +2,8 @@
 Filename: Src/SIL/Core/Events/SilEvents.cppm
 Description: Structured SIL events and leveled trace recorder.
 Exports:
-    enum class SilEventType,
-    enum class EventSeverity,
-    enum class SilLogLevel,
-    struct SilEvent,
-    struct SilTraceConfig,
-    class SilTrace,
-    event_type_name(),
-    event_severity_name(),
-    event_log_level()
+    SilEventType, EventSeverity, SilLogLevel, SilEvent, SilTraceConfig, SilTrace,
+    event_type_name(), event_severity_name(), event_log_level()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -26,16 +19,14 @@ import SilFaultScenario;
 export namespace sim::sil {
 
 /*
-Typed simulation events emitted by the SIL pipeline (observability contract).
-The vocabulary keeps the safety chain stages apart: FaultInjected /
-SensorFaultInjected / ActuatorFaultInjected mark the injection of a failure
-mode, SupervisionTimeout / FaultDetected / FaultClassified mark the detection
-and diagnosis, SafetyResponse / SafetyStateTransition mark the reaction and
-RecoveryStart / RecoveryEnd / SupervisionRecovery mark the recovery. The
-supervision events (SupervisionTimeout / SupervisionReset /
-SupervisionRecovery) belong to the FC1 heartbeat/link liveness supervision:
-no local task watchdog exists in the current system, so no event uses
-watchdog terminology.
+Typed simulation events emitted by the SIL pipeline (observability contract):
+FaultInjected / SensorFaultInjected / ActuatorFaultInjected mark the injection
+of a failure mode, SupervisionTimeout / FaultDetected / FaultClassified mark
+the detection and diagnosis, SafetyResponse / SafetyStateTransition mark the
+reaction and RecoveryStart / RecoveryEnd / SupervisionRecovery mark the
+recovery. The supervision events belong to the FC1 heartbeat/link liveness
+supervision: no local task watchdog exists in the current system, so no event
+uses watchdog terminology.
 */
 enum class SilEventType {
     SimulationStart,
@@ -101,9 +92,7 @@ struct SilTraceConfig {
     SilLogLevel level = SilLogLevel::Info;
     std::size_t max_events = 500000;
 };
-/*
-Verbosity-filtered in-memory trace recorder: observational only.
-*/
+/* Verbosity-filtered in-memory trace recorder: observational only. */
 class SilTrace {
 public:
     SilTrace() = default;

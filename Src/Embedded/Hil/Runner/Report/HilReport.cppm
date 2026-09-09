@@ -72,5 +72,9 @@ void write_table_row(std::ostream& out, const HilSensorSample& sample);
 std::string_view hil_verdict_reason(const HilResult& result);
 std::string_view event_suffix(const HilEvent& event);
 void write_event_line(std::ostream& out, const HilEvent& event);
+void write_json_string(std::ostream& out, std::string_view value);
+void write_recent_events(std::ostream& out, std::span<const HilEvent> events);
+void write_components(std::ostream& out, std::string_view affected, bool failed);
+void write_twin_snapshot(std::ostream& out, const HilRunContext& ctx, const HilSensorSample& sample);
 
 }

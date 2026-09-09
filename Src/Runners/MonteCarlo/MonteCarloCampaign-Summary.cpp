@@ -20,13 +20,7 @@ namespace {
                             std::float64_t&                    min_val,
                             std::float64_t&                    max_val)
     {
-        if (values.empty()) {
-            mean = 0.0;
-            std_dev = 0.0;
-            min_val = 0.0;
-            max_val = 0.0;
-            return;
-        }
+        if (values.empty()) { mean = 0.0; std_dev = 0.0; min_val = 0.0; max_val = 0.0; return; }
         mean = std::accumulate(values.begin(), values.end(), 0.0) / static_cast<std::float64_t>(values.size());
         std::float64_t sum_sq = 0.0;
         for (std::float64_t val : values) {
@@ -57,6 +51,7 @@ namespace {
                                                  std::float64_t RunMetrics::* field)
     {
         std::vector<std::float64_t> values;
+
         values.reserve(records.size());
         for (const RunRecord& record : records) {
             values.push_back(record.metrics.*field);
@@ -86,14 +81,18 @@ void print_summary(const CampaignStats& stats)
     print_metric("Max acceleration", project_metric(stats.records, &RunMetrics::max_acceleration));
     bool any_failed = false;
     for (const RunRecord& record : stats.records) {
-        if (record.metrics.passed) { continue; }
+        if (record.metrics.passed) {
+            continue;
+        }
         if (!any_failed) {
             std::cout << "\n--- Failed Run Indices ---" << std::endl;
             any_failed = true;
         }
         std::cout << "Run " << record.inputs.run_id << "; ";
     }
-    if (any_failed) { std::cout << std::endl; }
+    if (any_failed) {
+        std::cout << std::endl;
+    }
 }
 
 /* Prints the SIL_MONTE_CARLO usage banner. */
@@ -105,7 +104,8 @@ void print_usage(std::string_view executableName)
               << " [--output-csv <path>] [--output-json <path>]" << std::endl;
     std::cout << "  --seed <n>           Master RNG seed (default 42)." << std::endl;
     std::cout << "  --runs <n>           Number of iterations (default 50)." << std::endl;
-    std::cout << "  --scenario <id>      Scenario to stress-test (default: NOMINAL-001, also: 008, 009, 010)." << std::endl;
+    std::cout << "  --scenario <id>      Scenario to stress-test (default: NOMINAL-001,"
+              << " also: 008, 009, 010)." << std::endl;
     std::cout << "  -v, --verbose        Per-run input variables, telemetry and mission brief." << std::endl;
     std::cout << "  --output-csv <path>  Write a per-run CSV report (inputs + metrics) to <path>." << std::endl;
     std::cout << "  --output-json <path> Write a per-run JSON report (inputs + metrics) to <path>." << std::endl;

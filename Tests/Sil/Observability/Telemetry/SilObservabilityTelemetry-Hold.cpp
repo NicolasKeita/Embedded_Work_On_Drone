@@ -67,7 +67,8 @@ void check_fault_window(TestHarness& runner, const SilRunOutput& output, const S
     }
     runner.check(faulty_recorded, "99999 m faulty measurement recorded in telemetry");
     runner.check(truth_stays_physical, "ground truth physical during the fault");
-    runner.check(output.result.fault_detected && output.result.first_detection_event == DetectionEvent::SENSOR_VALIDATION_FAILED,
+    runner.check(output.result.fault_detected
+                     && output.result.first_detection_event == DetectionEvent::SENSOR_VALIDATION_FAILED,
                  "sensor fault detected by validation");
 }
 

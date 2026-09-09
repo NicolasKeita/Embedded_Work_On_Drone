@@ -28,12 +28,19 @@ private:
     void complete_handshake() noexcept;
     void close_client() noexcept;
 
-    int                           server_fd_ = -1;
-    int                           client_fd_ = -1;
-    bool                          handshake_complete_ = false;
-    std::array<char, 4096>        request_{};
-    std::size_t                   request_size_ = 0;
+    int                             server_fd_ = -1;
+    int                             client_fd_ = -1;
+    bool                            handshake_complete_ = false;
+    std::array<char, 4096>          request_{};
+    std::size_t                     request_size_ = 0;
     std::array<std::uint8_t, 65536> frame_{};
 };
+
+}
+
+namespace sim::hil {
+
+/* SHA-1 digest of the WebSocket opening handshake (implemented in TwinWebSocketPublisher-Crypto.cpp). */
+std::array<std::uint8_t, 20> sha1(std::string_view input) noexcept;
 
 }

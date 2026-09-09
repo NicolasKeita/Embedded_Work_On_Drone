@@ -40,6 +40,19 @@ std::string_view safety_action_name(SafetyAction action)
     return "UNKNOWN";
 }
 
+SafetyAction safety_action_for(SafetyMode mode) noexcept
+{
+    switch (mode) {
+    case SafetyMode::SAFE_MODE:
+        return SafetyAction::ENTER_SAFE_MODE;
+    case SafetyMode::COMPENSATED:
+        return SafetyAction::ENTER_COMPENSATED;
+    case SafetyMode::NORMAL:
+        break;
+    }
+    return SafetyAction::RESUME_NORMAL;
+}
+
 SafetyManager::SafetyManager(SafetyManagerConfig config) : config_{config} {}
 
 SafetyMode SafetyManager::mode() const noexcept
@@ -75,7 +88,8 @@ SafetyCommand SafetyManager::update(std::float64_t current_time, const HealthRep
     else if (mode_ != SafetyMode::SAFE_MODE) {
         if (report.state == HealthState::DEGRADED) {
             const bool actuator_detected = report.flag(DetectionEvent::ACTUATOR_MISMATCH).raised;
-            engage(current_time, SafetyMode::COMPENSATED, actuator_detected ? config_.degraded_thrust_margin : 1.0, false);
+            const std::float64_t margin = actuator_detected ? config_.degraded_thrust_margin : 1.0;
+            engage(current_time, SafetyMode::COMPENSATED, margin, false);
         }
         else {
             engage(current_time, SafetyMode::NORMAL, 1.0, false);

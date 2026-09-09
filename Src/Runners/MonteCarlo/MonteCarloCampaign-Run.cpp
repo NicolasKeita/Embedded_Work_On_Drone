@@ -63,6 +63,7 @@ CampaignStats run_campaign(const CliOptions& options)
 {
     CampaignStats            stats{.master_seed = options.seed, .total_runs = options.runs};
     sim::DispersionGenerator dispersion_generator(options.seed);
+
     stats.records.reserve(options.runs);
 
     for (std::uint32_t run_index = 0; run_index < options.runs; ++run_index) {

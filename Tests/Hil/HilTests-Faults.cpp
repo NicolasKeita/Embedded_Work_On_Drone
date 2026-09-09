@@ -40,8 +40,8 @@ namespace {
     }
 
     /* Abort family: the fault must be detected and drive the mission to SAFE_MODE/ABORTED. */
-    void check_abort_scenario(sim::test::TestHarness&  runner,
-                              std::string_view         id,
+    void check_abort_scenario(sim::test::TestHarness&     runner,
+                              std::string_view            id,
                               sim::safety::DetectionEvent domain)
     {
         runner.set_context(id);
@@ -59,8 +59,8 @@ namespace {
     }
 
     /* Compensated family: the fault must be detected and compensated, the mission pursues. */
-    void check_compensated_scenario(sim::test::TestHarness&  runner,
-                                    std::string_view         id,
+    void check_compensated_scenario(sim::test::TestHarness&     runner,
+                                    std::string_view            id,
                                     sim::safety::DetectionEvent domain)
     {
         runner.set_context(id);

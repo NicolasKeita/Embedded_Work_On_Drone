@@ -33,8 +33,8 @@ void comms_statistics_test(TestHarness& runner)
 {
     runner.set_context("OBS-006");
     const SilConfig                             config{.duration_s = 32.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{ .start_time = 30.0, .failure_mode = FailureMode::FC_COMMUNICATION_LOSS
-                                                };
+    const FaultScenario                         scenario{.start_time = 30.0,
+                                                         .failure_mode = FailureMode::FC_COMMUNICATION_LOSS};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -62,7 +62,8 @@ void verdict_independence_test(TestHarness& runner)
 {
     runner.set_context("OBS-007");
     const SilConfig                             config{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
+    const FaultScenario                         scenario{.start_time = 30.0,
+                                                         .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {

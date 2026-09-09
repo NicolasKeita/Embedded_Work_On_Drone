@@ -76,9 +76,9 @@ private:
     static SimulationResult classify(const Scenario& scenario,
                                       const sim::sil::SimulationResult& sil_result);
     void execute_run(std::uint64_t run_id);
-    ScenarioGenerator        generator_;
-    SilConfig                config_;
-    ResultCollector          collector_;
+    ScenarioGenerator          generator_;
+    SilConfig                  config_;
+    ResultCollector            collector_;
     std::optional<FailureMode> fault_template_{};
 };
 

@@ -26,7 +26,7 @@ namespace
     int execute_runs(const sim::test::sil::CliOptions& options,
                      sim::test::TestHarness&           runner,
                      std::string_view                  executableName,
-                     std::float64_t                     telemetryPeriodS)
+                     std::float64_t                    telemetryPeriodS)
     {
         if (options.scenario.has_value()) {
             const std::string& scenarioId = *options.scenario;
@@ -60,8 +60,8 @@ namespace
     int print_verdict(const sim::test::sil::CliOptions& options, const sim::test::TestHarness& runner)
     {
         const std::string subject = options.scenario.has_value()
-                                        ? "scenario " + *options.scenario
-                                        : "all executed scenarios";
+                                        ? "scenario " + *options.scenario : "all executed scenarios";
+
         std::cout << "\n>>> SIL_RUNNER: " << subject << ' ';
         if (runner.passed()) {
             std::cout << "passed." << std::endl;

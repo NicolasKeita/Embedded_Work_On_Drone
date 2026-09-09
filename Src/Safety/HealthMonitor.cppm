@@ -1,6 +1,6 @@
 /*
 Filename: Src/Safety/HealthMonitor.cppm
-Description: FC2 health monitor : heartbeat/comms supervision, sensor validation, actuator mismatch detection.
+Description: FC2 health monitor : heartbeat and comms supervision, sensor validation.
 Exports:
     enum class HealthState,
     enum class DetectionEvent,
@@ -35,13 +35,10 @@ enum class HealthState { HEALTHY, DEGRADED, SAFE };
 
 /*
 Detection events raised by the FC2 supervision (detection outputs, never
-failure modes). Each value names the detection mechanism that fired:
- - FC1_HEARTBEAT_TIMEOUT: heartbeat supervision, FC1 stopped publishing while
-   the link stays up (remote liveness supervision, not a local task watchdog);
- - COMMUNICATION_TIMEOUT: FC1-FC2 link supervision, the communication path is
-   down;
- - SENSOR_VALIDATION_FAILED: range/NaN validation of the sensor telemetry;
- - ACTUATOR_MISMATCH: sustained commanded/actual RPM mismatch.
+failure modes): FC1_HEARTBEAT_TIMEOUT (remote FC1 liveness supervision while
+the link stays up), COMMUNICATION_TIMEOUT (FC1-FC2 link supervision),
+SENSOR_VALIDATION_FAILED (range/NaN validation of the sensor telemetry) and
+ACTUATOR_MISMATCH (sustained commanded/actual RPM mismatch).
 */
 enum class DetectionEvent { FC1_HEARTBEAT_TIMEOUT, COMMUNICATION_TIMEOUT, SENSOR_VALIDATION_FAILED, ACTUATOR_MISMATCH };
 
@@ -54,7 +51,7 @@ struct DetectionFlag {
 };
 
 struct HealthReport {
-    HealthState                                  state = HealthState::HEALTHY;
+    HealthState                                     state = HealthState::HEALTHY;
     std::array<DetectionFlag, kDetectionEventCount> flags{};
 
     [[nodiscard]] const DetectionFlag& flag(DetectionEvent event) const;
@@ -109,10 +106,10 @@ private:
 
     [[nodiscard]] static HealthState compute_state(const std::array<DetectionFlag, kDetectionEventCount>& flags);
 
-    HealthMonitorConfig                         config_;
-    HealthState                                 state_ = HealthState::HEALTHY;
+    HealthMonitorConfig                             config_;
+    HealthState                                     state_ = HealthState::HEALTHY;
     std::array<DetectionFlag, kDetectionEventCount> flags_{};
-    std::float64_t                              mismatch_since_ = -1.0;
+    std::float64_t                                  mismatch_since_ = -1.0;
 };
 
 [[nodiscard]] std::string_view detection_event_name(DetectionEvent event);

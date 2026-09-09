@@ -89,7 +89,8 @@ target_add_mixed_sources(SIL_RUNNER PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${TEST_SIMULATION_FILES}
     ${TEST_SIL_FILES}
     Src/Runners/Sil/SilRunnerCli.cppm
-    Src/Runners/Sil/SilRunnerCli.cpp
+    Src/Runners/Sil/SilRunnerCli-Parse.cpp
+    Src/Runners/Sil/SilRunnerCli-Usage.cpp
 )
 project_target_setup(SIL_RUNNER)
 target_link_libraries(SIL_RUNNER PRIVATE flight_sim_core)
@@ -127,10 +128,12 @@ target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${VALIDATION_FILES}
     Src/Runners/MonteCarlo/MonteCarloCampaign.cppm
     Src/Runners/MonteCarlo/MonteCarloCampaign-Cli.cpp
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Options.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Summary.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Run.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Dispersion.cpp
-    Src/Runners/MonteCarlo/MonteCarloCampaign-Export.cpp
+    Src/Runners/MonteCarlo/Export/MonteCarloCampaign-Csv.cpp
+    Src/Runners/MonteCarlo/Export/MonteCarloCampaign-Json.cpp
 )
 project_target_setup(SIL_MONTE_CARLO)
 target_link_libraries(SIL_MONTE_CARLO PRIVATE flight_sim_core)

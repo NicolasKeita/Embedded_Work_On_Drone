@@ -34,7 +34,10 @@ void structured_fields_test(TestHarness& runner)
 {
     runner.set_context("OBS-008");
     const SilConfig                             config{.duration_s = 30.0, .trace_level = SilLogLevel::Trace};
-    const FaultScenario                         scenario{.start_time = 20.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
+    const FaultScenario                         scenario{
+                                                    .start_time = 20.0,
+                                                    .failure_mode = FailureMode::FC1_UNAVAILABLE,
+                                                };
     const std::expected<SilRunOutput, SilError> outcome = run_traced(config, scenario);
 
     if (!outcome.has_value()) {
@@ -66,7 +69,10 @@ the richness of the recorded event trace (observational neutrality).
 void logging_neutrality_test(TestHarness& runner)
 {
     runner.set_context("OBS-009");
-    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
+    const FaultScenario                         scenario{
+                                                    .start_time = 30.0,
+                                                    .failure_mode = FailureMode::FC1_UNAVAILABLE,
+                                                };
     const SilConfig                             info_cfg{.duration_s = 35.0};
     const SilConfig                             trace_cfg{.duration_s = 35.0, .trace_level = SilLogLevel::Trace};
     const std::expected<SilRunOutput, SilError> info = run_traced(info_cfg, scenario);

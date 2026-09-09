@@ -118,11 +118,11 @@ set(TEST_HARNESS_FILES
     Tests/TestHarness-Target.cpp
     Tests/TestHarness-Checks.cpp
     Tests/TestHarness-Logging.cpp
-    Tests/ScenarioBrief.cppm
-    Tests/ScenarioBrief.cpp
-    Tests/ScenarioBrief-Nominal.cpp
-    Tests/ScenarioBrief-Autonomous.cpp
-    Tests/ScenarioBrief-Faults.cpp
+    Tests/Briefs/ScenarioBrief.cppm
+    Tests/Briefs/ScenarioBrief-Dispatch.cpp
+    Tests/Briefs/ScenarioBrief-Nominal.cpp
+    Tests/Briefs/ScenarioBrief-Autonomous.cpp
+    Tests/Briefs/ScenarioBrief-Faults.cpp
 )
 
 # Harness, physics scenarios and autonomous scenarios of the validation program
@@ -148,6 +148,7 @@ set(TEST_SIMULATION_FILES
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm
     Tests/Sil/SilScenarios-Core.cpp
+    Tests/Sil/SilScenarios-Nominal.cpp
     Tests/Sil/SilScenarios-Safety.cpp
     Tests/Sil/SilScenarios-Suite.cpp
     Tests/Sil/SilScenarios-Run.cpp

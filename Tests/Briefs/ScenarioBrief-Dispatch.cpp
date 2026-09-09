@@ -1,5 +1,5 @@
 /*
-Filename: Tests/ScenarioBrief.cpp
+Filename: Tests/Briefs/ScenarioBrief-Dispatch.cpp
 Description: Dispatcher of the scenario brief lookup: delegates to the nominal,
 autonomous and fault-injection brief tables defined in the split implementation files.
 
@@ -21,6 +21,7 @@ none of the tables knows the ID.
 std::string_view scenario_brief(std::string_view id) noexcept
 {
     const std::string_view nominal = nominal_scenario_brief(id);
+
     if (!nominal.empty()) {
         return nominal;
     }

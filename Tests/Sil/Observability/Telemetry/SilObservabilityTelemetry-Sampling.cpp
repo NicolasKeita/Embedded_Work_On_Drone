@@ -35,8 +35,8 @@ bool same_telemetry(const std::vector<TelemetrySample>& a, const std::vector<Tel
 
 /*
 TELE-010: telemetry is sampled at the configured rate in simulation time, the
-ground-truth stream mirrors it sample for sample, control context fields are
-populated and a second identical run is bit-for-bit identical.
+ground-truth stream mirrors it sample for sample and a second identical run
+is bit-for-bit identical.
 */
 void telemetry_sampling_test(TestHarness& runner)
 {
@@ -74,15 +74,13 @@ void telemetry_sampling_test(TestHarness& runner)
     runner.check(last.mission_state <= 5 && last.safety_state <= 2, "mission/safety states populated");
 }
 
-/*
-TELE-013: the telemetry rate never alters the simulation outcome, only the
-number of recorded samples (observational neutrality of telemetry logging).
-*/
+/* TELE-013: the telemetry rate only changes the recorded sample count (observational neutrality). */
 void telemetry_rate_neutrality_test(TestHarness& runner)
 {
     runner.set_context("TELE-013");
 
-    const FaultScenario                         scenario{.start_time = 30.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
+    const FaultScenario                         scenario{.start_time = 30.0,
+                                                         .failure_mode = FailureMode::FC1_UNAVAILABLE};
     const SilConfig                             slow{.duration_s = 35.0, .telemetry_rate_hz = 5.0};
     const SilConfig                             standard{.duration_s = 35.0, .telemetry_rate_hz = 20.0};
     const SilConfig                             fast{.duration_s = 35.0, .telemetry_rate_hz = 50.0};

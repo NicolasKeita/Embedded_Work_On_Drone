@@ -28,6 +28,7 @@ namespace {
 void print_run_inputs(const RunInputs& inputs, std::uint32_t run_count)
 {
     const sim::PhysicsDispersion& d = inputs.dispersion;
+
     std::cout << "  [Run " << (inputs.run_id + 1) << '/' << run_count << "] Inputs (master seed "
               << inputs.master_seed << ", run seed " << inputs.run_seed << "):" << std::endl;
     std::cout << "    Aircraft:" << std::endl;

@@ -68,17 +68,6 @@ private:
 [[nodiscard]] std::string_view safety_action_name(SafetyAction action);
 
 /* Safety action associated with engaging a safety mode. */
-[[nodiscard]] constexpr SafetyAction safety_action_for(SafetyMode mode) noexcept
-{
-    switch (mode) {
-    case SafetyMode::SAFE_MODE:
-        return SafetyAction::ENTER_SAFE_MODE;
-    case SafetyMode::COMPENSATED:
-        return SafetyAction::ENTER_COMPENSATED;
-    case SafetyMode::NORMAL:
-        break;
-    }
-    return SafetyAction::RESUME_NORMAL;
-}
+[[nodiscard]] SafetyAction safety_action_for(SafetyMode mode) noexcept;
 
 }

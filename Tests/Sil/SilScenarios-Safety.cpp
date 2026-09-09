@@ -39,8 +39,11 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-003", "Altitude sensor corruption injected at t = 20.0 s");
-    const FaultScenario scenario{ .start_time = 20.0, .duration = 10.0, .failure_mode = FailureMode::INVALID_SENSOR_DATA,
-        .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange, .corrupted_altitude_m = 99999.0}};
+    const FaultScenario scenario{.start_time = 20.0,
+                                  .duration = 10.0,
+                                  .failure_mode = FailureMode::INVALID_SENSOR_DATA,
+                                  .parameters = {.corruption = SensorCorruptionMode::AltitudeOutOfRange,
+                                                 .corrupted_altitude_m = 99999.0}};
     const std::array<FaultScenario, 1> scenarios{scenario};
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {

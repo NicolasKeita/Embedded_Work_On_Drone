@@ -74,7 +74,9 @@ set(HIL_TELEMETRY_FILES
     Src/Embedded/Hil/Telemetry/HilTelemetry.cppm
     Src/Embedded/Hil/Telemetry/HilTelemetry.cpp
     Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher.cppm
-    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Sockets.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Crypto.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Handshake.cpp
 )
 
 # Frame-level HIL transport (send/receive + communication statistics).
@@ -118,6 +120,7 @@ set(HIL_RUNNER_EVENTS_FILES
     Src/Embedded/Hil/Runner/Events/HilRunnerEvents.cppm
     Src/Embedded/Hil/Runner/Events/HilRunnerEvents-Lifecycle.cpp
     Src/Embedded/Hil/Runner/Events/HilRunnerEvents-Faults.cpp
+    Src/Embedded/Hil/Runner/Events/HilRunnerEvents-Detection.cpp
     Src/Embedded/Hil/Runner/Events/HilRunnerEvents-Steps.cpp
 )
 
@@ -129,6 +132,8 @@ set(HIL_REPORT_FILES
     Src/Embedded/Hil/Runner/Report/HilReport-Report.cpp
     Src/Embedded/Hil/Runner/Report/HilReport-Summary.cpp
     Src/Embedded/Hil/Runner/Report/HilReport-Live.cpp
+    Src/Embedded/Hil/Runner/Report/HilReport-Twin.cpp
+    Src/Embedded/Hil/Runner/Report/HilReport-Components.cpp
 )
 
 # Command-line interface of the HIL_RUNNER executable.

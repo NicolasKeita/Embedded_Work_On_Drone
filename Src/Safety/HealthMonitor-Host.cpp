@@ -22,19 +22,18 @@ void HealthMonitor::update_comms_flags(std::float64_t current_time, const sim::s
         .link_up = comms.link_up(),
         .last_heartbeat_time = comms.last_received_time(),
     };
+
     update_comms_flags(current_time, supervision);
 }
 
 /* Preserves the host API while routing evaluation through the shared FC2 core. */
-HealthReport HealthMonitor::evaluate(std::float64_t current_time,
-                                     const sim::sil::CommsBus& comms,
+HealthReport HealthMonitor::evaluate(std::float64_t                   current_time,
+                                     const sim::sil::CommsBus&        comms,
                                      const sim::sil::SensorTelemetry& telemetry,
-                                     std::float64_t commanded_rpm)
+                                     std::float64_t                   commanded_rpm)
 {
-    const LinkSupervision supervision{
-        .link_up = comms.link_up(),
-        .last_heartbeat_time = comms.last_received_time(),
-    };
+    const LinkSupervision supervision{ .link_up = comms.link_up(), .last_heartbeat_time = comms.last_received_time(), };
+
     return evaluate(current_time, supervision, telemetry, commanded_rpm);
 }
 
