@@ -20,6 +20,7 @@ namespace sim::test {
 
 namespace
 {
+    MissionViewerObserver mission_viewer_observer{};
     struct StepMetrics {
         std::float64_t direction = 1.0;
         std::float64_t steady_start = 0.0;
@@ -74,6 +75,12 @@ namespace
     constexpr std::uint32_t  kLogIntervalSteps = 250;
 }
 
+/* Registers the process-local observer used to visualize one accelerated mission. */
+void set_mission_viewer_observer(MissionViewerObserver observer) noexcept
+{
+    mission_viewer_observer = observer;
+}
+
 /* Executes the step-by-step simulation loop, accumulating the tracking metrics. */
 void run_control_loop(FlightController&        ctrl,
                       Aircraft&                craft,
@@ -88,6 +95,9 @@ void run_control_loop(FlightController&        ctrl,
     MissionState             previous_state = ctrl.state();
     std::float64_t           time = 0.0;
     std::uint32_t            step_index = 0;
+    const std::float64_t     viewer_period = std::max(run.duration / std::float64_t{600.0},
+                                                      std::float64_t{0.05});
+    std::float64_t           next_viewer_time = 0.0;
 
     if (run.verbose) {
         print_state_row(craft, time);
@@ -101,6 +111,15 @@ void run_control_loop(FlightController&        ctrl,
         const std::float64_t error = target_value - component_value(craft.state(), run.axis);
         step.update(trace.metrics, time, error, run.tolerance);
         log_state_transition(trace, previous_state, ctrl.state(), time, run.verbose);
+        if (mission_viewer_observer.callback != nullptr && time + std::float64_t{1.0e-9} >= next_viewer_time) {
+            mission_viewer_observer.callback(
+                MissionViewerSample{.time = time,
+                                    .aircraft = craft.state(),
+                                    .target = run.target,
+                                    .mission = ctrl.state()},
+                mission_viewer_observer.context);
+            next_viewer_time += viewer_period;
+        }
         if (run.verbose && step_index % kLogIntervalSteps == 0) {
             print_state_row(craft, time);
         }

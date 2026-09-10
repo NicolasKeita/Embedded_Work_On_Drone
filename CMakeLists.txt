@@ -91,6 +91,10 @@ target_add_mixed_sources(SIL_RUNNER PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Src/Runners/Sil/SilRunnerCli.cppm
     Src/Runners/Sil/SilRunnerCli-Parse.cpp
     Src/Runners/Sil/SilRunnerCli-Usage.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher.cppm
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Sockets.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Crypto.cpp
+    Src/Embedded/Hil/Telemetry/TwinWebSocketPublisher-Handshake.cpp
 )
 project_target_setup(SIL_RUNNER)
 target_link_libraries(SIL_RUNNER PRIVATE flight_sim_core)

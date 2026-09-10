@@ -15,6 +15,7 @@ import Aircraft;
 import Scenarios;
 import SilRunnerCli;
 import SilScenarios;
+import SilTwinViewer;
 import TestHarness;
 
 namespace
@@ -36,7 +37,8 @@ namespace
             }
             if (sim::test::ScenarioCatalog::find(scenarioId) != nullptr) {
                 const Aircraft reference;
-                sim::test::ScenarioCatalog::find(scenarioId)->run(runner, reference.hover_rpm(), {});
+                sim::test::sil::run_functional_sil_twin(
+                    *sim::test::ScenarioCatalog::find(scenarioId), runner, reference.hover_rpm());
                 return 0;
             }
             std::cout << "Error: unknown scenario \"" << scenarioId << "\"." << std::endl;

@@ -78,7 +78,7 @@ void write_twin_snapshot(std::ostream& out, const HilRunContext& ctx, const HilS
     const bool             failed = ctx.safety.mode() == sim::safety::SafetyMode::SAFE_MODE;
     const std::float64_t   airspeed = std::hypot(sample.vx, sample.vy, sample.vz);
 
-    out << std::setprecision(8) << "{\"time_s\":" << sample.time_s;
+    out << std::setprecision(8) << "{\"source\":\"HIL\",\"time_s\":" << sample.time_s;
     write_aircraft_state(out, sample, airspeed);
     out << ",\"mission\":";
     write_json_string(out, sim::control::mission_state_name(

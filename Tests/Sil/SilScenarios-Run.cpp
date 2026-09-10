@@ -13,6 +13,7 @@ import std;
 import SilObservability;
 import SilObservabilityTelemetry;
 import SilReporting;
+import SilTwinViewer;
 import TestHarness;
 
 namespace sim::test::sil {
@@ -35,6 +36,7 @@ bool run_sil_scenario(std::string_view id, TestHarness& runner, std::float64_t t
 
     std::cout << "\n--- Mission telemetry (period " << telemetry_report_interval_s << " s) ---\n";
     sim::sil::write_telemetry_table(std::cout, record.telemetry, telemetry_report_interval_s);
+    stream_sil_twin(record);
     return true;
 }
 

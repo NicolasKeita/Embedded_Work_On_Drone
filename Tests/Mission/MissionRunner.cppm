@@ -70,6 +70,23 @@ struct MissionRunRequest {
     bool                      verbose = true;
 };
 
+struct MissionViewerSample {
+    std::float64_t                    time = 0.0;
+    AircraftState                     aircraft{};
+    sim::control::TargetState         target{};
+    sim::control::MissionState        mission = sim::control::MissionState::SPIN_UP;
+};
+
+using MissionViewerCallback = void (*)(const MissionViewerSample&, void*);
+
+struct MissionViewerObserver {
+    MissionViewerCallback callback = nullptr;
+    void*                 context = nullptr;
+};
+
+/* Registers the process-local observer used to visualize one accelerated mission. */
+void set_mission_viewer_observer(MissionViewerObserver observer) noexcept;
+
 struct MissionRunTrace {
     std::array<sim::control::MissionState, kMaxVisitedStates> visited_states{};
     std::size_t                                               visited_count = 0;

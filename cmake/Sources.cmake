@@ -155,6 +155,8 @@ set(TEST_SIL_FILES
     Tests/Sil/SilScenarios-Safety.cpp
     Tests/Sil/SilScenarios-Suite.cpp
     Tests/Sil/SilScenarios-Run.cpp
+    Tests/Sil/SilTwinViewer.cppm
+    Tests/Sil/SilTwinViewer.cpp
     Tests/Sil/Observability/SilObservability.cppm
     Tests/Sil/Observability/SilObservability-Support.cpp
     Tests/Sil/Observability/SilObservability-Heartbeat.cpp

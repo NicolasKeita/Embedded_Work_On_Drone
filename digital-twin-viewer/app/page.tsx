@@ -43,8 +43,6 @@ export default function Home() {
         socket.onopen = () => setConnected(true);
         socket.onclose = () => {
           setConnected(false);
-          setSnapshots([]);
-          setCursor(0);
           if (!disposed) retryTimer = window.setTimeout(connect, 500);
         };
         socket.onerror = () => socket?.close();
@@ -82,8 +80,8 @@ export default function Home() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div className="brand"><span className="brand-mark"><Box size={17} /></span><div><strong>DIGITAL TWIN</strong><span>HIL FLIGHT TESTBED</span></div></div>
-        <div className="top-status"><div><StatusDot tone={stale ? 'red' : 'green'} /><span>HIL {stale ? 'OFFLINE' : 'LIVE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
+        <div className="brand"><span className="brand-mark"><Box size={17} /></span><div><strong>DIGITAL TWIN</strong><span>{current.source ?? 'HIL'} FLIGHT TESTBED</span></div></div>
+        <div className="top-status"><div><StatusDot tone={stale ? 'red' : 'green'} /><span>{current.source ?? 'HIL'} {stale ? 'OFFLINE' : 'LIVE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
         <div className="timing"><span>LOOP</span><strong>{current.hil.loop_hz.toFixed(1)} <small>Hz</small></strong><i /><span>DEADLINE MISSES</span><strong>{current.hil.deadline_misses}</strong></div>
       </header>
       <section className="workspace">

@@ -1,6 +1,7 @@
 export type ComponentState = 'HEALTHY' | 'DEGRADED' | 'FAILED' | 'UNKNOWN';
 export interface TwinEvent { time_s: number; type: string; message: string; level: 'info' | 'warn' | 'critical' }
 export interface TwinSnapshot {
+  source?: 'SIL' | 'HIL';
   time_s: number;
   aircraft: { x_m: number; y_m: number; z_m: number; altitude_m: number; pitch_rad: number; roll_rad: number; airspeed_ms: number };
   target: { x_m: number; y_m: number; altitude_m: number };
