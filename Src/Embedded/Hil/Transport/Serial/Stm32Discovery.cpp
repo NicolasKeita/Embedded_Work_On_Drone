@@ -1,5 +1,5 @@
 /*
-Filename: Src/Embedded/Hil/Transport/Stm32Discovery.cpp
+Filename: Src/Embedded/Hil/Transport/Serial/Stm32Discovery.cpp
 Description: Linux sysfs and serial-by-id implementation of trusted STM32 discovery.
 
 Copyright (c) 2026 Nicolas K.

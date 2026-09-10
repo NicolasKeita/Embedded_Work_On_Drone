@@ -81,10 +81,11 @@ set(HIL_TELEMETRY_FILES
 
 # Frame-level HIL transport (send/receive + communication statistics).
 set(HIL_TRANSPORT_MODULE_FILES
-    Src/Embedded/Hil/Transport/Stm32Discovery.cppm
-    Src/Embedded/Hil/Transport/Stm32Discovery.cpp
-    Src/Embedded/Hil/Transport/SerialTransport.cppm
-    Src/Embedded/Hil/Transport/SerialTransport.cpp
+    Src/Embedded/Hil/Transport/Serial/Stm32Discovery.cppm
+    Src/Embedded/Hil/Transport/Serial/Stm32Discovery.cpp
+    Src/Embedded/Hil/Transport/Serial/SerialTransport.cppm
+    Src/Embedded/Hil/Transport/Serial/SerialTransport-Port.cpp
+    Src/Embedded/Hil/Transport/Serial/SerialTransport-Channel.cpp
     Src/Embedded/Hil/Transport/HilTransport.cppm
     Src/Embedded/Hil/Transport/HilTransport-Stats.cpp
     Src/Embedded/Hil/Transport/HilTransport-Receive.cpp
@@ -111,6 +112,7 @@ set(HIL_CONTEXT_FILES
 set(HIL_RUNNER_FILES
     Src/Embedded/Hil/Runner/HilRunner.cppm
     Src/Embedded/Hil/Runner/HilRunner-Context.cpp
+    Src/Embedded/Hil/Runner/Wiring/HilRunner-Channel.cpp
     Src/Embedded/Hil/Runner/HilRunner-Finalize.cpp
     Src/Embedded/Hil/Runner/HilRunner-Metrics.cpp
     Src/Embedded/Hil/Runner/HilRunner-Loop.cpp
@@ -132,7 +134,8 @@ set(HIL_RUNNER_EVENTS_FILES
 set(HIL_REPORT_FILES
     Src/Embedded/Hil/Runner/Report/HilReport.cppm
     Src/Embedded/Hil/Runner/Report/HilReport-Table.cpp
-    Src/Embedded/Hil/Runner/Report/HilReport-Header.cpp
+    Src/Embedded/Hil/Runner/Report/Header/HilReport-Header.cpp
+    Src/Embedded/Hil/Runner/Report/Header/HilReport-Config.cpp
     Src/Embedded/Hil/Runner/Report/HilReport-Report.cpp
     Src/Embedded/Hil/Runner/Report/HilReport-Summary.cpp
     Src/Embedded/Hil/Runner/Report/HilReport-Live.cpp
@@ -147,6 +150,7 @@ set(HIL_CLI_FILES
     Src/Embedded/Hil/Cli/HilRunnerCli-Dispatch.cpp
     Src/Embedded/Hil/Cli/HilRunnerCli-Usage.cpp
     Src/Embedded/Hil/Cli/HilRunnerCli-Config.cpp
+    Src/Embedded/Hil/Cli/HilRunnerCli-Interface.cpp
 )
 
 # HIL runner infrastructure (config, clock, events, telemetry, timing, sensor model,

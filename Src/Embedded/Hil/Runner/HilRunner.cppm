@@ -23,6 +23,7 @@ import HilConfig;
 import HilRunnerContext;
 import HilTiming;
 import SilFaultScenario;
+import Transport;
 
 export namespace sim::hil {
 
@@ -69,5 +70,9 @@ void update_health_and_safety(HilRunContext& ctx);
 void apply_actuators(HilRunContext& ctx);
 void update_metrics(HilRunContext& ctx);
 void handle_deadline(HilRunContext& ctx, const HilStepTiming& timing);
+bool any_fault_expected(std::span<const sim::sil::FaultScenario> scenarios);
+std::expected<std::unique_ptr<FlightCore::Transport::ITransport>, HilError>
+open_hil_channel(const HilConfig& config);
+void attach_fc_target(HilRunContext& ctx, const HilConfig& config);
 
 }

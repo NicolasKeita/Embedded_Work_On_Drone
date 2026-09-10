@@ -1,5 +1,5 @@
 /*
-Filename: Src/Embedded/Hil/Transport/Stm32Discovery.cppm
+Filename: Src/Embedded/Hil/Transport/Serial/Stm32Discovery.cppm
 Description: Trusted STM32 serial-port discovery using stable Linux USB identities.
 
 Copyright (c) 2026 Nicolas K.

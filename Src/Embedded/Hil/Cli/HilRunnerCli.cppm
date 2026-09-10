@@ -21,6 +21,7 @@ import std;
 import HilConfig;
 import HilScenarios;
 import SilFaultScenario;
+import Stm32Discovery;
 
 export namespace sim::hil {
 
@@ -72,5 +73,12 @@ namespace sim::hil {
 /* Applies the --seed option to the campaign options. */
 [[nodiscard]] std::expected<void, std::string> apply_seed_argument(HilCliOptions& options, int argc,
                                                                    char** argv, int& i);
+
+/* Selects the safe loopback fallback associated with a failed hardware discovery. */
+void apply_discovery_fallback(HilConfig& config, Stm32DiscoveryStatus status);
+
+/* Resolves loopback/auto/explicit interface selection into the configuration. */
+void resolve_hil_interface(HilConfig& config, std::string_view requested,
+                           const Stm32DiscoveryResult& discovered);
 
 }

@@ -134,6 +134,7 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/Scenarios-Cases.cpp
     Tests/Scenarios/Scenarios-Catalog.cpp
     Tests/Mission/MissionRunner.cppm
+    Tests/Mission/MissionRunner-Metrics.cpp
     Tests/Mission/MissionRunner-Runner.cpp
     Tests/Mission/MissionRunner-Loop.cpp
     Tests/Mission/MissionRunner-Trace.cpp
@@ -155,8 +156,10 @@ set(TEST_SIL_FILES
     Tests/Sil/SilScenarios-Safety.cpp
     Tests/Sil/SilScenarios-Suite.cpp
     Tests/Sil/SilScenarios-Run.cpp
-    Tests/Sil/SilTwinViewer.cppm
-    Tests/Sil/SilTwinViewer.cpp
+    Tests/Sil/Twin/SilTwinViewer.cppm
+    Tests/Sil/Twin/SilTwinViewer-Json.cpp
+    Tests/Sil/Twin/SilTwinViewer-Snapshot.cpp
+    Tests/Sil/Twin/SilTwinViewer-Stream.cpp
     Tests/Sil/Observability/SilObservability.cppm
     Tests/Sil/Observability/SilObservability-Support.cpp
     Tests/Sil/Observability/SilObservability-Heartbeat.cpp

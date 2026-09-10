@@ -86,5 +86,10 @@ void write_json_string(std::ostream& out, std::string_view value);
 void write_recent_events(std::ostream& out, std::span<const HilEvent> events);
 void write_components(std::ostream& out, std::string_view affected, bool failed);
 void write_twin_snapshot(std::ostream& out, const HilRunContext& ctx, const HilSensorSample& sample);
+void write_config_block(std::ostream& out, const HilConfig& cfg);
+void write_target_block(std::ostream& out, const HilConfig& cfg, Stm32ProbeStatus probe_status);
+void write_probe_status(std::ostream& out, Stm32ProbeStatus status);
+void write_auto_fallback(std::ostream& out, InterfaceSelection selection);
+void write_interface_selection(std::ostream& out, const HilConfig& config);
 
 }
