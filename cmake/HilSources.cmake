@@ -81,6 +81,8 @@ set(HIL_TELEMETRY_FILES
 
 # Frame-level HIL transport (send/receive + communication statistics).
 set(HIL_TRANSPORT_MODULE_FILES
+    Src/Embedded/Hil/Transport/SerialTransport.cppm
+    Src/Embedded/Hil/Transport/SerialTransport.cpp
     Src/Embedded/Hil/Transport/HilTransport.cppm
     Src/Embedded/Hil/Transport/HilTransport-Stats.cpp
     Src/Embedded/Hil/Transport/HilTransport-Receive.cpp

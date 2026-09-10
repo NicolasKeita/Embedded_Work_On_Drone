@@ -42,7 +42,7 @@ namespace {
 
         FlightCore::Transport::ActuatorDiagnostics diag{};
         if (!delivery.delivered) {
-            ctx.channel.flush();
+            ctx.channel->flush();
             ctx.transport.noteDroppedFrame();
             return;
         }
@@ -52,6 +52,9 @@ namespace {
                                                                    ctx.this_rtt_us);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
+            ctx.this_fc.sequence = sequence;
+            ctx.this_fc.echo_sim_timestamp_us = ctx.sim_ts_us;
+            ctx.this_fc.mission_state = ctx.actuator_cmd.mode_flags;
             ctx.actuator_receive_wall_us =
                 sensor_send_wall + static_cast<std::uint64_t>(std::max<std::int64_t>(0, ctx.this_rtt_us));
         }

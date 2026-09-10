@@ -12,7 +12,8 @@ target over a serial transport — never the runner or the aircraft.
 Exports:
     struct FcStepOutcome,
     class IFcTarget,
-    class HostFcTarget
+    class HostFcTarget,
+    class RemoteFcTarget
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -64,6 +65,12 @@ public:
     authoritative target clock).
     */
     virtual FcStepOutcome respond(std::uint16_t expected_sequence) = 0;
+};
+
+/* Physical target marker: the MCU responds asynchronously through the serial channel. */
+class RemoteFcTarget final : public IFcTarget {
+public:
+    FcStepOutcome respond(std::uint16_t expected_sequence) override;
 };
 
 /*

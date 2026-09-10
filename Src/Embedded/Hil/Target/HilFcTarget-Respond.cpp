@@ -79,4 +79,10 @@ FcStepOutcome HostFcTarget::respond(std::uint16_t expected_sequence)
     return outcome;
 }
 
+/* Leaves response production to the physical MCU connected to the serial channel. */
+FcStepOutcome RemoteFcTarget::respond(std::uint16_t expected_sequence)
+{
+    return FcStepOutcome{.sequence = expected_sequence};
+}
+
 }

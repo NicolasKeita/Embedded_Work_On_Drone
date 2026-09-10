@@ -49,13 +49,6 @@ namespace
         return 2;
     }
 
-    /* Rejects an unsupported hardware interface with the supported list. */
-    int reject_unknown_interface(const std::string& interfaceName)
-    {
-        std::cout << "Error: unsupported interface \"" << interfaceName << "\"." << std::endl;
-        std::cout << "Supported interfaces: loopback (in-process HAL channel)." << std::endl;
-        return 2;
-    }
 }
 
 /*
@@ -77,9 +70,6 @@ int main(int argc, char** argv)
     }
     if (options.selftest) {
         return run_selftest();
-    }
-    if (options.interface_name != "loopback") {
-        return reject_unknown_interface(options.interface_name);
     }
     if (sim::hil::HilScenarioCatalog::find(options.scenario_id) == nullptr) {
         return reject_unknown_scenario(options.scenario_id);

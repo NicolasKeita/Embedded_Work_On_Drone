@@ -14,10 +14,6 @@ import PhysicsDispersion;
 
 namespace
 {
-    constexpr std::float64_t kGravityMps2 = 9.81;
-    constexpr std::float64_t kBaseMassKg = 1.2;
-    constexpr std::float64_t kLiftCoeff = 1.77e-5;
-
     constexpr std::float64_t kMinRpm = 0.0;
     constexpr std::float64_t kMaxRpm = 12000.0;
     constexpr std::float64_t kMinServoDeg = -30.0;
@@ -75,7 +71,5 @@ const AircraftState& Aircraft::state() const
 
 std::float64_t Aircraft::hover_rpm() const
 {
-    const std::float64_t current_mass = kBaseMassKg * (1.0 + dispersion_.mass_variation);
-
-    return std::sqrt(current_mass * kGravityMps2 / kLiftCoeff);
+    return kNominalAircraftHoverRpm * std::sqrt(1.0 + dispersion_.mass_variation);
 }

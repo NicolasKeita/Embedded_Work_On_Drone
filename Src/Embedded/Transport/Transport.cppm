@@ -2,7 +2,7 @@
 Filename: Src/Embedded/Transport/Transport.cppm
 Description: Transport abstractions sitting below the HIL-Proto v1.0 framer.
 ITransport is the span-based byte channel used by both the PC loopback mock and
-the future STM32 UART driver; ITransportStream mirrors the raw stream view named
+the Linux serial STM32 channel; ITransportStream mirrors the raw stream view named
 in the protocol specification, modernised to std::span (no raw pointers).
 
 Copyright (c) 2026 Nicolas K.

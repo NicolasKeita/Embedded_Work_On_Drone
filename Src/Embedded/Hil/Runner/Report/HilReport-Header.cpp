@@ -82,7 +82,12 @@ void write_header(std::ostream& out, const HilConfig& cfg, bool fault_expected,
     out << cfg.scenario_id << " : " << (fault_expected ? "fault injection scenario" : "nominal station keeping")
         << "\n";
     out << "============================================\n\n";
-    out << "Host-emulator closed-loop validation; the physical STM32 is not used by this run.\n\n";
+    if (cfg.interface_name == "loopback") {
+        out << "Host-emulator closed-loop validation; the physical STM32 is not used by this run.\n\n";
+    }
+    else {
+        out << "Physical-target closed-loop validation over a serial HIL channel.\n\n";
+    }
 
     out << "Configuration\n";
     out << "  Duration              : " << std::fixed << std::setprecision(1) << cfg.duration_s << " s\n";
@@ -93,9 +98,15 @@ void write_header(std::ostream& out, const HilConfig& cfg, bool fault_expected,
     out << "  Sensor noise stddev   : " << std::setprecision(3) << cfg.sensor_noise_stddev << " m\n";
     const std::string_view policy = deadline_policy_name(cfg.deadline_policy);
     out << "  Real-time pacing      : YES, monotonic steady clock (" << policy << ")\n";
-    out << "  FC execution target   : in-process host emulator (not the physical STM32)\n";
+    if (cfg.interface_name == "loopback") {
+        out << "  FC execution target   : in-process host emulator (not the physical STM32)\n";
+    }
+    else {
+        out << "  FC execution target   : physical STM32 over " << cfg.interface_name << "\n";
+    }
     write_probe_status(out, probe_status);
-    out << "  Firmware verification : NOT PERFORMED (requires a serial HIL target/handshake)\n\n";
+    out << "  Firmware verification : "
+        << (cfg.interface_name == "loopback" ? "NOT PERFORMED" : "HIL protocol response required") << "\n\n";
 
     out << "Mission (sensor stream : FC-observed; ground truth recorded separately)\n";
     write_table_header(out);

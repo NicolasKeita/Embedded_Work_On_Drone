@@ -15,6 +15,8 @@ export module Aircraft;
 import std;
 import PhysicsDispersion;
 
+export inline constexpr std::float64_t kNominalAircraftHoverRpm = 815.527280820643;
+
 export struct ControlCommand
 {
     std::float64_t wing_rpm = 0.0;

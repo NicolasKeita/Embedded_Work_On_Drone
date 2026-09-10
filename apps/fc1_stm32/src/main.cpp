@@ -12,6 +12,7 @@ module;
 #include <zephyr/devicetree.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
+#include <zephyr/sys/ring_buffer.h>
 #include <zephyr/drivers/uart.h>
 
 import std;
@@ -27,8 +28,26 @@ namespace {
 
 constexpr std::float64_t kControlPeriodSeconds = 0.01;
 constexpr std::float64_t kRadiansPerDegree = std::numbers::pi / 180.0;
-constexpr std::float64_t kHoverRpm = 4637.0;
 constexpr std::uint8_t kHealthy = 1;
+constexpr std::uint32_t kUartReceiveCapacity = 256;
+
+RING_BUF_DECLARE(uart_receive_buffer, kUartReceiveCapacity);
+
+/* Moves received UART bytes from the hardware FIFO into the static HIL ring buffer. */
+void receive_uart_bytes(const device* uart, void*) noexcept
+{
+    std::array<std::uint8_t, 64> received_bytes{};
+
+    while (uart_irq_update(uart) != 0 && uart_irq_is_pending(uart) != 0) {
+        if (uart_irq_rx_ready(uart) == 0) {
+            continue;
+        }
+        const std::int32_t received = uart_fifo_read(uart, received_bytes.data(), received_bytes.size());
+        if (received > 0) {
+            ring_buf_put(&uart_receive_buffer, received_bytes.data(), static_cast<std::uint32_t>(received));
+        }
+    }
+}
 
 /* Converts the shared HIL sensor contract into the existing FC1 measurement type. */
 AircraftState to_aircraft_state(const FlightCore::HAL::SensorData& sensor) noexcept
@@ -66,6 +85,10 @@ void process_sensor(const device* uart,
     if (!FlightCore::Transport::decodeSensorPayload(payload, sensor_payload)) {
         return;
     }
+    if (header.sequence_num == 0 && sensor_payload.sim_timestamp_us == 0) {
+        controller = sim::control::FlightController{
+            sim::control::ControllerConfig{.hover_rpm = kNominalAircraftHoverRpm}};
+    }
     const FlightCore::HAL::SensorData sensor = FlightCore::Transport::toSensorData(sensor_payload);
     const AircraftState measured = to_aircraft_state(sensor);
     const sim::control::TargetState target{.z = 10.0};
@@ -94,17 +117,21 @@ int main()
     if (!device_is_ready(uart)) {
         return -1;
     }
-    printk("[BOOT] firmware=fc1_stm32 role=FC1 board=nucleo_l476rg period_us=10000 protocol=1.0\n");
+    printk("[BOOT] firmware=fc1_stm32 role=FC1 board=nucleo_l476rg period_us=10000 baud=460800 protocol=1.0\n");
 
-    sim::control::ControllerConfig config{.hover_rpm = kHoverRpm};
+    sim::control::ControllerConfig config{.hover_rpm = kNominalAircraftHoverRpm};
     sim::control::FlightController controller{config};
     FlightCore::Transport::HilFrameParser parser{};
     FlightCore::Transport::HilHeader header{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload{};
+    if (uart_irq_callback_user_data_set(uart, receive_uart_bytes, nullptr) != 0) {
+        return -1;
+    }
+    uart_irq_rx_enable(uart);
 
     while (true) {
         std::uint8_t byte = 0;
-        if (uart_poll_in(uart, &byte) == 0) {
+        if (ring_buf_get(&uart_receive_buffer, &byte, 1) == 1) {
             const bool complete = parser.processByte(byte, header, payload);
             if (complete && header.msg_id == FlightCore::Transport::kMsgIdSensor
                 && header.payload_len == FlightCore::Transport::kSensorPayloadSize) {

@@ -14,6 +14,7 @@ set(FIRMWARE_CORE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/FlightController-Core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/FlightController-Loops.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/FlightController-Mission.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/FlightController-Takeoff.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/Types/FlightControllerTypes.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/Types/FlightControllerTypes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Hal/HalTypes.cppm

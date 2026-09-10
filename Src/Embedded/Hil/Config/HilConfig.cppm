@@ -33,6 +33,9 @@ enum class DeadlinePolicy {
 };
 
 struct HilConfig {
+    /* Byte channel: "loopback" or a Linux serial device such as /dev/ttyACM0. */
+    std::string interface_name{"loopback"};
+
     /*
     Control period (s). Mirrors the project HIL ControlTask rate of 100 Hz / 10 ms
     (hil_protocol.md 1.3, SilConfig::dt). The runner derives the step count from

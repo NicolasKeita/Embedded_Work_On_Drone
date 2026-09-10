@@ -23,6 +23,7 @@ HilConfig hil_config_from_options(const HilCliOptions& options)
     HilConfig                config = record ? record->config : hil_base_config();
 
     config.scenario_id = options.scenario_id;
+    config.interface_name = options.interface_name;
 
     if (options.duration) {
         config.duration_s = *options.duration;

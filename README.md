@@ -5,8 +5,8 @@ safety-management software** of a dual-computer (FC1/FC2) flight architecture
 against a software aircraft simulation — through software-in-the-loop (SIL)
 fault scenarios, Monte Carlo dispersion and a real-time (HIL) loop.
 
-> There is **no real aircraft** and, today, **no physical STM32**: HIL runs on an
-> in-process host FC emulator. See [Limitations](#limitations).
+> There is **no real aircraft**. HIL can run against either the in-process FC
+> emulator or a physical STM32 FC1 over a Linux serial device.
 
 ## What this project demonstrates
 
@@ -104,7 +104,7 @@ For the abort path (`FAULT_INJECTOR-001`):
 | :-- | :-- |
 | Control / mission logic, SIL loop | **Implemented & Validated (SIL)** |
 | Safety/detection chain (FM-01..FM-05) | **Implemented & Validated (SIL/HIL)** |
-| Real-time HIL loop + timing | **Implemented (host emulator)** · Physical MCU **Not implemented** |
+| Real-time HIL loop + timing | **Implemented** for host emulator and physical STM32 FC1 over serial |
 | Monte Carlo (control-quality dispersion) | **Implemented & Validated (tooling)** |
 | Monte Carlo over faults | **Not wired** (library code only, no CLI) |
 | FM-06 control-deadline · FM-07 numerical-state | **Not implemented** |
@@ -113,7 +113,7 @@ For the abort path (`FAULT_INJECTOR-001`):
 
 ## Limitations
 
-- No physical STM32 / RTOS / real peripherals — HIL is host-emulator over loopback.
+- Physical FC1 HIL uses a Linux serial device at 460800 baud; other host platforms are not implemented.
 - Single process; FC1/FC2 are in-memory objects (no OS-level isolation).
 - Simplified VTOL dynamics for control-software development only.
 - Only altitude/baro sensor + main-rotor actuator are injectable; IMU/GNSS/RPM/servo faults have no injection path.

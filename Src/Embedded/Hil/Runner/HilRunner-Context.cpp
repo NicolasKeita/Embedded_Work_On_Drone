@@ -17,9 +17,12 @@ import HilClock;
 import HilConfig;
 import HilFcTarget;
 import HilRunnerContext;
+import LoopbackTransport;
 import SafetyManager;
+import SerialTransport;
 import SilFaultScenario;
 import SilTypes;
+import Transport;
 
 namespace sim::hil {
 
@@ -42,7 +45,20 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
         return std::unexpected(HilError::TooManyScenarios);
     }
 
-    auto ctx = std::make_unique<HilRunContext>(config);
+    std::unique_ptr<FlightCore::Transport::ITransport> channel{};
+    if (config.interface_name == "loopback") {
+        channel = std::make_unique<FlightCore::Sim::LoopbackTransport>();
+    }
+    else {
+        std::expected<std::unique_ptr<SerialTransport>, std::errc> opened =
+            SerialTransport::openPort(config.interface_name);
+        if (!opened.has_value()) {
+            return std::unexpected(HilError::SerialOpenFailed);
+        }
+        channel = std::move(opened).value();
+    }
+
+    auto ctx = std::make_unique<HilRunContext>(config, std::move(channel));
 
     for (const sim::sil::FaultScenario& scenario : scenarios) {
         if (scenario.failure_mode == sim::sil::FailureMode::NONE) {
@@ -60,8 +76,13 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
         }
     }
 
-    ctx->fc_target = std::make_unique<HostFcTarget>(ctx->channel, ctx->clock, config.target,
-                                                     config.controller, config.dt_s, config.sensor_limits);
+    if (config.interface_name == "loopback") {
+        ctx->fc_target = std::make_unique<HostFcTarget>(*ctx->channel, ctx->clock, config.target,
+                                                        config.controller, config.dt_s, config.sensor_limits);
+    }
+    else {
+        ctx->fc_target = std::make_unique<RemoteFcTarget>();
+    }
     ctx->fault_expected = any_fault_expected(scenarios);
     return ctx;
 }

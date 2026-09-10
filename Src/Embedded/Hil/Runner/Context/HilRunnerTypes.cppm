@@ -33,7 +33,8 @@ list capacity, scenario validation, configuration; never aircraft failures).
 enum class HilError {
     TooManyScenarios,
     FaultScenarioRejected,
-    InvalidConfiguration
+    InvalidConfiguration,
+    SerialOpenFailed
 };
 
 // Maximum number of fault scenarios a single HIL run can carry (fixed capacity, matches

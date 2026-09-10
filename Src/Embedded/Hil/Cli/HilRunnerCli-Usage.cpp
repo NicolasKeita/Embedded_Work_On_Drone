@@ -19,7 +19,7 @@ void print_hil_usage(std::string_view name)
     std::cout << "HIL runner: real-time closed-loop mission against the FC target.\n";
     std::cout << "Usage: " << name << " [options]\n";
     std::cout << "  --scenario <id>         functional scenario ID (default NOMINAL-001)\n";
-    std::cout << "  --interface <name>      hardware channel (loopback = in-process HAL, default)\n";
+    std::cout << "  --interface <channel>   loopback (default) or serial device (for example /dev/ttyACM0)\n";
     std::cout << "  --duration <s>          override mission duration in seconds\n";
     std::cout
         << "  --telemetry-period <s>  override human-readable report period (default 1 s)\n";

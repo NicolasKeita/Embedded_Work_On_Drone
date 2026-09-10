@@ -27,7 +27,6 @@ import HilSensorModel;
 import HilTelemetry;
 import HilTiming;
 import HilTransport;
-import LoopbackTransport;
 import SafetyManager;
 import SilFaultScenario;
 import SilTypes;
@@ -36,7 +35,8 @@ import Transport;
 
 namespace sim::hil {
 
-HilRunContext::HilRunContext(const HilConfig& cfg)
+HilRunContext::HilRunContext(const HilConfig& cfg,
+                             std::unique_ptr<FlightCore::Transport::ITransport> byte_channel)
     : config{cfg},
       aircraft{},
       comms{cfg.seed},
@@ -49,8 +49,8 @@ HilRunContext::HilRunContext(const HilConfig& cfg)
       safety{sim::safety::SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}},
       safety_command{},
       sensor_model{cfg.sensor_noise_stddev, cfg.seed},
-      channel{},
-      transport{&channel},
+      channel{std::move(byte_channel)},
+      transport{channel.get()},
       fc_target{},
       clock{},
       injectors{},

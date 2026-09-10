@@ -32,7 +32,6 @@ import HilSensorModel;
 import HilTelemetry;
 import HilTiming;
 import HilTransport;
-import LoopbackTransport;
 import SafetyManager;
 import SilFaultScenario;
 import SilTypes;
@@ -49,7 +48,7 @@ comms cores, the HIL sensor model, the FC target, the transport over a loopback 
 channel and the wall clock, plus the cached values used by the event recorders.
 */
 struct HilRunContext {
-    explicit HilRunContext(const HilConfig& cfg);
+    HilRunContext(const HilConfig& cfg, std::unique_ptr<FlightCore::Transport::ITransport> byte_channel);
 
     const HilConfig                    config;
     Aircraft                           aircraft;
@@ -58,7 +57,7 @@ struct HilRunContext {
     sim::safety::SafetyManager         safety;
     sim::safety::SafetyCommand         safety_command{};
     HilSensorModel                     sensor_model;
-    FlightCore::Sim::LoopbackTransport channel;
+    std::unique_ptr<FlightCore::Transport::ITransport> channel;
     HilTransport                       transport;
     std::unique_ptr<IFcTarget>         fc_target;
     MonotonicClock                     clock;
