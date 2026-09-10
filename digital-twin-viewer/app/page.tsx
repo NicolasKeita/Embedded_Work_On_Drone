@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
+import { AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
 import { AircraftScene } from '@/components/aircraft-scene';
 import { AvionicsScene } from '@/components/avionics-scene';
-import { TelemetryCharts } from '@/components/telemetry-charts';
 import { createDemoSnapshots, createIdleSnapshot, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
@@ -129,20 +128,27 @@ export default function Home() {
       </header>
       <section className="workspace">
         <div className="main-column">
-          <section className="panel flight-panel">
+          <section className="panel flight-panel" style={{ height: '64vh', minHeight: 520 }}>
             <div className="panel-heading"><div><Radio size={14} /><span>FLIGHT VIEW</span><b>LOCAL NED FRAME</b></div><div className="coordinates"><span>X <b>{current.aircraft.x_m.toFixed(1)} m</b></span><span>Y <b>{current.aircraft.y_m.toFixed(1)} m</b></span><span>Z <b>{current.aircraft.z_m.toFixed(1)} m</b></span></div></div>
             <AircraftScene snapshot={current} trail={visibleSnapshots} />
-            <div className="attitude-strip"><Metric label="ALTITUDE" value={current.aircraft.altitude_m.toFixed(1)} unit="m" /><Metric label="TARGET" value={current.target.altitude_m.toFixed(1)} unit="m" /><Metric label="PITCH" value={(current.aircraft.pitch_rad * 57.3).toFixed(1)} unit="°" /><Metric label="ROLL" value={(current.aircraft.roll_rad * 57.3).toFixed(1)} unit="°" /><Metric label="AIRSPEED" value={current.aircraft.airspeed_ms.toFixed(1)} unit="m/s" /></div>
+            <div className="viewer-controls" style={{ height: 42, display: 'flex', alignItems: 'center', gap: 10, padding: '0 12px', borderTop: '1px solid #1c333c', background: '#0b171e' }}>
+              <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button>
+              <button className="load-button" onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button>
+              <span className="elapsed">{current.time_s.toFixed(2)} s</span>
+              <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, Math.max(0, snapshots.length - 1))} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }} />
+              <span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
+              <button className="icon-button" onClick={() => { setCursor(0); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }}><RotateCcw size={15} /></button>
+            </div>
           </section>
-          <div className="lower-grid">
-            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AVIONICS HEALTH</span><b>LOGICAL SUBSYSTEMS</b></div></div><AvionicsScene snapshot={current} /></section>
-            <section className="panel chart-panel"><div className="panel-heading"><div><Activity size={14} /><span>FLIGHT PARAMETERS</span><b>LAST 60 SAMPLES</b></div></div><TelemetryCharts data={visibleSnapshots} /></section>
+          <div className="lower-grid" style={{ gridTemplateColumns: '1fr' }}>
+            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div><AvionicsScene snapshot={current} /></section>
           </div>
         </div>
         <aside className="right-column">
           <section className="panel overview-panel">
             <div className="panel-heading"><div><Gauge size={14} /><span>SYSTEM STATE</span></div><span className="sim-time">T+ {current.time_s.toFixed(2)} s</span></div>
             <div className="state-block mission"><span>MISSION</span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>Station hold · target locked</small></div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderBottom: '1px solid #1b3039' }}><Metric label="PITCH" value={(current.aircraft.pitch_rad * 57.3).toFixed(1)} unit="°" /><Metric label="ROLL" value={(current.aircraft.roll_rad * 57.3).toFixed(1)} unit="°" /><Metric label="AIRSPEED" value={current.aircraft.airspeed_ms.toFixed(1)} unit="m/s" /></div>
             <div className="state-pair"><div><span>HEALTH</span><strong className={current.health === 'HEALTHY' ? 'ok' : 'warn'}><StatusDot tone={current.health === 'HEALTHY' ? 'green' : 'amber'} />{current.health}</strong></div><div><span>SAFETY</span><strong className={current.safety_mode === 'NORMAL' ? 'ok' : 'warn'}>{current.safety_mode}</strong></div></div>
             <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{current.active_fault ? 'Compensation active' : 'No injected or detected fault'}</small></div>
             <div className="actuators"><span>ACTUATORS</span><Metric label="ROTOR" value={current.actuators.rotor_rpm.toFixed(0)} unit="RPM" /><Metric label="LEFT SERVO" value={current.actuators.left_servo_deg.toFixed(1)} unit="°" /><Metric label="RIGHT SERVO" value={current.actuators.right_servo_deg.toFixed(1)} unit="°" /></div>
@@ -152,9 +158,7 @@ export default function Home() {
       </section>
       <footer className="controlbar">
         <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => { setSnapshots(demo); setCursor(0); setMode('replay'); }}><Play size={13} />REPLAY</button></div>
-        <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button><button className="load-button" onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button><span className="elapsed">{current.time_s.toFixed(2)} s</span>
-        <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, Math.max(0, snapshots.length - 1))} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }} /><span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
-        <button className="icon-button" onClick={() => { setCursor(0); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }}><RotateCcw size={15} /></button><button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
+        <button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
         <div className="source"><StatusDot tone={mode === 'replay' ? 'amber' : stale ? 'red' : 'green'} /><span>{mode === 'replay' ? 'DEMO RECORDING' : connected ? WS_URL : 'WAITING FOR TELEMETRY'}</span></div>
       </footer>
     </main>

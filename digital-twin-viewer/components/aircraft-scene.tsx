@@ -139,7 +139,7 @@ export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; tra
   const points = trail.map((item) => [item.aircraft.x_m * .22, .5 + displayAltitude(item.aircraft.altitude_m, snapshot.target.altitude_m), item.aircraft.y_m * .22] as [number, number, number]);
 
   return (
-    <div className="scene-canvas">
+    <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }}>
       <Canvas camera={{ position: [8, 6, 10], fov: 40 }} shadows>
         <FlightEnvironment snapshot={snapshot} />
         <CameraTracker snapshot={snapshot} />
