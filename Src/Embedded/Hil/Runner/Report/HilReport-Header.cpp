@@ -48,6 +48,33 @@ namespace {
             return;
         }
     }
+
+    void write_interface_selection(std::ostream& out, const HilConfig& config)
+    {
+        switch (config.interface_selection) {
+        case InterfaceSelection::ExplicitLoopback:
+            out << "  Target selection      : explicit loopback\n";
+            return;
+        case InterfaceSelection::ExplicitSerial:
+            out << "  Target selection      : explicit trusted FC1 device\n";
+            return;
+        case InterfaceSelection::AutoTrustedStm32:
+            out << "  Target selection      : AUTO, trusted FC1 matched\n";
+            return;
+        case InterfaceSelection::AutoFallbackNotFound:
+            out << "  Target selection      : AUTO, trusted FC1 absent; loopback fallback\n";
+            return;
+        case InterfaceSelection::AutoFallbackAmbiguous:
+            out << "  Target selection      : AUTO, ambiguous trusted identity; loopback fallback\n";
+            return;
+        case InterfaceSelection::AutoFallbackUnavailable:
+            out << "  Target selection      : AUTO, discovery unavailable; loopback fallback\n";
+            return;
+        case InterfaceSelection::RejectedUntrustedDevice:
+            out << "  Target selection      : untrusted serial device rejected; loopback fallback\n";
+            return;
+        }
+    }
 }
 
 /* Detects an attached STM32 ST-LINK probe through the Linux USB sysfs inventory. */
@@ -98,6 +125,8 @@ void write_header(std::ostream& out, const HilConfig& cfg, bool fault_expected,
     out << "  Sensor noise stddev   : " << std::setprecision(3) << cfg.sensor_noise_stddev << " m\n";
     const std::string_view policy = deadline_policy_name(cfg.deadline_policy);
     out << "  Real-time pacing      : YES, monotonic steady clock (" << policy << ")\n";
+    write_interface_selection(out, cfg);
+    out << "  Authorized FC1        : ST-LINK " << cfg.fc1_stlink_serial << "\n";
     if (cfg.interface_name == "loopback") {
         out << "  FC execution target   : in-process host emulator (not the physical STM32)\n";
     }

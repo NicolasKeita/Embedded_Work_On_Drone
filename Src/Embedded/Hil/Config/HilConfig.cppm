@@ -32,9 +32,22 @@ enum class DeadlinePolicy {
     Abort
 };
 
+enum class InterfaceSelection : std::uint8_t {
+    ExplicitLoopback,
+    ExplicitSerial,
+    AutoTrustedStm32,
+    AutoFallbackNotFound,
+    AutoFallbackAmbiguous,
+    AutoFallbackUnavailable,
+    RejectedUntrustedDevice
+};
+
 struct HilConfig {
-    /* Byte channel: "loopback" or a Linux serial device such as /dev/ttyACM0. */
+    /* Resolved byte channel: "loopback" or a stable Linux serial-device path. */
     std::string interface_name{"loopback"};
+    std::string fc1_stlink_serial{"066FFF525771555067225635"};
+    std::string fc2_stlink_serial{};
+    InterfaceSelection interface_selection = InterfaceSelection::ExplicitLoopback;
 
     /*
     Control period (s). Mirrors the project HIL ControlTask rate of 100 Hz / 10 ms

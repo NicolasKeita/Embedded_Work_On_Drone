@@ -70,7 +70,8 @@ components. Critical faults (`FC1_UNAVAILABLE`, `FC_COMMUNICATION_LOSS`) →
 SIL_RUNNER --all                     # all deterministic SIL + observability + telemetry suites
 SIL_RUNNER --scenario NOMINAL-001    # one nominal mission (verbose: add -v)
 HIL_RUNNER --selftest                 # deterministic HIL validation suite
-HIL_RUNNER --scenario NOMINAL-001    # real-time nominal closed loop (30 s)
+HIL_RUNNER --scenario NOMINAL-001    # trusted STM32 FC1, or safe loopback fallback
+HIL_RUNNER --interface loopback --scenario NOMINAL-001  # force host emulator
 HIL_RUNNER --scenario FAULT_INJECTOR-001   # HIL FC1-failure → abort + descent
 SIL_MONTE_CARLO --runs 50             # Monte Carlo dispersion campaign
 ```

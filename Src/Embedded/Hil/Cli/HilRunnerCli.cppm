@@ -26,7 +26,7 @@ export namespace sim::hil {
 
 struct HilCliOptions {
     std::string                   scenario_id{"NOMINAL-001"};
-    std::string                   interface_name{"loopback"};
+    std::string                   interface_name{"auto"};
     std::optional<std::float64_t> duration{};
     std::optional<std::float64_t> telemetry_period{};
     std::optional<std::uint64_t>  seed{};
