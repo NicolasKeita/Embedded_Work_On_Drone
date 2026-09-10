@@ -42,7 +42,7 @@ int main(int argc, char** argv)
         std::cout << std::endl;
     }
 
-    sim::hil::write_header(std::cout, config, fault_expected);
+    sim::hil::write_header(std::cout, config, fault_expected, sim::hil::detect_stm32_probe());
 
     sim::hil::HilRunner runner{config};
     runner.setLiveStream(std::cout);

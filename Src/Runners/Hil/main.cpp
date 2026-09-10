@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     const std::array<sim::sil::FaultScenario, 1> scenarios{sim::hil::hil_fault_from_options(options)};
     const bool fault_expected = scenarios[0].failure_mode != sim::sil::FailureMode::NONE;
 
-    sim::hil::write_header(std::cout, config, fault_expected);
+    sim::hil::write_header(std::cout, config, fault_expected, sim::hil::detect_stm32_probe());
 
     sim::hil::HilRunner runner{config};
     runner.setLiveStream(std::cout);

@@ -96,7 +96,7 @@ namespace {
 
 void write_report(std::ostream& out, const HilRunOutput& output)
 {
-    write_header(out, output.config, output.result.fault_expected);
+    write_header(out, output.config, output.result.fault_expected, detect_stm32_probe());
     const std::vector<HilEvent> timeline = report_timeline(output);
 
     write_mission_timeline(out, output, timeline);

@@ -25,12 +25,22 @@ import HilTelemetry;
 
 export namespace sim::hil {
 
+enum class Stm32ProbeStatus {
+    Detected,
+    NotDetected,
+    DetectionUnavailable
+};
+
+/* Detects an attached STM32 ST-LINK probe through the Linux USB sysfs inventory. */
+[[nodiscard]] Stm32ProbeStatus detect_stm32_probe();
+
 /*
 Writes the run header : scenario banner, host/target note, configuration block and the
 telemetry table column header. Called before the run so the configuration is visible in
 real time while the mission is executing.
 */
-void write_header(std::ostream& out, const HilConfig& config, bool fault_expected);
+void write_header(std::ostream& out, const HilConfig& config, bool fault_expected,
+                  Stm32ProbeStatus probe_status);
 
 /*
 Writes the human-readable HIL report (configuration, 1 Hz telemetry interleaved with the
