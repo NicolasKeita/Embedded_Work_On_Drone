@@ -17,25 +17,47 @@ export default function Home() {
   const idle = useMemo(() => createIdleSnapshot(), []);
   const [mode, setMode] = useState<'replay' | 'live'>('live');
   const [playing, setPlaying] = useState(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [reviewingLive, setReviewingLive] = useState(false);
   const [cursor, setCursor] = useState(0);
   const [snapshots, setSnapshots] = useState<TwinSnapshot[]>([]);
   const [connected, setConnected] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const reviewingLiveRef = useRef(false);
   const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? idle;
 
   useEffect(() => {
     if (mode !== 'replay' || !playing) return;
-    const timer = window.setInterval(() => setCursor((value) => (value + 1) % snapshots.length), 120);
+    const timer = window.setInterval(() => setCursor((value) => (value + 1) % snapshots.length), 120 / playbackSpeed);
     return () => window.clearInterval(timer);
-  }, [mode, playing, snapshots.length]);
+  }, [mode, playing, playbackSpeed, snapshots.length]);
+
+  useEffect(() => {
+    if (mode !== 'live' || !playing || !reviewingLive) return;
+    const timer = window.setInterval(() => {
+      setCursor((value) => {
+        if (value >= snapshots.length - 2) {
+          reviewingLiveRef.current = false;
+          setReviewingLive(false);
+          return Math.max(0, snapshots.length - 1);
+        }
+        return value + 1;
+      });
+    }, 50 / playbackSpeed);
+    return () => window.clearInterval(timer);
+  }, [mode, playing, playbackSpeed, reviewingLive, snapshots.length]);
 
   useEffect(() => {
     if (mode !== 'live') return;
     let socket: WebSocket | undefined;
     let retryTimer: number | undefined;
+    let resetTimer: number | undefined;
+    let missionFinished = false;
     let disposed = false;
     setSnapshots([]);
     setCursor(0);
+    reviewingLiveRef.current = false;
+    setReviewingLive(false);
     const connect = () => {
       if (disposed) return;
       try {
@@ -43,17 +65,29 @@ export default function Home() {
         socket.onopen = () => setConnected(true);
         socket.onclose = () => {
           setConnected(false);
+          missionFinished = false;
+          if (resetTimer !== undefined) window.clearTimeout(resetTimer);
+          setSnapshots([]);
+          setCursor(0);
           if (!disposed) retryTimer = window.setTimeout(connect, 500);
         };
         socket.onerror = () => socket?.close();
         socket.onmessage = (event) => {
           try {
             const next = JSON.parse(event.data) as TwinSnapshot;
+            if (missionFinished) return;
             setSnapshots((items) => {
-              const updated = [...items.slice(-179), next];
-              setCursor(updated.length - 1);
+              const updated = [...items, next];
+              if (!reviewingLiveRef.current) setCursor(updated.length - 1);
               return updated;
             });
+            if (next.mission === 'COMPLETE' || next.mission === 'ABORTED' || next.mission === 'FAILED') {
+              missionFinished = true;
+              resetTimer = window.setTimeout(() => {
+                setSnapshots([]);
+                setCursor(0);
+              }, 900);
+            }
           } catch { setConnected(false); }
         };
       } catch {
@@ -65,6 +99,7 @@ export default function Home() {
     return () => {
       disposed = true;
       if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      if (resetTimer !== undefined) window.clearTimeout(resetTimer);
       socket?.close();
     };
   }, [mode]);
@@ -76,12 +111,20 @@ export default function Home() {
     const parsed = text.trim().startsWith('[') ? JSON.parse(text) : text.split('\n').filter(Boolean).map((line) => JSON.parse(line));
     setSnapshots(parsed as TwinSnapshot[]); setCursor(0); setMode('replay'); setPlaying(false);
   };
+  const togglePlayback = () => {
+    if (mode === 'live' && !reviewingLiveRef.current) {
+      reviewingLiveRef.current = true;
+      setReviewingLive(true);
+    }
+    setPlaying((value) => !value);
+  };
+  const cyclePlaybackSpeed = () => setPlaybackSpeed((value) => value === .5 ? 1 : value === 1 ? 2 : value === 2 ? 4 : .5);
 
   return (
     <main className="app-shell">
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><Box size={17} /></span><div><strong>DIGITAL TWIN</strong><span>{current.source ?? 'HIL'} FLIGHT TESTBED</span></div></div>
-        <div className="top-status"><div><StatusDot tone={stale ? 'red' : 'green'} /><span>{current.source ?? 'HIL'} {stale ? 'OFFLINE' : 'LIVE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
+        <div className="top-status"><div><StatusDot tone={connected && current.source === 'SIL' ? 'green' : 'red'} /><span>SIL {connected && current.source === 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={connected && current.source !== 'SIL' ? 'green' : 'red'} /><span>HIL {connected && current.source !== 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
         <div className="timing"><span>LOOP</span><strong>{current.hil.loop_hz.toFixed(1)} <small>Hz</small></strong><i /><span>DEADLINE MISSES</span><strong>{current.hil.deadline_misses}</strong></div>
       </header>
       <section className="workspace">
@@ -109,9 +152,9 @@ export default function Home() {
       </section>
       <footer className="controlbar">
         <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => { setSnapshots(demo); setCursor(0); setMode('replay'); }}><Play size={13} />REPLAY</button></div>
-        <button className="icon-button" onClick={() => setPlaying((value) => !value)} disabled={mode === 'live'}>{playing ? <Pause size={16} /> : <Play size={16} />}</button><span className="elapsed">{current.time_s.toFixed(2)} s</span>
-        <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, snapshots.length - 1)} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); }} disabled={mode === 'live'} /><span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
-        <button className="icon-button" onClick={() => setCursor(0)} disabled={mode === 'live'}><RotateCcw size={15} /></button><button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
+        <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button><button className="load-button" onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button><span className="elapsed">{current.time_s.toFixed(2)} s</span>
+        <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, Math.max(0, snapshots.length - 1))} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }} /><span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
+        <button className="icon-button" onClick={() => { setCursor(0); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }}><RotateCcw size={15} /></button><button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
         <div className="source"><StatusDot tone={mode === 'replay' ? 'amber' : stale ? 'red' : 'green'} /><span>{mode === 'replay' ? 'DEMO RECORDING' : connected ? WS_URL : 'WAITING FOR TELEMETRY'}</span></div>
       </footer>
     </main>

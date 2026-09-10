@@ -1,12 +1,18 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, Environment, Grid, Line, OrbitControls, useGLTF } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Cloud, Clouds, ContactShadows, Environment, Grid, Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { TwinSnapshot } from '@/lib/twin-data';
 
-function Drone({ snapshot, altitudeScale }: { snapshot: TwinSnapshot; altitudeScale: number }) {
+function displayAltitude(altitude: number, targetAltitude: number) {
+  const reference = Math.max(targetAltitude, 1000);
+  return 4.5 * Math.log1p(Math.max(altitude, 0) / 250) / Math.log1p(reference / 250);
+}
+
+function Drone({ snapshot }: { snapshot: TwinSnapshot }) {
   const { scene } = useGLTF('/models/drone.glb');
   const rotor = useRef<THREE.Group>(null);
   const model = useMemo(() => {
@@ -37,7 +43,7 @@ function Drone({ snapshot, altitudeScale }: { snapshot: TwinSnapshot; altitudeSc
   });
 
   return (
-    <group ref={rotor} position={[snapshot.aircraft.x_m * .22, .5 + snapshot.aircraft.altitude_m * altitudeScale, snapshot.aircraft.y_m * .22]}>
+    <group ref={rotor} position={[snapshot.aircraft.x_m * .22, .5 + displayAltitude(snapshot.aircraft.altitude_m, snapshot.target.altitude_m), snapshot.aircraft.y_m * .22]}>
       <primitive object={model} scale={7.2} rotation={[snapshot.aircraft.roll_rad, -snapshot.aircraft.pitch_rad, -0.35]} />
     </group>
   );
@@ -72,64 +78,77 @@ function LaunchSite({ opacity }: { opacity: number }) {
   );
 }
 
-function Cloud({ position, scale }: { position: [number, number, number]; scale: number }) {
-  const lobes = [[0, 0, 0], [.55, .08, .05], [-.55, .02, .08], [.1, .18, -.28], [-.15, .12, .32]];
+function EiffelTower({ height }: { height: number }) {
   return (
-    <group position={position} scale={scale}>
-      {lobes.map((offset, index) => <mesh key={index} position={offset as [number, number, number]}><sphereGeometry args={[.62, 16, 10]} /><meshStandardMaterial color="#e8f2f3" emissive="#6f8e96" emissiveIntensity={.25} transparent opacity={.68} roughness={1} depthWrite={false} /></mesh>)}
+    <group position={[-5.2, 0, -3.8]}>
+      <mesh position={[0, height * .5, 0]} castShadow><coneGeometry args={[height * .22, height, 4, 5, true]} /><meshStandardMaterial color="#766f66" wireframe roughness={.7} /></mesh>
+      <mesh position={[0, height * .18, 0]}><boxGeometry args={[height * .34, .035, height * .34]} /><meshStandardMaterial color="#968b7e" /></mesh>
+      <mesh position={[0, height * .47, 0]}><boxGeometry args={[height * .2, .025, height * .2]} /><meshStandardMaterial color="#968b7e" /></mesh>
+      <mesh position={[0, height * .72, 0]}><boxGeometry args={[height * .1, .02, height * .1]} /><meshStandardMaterial color="#968b7e" /></mesh>
+      <mesh position={[0, height * 1.08, 0]}><cylinderGeometry args={[.012, .018, height * .18, 6]} /><meshStandardMaterial color="#b5aaa0" /></mesh>
     </group>
   );
 }
 
-function FlightEnvironment({ snapshot, altitudeScale }: { snapshot: TwinSnapshot; altitudeScale: number }) {
+function FlightEnvironment({ snapshot }: { snapshot: TwinSnapshot }) {
   const altitude = Math.max(0, snapshot.aircraft.altitude_m);
   const groundOpacity = THREE.MathUtils.clamp(1 - altitude / 3500, 0, 1);
-  const spaceBlend = THREE.MathUtils.smoothstep(altitude, 7000, 18000);
-  const cloudHeight = Math.min(2000 * altitudeScale + .25, 2.4);
-  const skyColor = new THREE.Color('#102a38').lerp(new THREE.Color('#02050d'), spaceBlend);
+  const stratosphereBlend = THREE.MathUtils.smoothstep(altitude, 7000, 20000);
+  const cloudHeight = .25 + displayAltitude(7000, snapshot.target.altitude_m);
+  const towerHeight = displayAltitude(330, snapshot.target.altitude_m);
+  const skyColor = new THREE.Color('#79b9d3').lerp(new THREE.Color('#101b36'), stratosphereBlend);
 
   return (
     <>
       <color attach="background" args={[skyColor]} />
       <fog attach="fog" args={[skyColor, 17, 34]} />
-      <mesh position={[0, -18.05, 0]} visible={spaceBlend > .02}>
-        <sphereGeometry args={[18, 96, 48]} />
-        <meshStandardMaterial color="#174c69" emissive="#0a2238" emissiveIntensity={.7} roughness={1} transparent opacity={spaceBlend * .98} />
-      </mesh>
-      <mesh position={[0, -17.94, 0]} visible={spaceBlend > .05}>
-        <sphereGeometry args={[18.06, 96, 48]} />
-        <meshBasicMaterial color="#4aa4d1" transparent opacity={spaceBlend * .18} side={THREE.BackSide} />
-      </mesh>
       <group visible={groundOpacity > .01}>
         <mesh position={[0, -.16, 0]} receiveShadow><cylinderGeometry args={[18, 18, .3, 64]} /><meshStandardMaterial color="#315a42" roughness={1} transparent opacity={groundOpacity} /></mesh>
         <Grid position={[0, .01, 0]} args={[36, 36]} cellColor="#567c66" sectionColor="#829b80" fadeDistance={25} infiniteGrid />
         <LaunchSite opacity={groundOpacity} />
+        <EiffelTower height={towerHeight} />
       </group>
-      <group position={[0, cloudHeight, 0]} visible={altitude > 350}>
-        <Cloud position={[-4.5, 0, -2]} scale={1.4} />
-        <Cloud position={[3.8, -.25, -4.4]} scale={1.8} />
-        <Cloud position={[5.2, .1, 2.8]} scale={1.2} />
-        <Cloud position={[-3.2, -.2, 4.7]} scale={1.7} />
-        <Cloud position={[.4, -.45, -6.5]} scale={2.1} />
-      </group>
+      <Clouds position={[0, cloudHeight, 0]} material={THREE.MeshLambertMaterial} limit={500} visible={altitude > 4500}>
+        <Cloud seed={2} segments={55} bounds={[7, .45, 4]} volume={3.5} opacity={.72} color="#edf5f7" position={[-4, 0, -3]} />
+        <Cloud seed={7} segments={65} bounds={[8, .55, 5]} volume={4} opacity={.7} color="#dce9ed" position={[4.5, -.18, -4]} />
+        <Cloud seed={11} segments={70} bounds={[10, .5, 6]} volume={4.5} opacity={.68} color="#e8f1f3" position={[0, -.35, 4.5]} />
+      </Clouds>
     </>
   );
 }
 
+function CameraTracker({ snapshot }: { snapshot: TwinSnapshot }) {
+  const { camera } = useThree();
+  const controls = useRef<OrbitControlsImpl>(null);
+  const target = useMemo(() => new THREE.Vector3(), []);
+  const movement = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(() => {
+    if (!controls.current) return;
+    target.set(snapshot.aircraft.x_m * .22, .5 + displayAltitude(snapshot.aircraft.altitude_m, snapshot.target.altitude_m), snapshot.aircraft.y_m * .22);
+    movement.copy(target).sub(controls.current.target).multiplyScalar(.08);
+    camera.position.add(movement);
+    controls.current.target.add(movement);
+    controls.current.update();
+  });
+
+  return <OrbitControls ref={controls} enablePan={false} minDistance={6} maxDistance={18} maxPolarAngle={Math.PI * .86} />;
+}
+
 export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; trail: TwinSnapshot[] }) {
-  const altitudeScale = 4 / Math.max(snapshot.target.altitude_m, 1);
-  const points = trail.map((item) => [item.aircraft.x_m * .22, .5 + item.aircraft.altitude_m * altitudeScale, item.aircraft.y_m * .22] as [number, number, number]);
+  const points = trail.map((item) => [item.aircraft.x_m * .22, .5 + displayAltitude(item.aircraft.altitude_m, snapshot.target.altitude_m), item.aircraft.y_m * .22] as [number, number, number]);
 
   return (
     <div className="scene-canvas">
       <Canvas camera={{ position: [8, 6, 10], fov: 40 }} shadows>
-        <FlightEnvironment snapshot={snapshot} altitudeScale={altitudeScale} />
+        <FlightEnvironment snapshot={snapshot} />
+        <CameraTracker snapshot={snapshot} />
         <ambientLight intensity={1.9} />
         <hemisphereLight args={['#e4fdff', '#18382d', 1.8]} />
         <directionalLight position={[5, 9, 6]} color="#fff7e7" intensity={5.2} castShadow />
         <directionalLight position={[-6, 4, -5]} color="#55eaff" intensity={3.5} />
         <pointLight position={[-5, 5, 4]} color="#7ff5ff" intensity={36} distance={18} />
-        <Drone snapshot={snapshot} altitudeScale={altitudeScale} />
+        <Drone snapshot={snapshot} />
         <ContactShadows position={[0, .02, 0]} opacity={.6} scale={9} blur={2.4} far={8} />
         <mesh position={[snapshot.target.x_m * .22, .03, snapshot.target.y_m * .22]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[1.5, 1.58, 64]} />
@@ -137,7 +156,6 @@ export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; tra
         </mesh>
         {points.length > 1 && <Line points={points} color="#3ff1dd" lineWidth={1.5} transparent opacity={.75} />}
         <Environment preset="city" environmentIntensity={1.6} />
-        <OrbitControls enablePan={false} minDistance={7} maxDistance={17} maxPolarAngle={Math.PI / 2.05} />
       </Canvas>
       <div className="scene-label altitude-label"><b>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>MSL ALTITUDE</small></div>
       {snapshot.aircraft.altitude_m > 7000 && <div className="scene-label" style={{ left: 18, top: 18, color: '#8bc8e5' }}>STRATOSPHERIC ASCENT · {(snapshot.aircraft.altitude_m / 1000).toFixed(1)} km</div>}
