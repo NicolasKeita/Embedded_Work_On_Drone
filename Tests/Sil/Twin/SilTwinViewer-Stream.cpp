@@ -30,7 +30,9 @@ void stream_sil_twin(const sim::sil::ScenarioRecord& record)
     }
 
     sim::hil::TwinWebSocketPublisher publisher{};
-    std::cout << "\n--- Digital Twin SIL live replay: ws://localhost:8765/twin ---" << std::endl;
+    std::cout << "\n--- Simulation and checks complete ---\n"
+              << "Replaying telemetry for the Digital Twin viewer at ws://localhost:8765/twin.\n"
+              << "The SIL runner will exit when this viewer replay finishes." << std::endl;
     std::float64_t previous_time = record.telemetry.front().time;
     for (const sim::sil::TelemetrySample& sample : record.telemetry) {
         const std::float64_t delay_s = std::clamp(sample.time - previous_time,
