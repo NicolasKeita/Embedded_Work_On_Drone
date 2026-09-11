@@ -29,16 +29,13 @@ namespace sim::hil {
 
 HostFcTarget::HostFcTarget(FlightCore::Transport::ITransport& channel,
                             MonotonicClock& clock,
-                            const sim::control::TargetState& target,
-                            const sim::control::ControllerConfig& controller,
-                            std::float64_t dt,
-                            const sim::sil::SensorValidationLimits& sensor_limits)
+                            const HostFcTargetConfig& config)
     : channel_{channel},
       clock_{clock},
-      fc_{controller},
-      target_{target},
-      dt_{dt},
-      sensor_limits_{sensor_limits}
+      fc_{config.controller},
+      target_{config.target},
+      dt_{config.dt},
+      sensor_limits_{config.sensor_limits}
 {
 }
 

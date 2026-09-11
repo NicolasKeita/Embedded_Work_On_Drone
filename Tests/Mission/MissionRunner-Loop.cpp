@@ -41,42 +41,39 @@ std::float64_t steady_window_start(std::float64_t duration)
 }
 
 /* Applies one control/physics step and accumulates the tracking metrics. */
-void advance_step(FlightController&        ctrl,
-                  Aircraft&                craft,
-                  StepMetrics&             step,
-                  MissionRunTrace&         trace,
+void advance_step(MissionDynamics         dynamics,
+                  StepMetrics&            step,
+                  MissionRunTrace&        trace,
                   const MissionRunRequest& run,
-                  std::float64_t&          time)
+                  std::float64_t&         time)
 {
-    craft.set_command(ctrl.update(run.target, craft.state(), kDt));
-    craft.update(kDt);
+    dynamics.craft.set_command(dynamics.ctrl.update(run.target, dynamics.craft.state(), kDt));
+    dynamics.craft.update(kDt);
     time += kDt;
-    step.track_acceleration(kDt, craft.state());
-    const std::float64_t error = component_value(craft.state(), run.axis);
+    step.track_acceleration(kDt, dynamics.craft.state());
+    const std::float64_t error = component_value(dynamics.craft.state(), run.axis);
     const std::float64_t target = component_value(run.target, run.axis);
     step.update(trace.metrics, time, target - error, run.tolerance);
 }
 
 /* Publishes one compressed viewer sample at the visible replay cadence. */
-void publish_viewer_sample(Aircraft&                craft,
+void publish_viewer_sample(MissionDynamics          dynamics,
                            const MissionRunRequest& run,
-                           FlightController&        ctrl,
                            std::float64_t           time,
                            std::float64_t&          next_viewer_time,
                            std::float64_t           viewer_period)
 {
     mission_viewer_observer.callback(
         MissionViewerSample{.time = time,
-                            .aircraft = craft.state(),
+                            .aircraft = dynamics.craft.state(),
                             .target = run.target,
-                            .mission = ctrl.state()},
+                            .mission = dynamics.ctrl.state()},
         mission_viewer_observer.context);
     next_viewer_time += viewer_period;
 }
 
 /* Executes the step-by-step simulation loop, accumulating the tracking metrics. */
-void run_control_loop(FlightController&        ctrl,
-                      Aircraft&                craft,
+void run_control_loop(MissionDynamics          dynamics,
                       const MissionRunRequest& run,
                       MissionRunTrace&         trace,
                       std::float64_t           direction,
@@ -84,34 +81,34 @@ void run_control_loop(FlightController&        ctrl,
 {
     StepMetrics          step{.direction = direction,
                               .steady_start = steady_window_start(run.duration),
-                              .previous_state = craft.state()};
-    MissionState         previous_state = ctrl.state();
+                              .previous_state = dynamics.craft.state()};
+    MissionState         previous_state = dynamics.ctrl.state();
     std::float64_t       time = 0.0;
     std::uint32_t        step_index = 0;
     const std::float64_t viewer_period = std::max(run.duration / std::float64_t{600.0}, std::float64_t{0.05});
     std::float64_t       next_viewer_time = 0.0;
 
     if (run.verbose) {
-        print_state_row(craft, time);
+        print_state_row(dynamics.craft, time);
     }
     while (time < run.duration) {
-        advance_step(ctrl, craft, step, trace, run, time);
+        advance_step(dynamics, step, trace, run, time);
         ++step_index;
-        log_state_transition(trace, previous_state, ctrl.state(), time, run.verbose);
+        log_state_transition(trace, previous_state, dynamics.ctrl.state(), time, run.verbose);
         if (mission_viewer_observer.callback != nullptr && time + std::float64_t{1.0e-9} >= next_viewer_time) {
-            publish_viewer_sample(craft, run, ctrl, time, next_viewer_time, viewer_period);
+            publish_viewer_sample(dynamics, run, time, next_viewer_time, viewer_period);
         }
         if (run.verbose && step_index % kLogIntervalSteps == 0) {
-            print_state_row(craft, time);
+            print_state_row(dynamics.craft, time);
         }
-        if (zone_reached(run, ctrl.state(), craft.state())) {
+        if (zone_reached(run, dynamics.ctrl.state(), dynamics.craft.state())) {
             break;
         }
     }
     if (run.verbose && (step_index % kLogIntervalSteps != 0 || time == run.duration)) {
-        print_state_row(craft, time);
+        print_state_row(dynamics.craft, time);
     }
-    step.close(trace.metrics, target_value, run.axis, craft.state());
+    step.close(trace.metrics, target_value, run.axis, dynamics.craft.state());
 }
 
 }

@@ -53,8 +53,11 @@ HilChannelResult open_hil_channel(const HilConfig& config)
 /* Attaches the host emulator target to a loopback channel. */
 void attach_host_target(HilRunContext& ctx, const HilConfig& config)
 {
-    ctx.fc_target = std::make_unique<HostFcTarget>(*ctx.channel, ctx.clock, config.target,
-                                                   config.controller, config.dt_s, config.sensor_limits);
+    const HostFcTargetConfig fc_config{.target = config.target,
+                                        .controller = config.controller,
+                                        .dt = config.dt_s,
+                                        .sensor_limits = config.sensor_limits};
+    ctx.fc_target = std::make_unique<HostFcTarget>(*ctx.channel, ctx.clock, fc_config);
 }
 
 /* Attaches the host or remote FC target matching the selected channel. */

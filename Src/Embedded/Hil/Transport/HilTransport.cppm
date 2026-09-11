@@ -53,7 +53,18 @@ struct HilCommStats {
     void record_sequence_error() noexcept;
     void record_stale() noexcept;
 };
-
+/* Expected actuator frame identity: sequence number, echoed sim timestamp and sensor send wall clock. */
+struct ActuatorExpectations {
+    std::uint16_t expected_sequence = 0;
+    std::uint64_t expected_echo_sim_us = 0;
+    std::uint64_t sensor_send_wall_us = 0;
+};
+/* Output bundle of an accepted actuator frame: commands, diagnostics and round-trip time. */
+struct ActuatorReceiveOutputs {
+    FlightCore::HAL::ActuatorCommands&          commands;
+    FlightCore::Transport::ActuatorDiagnostics& diagnostics;
+    std::int64_t&                               round_trip_us;
+};
 /* Runner-side frame exchange over one shared byte channel (lockstep: one SensorPacket in flight). */
 class HilTransport {
 public:
@@ -69,13 +80,9 @@ public:
 
     /* Waits for the ActuatorPacket answering sequence, no later than deadline_wall_us. */
     [[nodiscard]] ReceiveResult receiveActuator(MonotonicClock& clock,
-                                                  std::uint16_t expected_sequence,
-                                                  std::uint64_t expected_echo_sim_us,
-                                                  std::uint64_t sensor_send_wall_us,
                                                   std::uint64_t deadline_wall_us,
-                                                  FlightCore::HAL::ActuatorCommands& out_cmds,
-                                                  FlightCore::Transport::ActuatorDiagnostics& out_diag,
-                                                  std::int64_t& out_rtt_us);
+                                                  const ActuatorExpectations& expectations,
+                                                  ActuatorReceiveOutputs outputs);
 
     [[nodiscard]] const HilCommStats& stats() const noexcept;
 
@@ -83,13 +90,9 @@ private:
     /* Validates one complete actuator frame and fills the outputs. */
     [[nodiscard]] std::expected<ReceiveResult, FrameAcceptanceError> accept_frame(
         const FlightCore::Transport::HilHeader& header,
-        std::uint16_t expected_sequence,
-        std::uint64_t expected_echo_sim_us,
-        std::uint64_t sensor_send_wall_us,
+        const ActuatorExpectations& expectations,
         std::uint64_t receive_wall,
-        FlightCore::HAL::ActuatorCommands& out_cmds,
-        FlightCore::Transport::ActuatorDiagnostics& out_diag,
-        std::int64_t& out_rtt_us);
+        ActuatorReceiveOutputs outputs);
 
     FlightCore::Transport::ITransport*                           channel_;
     FlightCore::Transport::HilFrameParser                        parser_{};

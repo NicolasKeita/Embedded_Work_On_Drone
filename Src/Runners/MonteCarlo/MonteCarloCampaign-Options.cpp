@@ -17,6 +17,11 @@ namespace {
     constexpr std::string_view kOutputCsvPrefix = "--output-csv=";
     constexpr std::string_view kOutputJsonPrefix = "--output-json=";
 
+    struct ArgCursor {
+        int    argc;
+        char** argv;
+        int&   index;
+    };
     [[nodiscard]] std::expected<std::uint64_t, std::errc> parse_unsigned(std::string_view text)
     {
         std::uint64_t                value = 0;
@@ -29,14 +34,13 @@ namespace {
     }
 
     /* Reads the operand of "--option"; unexpected when the operand is missing. */
-    [[nodiscard]] std::expected<std::string, std::string> value_of(int argc, char* argv[],
-                                                                    int& index, std::string_view label)
+    [[nodiscard]] std::expected<std::string, std::string> value_of(const ArgCursor& cursor, std::string_view label)
     {
-        if (index + 1 >= argc) {
+        if (cursor.index + 1 >= cursor.argc) {
             return std::unexpected(std::format("Error: missing value for {}.", label));
         }
-        ++index;
-        return std::string{argv[index] != nullptr ? argv[index] : ""};
+        ++cursor.index;
+        return std::string{cursor.argv[cursor.index] != nullptr ? cursor.argv[cursor.index] : ""};
     }
 
     /* Reports an option error and marks the campaign options invalid. */
@@ -48,10 +52,9 @@ namespace {
 
     /* Parses "--option <n>" into the target field; invalid values are reported but parsing continues. */
     template<typename Target>
-    bool parse_unsigned_option(CliOptions& options, int argc, char* argv[], int& index,
-                               Target& field, std::string_view label)
+    bool parse_unsigned_option(CliOptions& options, const ArgCursor& cursor, Target& field, std::string_view label)
     {
-        const std::expected<std::string, std::string> raw = value_of(argc, argv, index, label);
+        const std::expected<std::string, std::string> raw = value_of(cursor, label);
 
         if (!raw.has_value()) { report_error(options, raw.error()); return false; }
         const std::expected<std::uint64_t, std::errc> value = parse_unsigned(raw.value());
@@ -64,10 +67,9 @@ namespace {
     }
 
     /* Parses "--option <value>" into the target string field; returns false to stop parsing. */
-    bool parse_string_option(CliOptions& options, int argc, char* argv[], int& index,
-                             std::string& field, std::string_view label)
+    bool parse_string_option(CliOptions& options, const ArgCursor& cursor, std::string& field, std::string_view label)
     {
-        const std::expected<std::string, std::string> raw = value_of(argc, argv, index, label);
+        const std::expected<std::string, std::string> raw = value_of(cursor, label);
 
         if (!raw.has_value()) { report_error(options, raw.error()); return false; }
         field = raw.value();
@@ -78,28 +80,30 @@ namespace {
 /* Applies one recognized option; returns false when parsing must stop. */
 bool apply_option(CliOptions& options, int argc, char* argv[], int& index, std::string_view argument)
 {
+    ArgCursor cursor{.argc = argc, .argv = argv, .index = index};
+
     if (argument == "-v" || argument == "--verbose") {
         options.verbose = true;
         return true;
     }
     if (argument == "--seed") {
-        return parse_unsigned_option(options, argc, argv, index, options.seed, "--seed");
+        return parse_unsigned_option(options, cursor, options.seed, "--seed");
     }
     if (argument == "--runs") {
-        return parse_unsigned_option(options, argc, argv, index, options.runs, "--runs");
+        return parse_unsigned_option(options, cursor, options.runs, "--runs");
     }
     if (argument == "--scenario") {
-        return parse_string_option(options, argc, argv, index, options.scenario, "--scenario");
+        return parse_string_option(options, cursor, options.scenario, "--scenario");
     }
     if (argument.starts_with(kScenarioPrefix)) {
         options.scenario = std::string{argument.substr(kScenarioPrefix.size())};
         return true;
     }
     if (argument == "--output-csv") {
-        return parse_string_option(options, argc, argv, index, options.output_csv, "--output-csv");
+        return parse_string_option(options, cursor, options.output_csv, "--output-csv");
     }
     if (argument == "--output-json") {
-        return parse_string_option(options, argc, argv, index, options.output_json, "--output-json");
+        return parse_string_option(options, cursor, options.output_json, "--output-json");
     }
     if (argument.starts_with(kOutputCsvPrefix)) {
         options.output_csv = std::string{argument.substr(kOutputCsvPrefix.size())};

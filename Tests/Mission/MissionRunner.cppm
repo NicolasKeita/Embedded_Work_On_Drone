@@ -38,13 +38,10 @@ struct MissionMetrics {
 
 // Component of the measured state associated with the requested tracking axis.
 [[nodiscard]] std::float64_t component_value(const AircraftState& state, TrackingAxis axis);
-
 // Component of the target setpoint for the requested tracking axis.
 [[nodiscard]] std::float64_t component_value(const sim::control::TargetState& target, TrackingAxis axis);
-
 // Prints the tracking indicators of one mission run (tolerance, overshoot, errors).
 void print_metrics_report(std::string_view label, const MissionMetrics& metrics);
-
 // Checks that the visited states contain the expected SPIN_UP..COMPLETE mission flow.
 bool contains_mission_sequence(std::span<const sim::control::MissionState> visited);
 
@@ -88,6 +85,11 @@ MissionRunTrace run_mission(FlightController& ctrl, Aircraft& craft,
                             const sim::PhysicsDispersion& dispersion = {});
 
 // Internal loop pieces shared by the MissionRunner-*.cpp translation units.
+/* Bundles the controlled plant (FlightController + Aircraft) shared by every mission loop helper. */
+struct MissionDynamics {
+    FlightController& ctrl;
+    Aircraft&         craft;
+};
 struct StepMetrics {
     std::float64_t direction = 1.0;
     std::float64_t steady_start = 0.0;
@@ -104,16 +106,15 @@ struct StepMetrics {
 };
 
 std::float64_t steady_window_start(std::float64_t duration);
-void advance_step(FlightController& ctrl, Aircraft& craft, StepMetrics& step, MissionRunTrace& trace,
+void advance_step(MissionDynamics dynamics, StepMetrics& step, MissionRunTrace& trace,
                   const MissionRunRequest& run, std::float64_t& time);
-void publish_viewer_sample(Aircraft& craft, const MissionRunRequest& run, FlightController& ctrl,
-                           std::float64_t time, std::float64_t& next_viewer_time,
-                           std::float64_t viewer_period);
+void publish_viewer_sample(MissionDynamics dynamics, const MissionRunRequest& run, std::float64_t time,
+                           std::float64_t& next_viewer_time, std::float64_t viewer_period);
 void print_state_row(const Aircraft& aircraft, std::float64_t timeSeconds);
 void log_state_transition(MissionRunTrace& trace, sim::control::MissionState& previous,
                           const sim::control::MissionState current, std::float64_t time, bool verbose);
 bool zone_reached(const MissionRunRequest& run, sim::control::MissionState state,
                   const AircraftState& s);
-void run_control_loop(FlightController& ctrl, Aircraft& craft, const MissionRunRequest& run,
-                      MissionRunTrace& trace, std::float64_t direction, std::float64_t target_value);
+void run_control_loop(MissionDynamics dynamics, const MissionRunRequest& run, MissionRunTrace& trace,
+                      std::float64_t direction, std::float64_t target_value);
 }

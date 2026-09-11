@@ -46,10 +46,14 @@ namespace {
             ctx.transport.noteDroppedFrame();
             return;
         }
-        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, sequence, ctx.sim_ts_us,
-                                                                   sensor_send_wall, ctx.next_deadline_us,
-                                                                   ctx.actuator_cmd, diag,
-                                                                   ctx.this_rtt_us);
+        const ActuatorExpectations expectations{.expected_sequence = sequence,
+                                                 .expected_echo_sim_us = ctx.sim_ts_us,
+                                                 .sensor_send_wall_us = sensor_send_wall};
+        const ActuatorReceiveOutputs outputs{.commands = ctx.actuator_cmd,
+                                              .diagnostics = diag,
+                                              .round_trip_us = ctx.this_rtt_us};
+        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, ctx.next_deadline_us,
+                                                                   expectations, outputs);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
             ctx.this_fc.sequence = sequence;
