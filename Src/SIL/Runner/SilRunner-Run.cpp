@@ -92,8 +92,11 @@ void SILRunner::update_metrics(RunContext& ctx)
                                    .target_z = cfg.target.z,
                                    .mission_state = static_cast<std::uint8_t>(ctx.fc1.state()),
                                    .safety_state = static_cast<std::uint8_t>(ctx.safety.mode())};
-    ctx.telemetry_recorder.maybe_record(ctx.time, ctx.sampled_truth, ctx.telemetry, ctx.command,
-                                        ctx.commanded_rpm, control);
+    ctx.telemetry_recorder.maybe_record(ctx.time, ctx.sampled_truth,
+                                        TelemetrySampleInput{.sensor = ctx.telemetry,
+                                                              .command = ctx.command,
+                                                              .commanded_rpm = ctx.commanded_rpm,
+                                                              .control = control});
 }
 
 }

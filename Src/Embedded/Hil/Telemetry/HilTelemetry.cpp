@@ -41,46 +41,40 @@ HilTruthSample make_truth_sample(std::float64_t time_s, const AircraftState& tru
 }
 
 HilSensorSample make_sensor_sample(std::float64_t                           time_s,
-                                   const FlightCore::HAL::SensorData&       sensor,
-                                   const FlightCore::HAL::ActuatorCommands& command,
-                                   std::float64_t                           commanded_rpm,
-                                   const HilTelemetryControl&               control)
+                                   const HilSensorSampleInput&              sample_input)
 {
     return HilSensorSample{
         .time_s = time_s,
-        .x = sensor.position_x_m,
-        .y = sensor.position_y_m,
-        .z = sensor.position_z_m,
-        .vx = sensor.velocity_x_ms,
-        .vy = sensor.velocity_y_ms,
-        .vz = sensor.velocity_z_ms,
-        .pitch_rad = sensor.pitch_rad,
-        .roll_rad = sensor.roll_rad,
-        .commanded_rpm = commanded_rpm,
-        .measured_rpm = sensor.wing_rpm_meas,
-        .left_servo_deg = command.left_servo_rad / kRadiansPerDegree,
-        .right_servo_deg = command.right_servo_rad / kRadiansPerDegree,
-        .target_x = control.target_x,
-        .target_y = control.target_y,
-        .target_z = control.target_z,
-        .mission_state = control.mission_state,
-        .safety_state = control.safety_state,
+        .x = sample_input.sensor.position_x_m,
+        .y = sample_input.sensor.position_y_m,
+        .z = sample_input.sensor.position_z_m,
+        .vx = sample_input.sensor.velocity_x_ms,
+        .vy = sample_input.sensor.velocity_y_ms,
+        .vz = sample_input.sensor.velocity_z_ms,
+        .pitch_rad = sample_input.sensor.pitch_rad,
+        .roll_rad = sample_input.sensor.roll_rad,
+        .commanded_rpm = sample_input.commanded_rpm,
+        .measured_rpm = sample_input.sensor.wing_rpm_meas,
+        .left_servo_deg = sample_input.command.left_servo_rad / kRadiansPerDegree,
+        .right_servo_deg = sample_input.command.right_servo_rad / kRadiansPerDegree,
+        .target_x = sample_input.control.target_x,
+        .target_y = sample_input.control.target_y,
+        .target_z = sample_input.control.target_z,
+        .mission_state = sample_input.control.mission_state,
+        .safety_state = sample_input.control.safety_state,
     };
 }
 
 void HilTelemetryRecorder::maybe_record(std::float64_t                           time_s,
                                         const AircraftState&                     truth,
-                                        const FlightCore::HAL::SensorData&       sensor,
-                                        const FlightCore::HAL::ActuatorCommands& command,
-                                        std::float64_t                           commanded_rpm,
-                                        const HilTelemetryControl&               control)
+                                        const HilSensorSampleInput&              sample_input)
 {
     if (time_s - last_sample_time + 1.0e-9 < interval_s) {
         return;
     }
     last_sample_time = time_s;
     truth_samples.push_back(make_truth_sample(time_s, truth));
-    samples.push_back(make_sensor_sample(time_s, sensor, command, commanded_rpm, control));
+    samples.push_back(make_sensor_sample(time_s, sample_input));
 }
 
 }
