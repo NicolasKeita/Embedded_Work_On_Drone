@@ -243,7 +243,7 @@ class TestFunctionParameterCount(unittest.TestCase):
             message,
             '[WARN_FUNCTION_TOO_MANY_PARAMETERS] Src/App/Application.cpp:42 : '
             "la fonction 'Run' possède 6 paramètres (max : 5). "
-            'Envisagez de regrouper certains paramètres dans une structure.',
+            'Envisagez de regrouper certains paramètres dans une structure ou classe.',
         )
 
     def test_warning_tag_constant(self):

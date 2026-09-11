@@ -186,6 +186,6 @@ def format_function_parameter_count_message(
         f"{WARN_FUNCTION_TOO_MANY_PARAMETERS_TAG} {file_path}:{start_line} : "
         f"la fonction '{function_name}' possède {param_count} paramètres "
         f"(max : {MAX_FUNCTION_PARAMETERS}). "
-        "Envisagez de regrouper certains paramètres dans une structure."
+        "Envisagez de regrouper certains paramètres dans une structure ou classe."
     )
 
