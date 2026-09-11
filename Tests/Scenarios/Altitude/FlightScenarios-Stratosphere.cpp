@@ -44,10 +44,8 @@ void stratosphere_climb(TestHarness&                  runner,
                           trace.metrics.time_within_tolerance,
                           trace.metrics.steady_state_error,
                           trace.metrics.max_acceleration);
-    runner.check(std::abs(final_state.z - 20000.0) <= 2.0,
-                 "stratosphere target reached (20 km +/- 2 m)");
-    runner.check(trace.metrics.time_within_tolerance >= 32300.0,
-                 "climb duration remains close to nine hours");
+    runner.check(std::abs(final_state.z - 20000.0) <= 2.0, "stratosphere target reached (20 km +/- 2 m)");
+    runner.check(trace.metrics.time_within_tolerance >= 32300.0, "climb duration remains close to nine hours");
     runner.check(final_state.z > 0.0, "scenario ends airborne without landing");
 }
 

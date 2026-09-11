@@ -15,11 +15,12 @@ import Aircraft;
 namespace sim::test {
 
 /* Accumulates the overshoot, tolerance-entry time and steady-state error of a run. */
-void StepMetrics::update(MissionMetrics& metrics, std::float64_t time, std::float64_t error,
-                         std::float64_t tolerance)
+void StepMetrics::update(MissionMetrics& metrics,
+                         std::float64_t  time,
+                         std::float64_t  error,
+                         std::float64_t  tolerance)
 {
-    metrics.overshoot_units =
-        std::max(metrics.overshoot_units, std::max(-direction * error, std::float64_t{0.0}));
+    metrics.overshoot_units = std::max(metrics.overshoot_units, std::max(-direction * error, std::float64_t{0.0}));
     if (metrics.time_within_tolerance < 0.0 && std::abs(error) <= tolerance) {
         metrics.time_within_tolerance = time;
     }
@@ -41,7 +42,9 @@ void StepMetrics::track_acceleration(std::float64_t dt, const AircraftState& cur
 }
 
 /* Closes the tracking metrics with the final error and the peak acceleration. */
-void StepMetrics::close(MissionMetrics& metrics, std::float64_t target_value, TrackingAxis axis,
+void StepMetrics::close(MissionMetrics&      metrics,
+                        std::float64_t       target_value,
+                        TrackingAxis         axis,
                         const AircraftState& final_state)
 {
     metrics.final_error = std::abs(target_value - component_value(final_state, axis));

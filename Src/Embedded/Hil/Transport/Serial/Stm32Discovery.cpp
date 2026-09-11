@@ -45,8 +45,8 @@ namespace {
                                                   std::string_view required_serial)
     {
         const std::filesystem::path by_id{"/dev/serial/by-id"};
-        const std::string serial_marker = std::format("_{}-if", required_serial);
-        std::error_code error{};
+        const std::string           serial_marker = std::format("_{}-if", required_serial);
+        std::error_code             error{};
 
         if (std::filesystem::is_directory(by_id, error)) {
             for (const std::filesystem::directory_entry& entry :

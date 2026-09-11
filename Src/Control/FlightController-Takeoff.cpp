@@ -22,8 +22,7 @@ ControlCommand FlightController::spin_up_command(std::float64_t dt)
 {
     phase_elapsed_seconds_ = std::min(phase_elapsed_seconds_ + dt, config_.spin_up_seconds);
     const std::float64_t progress = config_.spin_up_seconds > 0.0
-        ? phase_elapsed_seconds_ / config_.spin_up_seconds
-        : 1.0;
+        ? phase_elapsed_seconds_ / config_.spin_up_seconds : 1.0;
     const std::float64_t smooth_progress = progress * progress * (3.0 - 2.0 * progress);
     const std::float64_t wing_rpm = smooth_progress * config_.hover_rpm;
 
@@ -42,12 +41,10 @@ ControlCommand FlightController::takeoff_command(const AircraftState& actual, st
 {
     phase_elapsed_seconds_ = std::min(phase_elapsed_seconds_ + dt, config_.takeoff_transition_seconds);
     const std::float64_t progress = config_.takeoff_transition_seconds > 0.0
-        ? phase_elapsed_seconds_ / config_.takeoff_transition_seconds
-        : 1.0;
+        ? phase_elapsed_seconds_ / config_.takeoff_transition_seconds : 1.0;
     const std::float64_t desired_speed = config_.climb_speed_mps * progress * progress * (3.0 - 2.0 * progress);
     const std::float64_t desired_acceleration = config_.takeoff_transition_seconds > 0.0
-        ? config_.climb_speed_mps * 6.0 * progress * (1.0 - progress) / config_.takeoff_transition_seconds
-        : 0.0;
+        ? config_.climb_speed_mps * 6.0 * progress * (1.0 - progress) / config_.takeoff_transition_seconds : 0.0;
     const std::float64_t commanded_acceleration =
         desired_acceleration + config_.vertical_speed_gain * (desired_speed - actual.vz);
     const std::float64_t acceleration_ratio =

@@ -41,8 +41,12 @@ std::float64_t steady_window_start(std::float64_t duration)
 }
 
 /* Applies one control/physics step and accumulates the tracking metrics. */
-void advance_step(FlightController& ctrl, Aircraft& craft, StepMetrics& step, MissionRunTrace& trace,
-                  const MissionRunRequest& run, std::float64_t& time)
+void advance_step(FlightController&        ctrl,
+                  Aircraft&                craft,
+                  StepMetrics&             step,
+                  MissionRunTrace&         trace,
+                  const MissionRunRequest& run,
+                  std::float64_t&          time)
 {
     craft.set_command(ctrl.update(run.target, craft.state(), kDt));
     craft.update(kDt);
@@ -54,8 +58,12 @@ void advance_step(FlightController& ctrl, Aircraft& craft, StepMetrics& step, Mi
 }
 
 /* Publishes one compressed viewer sample at the visible replay cadence. */
-void publish_viewer_sample(Aircraft& craft, const MissionRunRequest& run, FlightController& ctrl,
-                           std::float64_t time, std::float64_t& next_viewer_time, std::float64_t viewer_period)
+void publish_viewer_sample(Aircraft&                craft,
+                           const MissionRunRequest& run,
+                           FlightController&        ctrl,
+                           std::float64_t           time,
+                           std::float64_t&          next_viewer_time,
+                           std::float64_t           viewer_period)
 {
     mission_viewer_observer.callback(
         MissionViewerSample{.time = time,

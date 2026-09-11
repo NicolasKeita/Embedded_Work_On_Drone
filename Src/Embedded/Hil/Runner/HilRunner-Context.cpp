@@ -52,6 +52,7 @@ std::expected<void, HilError> install_injector(HilRunContext& ctx, const sim::si
 {
     const std::expected<sim::sil::FaultInjector, sim::sil::InjectorError> made =
         sim::sil::make_fault_injector(scenario);
+
     if (!made.has_value()) {
         return std::unexpected(HilError::FaultScenarioRejected);
     }
@@ -82,8 +83,7 @@ HilRunner::makeContext(const HilConfig& config, std::span<const sim::sil::FaultS
     if (scenarios.size() > kHilMaxFaultScenarios) {
         return std::unexpected(HilError::TooManyScenarios);
     }
-    std::expected<std::unique_ptr<FlightCore::Transport::ITransport>, HilError> channel =
-        open_hil_channel(config);
+    std::expected<std::unique_ptr<FlightCore::Transport::ITransport>, HilError> channel = open_hil_channel(config);
     if (!channel.has_value()) {
         return std::unexpected(channel.error());
     }

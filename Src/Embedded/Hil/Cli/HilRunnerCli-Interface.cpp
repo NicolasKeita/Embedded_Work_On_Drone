@@ -20,8 +20,9 @@ namespace sim::hil {
 /* Resolves a user path and a stable by-id path to the same physical TTY. */
 [[nodiscard]] bool same_serial_device(std::string_view left, std::string_view right)
 {
-    std::error_code error{};
+    std::error_code             error{};
     const std::filesystem::path left_path = std::filesystem::weakly_canonical(left, error);
+
     if (error) {
         return false;
     }
@@ -59,7 +60,8 @@ void apply_auto_match(HilConfig& config, const Stm32DiscoveryResult& discovered)
 }
 
 /* Resolves the trusted interface of an explicit device against the discovery. */
-void resolve_explicit_interface(HilConfig& config, std::string_view requested,
+void resolve_explicit_interface(HilConfig&                  config,
+                                std::string_view            requested,
                                 const Stm32DiscoveryResult& discovered)
 {
     if (trusted_serial_match(discovered, requested)) {
@@ -89,7 +91,8 @@ void apply_loopback_selection(HilConfig& config)
 }
 
 /* Resolves loopback/auto/explicit interface selection into the configuration. */
-void resolve_hil_interface(HilConfig& config, std::string_view requested,
+void resolve_hil_interface(HilConfig&                  config,
+                           std::string_view            requested,
                            const Stm32DiscoveryResult& discovered)
 {
     if (requested == "auto") {

@@ -83,6 +83,7 @@ void write_config_block(std::ostream& out, const HilConfig& cfg)
 void write_target_block(std::ostream& out, const HilConfig& cfg, Stm32ProbeStatus probe_status)
 {
     const std::string_view policy = deadline_policy_name(cfg.deadline_policy);
+
     out << "  Real-time pacing      : YES, monotonic steady clock (" << policy << ")\n";
     write_interface_selection(out, cfg);
     out << "  Authorized FC1        : ST-LINK " << cfg.fc1_stlink_serial << "\n";

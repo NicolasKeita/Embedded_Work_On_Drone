@@ -29,7 +29,7 @@ expected sequence and echoed sim timestamp arrives, or the wall-clock deadline i
 reached. Validates message id, sequence number and sim-timestamp echo so sequence,
 duplicate and stale packets are caught; computes the wall-clock round trip.
 */
-ReceiveResult HilTransport::receiveActuator(MonotonicClock&                            clock,
+ReceiveResult HilTransport::receiveActuator(MonotonicClock&                             clock,
                                             std::uint16_t                               expected_sequence,
                                             std::uint64_t                               expected_echo_sim_us,
                                             std::uint64_t                               sensor_send_wall_us,

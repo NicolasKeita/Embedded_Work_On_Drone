@@ -44,9 +44,9 @@ enum class InterfaceSelection : std::uint8_t {
 
 struct HilConfig {
     /* Resolved byte channel: "loopback" or a stable Linux serial-device path. */
-    std::string interface_name{"loopback"};
-    std::string fc1_stlink_serial{"066FFF525771555067225635"};
-    std::string fc2_stlink_serial{};
+    std::string        interface_name{"loopback"};
+    std::string        fc1_stlink_serial{"066FFF525771555067225635"};
+    std::string        fc2_stlink_serial{};
     InterfaceSelection interface_selection = InterfaceSelection::ExplicitLoopback;
 
     /*

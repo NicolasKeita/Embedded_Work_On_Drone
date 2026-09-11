@@ -81,7 +81,9 @@ void write_banner(std::ostream& out, const HilConfig& cfg, bool fault_expected)
 }
 
 /* Writes the run header with separate execution-target and physical-probe status. */
-void write_header(std::ostream& out, const HilConfig& cfg, bool fault_expected,
+void write_header(std::ostream&    out,
+                  const HilConfig& cfg,
+                  bool             fault_expected,
                   Stm32ProbeStatus probe_status)
 {
     write_banner(out, cfg, fault_expected);

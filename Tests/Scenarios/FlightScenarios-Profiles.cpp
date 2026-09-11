@@ -57,14 +57,10 @@ void run_low_flight_profile(TestHarness&                  runner,
                           trace.metrics.steady_state_error,
                           trace.metrics.max_acceleration);
     runner.check(final_state.z > 0.5, "aircraft remains airborne at 30 s");
-    runner.check(std::abs(final_state.z - profile.target.z) <= 1.0,
-                 "low-altitude target reached (+/- 1 m)");
-    runner.check(std::abs(final_state.x - profile.target.x) <= 1.5,
-                 "longitudinal target reached (+/- 1.5 m)");
-    runner.check(std::abs(final_state.y - profile.target.y) <= 1.5,
-                 "lateral target reached (+/- 1.5 m)");
-    runner.check(trace.metrics.max_acceleration < 2.0,
-                 "takeoff acceleration remains gentle (< 2 m/s^2)");
+    runner.check(std::abs(final_state.z - profile.target.z) <= 1.0, "low-altitude target reached (+/- 1 m)");
+    runner.check(std::abs(final_state.x - profile.target.x) <= 1.5, "longitudinal target reached (+/- 1.5 m)");
+    runner.check(std::abs(final_state.y - profile.target.y) <= 1.5, "lateral target reached (+/- 1.5 m)");
+    runner.check(trace.metrics.max_acceleration < 2.0, "takeoff acceleration remains gentle (< 2 m/s^2)");
 }
 }
 

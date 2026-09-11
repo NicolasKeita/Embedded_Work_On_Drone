@@ -50,17 +50,17 @@ channel and the wall clock, plus the cached values used by the event recorders.
 struct HilRunContext {
     HilRunContext(const HilConfig& cfg, std::unique_ptr<FlightCore::Transport::ITransport> byte_channel);
 
-    const HilConfig                    config;
-    Aircraft                           aircraft;
-    sim::sil::CommsBus                 comms;
-    sim::safety::HealthMonitor         health;
-    sim::safety::SafetyManager         safety;
-    sim::safety::SafetyCommand         safety_command{};
-    HilSensorModel                     sensor_model;
+    const HilConfig                                    config;
+    Aircraft                                           aircraft;
+    sim::sil::CommsBus                                 comms;
+    sim::safety::HealthMonitor                         health;
+    sim::safety::SafetyManager                         safety;
+    sim::safety::SafetyCommand                         safety_command{};
+    HilSensorModel                                     sensor_model;
     std::unique_ptr<FlightCore::Transport::ITransport> channel;
-    HilTransport                       transport;
-    std::unique_ptr<IFcTarget>         fc_target;
-    MonotonicClock                     clock;
+    HilTransport                                       transport;
+    std::unique_ptr<IFcTarget>                         fc_target;
+    MonotonicClock                                     clock;
 
     std::array<sim::sil::FaultInjector, kHilMaxFaultScenarios> injectors{};
     std::size_t                                                injector_count = 0;

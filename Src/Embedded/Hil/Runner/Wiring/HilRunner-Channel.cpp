@@ -34,6 +34,7 @@ std::unique_ptr<FlightCore::Transport::ITransport> open_loopback_channel()
 HilChannelResult open_serial_channel(const HilConfig& config)
 {
     SerialTransport::OpenResult opened = SerialTransport::openPort(config.interface_name);
+
     if (!opened.has_value()) {
         return std::unexpected(HilError::SerialOpenFailed);
     }

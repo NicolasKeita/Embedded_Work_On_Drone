@@ -47,10 +47,10 @@ void stream_sil_twin(const sim::sil::ScenarioRecord& record)
 /* Publishes one compressed functional-mission sample using the shared TwinSnapshot schema. */
 void publish_functional_sample(const sim::test::MissionViewerSample& sample, void* opaque_context)
 {
-    auto& context = *static_cast<FunctionalViewerContext*>(opaque_context);
+    auto&                context = *static_cast<FunctionalViewerContext*>(opaque_context);
     const AircraftState& aircraft = sample.aircraft;
     const std::float64_t airspeed = std::hypot(aircraft.vx, aircraft.vy, aircraft.vz);
-    std::ostringstream out;
+    std::ostringstream   out;
 
     out << std::setprecision(8) << "{\"source\":\"SIL\",\"time_s\":" << sample.time
         << ",\"aircraft\":{\"x_m\":" << aircraft.x << ",\"y_m\":" << aircraft.y
@@ -75,10 +75,11 @@ void publish_functional_sample(const sim::test::MissionViewerSample& sample, voi
 
 /* Runs one functional SIL mission while streaming its compressed progress to the viewer. */
 void run_functional_sil_twin(const sim::test::ScenarioEntry& entry,
-                             sim::test::TestHarness& runner,
-                             std::float64_t hover_rpm)
+                             sim::test::TestHarness&         runner,
+                             std::float64_t                  hover_rpm)
 {
     FunctionalViewerContext context{};
+
     std::cout << "\n--- Digital Twin SIL live stream: ws://localhost:8765/twin ---" << std::endl;
     sim::test::set_mission_viewer_observer(
         sim::test::MissionViewerObserver{.callback = publish_functional_sample, .context = &context});

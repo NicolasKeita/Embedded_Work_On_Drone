@@ -30,7 +30,7 @@ constexpr std::uint32_t kMaximumWritePolls = 5;
 /* Waits until a descriptor accepts one more write within the poll budget. */
 [[nodiscard]] bool wait_serial_writable(std::int32_t descriptor)
 {
-    pollfd event{.fd = descriptor, .events = POLLOUT, .revents = 0};
+    pollfd             event{.fd = descriptor, .events = POLLOUT, .revents = 0};
     const std::int32_t ready = poll(&event, 1, kWritePollTimeoutMs);
 
     return ready >= 0 || errno == EINTR;
@@ -49,7 +49,7 @@ constexpr std::uint32_t kMaximumWritePolls = 5;
 
 bool SerialTransport::sendBytes(std::span<const std::uint8_t> data) noexcept
 {
-    std::size_t offset = 0;
+    std::size_t   offset = 0;
     std::uint32_t polls = 0;
 
     while (offset < data.size()) {

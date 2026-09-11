@@ -19,11 +19,12 @@ import SilTelemetry;
 namespace sim::test::sil {
 
 /* Writes at most twelve scenario events that have occurred by the current sample. */
-void write_recent_events(std::ostream& out,
+void write_recent_events(std::ostream&                       out,
                          std::span<const sim::sil::SilEvent> events,
-                         std::float64_t time)
+                         std::float64_t                      time)
 {
     std::size_t eligible_count = 0U;
+
     for (const sim::sil::SilEvent& event : events) {
         if (event.timestamp <= time) {
             ++eligible_count;
@@ -84,8 +85,8 @@ void write_fc_status(std::ostream& out, std::string_view status, std::string_vie
 }
 
 /* Serializes one SIL telemetry sample into the TwinSnapshot schema shared with HIL. */
-void write_snapshot(std::ostream& out,
-                    const sim::sil::ScenarioRecord& record,
+void write_snapshot(std::ostream&                    out,
+                    const sim::sil::ScenarioRecord&  record,
                     const sim::sil::TelemetrySample& sample)
 {
     const bool active = fault_is_active(record, sample.time);

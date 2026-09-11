@@ -70,7 +70,7 @@ constexpr std::int32_t kOpenFlags = O_RDWR | O_NOCTTY | O_NONBLOCK | O_CLOEXEC;
 /* Opens and configures a Linux serial device in raw, non-blocking mode. */
 SerialTransport::OpenResult SerialTransport::openPort(std::string_view device_path) noexcept
 {
-    std::string      path{};
+    std::string        path{};
     const std::int32_t descriptor = open_serial_device(device_path, path);
 
     if (descriptor < 0) {
