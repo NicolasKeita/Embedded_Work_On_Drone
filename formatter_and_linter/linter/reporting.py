@@ -18,6 +18,9 @@ from linter.uninitialized_decl_checks import format_uninitialized_decl_message
 from linter.designated_init_checks import format_designated_init_message
 from linter.return_only_var_checks import format_return_only_var_message
 from linter.cppm_inline_function_checks import format_cppm_inline_function_message
+from linter.function_parameter_count_checks import (
+    format_function_parameter_count_message,
+)
 
 
 def _get_path_label(file_path: str) -> str:
@@ -166,5 +169,17 @@ def print_cppm_inline_function_warnings(
     for function_name, start_line, body_lines in violations:
         message = format_cppm_inline_function_message(
             path_label, function_name, start_line, body_lines
+        )
+        print(f"⚠️  {message}", file=sys.stderr)
+
+
+def print_function_parameter_count_warnings(
+    violations: List[Tuple[str, int, int]],
+    file_path: str
+) -> None:
+    path_label = _get_path_label(file_path)
+    for function_name, start_line, param_count in violations:
+        message = format_function_parameter_count_message(
+            path_label, function_name, start_line, param_count
         )
         print(f"⚠️  {message}", file=sys.stderr)
