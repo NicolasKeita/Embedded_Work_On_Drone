@@ -43,8 +43,53 @@ function Asset({ path, position, scale, rotation, brighten = false }: { path: st
         : brighten ? brightenAirframeMaterial(object.material) : object.material.clone();
     });
     return clone;
-  }, [scene]);
+  }, [brighten, scene]);
   return <primitive object={model} position={position} scale={scale} rotation={rotation} />;
+}
+
+function FaultAwareAirframe({ snapshot }: { snapshot: TwinSnapshot }) {
+  const { scene } = useGLTF('/models/drone-done.glb');
+  const wingState = snapshot.active_fault === 'ACTUATOR_DEGRADED'
+    ? snapshot.fc1.components.actuators ?? 'DEGRADED'
+    : 'HEALTHY';
+  const airframe = useMemo(() => {
+    const clone = scene.clone();
+    const materials: THREE.MeshStandardMaterial[] = [];
+    clone.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+      object.castShadow = true;
+      object.receiveShadow = true;
+      const isWing = object.name === 'helice_droite' || object.name === 'helice_gauche';
+      const clonedMaterials = (Array.isArray(object.material) ? object.material : [object.material])
+        .map((material) => brightenAirframeMaterial(material));
+      object.material = Array.isArray(object.material) ? clonedMaterials : clonedMaterials[0];
+      if (isWing) {
+        clonedMaterials.forEach((material) => {
+          if (material instanceof THREE.MeshStandardMaterial) materials.push(material);
+        });
+      }
+    });
+    return { model: clone, wingMaterials: materials };
+  }, [scene]);
+
+  useFrame(({ clock }) => {
+    const active = wingState === 'DEGRADED' || wingState === 'FAILED';
+    const color = new THREE.Color(stateColor(wingState));
+    const pulse = (Math.sin(clock.elapsedTime * 8) + 1) * .5;
+    airframe.wingMaterials.forEach((material) => {
+      if (active) {
+        material.color.copy(color);
+        material.emissive.copy(color);
+        material.emissiveIntensity = .65 + pulse * 1.35;
+        return;
+      }
+      material.color.lerp(new THREE.Color('#d8eef2'), .12);
+      material.emissive.copy(material.color);
+      material.emissiveIntensity = .12;
+    });
+  });
+
+  return <primitive object={airframe.model} position={AIRFRAME_DEFAULT_POSITION} scale={AIRFRAME_MODEL_SCALE} rotation={AIRFRAME_DEFAULT_ROTATION} />;
 }
 
 function FaultMarker({ label, state, position, showLabel = true }: { label: string; state: ComponentState; position: [number, number, number]; showLabel?: boolean }) {
@@ -67,7 +112,7 @@ function SceneLighting() {
   return <><ambientLight intensity={1.8} /><hemisphereLight args={['#d9fbff', '#142c2a', 1.6]} /><directionalLight position={[3, 8, 5]} intensity={4} castShadow /><Environment preset="city" environmentIntensity={1.2} /></>;
 }
 
-function AirframePanel() {
+function AirframePanel({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
     <div style={{ minWidth: 0, position: 'relative', border: '1px solid #31505b', background: '#18313b' }}>
       <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae' }}>HELIBLADE · AIRFRAME</div>
@@ -77,7 +122,7 @@ function AirframePanel() {
         <directionalLight position={[-5, 4, 7]} intensity={5.5} color="#e8fbff" />
         <directionalLight position={[5, 1, -4]} intensity={3.2} color="#9edbe5" />
         {SHOW_AIRFRAME_AXES && <axesHelper args={[AIRFRAME_AXES_SIZE]} />}
-        <Asset path="/models/drone-done.glb" position={AIRFRAME_DEFAULT_POSITION} scale={AIRFRAME_MODEL_SCALE} rotation={AIRFRAME_DEFAULT_ROTATION} brighten />
+        <FaultAwareAirframe snapshot={snapshot} />
         <OrbitControls enablePan={false} minDistance={4.5} maxDistance={11} maxPolarAngle={Math.PI * .85} />
       </Canvas>
     </div>
@@ -107,7 +152,7 @@ function Stm32Panel({ snapshot }: { snapshot: TwinSnapshot }) {
 export function AvionicsScene({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
     <div className="avionics-canvas" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 65fr) minmax(0, 35fr)', gap: 8, padding: 8 }}>
-      <AirframePanel />
+      <AirframePanel snapshot={snapshot} />
       <Stm32Panel snapshot={snapshot} />
       <div className="legend"><span><i className="healthy" />Healthy</span><span><i className="degraded" />Degraded / blinking</span><span><i className="failed" />Failed / blinking</span></div>
     </div>
