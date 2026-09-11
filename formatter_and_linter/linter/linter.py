@@ -34,6 +34,10 @@ from linter.cppm_inline_function_checks import (
     check_cppm_inline_functions,
     format_cppm_inline_function_message,
 )
+from linter.function_parameter_count_checks import (
+    MAX_FUNCTION_PARAMETERS,
+    check_function_parameter_count,
+)
 from linter.comment_language_checks import check_code_comments_language
 from linter.main_filename_checks import check_main_function_filename
 from linter.multiple_var_decl_checks import check_multiple_var_declarations
@@ -69,6 +73,7 @@ from linter.reporting import (
     print_return_only_var_warnings,
     print_cppm_interface_warnings,
     print_cppm_inline_function_warnings,
+    print_function_parameter_count_warnings,
     print_directory_file_count_warnings,
     print_module_filename_warnings,
     print_module_size_warnings,
@@ -87,6 +92,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         designated_init_violations = check_designated_init_candidates(code)
         return_only_var_violations = check_return_only_variable(code)
         main_filename_violations = check_main_function_filename(code, file_path)
+        param_count_violations = check_function_parameter_count(code)
 
         has_issues = (
             len(cppm_violations) > 0
@@ -97,6 +103,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
             or len(designated_init_violations) > 0
             or len(return_only_var_violations) > 0
             or len(main_filename_violations) > 0
+            or len(param_count_violations) > 0
         )
         if has_issues:
             print_issue_header(file_path)
@@ -108,6 +115,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
         print_designated_init_warnings(designated_init_violations)
         print_return_only_var_warnings(return_only_var_violations)
+        print_function_parameter_count_warnings(param_count_violations, file_path)
 
         return has_issues
 
@@ -123,6 +131,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
     designated_init_violations = check_designated_init_candidates(code)
     return_only_var_violations = check_return_only_variable(code)
     main_filename_violations = check_main_function_filename(code, file_path)
+    param_count_violations = check_function_parameter_count(code)
     has_issues = (
         len(long_lines) > 0
         or len(invalid_comments) > 0
@@ -135,6 +144,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         or len(designated_init_violations) > 0
         or len(return_only_var_violations) > 0
         or len(main_filename_violations) > 0
+        or len(param_count_violations) > 0
     )
     if has_issues:
         print_issue_header(file_path)
@@ -149,6 +159,7 @@ def lint_code(code: str, max_length: int = 120, file_path: str = "") -> bool:
         print_uninitialized_decl_warnings(uninitialized_decl_violations)
         print_designated_init_warnings(designated_init_violations)
         print_return_only_var_warnings(return_only_var_violations)
+        print_function_parameter_count_warnings(param_count_violations, file_path)
 
     return has_issues
 
@@ -172,6 +183,8 @@ __all__ = [
     "check_cppm_inline_function_bodies",
     "check_cppm_inline_functions",
     "format_cppm_inline_function_message",
+    "MAX_FUNCTION_PARAMETERS",
+    "check_function_parameter_count",
     "check_directory_file_counts",
     "check_module_filename_convention",
     "MAX_IMPLEMENTATION_FILES_PER_MODULE",
@@ -193,6 +206,7 @@ __all__ = [
     "print_return_only_var_warnings",
     "print_cppm_interface_warnings",
     "print_cppm_inline_function_warnings",
+    "print_function_parameter_count_warnings",
     "print_directory_file_count_warnings",
     "print_module_filename_warnings",
     "print_module_size_warnings",
