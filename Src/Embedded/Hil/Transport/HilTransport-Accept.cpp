@@ -34,19 +34,15 @@ namespace {
 /* Validates one complete actuator frame and fills the outputs. */
 std::expected<ReceiveResult, FrameAcceptanceError> HilTransport::accept_frame(
     const FlightCore::Transport::HilHeader& header,
-    std::uint16_t expected_sequence,
-    std::uint64_t expected_echo_sim_us,
-    std::uint64_t sensor_send_wall_us,
+    const ActuatorExpectations& expectations,
     std::uint64_t receive_wall,
-    FlightCore::HAL::ActuatorCommands& out_cmds,
-    FlightCore::Transport::ActuatorDiagnostics& out_diag,
-    std::int64_t& out_rtt_us)
+    ActuatorReceiveOutputs outputs)
 {
     if (header.msg_id != FlightCore::Transport::kMsgIdActuator) {
         stats_.record_dropped();
         return std::unexpected(FrameAcceptanceError::NotActuatorFrame);
     }
-    if (header.sequence_num != expected_sequence) {
+    if (header.sequence_num != expectations.expected_sequence) {
         stats_.record_sequence_error();
         return ReceiveResult::SequenceError;
     }
@@ -60,14 +56,15 @@ std::expected<ReceiveResult, FrameAcceptanceError> HilTransport::accept_frame(
         stats_.record_dropped();
         return ReceiveResult::InvalidPayload;
     }
-    if (payload.echo_sim_timestamp_us != expected_echo_sim_us) {
+    if (payload.echo_sim_timestamp_us != expectations.expected_echo_sim_us) {
         stats_.record_stale();
         return ReceiveResult::EchoMismatch;
     }
-    out_cmds = FlightCore::Transport::toActuatorCommands(payload);
-    out_diag = to_diag(payload);
-    out_rtt_us = static_cast<std::int64_t>(receive_wall) - static_cast<std::int64_t>(sensor_send_wall_us);
-    stats_.record_received(out_rtt_us);
+    outputs.commands = FlightCore::Transport::toActuatorCommands(payload);
+    outputs.diagnostics = to_diag(payload);
+    outputs.round_trip_us = static_cast<std::int64_t>(receive_wall)
+                            - static_cast<std::int64_t>(expectations.sensor_send_wall_us);
+    stats_.record_received(outputs.round_trip_us);
     return ReceiveResult::Ok;
 }
 

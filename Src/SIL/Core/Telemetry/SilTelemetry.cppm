@@ -75,6 +75,14 @@ struct TelemetryControl {
     std::uint8_t   safety_state = 0;
 };
 
+/* Bundles the sensor-path inputs of one recording instant (sensor telemetry, control command, commanded rpm, control). */
+struct TelemetrySampleInput {
+    sim::sil::SensorTelemetry sensor{};
+    ControlCommand            command{};
+    std::float64_t            commanded_rpm = 0.0;
+    TelemetryControl         control{};
+};
+
 /*
 Fixed-rate dual sampler: the sensor path feeds the TelemetrySample stream (what
 the FC observes) while the physics state feeds the parallel TrueStateSample
@@ -86,9 +94,8 @@ struct TelemetryRecorder {
     std::vector<TelemetrySample> samples;
     std::vector<TrueStateSample> truth_samples;
 
-    void maybe_record(std::float64_t time, const AircraftState& truth, const SensorTelemetry& sensor,
-                      const ControlCommand& command, std::float64_t commanded_rpm,
-                      const TelemetryControl& control);
+    void maybe_record(std::float64_t time, const AircraftState& truth,
+                      const TelemetrySampleInput& sample_input);
 };
 
 }

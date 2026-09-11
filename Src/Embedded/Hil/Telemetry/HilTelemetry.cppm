@@ -70,6 +70,14 @@ struct HilTelemetryControl {
     std::uint8_t   safety_state = 0;
 };
 
+/* Bundles the sensor-path inputs of one recording instant (sensor, actuator command, commanded rpm, control). */
+struct HilSensorSampleInput {
+    FlightCore::HAL::SensorData       sensor{};
+    FlightCore::HAL::ActuatorCommands command{};
+    std::float64_t                    commanded_rpm = 0.0;
+    HilTelemetryControl               control{};
+};
+
 struct HilTelemetryRecorder {
     std::float64_t               interval_s = 0.05;
     std::float64_t               last_sample_time = -1.0e12;
@@ -77,9 +85,7 @@ struct HilTelemetryRecorder {
     std::vector<HilTruthSample>  truth_samples;
 
     void maybe_record(std::float64_t time_s, const AircraftState& truth,
-                      const FlightCore::HAL::SensorData& sensor,
-                      const FlightCore::HAL::ActuatorCommands& command,
-                      std::float64_t commanded_rpm, const HilTelemetryControl& control);
+                      const HilSensorSampleInput& sample_input);
 };
 
 }

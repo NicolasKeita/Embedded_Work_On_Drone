@@ -21,29 +21,26 @@ namespace {
 Builds the sensor-path sample of one recording instant.
 */
 TelemetrySample make_sensor_sample(std::float64_t          time,
-                                   const SensorTelemetry&  sensor,
-                                   const ControlCommand&   command,
-                                   std::float64_t          commanded_rpm,
-                                   const TelemetryControl& control)
+                                   const TelemetrySampleInput& sample_input)
 {
     return TelemetrySample{.time = time,
-                           .x = sensor.x,
-                           .y = sensor.y,
-                           .altitude_m = sensor.z,
-                           .pitch_rad = sensor.pitch,
-                           .roll_rad = sensor.roll,
-                           .vx = sensor.vx,
-                           .vy = sensor.vy,
-                           .vz = sensor.vz,
-                           .commanded_rpm = commanded_rpm,
-                           .actual_rpm = sensor.actual_rpm,
-                           .left_servo_deg = command.left_servo_angle,
-                           .right_servo_deg = command.right_servo_angle,
-                           .target_x = control.target_x,
-                           .target_y = control.target_y,
-                           .target_z = control.target_z,
-                           .mission_state = control.mission_state,
-                           .safety_state = control.safety_state};
+                           .x = sample_input.sensor.x,
+                           .y = sample_input.sensor.y,
+                           .altitude_m = sample_input.sensor.z,
+                           .pitch_rad = sample_input.sensor.pitch,
+                           .roll_rad = sample_input.sensor.roll,
+                           .vx = sample_input.sensor.vx,
+                           .vy = sample_input.sensor.vy,
+                           .vz = sample_input.sensor.vz,
+                           .commanded_rpm = sample_input.commanded_rpm,
+                           .actual_rpm = sample_input.sensor.actual_rpm,
+                           .left_servo_deg = sample_input.command.left_servo_angle,
+                           .right_servo_deg = sample_input.command.right_servo_angle,
+                           .target_x = sample_input.control.target_x,
+                           .target_y = sample_input.control.target_y,
+                           .target_z = sample_input.control.target_z,
+                           .mission_state = sample_input.control.mission_state,
+                           .safety_state = sample_input.control.safety_state};
 }
 
 /*
@@ -75,10 +72,7 @@ timestamps so that post-run correlation stays trivial.
 */
 void TelemetryRecorder::maybe_record(std::float64_t          time,
                                      const AircraftState&    truth,
-                                     const SensorTelemetry&  sensor,
-                                     const ControlCommand&   command,
-                                     std::float64_t          commanded_rpm,
-                                     const TelemetryControl& control)
+                                     const TelemetrySampleInput& sample_input)
 {
     if (interval_s <= 0.0) {
         return;
@@ -88,7 +82,7 @@ void TelemetryRecorder::maybe_record(std::float64_t          time,
     }
     last_sample_time = time;
 
-    samples.push_back(make_sensor_sample(time, sensor, command, commanded_rpm, control));
+    samples.push_back(make_sensor_sample(time, sample_input));
     truth_samples.push_back(make_truth_sample(time, truth));
 }
 

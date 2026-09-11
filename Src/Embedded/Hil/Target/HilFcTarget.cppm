@@ -1,14 +1,8 @@
 /*
 Filename: Src/Embedded/Hil/Target/HilFcTarget.cppm
-Description: Flight Controller target abstraction of the HIL runner. IFcTarget is the
-thing on the far end of the transport: it drains the SensorPacket the runner just sent,
-runs the Flight Controller and emits the answering ActuatorPacket. HostFcTarget runs
-the REAL sim::control::FlightController core (the same core the future fc1_stm32
-firmware will use, not a HIL-specific controller) behind the HAL abstractions the
-embedded firmware would use (ISensorInput / IActuatorOutput), validating and holding
-the last good sensor on an invalid sample exactly like the SIL FC1 step. Replacing the
-host emulator with the physical STM32 only swaps this implementation for a remote
-target over a serial transport — never the runner or the aircraft.
+Description: Flight Controller target abstraction of the HIL runner. HostFcTarget runs
+the REAL sim::control::FlightController core behind the embedded HAL abstractions;
+replacing it with the physical STM32 only swaps this implementation, never the runner.
 Exports:
     struct FcStepOutcome,
     class IFcTarget,
@@ -73,6 +67,14 @@ public:
     FcStepOutcome respond(std::uint16_t expected_sequence) override;
 };
 
+/* Bundles the Flight Controller configuration passed to the host emulator target. */
+struct HostFcTargetConfig {
+    sim::control::TargetState        target{};
+    sim::control::ControllerConfig   controller{};
+    std::float64_t                   dt = 0.0;
+    sim::sil::SensorValidationLimits sensor_limits{};
+};
+
 /*
 Host FC emulator target: the real Flight Controller core exercised in-process over
 the shared byte channel. This is NOT the physical target; it exists only to drive the
@@ -83,10 +85,7 @@ class HostFcTarget final : public IFcTarget {
 public:
     HostFcTarget(FlightCore::Transport::ITransport& channel,
                  MonotonicClock& clock,
-                 const sim::control::TargetState& target,
-                 const sim::control::ControllerConfig& controller,
-                 std::float64_t dt,
-                 const sim::sil::SensorValidationLimits& sensor_limits);
+                 const HostFcTargetConfig& config);
 
     FcStepOutcome respond(std::uint16_t expected_sequence) override;
 

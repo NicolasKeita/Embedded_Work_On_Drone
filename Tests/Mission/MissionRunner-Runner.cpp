@@ -37,7 +37,7 @@ MissionRunTrace run_mission(FlightController&             ctrl,
     trace.metrics.initial_gap = std::abs(target_value - initial_value);
     trace.record(ctrl.state());
 
-    run_control_loop(ctrl, craft, run, trace, direction, target_value);
+    run_control_loop(MissionDynamics{.ctrl = ctrl, .craft = craft}, run, trace, direction, target_value);
 
     return trace;
 }

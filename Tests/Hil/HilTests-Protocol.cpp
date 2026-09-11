@@ -45,9 +45,10 @@ namespace {
             FlightCore::HAL::ActuatorCommands out{};
             sim::hil::ActuatorDiagnostics     diag{};
             std::int64_t                      rtt = 0;
-            const std::uint64_t               deadline = clock.nowUs() + 50000;
 
-            return transport.receiveActuator(clock, expected_seq, expected_echo, 0, deadline, out, diag, rtt);
+            return transport.receiveActuator(clock, clock.nowUs() + 50000,
+                                            sim::hil::ActuatorExpectations{expected_seq, expected_echo, 0},
+                                            sim::hil::ActuatorReceiveOutputs{out, diag, rtt});
         }
     };
 
