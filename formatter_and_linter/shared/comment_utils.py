@@ -131,7 +131,7 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
     declaration_lines = set()
 
     scoped_name = r'(?:\w+::)*\w+'
-    template_type = r'[\w:]+(?:<[^<>]*>)?'
+    template_type = r'[\w:]+(?:\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?'
     function_suffix = (
         r'\s*'
         r'(?:(?:const|final|override)\s*|noexcept\s*(?:\([^)]*\)\s*)?)*'
@@ -161,7 +161,7 @@ def detect_comments_and_functions(code: str) -> Tuple[List[Tuple[int, str]], Set
         re.MULTILINE,
     )
     type_declaration_pattern = re.compile(r'^[ \t]*(?:struct|class|enum|union)[ \t]+\w+', re.MULTILINE)
-    alias_declaration_pattern = re.compile(r'^[ \t]*using[ \t]+[\w:]+(?:<[^<>]*>)?[ \t]*=', re.MULTILINE)
+    alias_declaration_pattern = re.compile(r'^[ \t]*using[ \t]+[\w:]+(?:\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?[ \t]*=', re.MULTILINE)
     excluded_declaration_pattern = re.compile(r'^[ \t]*(?:import[ \t]|export[ \t]|module[ \t])')
 
     string_ranges: List[Tuple[int, int]] = []

@@ -188,6 +188,16 @@ class TestCommentPlacement(unittest.TestCase):
         )
         self.assertEqual(placement_violations(code), [])
 
+    def test_comment_above_nested_template_function_is_valid(self):
+        code = (
+            "/* Polls UART bytes until one valid protocol message is available. */\n"
+            "std::expected<std::optional<Message>, TransportError> ZephyrUartInterFcTransport::poll() noexcept\n"
+            "{\n"
+            "    return {};\n"
+            "}\n"
+        )
+        self.assertEqual(placement_violations(code), [])
+
 
 if __name__ == "__main__":
     unittest.main()
