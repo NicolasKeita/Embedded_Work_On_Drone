@@ -1,7 +1,7 @@
 # Software-in-the-Loop (SIL)
 
 > **What SIL means in this project and what it proves.**
-> Related: [test matrix](test_matrix.md) · [architecture overview](../architecture/overview.md).
+> Related: [scenario reference](scenarios.md) · [test matrix](test_matrix.md) · [architecture overview](../architecture/overview.md).
 
 ## 1. Purpose
 
@@ -61,6 +61,10 @@ the table below reflects those assertions (status = deterministic PASS).
 | `FAULT_INJECTOR-004` | `ACTUATOR_DEGRADED` | efficiency 0.6 at t = 15.0 s | `ACTUATOR_MISMATCH` (sustained 0.5 s) | DEGRADED → COMPENSATED | continues | PASS |
 | `FAULT_INJECTOR-005` | `FC1_UNAVAILABLE` | t = 2.0 s (during climb) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED | PASS |
 
+> The per-scenario detail (objective, configuration, expected behaviour and
+> verifications for every launchable scenario on SIL and HIL) lives in the
+> [scenario reference](scenarios.md); this table is a quick SIL-engine summary.
+
 A `--all` sweep also runs the **observability suite** (`SilObservability*`:
 event ordering, heartbeat/dropped/comms/fault-metadata/logging) and the
 **telemetry suite** (`SilObservabilityTelemetry*`: sampling, fault-path, hold),
@@ -70,7 +74,8 @@ trace `*.jsonl`, telemetry/truth `*.csv`).
 In addition to the SIL engine suite, the SIL runner drives the
 **physics/autonomous catalog** (`Tests/Scenarios`): `NOMINAL-001` (autonomous
 altitude hold, z: 0 → 10 m), `NOMINAL-002..007` (open-loop physics), and
-`NOMINAL-008..011` (cascaded X/Y, full mission, 0 → 100 m hold).
+`NOMINAL-008..011` (cascaded X/Y, full mission, 0 → 100 m hold). The full catalog
+(`NOMINAL-001..017`) is documented in the [scenario reference](scenarios.md).
 
 ## 4. Telemetry
 

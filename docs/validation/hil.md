@@ -2,7 +2,7 @@
 
 > This documents the project's **actual** HIL architecture — an in-process host
 > FC emulator over a loopback byte channel, **not** a physical-MCU setup.
-> Related: [test matrix](test_matrix.md) · [architecture overview](../architecture/overview.md).
+> Related: [scenario reference](scenarios.md) · [test matrix](test_matrix.md) · [architecture overview](../architecture/overview.md).
 
 ## 1. Purpose
 
@@ -173,6 +173,11 @@ core then detects them naturally (same chain as SIL). HIL exposes
 `INVALID_SENSOR_DATA` at t = 5 s / 20 s window, `ACTUATOR_DEGRADED`). They share
 the deterministic outcome of their SIL counterparts (see
 [`demonstrations/mission_abort.md`](../demonstrations/mission_abort.md)).
+
+> The per-scenario detail (objective, configuration, expected behaviour and
+> verifications for every launchable scenario on SIL and HIL, including the
+> nominal profiles `NOMINAL-001` and `NOMINAL-012..017` available in HIL) lives
+> in the [scenario reference](scenarios.md).
 
 ## 8. Reproduce
 

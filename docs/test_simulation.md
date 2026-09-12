@@ -41,49 +41,19 @@ SIL_RUNNER --scenario NOMINAL-011
 
 ## Available scenarios
 
-| ID | Description | Function |
-|----|-------------|----------|
-| `NOMINAL-002` | Grounded rest (RPM = 0, servos = 0) | `scenarios::rest` |
-| `NOMINAL-003` | Vertical climb (RPM > hover) | `scenarios::climb` |
-| `NOMINAL-004` | Descent (RPM < hover) | `scenarios::descent` |
-| `NOMINAL-005` | Forward translation (hover + pitch > 0) | `scenarios::move_x` |
-| `NOMINAL-006` | Lateral translation (hover + roll > 0) | `scenarios::move_y` |
-| `NOMINAL-007` | Combined translation (RPM > hover, pitch > 0, roll < 0) | `scenarios::combined` |
-| `NOMINAL-008` | Autonomous cascaded X axis (x: 20 -> 0) | `flight_scenarios::autonomous_position_x` |
-| `NOMINAL-009` | Autonomous cascaded Y axis (y: -15 -> 0) | `flight_scenarios::autonomous_position_y` |
-| `NOMINAL-010` | Autonomous full mission (TAKEOFF to COMPLETE) | `flight_scenarios::autonomous_mission` |
-| `NOMINAL-011` | Autonomous altitude hold (z: 0 -> 100 m) | `flight_scenarios::autonomous_altitude` |
-| `NOMINAL-012` | Low vertical takeoff (30 s, z = 5 m) | `flight_scenarios::low_vertical_takeoff` |
-| `NOMINAL-013` | Low forward takeoff (30 s, x = 4 m, z = 6 m) | `flight_scenarios::low_forward_takeoff` |
-| `NOMINAL-014` | Low lateral takeoff (30 s, y = -4 m, z = 7 m) | `flight_scenarios::low_lateral_takeoff` |
-| `NOMINAL-015` | Low diagonal takeoff (30 s, x = 3 m, y = 3 m, z = 8 m) | `flight_scenarios::low_diagonal_takeoff` |
-| `NOMINAL-016` | Low offset takeoff (30 s, x = -3 m, y = 2 m, z = 9 m) | `flight_scenarios::low_offset_takeoff` |
-| `NOMINAL-017` | Stratosphere climb (about 9 h, z = 20 km) | `flight_scenarios::stratosphere_climb` |
+The full launchable scenario catalog (nominal `NOMINAL-001..017` and fault
+injection `FAULT_INJECTOR-001..005`) is documented in the
+[scenario reference](validation/scenarios.md), which details each scenario's
+objective, configuration, expected behaviour and verifications for both the
+SIL and HIL runners.
 
-### Physics scenarios (NOMINAL-002 – NOMINAL-007)
+The `SIL_RUNNER` drives two catalogs:
 
-Deterministic open-loop scenarios: they verify the response of the physical model to
-motor and servo commands.
-
-- **NOMINAL-002 — rest**: aircraft on the ground, no command; it must remain motionless.
-- **NOMINAL-003 — climb**: RPM above the theoretical hover value; vertical climb is expected.
-- **NOMINAL-004 — descent**: climb followed by throttle reduction; return to the ground is expected.
-- **NOMINAL-005 — move_x**: positive mean servo command (+10 degrees) -> pitch > 0.
-- **NOMINAL-006 — move_y**: opposed servos (+12 / -12 degrees) -> pure differential, roll > 0 with no pitch.
-- **NOMINAL-007 — combined**: positive mean (+5 degrees) and negative differential -> pitch > 0 and roll < 0.
-
-### Autonomous mission scenarios (NOMINAL-008 – NOMINAL-016)
-
-Closed-loop scenarios driving the flight controller.
-
-- **NOMINAL-008 — autonomous_position_x**: X position -> pitch -> servo cascade, return from x = 20 m to x = 0.
-- **NOMINAL-009 — autonomous_position_y**: Y position -> roll -> servo cascade, return from y = -15 m to y = 0.
-- **NOMINAL-010 — autonomous_mission**: full mission, from the TAKEOFF state through to COMPLETE.
-- **NOMINAL-011 — autonomous_altitude**: autonomous altitude loop, convergence toward z = 100 m with metrics.
-- **NOMINAL-012 to NOMINAL-016 — low takeoff profiles**: five 30-second flights from rest at 5 m to 9 m,
-  combining vertical hold, forward, lateral, and diagonal translations. They intentionally end airborne.
-- **NOMINAL-017 — stratosphere_climb**: 20 km climb at a capped 0.617 m/s, reaching the target after
-  approximately nine real hours because HIL always runs at a 1:1 wall-clock rate.
+- the **SIL engine suite** (`Tests/Sil/SilScenarios*`): `NOMINAL-001` and
+  `FAULT_INJECTOR-001..005`;
+- the **physics/autonomous catalog** (`Tests/Scenarios`): `NOMINAL-001..017`
+  (open-loop physics `002..007`, autonomous cascade/mission `008..011`,
+  low takeoff profiles `012..016`, stratosphere `017`).
 
 ## Execution conditions
 
@@ -110,40 +80,27 @@ paired with each ID in the
 logs (e.g. `[NOMINAL-001][SIL]`, `[FAULT_INJECTOR-001][SIL]`). The HIL suite lives in
 `HIL_RUNNER --selftest`.
 
-### Implemented SIL scenarios
+> The per-scenario detail (objective, configuration, expected behaviour and
+> verifications for every launchable scenario on SIL and HIL) lives in the
+> [scenario reference](validation/scenarios.md). The summary below is kept as a
+> quick orientation; refer to the reference for the authoritative descriptions.
 
 All scenarios share the same initial mission: **an autonomous climb toward a target
 altitude of 10 meters**, over a total simulated duration of 90 seconds.
 
 The following scenarios are executed:
 
-- **NOMINAL-001 [SIL] — Nominal flight with no fault**
-  - **Description**: Full mission execution with no fault injection.
-  - **Expectations**: The mission must complete with the `COMPLETE` status, the safety mode must remain `NORMAL`, no fault must be detected, and the altitude error must stay controlled (<= 10.5 m).
+- **NOMINAL-001 [SIL] — Nominal flight with no fault**: full mission with no fault; must COMPLETE with `NORMAL` safety, no fault detected, altitude error <= 10.5 m.
+- **FAULT_INJECTOR-001 [SIL] — FC1 failure**: heartbeat timeout < 300 ms, `SAFE_MODE` (response <= 200 ms), mission aborted.
+- **FAULT_INJECTOR-002 [SIL] — Communication loss**: `COMMUNICATION_TIMEOUT` < 300 ms, `SAFE_MODE`, mission aborted.
+- **FAULT_INJECTOR-003 [SIL] — Sensor fault**: altitude corruption invalidated < 500 ms, `DEGRADED` -> `COMPENSATED`, mission continues.
+- **FAULT_INJECTOR-004 [SIL] — Actuator degradation**: efficiency 0.6, `ACTUATOR_MISMATCH`, `DEGRADED` -> `COMPENSATED`, mission continues.
+- **FAULT_INJECTOR-005 [SIL] — FC1 failure during climb**: FC1 failure at t = 2 s across the climb transition, `SAFE_MODE`, mission aborted.
 
-- **FAULT_INJECTOR-001 [SIL] — Primary flight controller failure (FC1 failure)**
-  - **Description**: Abrupt stop of the primary flight controller at t = 30.0 s (during altitude hold).
-  - **Expectations**: The fault must be detected via a heartbeat timeout in less than 300 ms. The system must switch to `SAFE_MODE` with a response latency <= 200 ms, and the mission must be aborted.
-
-- **FAULT_INJECTOR-002 [SIL] — Total communication loss (Communication loss)**
-  - **Description**: Communication link cut at t = 30.0 s.
-  - **Expectations**: The `COMMUNICATION_TIMEOUT` detection event must be raised in less than 300 ms. The system must engage a safety reaction (`SAFE_MODE`) and abort the mission.
-
-- **FAULT_INJECTOR-003 [SIL] — Sensor failure (Sensor fault)**
-  - **Description**: Corruption of the altitude sensor data (outlier value) at t = 20.0 s for 10 seconds.
-  - **Expectations**: The outlier value must be invalidated in less than 500 ms. The `HealthMonitor` must enter the `DEGRADED` state, the `COMPENSATED` mode must be engaged to maintain flight, and the mission must not be aborted.
-
-- **FAULT_INJECTOR-004 [SIL] — Actuator degradation (Actuator degradation)**
-  - **Description**: Drop of an actuator efficiency to 60% of its capacity at t = 15.0 s (during the climb phase).
-  - **Expectations**: The mismatch between the command and the physical response must be detected. The system must enter the `DEGRADED` state, engage a compensation setpoint, and continue the mission without aborting it.
-
-An additional SIL scenario is also available:
-
-- **FAULT_INJECTOR-005 [SIL] — FC1 failure during the climb transition**
-  - **Description**: An FC1 failure is injected during the climb mode-change transition, exercising the safety chain across a mode switch rather than during steady station keeping.
-  - **Expectations**: The failure must be detected through the heartbeat timeout, `SAFE_MODE` must be engaged within the required latency, and the mission must be aborted.
-
-*(Note: Network packet loss (Packet loss) is handled at the communication layer level and can be tested via similar probabilistic scenarios.)*
+> Note: `COMMUNICATION_DEGRADED` (packet loss) is handled at the communication
+> layer (`CommsBus`) and has no named deterministic scenario;
+> `CONTROL_DEADLINE_MISSED` and `INVALID_NUMERICAL_STATE` have no injection path.
+> See the [FMECA](fmeca/fmeca.md).
 
 ### Pass/Fail criteria
 

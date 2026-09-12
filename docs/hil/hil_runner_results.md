@@ -2,6 +2,8 @@
 
 > **Superseded by [`../validation/hil.md`](../validation/hil.md).** Kept for
 > reference — the canonical HIL description and timing analysis now live there.
+> The per-scenario detail (objective, configuration, expected behaviour) lives in
+> the [scenario reference](../validation/scenarios.md).
 
 > **IMPORTANT:** these reports are *representative* of the expected output of the
 > implemented `HIL_RUNNER`. They were NOT captured by executing the binary, because this

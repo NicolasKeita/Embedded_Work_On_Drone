@@ -2,7 +2,8 @@
 
 > **What exactly has been validated.** This matrix maps each capability to its
 > requirement, validation method, expected result, status, and the
-> executable/scenario + document that evidence it.
+> executable/scenario + document that evidence it. The per-scenario detail lives
+> in the [scenario reference](scenarios.md).
 
 > **Execution note (read this first).** Every status below is derived from the
 > **deterministic assertions encoded in the test sources** and the shared

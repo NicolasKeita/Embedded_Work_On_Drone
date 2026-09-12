@@ -15,6 +15,7 @@ Start here. The repository has two layers of documentation:
 | [../README.md](../README.md) | What is the project, how to build/demo, current status |
 | [architecture/overview.md](architecture/overview.md) | What is the software architecture? FC1/FC2 responsibilities, layering, execution model |
 | [architecture/architecture.svg](architecture/architecture.svg) | Architecture diagram |
+| [validation/scenarios.md](validation/scenarios.md) | Which scenarios can be launched on SIL/HIL, and what each does |
 | [validation/test_matrix.md](validation/test_matrix.md) | What exactly has been validated? |
 | [validation/sil.md](validation/sil.md) | What does SIL prove? |
 | [validation/hil.md](validation/hil.md) | What is the real HIL architecture and timing? |

@@ -4,7 +4,7 @@
 > (SIL @ t = 20 s, HIL @ t = 5 s). This demo uses the **HIL** scenario so the full
 > controlled descent to the ground is observable within the 30 s run.
 > Related: [validation matrix](../validation/test_matrix.md) ·
-> [FMECA FM-01](../fmeca/fmeca.md).
+> [scenario reference](../validation/scenarios.md) · [FMECA FM-01](../fmeca/fmeca.md).
 
 ## 1. Initial state
 

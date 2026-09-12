@@ -5,7 +5,7 @@
 > window (t = 5 → 25 s) leaves time to observe full recovery before the 30 s run
 > ends.
 > Related: [validation matrix](../validation/test_matrix.md) ·
-> [FMECA FM-04](../fmeca/fmeca.md).
+> [scenario reference](../validation/scenarios.md) · [FMECA FM-04](../fmeca/fmeca.md).
 
 ## 1. Scenario
 
