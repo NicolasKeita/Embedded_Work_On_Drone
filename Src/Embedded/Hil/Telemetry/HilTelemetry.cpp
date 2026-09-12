@@ -40,8 +40,8 @@ HilTruthSample make_truth_sample(std::float64_t time_s, const AircraftState& tru
     };
 }
 
-HilSensorSample make_sensor_sample(std::float64_t                           time_s,
-                                   const HilSensorSampleInput&              sample_input)
+HilSensorSample make_sensor_sample(std::float64_t              time_s,
+                                   const HilSensorSampleInput& sample_input)
 {
     return HilSensorSample{
         .time_s = time_s,
@@ -65,9 +65,9 @@ HilSensorSample make_sensor_sample(std::float64_t                           time
     };
 }
 
-void HilTelemetryRecorder::maybe_record(std::float64_t                           time_s,
-                                        const AircraftState&                     truth,
-                                        const HilSensorSampleInput&              sample_input)
+void HilTelemetryRecorder::maybe_record(std::float64_t              time_s,
+                                        const AircraftState&        truth,
+                                        const HilSensorSampleInput& sample_input)
 {
     if (time_s - last_sample_time + 1.0e-9 < interval_s) {
         return;

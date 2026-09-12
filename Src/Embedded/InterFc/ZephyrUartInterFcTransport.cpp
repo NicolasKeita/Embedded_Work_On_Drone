@@ -39,8 +39,9 @@ bool ZephyrUartInterFcTransport::ready() const noexcept
 /* Moves hardware FIFO bytes into the instance's fixed receive buffer. */
 void ZephyrUartInterFcTransport::receive_uart_bytes(const device* uart, void* user_data) noexcept
 {
-    auto* transport = static_cast<ZephyrUartInterFcTransport*>(user_data);
+    auto*                        transport = static_cast<ZephyrUartInterFcTransport*>(user_data);
     std::array<std::uint8_t, 16> bytes{};
+
     while (uart_irq_update(uart) != 0 && uart_irq_is_pending(uart) != 0) {
         if (uart_irq_rx_ready(uart) == 0) {
             continue;
@@ -56,6 +57,7 @@ void ZephyrUartInterFcTransport::receive_uart_bytes(const device* uart, void* us
 void ZephyrUartInterFcTransport::store_received_byte(std::uint8_t byte) noexcept
 {
     const std::uint32_t next_head = (receive_head_ + 1u) % receive_capacity;
+
     if (next_head == receive_tail_) {
         return;
     }

@@ -24,7 +24,7 @@ enum class TransportError : std::uint8_t {
 };
 
 struct Message {
-    MessageKind kind = MessageKind::Heartbeat;
+    MessageKind   kind = MessageKind::Heartbeat;
     std::uint16_t sequence = 0;
 };
 
@@ -55,7 +55,7 @@ public:
 
 private:
     FrameCodec::Frame frame_{};
-    std::size_t size_ = 0;
+    std::size_t       size_ = 0;
 };
 
 }

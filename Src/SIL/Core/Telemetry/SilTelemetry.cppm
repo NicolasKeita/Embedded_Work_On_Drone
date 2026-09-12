@@ -80,7 +80,7 @@ struct TelemetrySampleInput {
     sim::sil::SensorTelemetry sensor{};
     ControlCommand            command{};
     std::float64_t            commanded_rpm = 0.0;
-    TelemetryControl         control{};
+    TelemetryControl          control{};
 };
 
 /*

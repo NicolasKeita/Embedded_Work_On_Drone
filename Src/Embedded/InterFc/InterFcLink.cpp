@@ -22,6 +22,7 @@ constexpr std::uint8_t kProtocolVersion = 1;
 [[nodiscard]] std::uint16_t frame_crc(std::span<const std::uint8_t> bytes) noexcept
 {
     std::uint16_t crc = 0xFFFF;
+
     for (const std::uint8_t byte : bytes) {
         crc ^= static_cast<std::uint16_t>(byte) << 8u;
         for (std::uint8_t bit = 0; bit < 8; ++bit) {
@@ -60,17 +61,16 @@ constexpr std::uint8_t kProtocolVersion = 1;
 /* Encodes one logical message into the UART framing shared by both controllers. */
 FrameCodec::Frame FrameCodec::encode(const Message& message) noexcept
 {
-    Frame frame{
+    Frame               frame{
         kSyncFirst,
         kSyncSecond,
         kProtocolVersion,
         static_cast<std::uint8_t>(message.kind),
         static_cast<std::uint8_t>(message.sequence & 0xFFu),
         static_cast<std::uint8_t>((message.sequence >> 8u) & 0xFFu),
-        0,
-        0,
-    };
+        0, 0, };
     const std::uint16_t crc = frame_crc(std::span<const std::uint8_t>{frame.data(), 6});
+
     frame[6] = static_cast<std::uint8_t>(crc & 0xFFu);
     frame[7] = static_cast<std::uint8_t>((crc >> 8u) & 0xFFu);
     return frame;

@@ -46,14 +46,14 @@ private:
     /* Appends one interrupt-received byte unless the fixed buffer is full. */
     void store_received_byte(std::uint8_t byte) noexcept;
 
-    const device* uart_ = nullptr;
-    FrameParser parser_{};
+    const device*                              uart_ = nullptr;
+    FrameParser                                parser_{};
     std::array<std::uint8_t, receive_capacity> receive_buffer_{};
-    volatile std::uint32_t receive_head_ = 0;
-    volatile std::uint32_t receive_tail_ = 0;
-    std::uint32_t received_byte_count_ = 0;
-    std::uint32_t valid_frame_count_ = 0;
-    bool initialized_ = false;
+    volatile std::uint32_t                     receive_head_ = 0;
+    volatile std::uint32_t                     receive_tail_ = 0;
+    std::uint32_t                              received_byte_count_ = 0;
+    std::uint32_t                              valid_frame_count_ = 0;
+    bool                                       initialized_ = false;
 };
 
 }

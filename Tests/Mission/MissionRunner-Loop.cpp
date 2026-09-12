@@ -41,11 +41,11 @@ std::float64_t steady_window_start(std::float64_t duration)
 }
 
 /* Applies one control/physics step and accumulates the tracking metrics. */
-void advance_step(MissionDynamics         dynamics,
-                  StepMetrics&            step,
-                  MissionRunTrace&        trace,
+void advance_step(MissionDynamics          dynamics,
+                  StepMetrics&             step,
+                  MissionRunTrace&         trace,
                   const MissionRunRequest& run,
-                  std::float64_t&         time)
+                  std::float64_t&          time)
 {
     dynamics.craft.set_command(dynamics.ctrl.update(run.target, dynamics.craft.state(), kDt));
     dynamics.craft.update(kDt);

@@ -20,7 +20,7 @@ namespace {
 /*
 Builds the sensor-path sample of one recording instant.
 */
-TelemetrySample make_sensor_sample(std::float64_t          time,
+TelemetrySample make_sensor_sample(std::float64_t              time,
                                    const TelemetrySampleInput& sample_input)
 {
     return TelemetrySample{.time = time,
@@ -70,8 +70,8 @@ at the configured interval: simulation-time based, deterministic and
 independent from the internal integration tick. Both streams share the same
 timestamps so that post-run correlation stays trivial.
 */
-void TelemetryRecorder::maybe_record(std::float64_t          time,
-                                     const AircraftState&    truth,
+void TelemetryRecorder::maybe_record(std::float64_t              time,
+                                     const AircraftState&        truth,
                                      const TelemetrySampleInput& sample_input)
 {
     if (interval_s <= 0.0) {

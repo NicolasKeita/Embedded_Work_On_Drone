@@ -57,6 +57,7 @@ void attach_host_target(HilRunContext& ctx, const HilConfig& config)
                                         .controller = config.controller,
                                         .dt = config.dt_s,
                                         .sensor_limits = config.sensor_limits};
+
     ctx.fc_target = std::make_unique<HostFcTarget>(*ctx.channel, ctx.clock, fc_config);
 }
 
