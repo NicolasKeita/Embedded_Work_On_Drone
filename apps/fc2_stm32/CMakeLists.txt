@@ -22,6 +22,10 @@ set(FIRMWARE_CORE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Safety/SafetyManager.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Safety/SafetyManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Hal/HalTypes.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/ZephyrUartInterFcTransport.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/ZephyrUartInterFcTransport.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Transport/HilProtocol.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Transport/Parser/HilProtocolParser.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp

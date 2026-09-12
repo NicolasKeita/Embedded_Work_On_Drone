@@ -22,10 +22,19 @@ import HealthMonitor;
 import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;
+import InterFcLink;
 import SafetyManager;
 import Telemetry;
+import ZephyrUartInterFcTransport;
 
 namespace {
+
+constexpr std::int64_t kLinkReportPeriodMs = 1000;
+
+volatile std::uint16_t inter_fc_last_sequence = 0;
+volatile std::uint32_t inter_fc_heartbeat_count = 0;
+volatile std::uint32_t inter_fc_acknowledgement_count = 0;
+volatile std::uint32_t inter_fc_startup_state = 0;
 
 /* Converts a HIL sensor packet into the telemetry consumed by the FC2 core. */
 sim::sil::SensorTelemetry to_telemetry(const FlightCore::HAL::SensorData& sensor) noexcept
@@ -48,6 +57,53 @@ void send_frame(const device* uart, std::span<const std::uint8_t> frame) noexcep
 {
     for (const std::uint8_t byte : frame) {
         uart_poll_out(uart, byte);
+    }
+}
+
+/* Receives FC1 heartbeats, acknowledges them, and refreshes FC2 link supervision. */
+void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
+                           sim::safety::LinkSupervision& supervision,
+                           std::int64_t& last_report_ms) noexcept
+{
+    while (true) {
+        const auto received = transport.poll();
+        if (!received.has_value() || !received->has_value()) {
+            break;
+        }
+        if ((*received)->kind != FlightCore::InterFc::MessageKind::Heartbeat) {
+            continue;
+        }
+        inter_fc_last_sequence = (*received)->sequence;
+        inter_fc_heartbeat_count = inter_fc_heartbeat_count + 1;
+        supervision.last_heartbeat_time = static_cast<std::float64_t>(k_uptime_get()) / 1000.0;
+        const FlightCore::InterFc::Message acknowledgement{
+            .kind = FlightCore::InterFc::MessageKind::Acknowledgement,
+            .sequence = inter_fc_last_sequence,
+        };
+        if (transport.send(acknowledgement).has_value()) {
+            inter_fc_acknowledgement_count = inter_fc_acknowledgement_count + 1;
+        }
+    }
+    const std::int64_t now_ms = k_uptime_get();
+    if (now_ms - last_report_ms >= kLinkReportPeriodMs) {
+        printk("[INTERFC] role=FC2 heartbeats=%u acknowledgements=%u last_heartbeat=%u\n",
+               static_cast<unsigned int>(inter_fc_heartbeat_count),
+               static_cast<unsigned int>(inter_fc_acknowledgement_count),
+               static_cast<unsigned int>(inter_fc_last_sequence));
+        last_report_ms = now_ms;
+    }
+}
+
+/* Reports FC2 raw-byte and validated-frame diagnostics for the USART3 adapter. */
+void report_inter_fc_transport(const FlightCore::InterFc::ZephyrUartInterFcTransport& transport,
+                               std::int64_t& last_transport_report_ms) noexcept
+{
+    const std::int64_t now_ms = k_uptime_get();
+    if (now_ms - last_transport_report_ms >= kLinkReportPeriodMs) {
+        printk("[INTERFC-RX] role=FC2 bytes=%u valid_frames=%u\n",
+               static_cast<unsigned int>(transport.received_byte_count()),
+               static_cast<unsigned int>(transport.valid_frame_count()));
+        last_transport_report_ms = now_ms;
     }
 }
 
@@ -91,11 +147,19 @@ void process_sensor(const device* uart,
 /* Zephyr FC2 entry point. SensorPackets act as the initial supervision heartbeat. */
 int main()
 {
+    inter_fc_startup_state = 1;
     const device* uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+    const device* inter_fc_uart = DEVICE_DT_GET(DT_NODELABEL(usart3));
+    FlightCore::InterFc::ZephyrUartInterFcTransport inter_fc_transport{inter_fc_uart};
     if (!device_is_ready(uart)) {
         return -1;
     }
-    printk("[BOOT] firmware=fc2_stm32 role=FC2 board=nucleo_l476rg period_us=10000 protocol=1.0\n");
+    inter_fc_startup_state = 2;
+    if (!inter_fc_transport.ready()) {
+        return -1;
+    }
+    inter_fc_startup_state = 3;
+    printk("[BOOT] firmware=fc2_stm32 role=FC2 board=nucleo_l476rg hil_baud=115200 inter_fc=USART3/PB10/PB11/115200\n");
 
     sim::safety::LinkSupervision supervision{};
     sim::safety::HealthMonitor monitor{};
@@ -103,8 +167,15 @@ int main()
     FlightCore::Transport::HilFrameParser parser{};
     FlightCore::Transport::HilHeader header{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload{};
+    std::int64_t last_report_ms = 0;
+    std::int64_t last_transport_report_ms = 0;
+    inter_fc_startup_state = 4;
 
     while (true) {
+        service_inter_fc_link(inter_fc_transport,
+                              supervision,
+                              last_report_ms);
+        report_inter_fc_transport(inter_fc_transport, last_transport_report_ms);
         std::uint8_t byte = 0;
         if (uart_poll_in(uart, &byte) == 0) {
             const bool complete = parser.processByte(byte, header, payload);

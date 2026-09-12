@@ -23,6 +23,8 @@ import HalTypes;
 import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;
+import InterFcLink;
+import ZephyrUartInterFcTransport;
 
 namespace {
 
@@ -30,8 +32,16 @@ constexpr std::float64_t kControlPeriodSeconds = 0.01;
 constexpr std::float64_t kRadiansPerDegree = std::numbers::pi / 180.0;
 constexpr std::uint8_t kHealthy = 1;
 constexpr std::uint32_t kUartReceiveCapacity = 256;
+constexpr std::int64_t kHeartbeatPeriodMs = 100;
+constexpr std::int64_t kLinkReportPeriodMs = 1000;
 
 RING_BUF_DECLARE(uart_receive_buffer, kUartReceiveCapacity);
+
+volatile std::uint16_t inter_fc_next_sequence = 0;
+volatile std::uint16_t inter_fc_acknowledged_sequence = 0;
+volatile std::uint32_t inter_fc_heartbeat_count = 0;
+volatile std::uint32_t inter_fc_acknowledgement_count = 0;
+volatile std::uint32_t inter_fc_startup_state = 0;
 
 /* Moves received UART bytes from the hardware FIFO into the static HIL ring buffer. */
 void receive_uart_bytes(const device* uart, void*) noexcept
@@ -75,6 +85,42 @@ void send_frame(const device* uart, std::span<const std::uint8_t> frame) noexcep
     }
 }
 
+/* Sends FC1 heartbeats, receives FC2 acknowledgements, and reports link progress. */
+void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
+                           std::int64_t& last_heartbeat_ms,
+                           std::int64_t& last_report_ms) noexcept
+{
+    const std::int64_t now_ms = k_uptime_get();
+    if (now_ms - last_heartbeat_ms >= kHeartbeatPeriodMs) {
+        const FlightCore::InterFc::Message heartbeat{
+            .kind = FlightCore::InterFc::MessageKind::Heartbeat,
+            .sequence = inter_fc_next_sequence,
+        };
+        if (transport.send(heartbeat).has_value()) {
+            inter_fc_heartbeat_count = inter_fc_heartbeat_count + 1;
+            inter_fc_next_sequence = static_cast<std::uint16_t>(inter_fc_next_sequence + 1);
+        }
+        last_heartbeat_ms = now_ms;
+    }
+    while (true) {
+        const auto received = transport.poll();
+        if (!received.has_value() || !received->has_value()) {
+            break;
+        }
+        if ((*received)->kind == FlightCore::InterFc::MessageKind::Acknowledgement) {
+            inter_fc_acknowledged_sequence = (*received)->sequence;
+            inter_fc_acknowledgement_count = inter_fc_acknowledgement_count + 1;
+        }
+    }
+    if (now_ms - last_report_ms >= kLinkReportPeriodMs) {
+        printk("[INTERFC] role=FC1 heartbeats=%u acknowledgements=%u last_ack=%u\n",
+               static_cast<unsigned int>(inter_fc_heartbeat_count),
+               static_cast<unsigned int>(inter_fc_acknowledgement_count),
+               static_cast<unsigned int>(inter_fc_acknowledged_sequence));
+        last_report_ms = now_ms;
+    }
+}
+
 /* Executes one FC1 cycle for a validated HIL SensorPacket. */
 void process_sensor(const device* uart,
                     sim::control::FlightController& controller,
@@ -113,23 +159,37 @@ void process_sensor(const device* uart,
 /* Zephyr FC1 entry point. Incoming SensorPackets provide the 100 Hz release cadence. */
 int main()
 {
+    inter_fc_startup_state = 1;
     const device* uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+    const device* inter_fc_uart = DEVICE_DT_GET(DT_NODELABEL(usart3));
+    FlightCore::InterFc::ZephyrUartInterFcTransport inter_fc_transport{inter_fc_uart};
     if (!device_is_ready(uart)) {
         return -1;
     }
-    printk("[BOOT] firmware=fc1_stm32 role=FC1 board=nucleo_l476rg period_us=10000 baud=460800 protocol=1.0\n");
+    inter_fc_startup_state = 2;
+    if (!inter_fc_transport.ready()) {
+        return -1;
+    }
+    inter_fc_startup_state = 3;
+    printk("[BOOT] firmware=fc1_stm32 role=FC1 board=nucleo_l476rg hil_baud=460800 inter_fc=USART3/PB10/PB11/115200\n");
 
     sim::control::ControllerConfig config{.hover_rpm = kNominalAircraftHoverRpm};
     sim::control::FlightController controller{config};
     FlightCore::Transport::HilFrameParser parser{};
     FlightCore::Transport::HilHeader header{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload{};
+    std::int64_t last_heartbeat_ms = -kHeartbeatPeriodMs;
+    std::int64_t last_report_ms = 0;
     if (uart_irq_callback_user_data_set(uart, receive_uart_bytes, nullptr) != 0) {
         return -1;
     }
     uart_irq_rx_enable(uart);
+    inter_fc_startup_state = 4;
 
     while (true) {
+        service_inter_fc_link(inter_fc_transport,
+                              last_heartbeat_ms,
+                              last_report_ms);
         std::uint8_t byte = 0;
         if (ring_buf_get(&uart_receive_buffer, &byte, 1) == 1) {
             const bool complete = parser.processByte(byte, header, payload);
