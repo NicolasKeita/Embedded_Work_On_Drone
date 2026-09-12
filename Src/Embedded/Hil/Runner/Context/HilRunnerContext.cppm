@@ -70,6 +70,7 @@ struct HilRunContext {
     AircraftState                     sampled_truth{};
     FlightCore::HAL::SensorData       last_sensor_data{};
     FlightCore::HAL::ActuatorCommands actuator_cmd{};
+    FlightCore::Transport::ActuatorDiagnostics actuator_diagnostics{};
     ControlCommand                    command{};
     HilResult                         result{};
     HilTrace                          trace;

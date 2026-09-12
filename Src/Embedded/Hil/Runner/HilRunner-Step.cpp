@@ -1,8 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Runner/HilRunner-Step.cpp
-Description: Simulator-to-FC half of one closed-loop HIL step : builds the sensor packet
-from the aircraft ground truth, sends it to the FC target over the transport and captures
-the answering actuator packet (or the drop/timeout outcome).
+Description: Simulator-to-FC half of one closed-loop HIL step, including embedded
+inter-FC fault commands and physical-FC2 diagnostic capture.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -38,10 +37,13 @@ namespace {
     void receive_actuator_answer(HilRunContext& ctx, std::uint16_t sequence, std::uint64_t sensor_send_wall)
     {
         ctx.this_fc = ctx.fc_target->respond(sequence);
-        const sim::sil::CommsDelivery delivery = ctx.comms.publish(ctx.time);
+        bool delivered = true;
+        if (!uses_embedded_fc2_supervision(ctx)) {
+            delivered = ctx.comms.publish(ctx.time).delivered;
+        }
 
         FlightCore::Transport::ActuatorDiagnostics diag{};
-        if (!delivery.delivered) {
+        if (!delivered) {
             ctx.channel->flush();
             ctx.transport.noteDroppedFrame();
             return;
@@ -56,6 +58,7 @@ namespace {
                                                                    expectations, outputs);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
+            ctx.actuator_diagnostics = diag;
             ctx.this_fc.sequence = sequence;
             ctx.this_fc.echo_sim_timestamp_us = ctx.sim_ts_us;
             ctx.this_fc.mission_state = ctx.actuator_cmd.mode_flags;
@@ -69,8 +72,8 @@ namespace {
 }
 
 /*
-Builds the sensor measurement from the private ground truth (never the ground truth
-itself), sends the SensorPacket and drives the FC answer half of the lockstep.
+Builds the sensor measurement from the private ground truth, applies any embedded
+inter-FC test command, sends the SensorPacket and drives the FC answer half.
 */
 void exchange_actuators(HilRunContext& ctx)
 {
@@ -80,7 +83,12 @@ void exchange_actuators(HilRunContext& ctx)
         ctx.sensors = sim::sil::apply_corruption(ctx.sensors, ctx.env.sensor_corruption, ctx.env.corrupted_altitude_m);
     }
     const sim::sil::SensorValidity validity = sim::sil::validate(ctx.sensors, ctx.config.sensor_limits);
-    const FlightCore::HAL::SensorData wire = to_sensor_data(ctx.sensors, ctx.sim_ts_us, ctx.sampled_truth, validity);
+    FlightCore::HAL::SensorData wire = to_sensor_data(ctx.sensors, ctx.sim_ts_us, ctx.sampled_truth, validity);
+    const bool suppress_inter_fc_heartbeat = uses_embedded_fc2_supervision(ctx)
+        && (!ctx.env.fc1_alive || !ctx.env.comms_link_up);
+    if (suppress_inter_fc_heartbeat) {
+        wire.sensor_valid_flags |= FlightCore::Transport::kHilCommandSuppressInterFcHeartbeat;
+    }
     ctx.last_sensor_data = wire;
 
     const std::uint16_t sequence = static_cast<std::uint16_t>(ctx.step);
@@ -96,7 +104,7 @@ void exchange_actuators(HilRunContext& ctx)
     ctx.this_received = false;
     ctx.this_rtt_us = -1;
 
-    if (!ctx.env.fc1_alive) {
+    if (!ctx.env.fc1_alive && !uses_embedded_fc2_supervision(ctx)) {
         ctx.transport.noteTimeoutFrame();
         return;
     }

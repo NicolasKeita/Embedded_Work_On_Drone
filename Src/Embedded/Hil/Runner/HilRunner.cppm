@@ -71,6 +71,7 @@ void apply_actuators(HilRunContext& ctx);
 void update_metrics(HilRunContext& ctx);
 void handle_deadline(HilRunContext& ctx, const HilStepTiming& timing);
 bool any_fault_expected(std::span<const sim::sil::FaultScenario> scenarios);
+bool uses_embedded_fc2_supervision(const HilRunContext& ctx) noexcept;
 std::expected<std::unique_ptr<FlightCore::Transport::ITransport>, HilError>
 open_hil_channel(const HilConfig& config);
 void attach_fc_target(HilRunContext& ctx, const HilConfig& config);

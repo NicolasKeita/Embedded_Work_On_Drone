@@ -14,6 +14,8 @@ set(HAL_FILES
 set(HIL_PROTOCOL_FILES
     Src/Embedded/Transport/Transport.cppm
     Src/Embedded/Transport/HilProtocol.cppm
+    Src/Embedded/InterFc/InterFcLink.cppm
+    Src/Embedded/InterFc/InterFcLink.cpp
     Src/Embedded/Transport/Parser/HilProtocolParser.cppm
     Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
     Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp

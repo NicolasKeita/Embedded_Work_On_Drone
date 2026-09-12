@@ -39,6 +39,12 @@ bool any_fault_expected(std::span<const sim::sil::FaultScenario> scenarios)
     return false;
 }
 
+/* Selects physical FC2 supervision whenever the HIL target is a serial STM32. */
+bool uses_embedded_fc2_supervision(const HilRunContext& ctx) noexcept
+{
+    return ctx.config.interface_name != "loopback";
+}
+
 /* Records the failure mode of one scenario when no mode was recorded yet. */
 void track_failure_mode(HilRunContext& ctx, sim::sil::FailureMode mode)
 {

@@ -30,7 +30,6 @@ namespace {
 
 constexpr std::float64_t kControlPeriodSeconds = 0.01;
 constexpr std::float64_t kRadiansPerDegree = std::numbers::pi / 180.0;
-constexpr std::uint8_t kHealthy = 1;
 constexpr std::uint32_t kUartReceiveCapacity = 256;
 constexpr std::int64_t kHeartbeatPeriodMs = 100;
 constexpr std::int64_t kLinkReportPeriodMs = 1000;
@@ -42,6 +41,10 @@ volatile std::uint16_t inter_fc_acknowledged_sequence = 0;
 volatile std::uint32_t inter_fc_heartbeat_count = 0;
 volatile std::uint32_t inter_fc_acknowledgement_count = 0;
 volatile std::uint32_t inter_fc_startup_state = 0;
+volatile std::uint32_t inter_fc_heartbeat_suppressed = 0;
+volatile std::uint8_t inter_fc_remote_state = static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Unknown);
+volatile std::uint8_t inter_fc_remote_detection =
+    static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
 
 /* Moves received UART bytes from the hardware FIFO into the static HIL ring buffer. */
 void receive_uart_bytes(const device* uart, void*) noexcept
@@ -87,14 +90,16 @@ void send_frame(const device* uart, std::span<const std::uint8_t> frame) noexcep
 
 /* Sends FC1 heartbeats, receives FC2 acknowledgements, and reports link progress. */
 void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
+                           bool heartbeat_suppressed,
                            std::int64_t& last_heartbeat_ms,
                            std::int64_t& last_report_ms) noexcept
 {
     const std::int64_t now_ms = k_uptime_get();
-    if (now_ms - last_heartbeat_ms >= kHeartbeatPeriodMs) {
+    if (!heartbeat_suppressed && now_ms - last_heartbeat_ms >= kHeartbeatPeriodMs) {
         const FlightCore::InterFc::Message heartbeat{
             .kind = FlightCore::InterFc::MessageKind::Heartbeat,
             .sequence = inter_fc_next_sequence,
+            .state = FlightCore::InterFc::NodeState::Healthy,
         };
         if (transport.send(heartbeat).has_value()) {
             inter_fc_heartbeat_count = inter_fc_heartbeat_count + 1;
@@ -111,18 +116,26 @@ void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
             inter_fc_acknowledged_sequence = (*received)->sequence;
             inter_fc_acknowledgement_count = inter_fc_acknowledgement_count + 1;
         }
+        if ((*received)->kind == FlightCore::InterFc::MessageKind::Acknowledgement
+            || (*received)->kind == FlightCore::InterFc::MessageKind::Status) {
+            inter_fc_remote_state = static_cast<std::uint8_t>((*received)->state);
+            inter_fc_remote_detection = static_cast<std::uint8_t>((*received)->detection);
+        }
     }
     if (now_ms - last_report_ms >= kLinkReportPeriodMs) {
-        printk("[INTERFC] role=FC1 heartbeats=%u acknowledgements=%u last_ack=%u\n",
+        printk("[INTERFC] role=FC1 heartbeats=%u acknowledgements=%u last_ack=%u remote_state=%u suppressed=%u\n",
                static_cast<unsigned int>(inter_fc_heartbeat_count),
                static_cast<unsigned int>(inter_fc_acknowledgement_count),
-               static_cast<unsigned int>(inter_fc_acknowledged_sequence));
+               static_cast<unsigned int>(inter_fc_acknowledged_sequence),
+               static_cast<unsigned int>(inter_fc_remote_state),
+               static_cast<unsigned int>(inter_fc_heartbeat_suppressed));
         last_report_ms = now_ms;
     }
 }
 
 /* Executes one FC1 cycle for a validated HIL SensorPacket. */
 void process_sensor(const device* uart,
+                    FlightCore::InterFc::IInterFcTransport& inter_fc_transport,
                     sim::control::FlightController& controller,
                     const FlightCore::Transport::HilHeader& header,
                     std::span<const std::uint8_t> payload) noexcept
@@ -131,14 +144,34 @@ void process_sensor(const device* uart,
     if (!FlightCore::Transport::decodeSensorPayload(payload, sensor_payload)) {
         return;
     }
+    inter_fc_heartbeat_suppressed =
+        (sensor_payload.sensor_valid_flags & FlightCore::Transport::kHilCommandSuppressInterFcHeartbeat) != 0
+            ? 1u
+            : 0u;
     if (header.sequence_num == 0 && sensor_payload.sim_timestamp_us == 0) {
         controller = sim::control::FlightController{
             sim::control::ControllerConfig{.hover_rpm = kNominalAircraftHoverRpm}};
+        inter_fc_remote_state = static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Unknown);
+        inter_fc_remote_detection = static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
+        const FlightCore::InterFc::Message reset_supervision{
+            .kind = FlightCore::InterFc::MessageKind::ResetSupervision,
+        };
+        static_cast<void>(inter_fc_transport.send(reset_supervision));
     }
     const FlightCore::HAL::SensorData sensor = FlightCore::Transport::toSensorData(sensor_payload);
     const AircraftState measured = to_aircraft_state(sensor);
     const sim::control::TargetState target{.z = 10.0};
     const ControlCommand command = controller.update(target, measured, kControlPeriodSeconds);
+    const FlightCore::InterFc::Message monitoring_sample{
+        .kind = FlightCore::InterFc::MessageKind::MonitoringSample,
+        .sequence = header.sequence_num,
+        .state = FlightCore::InterFc::NodeState::Healthy,
+        .detection = FlightCore::InterFc::DetectionCode::None,
+        .altitude_m = sensor.altitude_baro_m,
+        .actual_rpm = sensor.wing_rpm_meas,
+        .commanded_rpm = static_cast<std::float32_t>(command.wing_rpm),
+    };
+    static_cast<void>(inter_fc_transport.send(monitoring_sample));
     const FlightCore::HAL::ActuatorCommands actuators{
         .timestamp_us = static_cast<std::uint64_t>(k_uptime_get()) * 1000u,
         .wing_rpm_cmd = static_cast<std::float32_t>(command.wing_rpm),
@@ -147,7 +180,10 @@ void process_sensor(const device* uart,
         .aux_actuator_cmd = 0.0f,
         .mode_flags = static_cast<std::uint8_t>(controller.state()),
     };
-    const FlightCore::Transport::ActuatorDiagnostics diagnostics{.fc_health_status = kHealthy};
+    const FlightCore::Transport::ActuatorDiagnostics diagnostics{
+        .fc_health_status = inter_fc_remote_state,
+        .fc_detection_code = inter_fc_remote_detection,
+    };
     const auto response_payload = FlightCore::Transport::makeActuatorPayload(
         actuators, sensor_payload.sim_timestamp_us, diagnostics);
     const auto response = FlightCore::Transport::encodeActuatorFrame(response_payload, header.sequence_num);
@@ -188,6 +224,7 @@ int main()
 
     while (true) {
         service_inter_fc_link(inter_fc_transport,
+                              inter_fc_heartbeat_suppressed != 0,
                               last_heartbeat_ms,
                               last_report_ms);
         std::uint8_t byte = 0;
@@ -195,7 +232,7 @@ int main()
             const bool complete = parser.processByte(byte, header, payload);
             if (complete && header.msg_id == FlightCore::Transport::kMsgIdSensor
                 && header.payload_len == FlightCore::Transport::kSensorPayloadSize) {
-                process_sensor(uart, controller, header,
+                process_sensor(uart, inter_fc_transport, controller, header,
                     std::span<const std::uint8_t>{payload.data(), header.payload_len});
             }
         }

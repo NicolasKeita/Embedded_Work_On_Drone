@@ -14,7 +14,25 @@ export namespace FlightCore::InterFc {
 
 enum class MessageKind : std::uint8_t {
     Heartbeat = 1,
-    Acknowledgement = 2
+    Acknowledgement = 2,
+    Status = 3,
+    MonitoringSample = 4,
+    ResetSupervision = 5
+};
+
+enum class NodeState : std::uint8_t {
+    Unknown = 0,
+    Healthy = 1,
+    Degraded = 2,
+    Safe = 3
+};
+
+enum class DetectionCode : std::uint8_t {
+    None = 0,
+    Fc1HeartbeatTimeout = 1,
+    CommunicationTimeout = 2,
+    SensorValidationFailed = 3,
+    ActuatorMismatch = 4
 };
 
 enum class TransportError : std::uint8_t {
@@ -26,6 +44,11 @@ enum class TransportError : std::uint8_t {
 struct Message {
     MessageKind   kind = MessageKind::Heartbeat;
     std::uint16_t sequence = 0;
+    NodeState     state = NodeState::Unknown;
+    DetectionCode detection = DetectionCode::None;
+    std::float32_t altitude_m = 0.0f;
+    std::float32_t actual_rpm = 0.0f;
+    std::float32_t commanded_rpm = 0.0f;
 };
 
 class IInterFcTransport {
@@ -41,7 +64,7 @@ public:
 
 class FrameCodec {
 public:
-    static constexpr std::size_t frame_size = 8;
+    static constexpr std::size_t frame_size = 22;
     using Frame = std::array<std::uint8_t, frame_size>;
 
     /* Encodes one logical message into the UART framing shared by both controllers. */

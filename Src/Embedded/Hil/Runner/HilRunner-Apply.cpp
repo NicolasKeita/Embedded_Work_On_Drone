@@ -1,8 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Runner/HilRunner-Apply.cpp
-Description: Host-side health/safety evaluation (the FC2 monitoring role, reusing the SIL
-HealthMonitor/SafetyManager) and application of the returned actuator command to the
-aircraft (SAFE_MODE/COMPENSATED overrides mirroring the SIL actuator step).
+Description: Physical-FC2 or host-fallback health evaluation and application of the
+resulting SAFE_MODE or COMPENSATED actuator overrides to the simulated aircraft.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -19,6 +18,7 @@ import HealthMonitor;
 import HilConfig;
 import HilRunnerContext;
 import HilRunnerEvents;
+import InterFcLink;
 import SafetyManager;
 import SilTypes;
 
@@ -35,12 +35,53 @@ namespace {
             .right_servo_angle = cmds.right_servo_rad * kDegreesPerRadian,
         };
     }
+
+    /* Decodes the physical FC2 detection identifier carried by FC1's HIL response. */
+    std::optional<sim::safety::DetectionEvent> embedded_detection(std::uint8_t code) noexcept
+    {
+        switch (static_cast<FlightCore::InterFc::DetectionCode>(code)) {
+        case FlightCore::InterFc::DetectionCode::Fc1HeartbeatTimeout:
+            return sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT;
+        case FlightCore::InterFc::DetectionCode::CommunicationTimeout:
+            return sim::safety::DetectionEvent::COMMUNICATION_TIMEOUT;
+        case FlightCore::InterFc::DetectionCode::SensorValidationFailed:
+            return sim::safety::DetectionEvent::SENSOR_VALIDATION_FAILED;
+        case FlightCore::InterFc::DetectionCode::ActuatorMismatch:
+            return sim::safety::DetectionEvent::ACTUATOR_MISMATCH;
+        case FlightCore::InterFc::DetectionCode::None:
+            break;
+        }
+        return std::nullopt;
+    }
+
+    /* Converts the health status physically reported by FC2 into the shared safety report. */
+    sim::safety::HealthReport embedded_fc2_report(const HilRunContext& ctx) noexcept
+    {
+        sim::safety::HealthReport report{};
+        const FlightCore::InterFc::NodeState state =
+            static_cast<FlightCore::InterFc::NodeState>(ctx.actuator_diagnostics.fc_health_status);
+
+        if (state == FlightCore::InterFc::NodeState::Safe) {
+            report.state = sim::safety::HealthState::SAFE;
+        }
+        else if (state == FlightCore::InterFc::NodeState::Degraded) {
+            report.state = sim::safety::HealthState::DEGRADED;
+        }
+        const std::optional<sim::safety::DetectionEvent> detection =
+            embedded_detection(ctx.actuator_diagnostics.fc_detection_code);
+        if (detection.has_value()) {
+            const std::size_t index = static_cast<std::size_t>(*detection);
+            report.flags[index] = sim::safety::DetectionFlag{.raised = true, .raised_time = ctx.time};
+        }
+        return report;
+    }
 }
 
 void update_health_and_safety(HilRunContext& ctx)
 {
-    const sim::safety::HealthReport report =
-        ctx.health.evaluate(ctx.time, ctx.comms, ctx.sensors, ctx.commanded_rpm);
+    const sim::safety::HealthReport report = uses_embedded_fc2_supervision(ctx)
+        ? embedded_fc2_report(ctx)
+        : ctx.health.evaluate(ctx.time, ctx.comms, ctx.sensors, ctx.commanded_rpm);
 
     ctx.safety_command = ctx.safety.update(ctx.time, report);
     record_detection(ctx, report);

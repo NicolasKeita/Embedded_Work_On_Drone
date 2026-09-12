@@ -27,7 +27,12 @@ void HealthMonitor::update_comms_flags(std::float64_t current_time, const LinkSu
     }
     else {
         const std::float64_t last_received = supervision.last_heartbeat_time;
-        if (last_received >= 0.0 && current_time - last_received > config_.heartbeat_timeout_s) {
+        const bool heartbeat_expired = last_received >= 0.0
+            && current_time - last_received > config_.heartbeat_timeout_s;
+        const bool initial_heartbeat_expired = last_received < 0.0
+            && supervision.monitoring_started_time >= 0.0
+            && current_time - supervision.monitoring_started_time > config_.initial_heartbeat_timeout_s;
+        if (heartbeat_expired || initial_heartbeat_expired) {
             raise(DetectionEvent::FC1_HEARTBEAT_TIMEOUT, current_time);
         }
     }
@@ -87,6 +92,14 @@ HealthReport HealthMonitor::evaluate(std::float64_t                   current_ti
     update_comms_flags(current_time, supervision);
     update_sensor_flags(current_time, telemetry);
     update_actuator_flags(current_time, telemetry, commanded_rpm);
+    state_ = compute_state(flags_);
+    return HealthReport{.state = state_, .flags = flags_};
+}
+
+/* Evaluates only FC1/link liveness while preserving any other latched detections. */
+HealthReport HealthMonitor::evaluate_link(std::float64_t current_time, const LinkSupervision& supervision)
+{
+    update_comms_flags(current_time, supervision);
     state_ = compute_state(flags_);
     return HealthReport{.state = state_, .flags = flags_};
 }

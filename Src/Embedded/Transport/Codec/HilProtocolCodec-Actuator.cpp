@@ -35,6 +35,7 @@ HilActuatorPayload makeActuatorPayload(const FlightCore::HAL::ActuatorCommands& 
         .deadline_miss_count    = diagnostics.deadline_miss_count,
         .fc_mode                = cmds.mode_flags,
         .fc_health_status       = diagnostics.fc_health_status,
+        .fc_detection_code      = diagnostics.fc_detection_code,
         .reserved               = 0,
     };
 }

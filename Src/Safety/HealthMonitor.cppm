@@ -62,7 +62,8 @@ struct HealthReport {
 };
 
 struct HealthMonitorConfig {
-    std::float64_t                   heartbeat_timeout_s = 0.10;
+    std::float64_t                   heartbeat_timeout_s = 0.30;
+    std::float64_t                   initial_heartbeat_timeout_s = 2.0;
     std::float64_t                   actuator_mismatch_rpm = 60.0;
     std::float64_t                   actuator_mismatch_hold_s = 0.50;
     sim::sil::SensorValidationLimits sensor_limits{};
@@ -71,6 +72,7 @@ struct HealthMonitorConfig {
 struct LinkSupervision {
     bool           link_up = true;
     std::float64_t last_heartbeat_time = -1.0;
+    std::float64_t monitoring_started_time = -1.0;
 };
 
 class HealthMonitor {
@@ -87,6 +89,9 @@ public:
 
     [[nodiscard]] HealthReport evaluate(std::float64_t current_time, const LinkSupervision& supervision,
                                         const sim::sil::SensorTelemetry& telemetry, std::float64_t commanded_rpm);
+
+    /* Evaluates only FC1/link liveness while preserving any other latched detections. */
+    [[nodiscard]] HealthReport evaluate_link(std::float64_t current_time, const LinkSupervision& supervision);
 
     [[nodiscard]] HealthState state() const noexcept;
 

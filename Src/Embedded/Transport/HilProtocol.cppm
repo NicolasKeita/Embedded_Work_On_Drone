@@ -29,6 +29,7 @@ inline constexpr std::uint8_t kSync2         = 0x49;
 inline constexpr std::uint8_t kMsgIdSensor   = 0x01;
 inline constexpr std::uint8_t kMsgIdActuator = 0x02;
 inline constexpr std::uint8_t kProtocolVer   = 0x10;
+inline constexpr std::uint32_t kHilCommandSuppressInterFcHeartbeat = 1u << 31;
 
 inline constexpr std::size_t kHeaderSize           = 8;
 inline constexpr std::size_t kCrcSize              = 2;
@@ -85,7 +86,8 @@ struct HilActuatorPayload
     std::uint16_t  deadline_miss_count;
     std::uint8_t   fc_mode;
     std::uint8_t   fc_health_status;
-    std::uint16_t  reserved;
+    std::uint8_t   fc_detection_code;
+    std::uint8_t   reserved;
 };
 #pragma pack(pop)
 
@@ -105,6 +107,7 @@ struct ActuatorDiagnostics
     std::uint16_t stack_watermark_words = 0;
     std::uint16_t deadline_miss_count = 0;
     std::uint8_t  fc_health_status = 0;
+    std::uint8_t  fc_detection_code = 0;
 };
 
 }

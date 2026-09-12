@@ -27,6 +27,7 @@ namespace {
             .stack_watermark_words = p.stack_watermark_words,
             .deadline_miss_count = p.deadline_miss_count,
             .fc_health_status = p.fc_health_status,
+            .fc_detection_code = p.fc_detection_code,
         };
     }
 }
