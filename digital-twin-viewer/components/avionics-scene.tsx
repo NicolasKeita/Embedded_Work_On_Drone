@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, OrbitControls, Text, useGLTF } from '@react-three/drei';
+import { Environment, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { ComponentState, TwinSnapshot } from '@/lib/twin-data';
 
@@ -28,23 +28,6 @@ function brightenAirframeMaterial(source: THREE.Material) {
     material.roughness = Math.min(material.roughness, .68);
   }
   return material;
-}
-
-function Asset({ path, position, scale, rotation, brighten = false }: { path: string; position: [number, number, number]; scale: number; rotation: [number, number, number]; brighten?: boolean }) {
-  const { scene } = useGLTF(path);
-  const model = useMemo(() => {
-    const clone = scene.clone();
-    clone.traverse((object) => {
-      if (!(object instanceof THREE.Mesh)) return;
-      object.castShadow = true;
-      object.receiveShadow = true;
-      object.material = Array.isArray(object.material)
-        ? object.material.map((material) => brighten ? brightenAirframeMaterial(material) : material.clone())
-        : brighten ? brightenAirframeMaterial(object.material) : object.material.clone();
-    });
-    return clone;
-  }, [brighten, scene]);
-  return <primitive object={model} position={position} scale={scale} rotation={rotation} />;
 }
 
 function FaultAwareAirframe({ snapshot }: { snapshot: TwinSnapshot }) {
@@ -92,20 +75,53 @@ function FaultAwareAirframe({ snapshot }: { snapshot: TwinSnapshot }) {
   return <primitive object={airframe.model} position={AIRFRAME_DEFAULT_POSITION} scale={AIRFRAME_MODEL_SCALE} rotation={AIRFRAME_DEFAULT_ROTATION} />;
 }
 
-function FaultMarker({ label, state, position, showLabel = true }: { label: string; state: ComponentState; position: [number, number, number]; showLabel?: boolean }) {
-  const material = useRef<THREE.MeshStandardMaterial>(null);
+type FaultMesh = {
+  baseColors: THREE.Color[];
+  materials: THREE.MeshStandardMaterial[];
+  state: ComponentState;
+};
+
+function isNamedPart(object: THREE.Object3D, names: string[]) {
+  return names.includes(object.name);
+}
+
+function FaultAwareStm32({ components }: { components: Record<string, ComponentState> }) {
+  const { scene } = useGLTF('/models/carte_stm32.glb');
+  const board = useMemo(() => {
+    const clone = scene.clone();
+    const faultMeshes: FaultMesh[] = [];
+    clone.traverse((object) => {
+      if (!(object instanceof THREE.Mesh)) return;
+      object.castShadow = true;
+      object.receiveShadow = true;
+      const materials = (Array.isArray(object.material) ? object.material : [object.material])
+        .map((material) => material.clone())
+        .filter((material): material is THREE.MeshStandardMaterial => material instanceof THREE.MeshStandardMaterial);
+      object.material = Array.isArray(object.material) ? materials : materials[0];
+      if (isNamedPart(object, ['Cube', 'STM32L476RG'])) {
+        faultMeshes.push({ baseColors: materials.map((material) => material.color.clone()), materials, state: components.mcu ?? 'UNKNOWN' });
+      }
+      if (isNamedPart(object, ['Cube.001', 'Barometre'])) {
+        faultMeshes.push({ baseColors: materials.map((material) => material.color.clone()), materials, state: components.sensors ?? 'UNKNOWN' });
+      }
+    });
+    return { model: clone, faultMeshes };
+  }, [components.mcu, components.sensors, scene]);
+
   useFrame(({ clock }) => {
-    if (!material.current) return;
-    const active = state === 'DEGRADED' || state === 'FAILED';
-    material.current.opacity = active ? .35 + (Math.sin(clock.elapsedTime * 8) + 1) * .3 : .22;
-    material.current.emissiveIntensity = active ? 1.3 + Math.sin(clock.elapsedTime * 8) * .7 : .18;
+    const pulse = (Math.sin(clock.elapsedTime * 8) + 1) * .5;
+    board.faultMeshes.forEach(({ baseColors, materials, state }) => {
+      const active = state === 'DEGRADED' || state === 'FAILED';
+      const color = new THREE.Color(stateColor(state));
+      materials.forEach((material, index) => {
+        material.color.copy(active ? color : baseColors[index]);
+        material.emissive.copy(active ? color : new THREE.Color('#000000'));
+        material.emissiveIntensity = active ? .65 + pulse * 1.6 : 0;
+      });
+    });
   });
-  return (
-    <group position={position}>
-      <mesh position={[0, .08, 0]}><cylinderGeometry args={[.24, .24, .08, 24]} /><meshStandardMaterial ref={material} color={stateColor(state)} emissive={stateColor(state)} transparent depthWrite={false} /></mesh>
-      {showLabel && <Text position={[0, .22, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={.13} color="#eafffb" anchorX="center">{label}</Text>}
-    </group>
-  );
+
+  return <primitive object={board.model} position={STM32_DEFAULT_POSITION} scale={4.1} rotation={STM32_DEFAULT_ROTATION} />;
 }
 
 function SceneLighting() {
@@ -129,20 +145,14 @@ function AirframePanel({ snapshot }: { snapshot: TwinSnapshot }) {
   );
 }
 
-function Stm32Panel({ snapshot }: { snapshot: TwinSnapshot }) {
-  const components = snapshot.fc1.components;
+function Stm32Panel({ title, components }: { title: string; components: Record<string, ComponentState> }) {
   return (
     <div style={{ minWidth: 0, position: 'relative', border: '1px solid #1b3039', background: '#09131a' }}>
-      <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae' }}>STM32 · FC1</div>
+      <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae' }}>{title}</div>
       <Canvas camera={{ position: [3.8, 5.4, 5.2], fov: 37 }} shadows>
         <color attach="background" args={['#09131a']} />
         <SceneLighting />
-        <Asset path="/models/stm32.glb" position={STM32_DEFAULT_POSITION} scale={4.1} rotation={STM32_DEFAULT_ROTATION} />
-        <FaultMarker label="MCU" state={components.mcu ?? 'UNKNOWN'} position={[0, .48, 0]} />
-        <FaultMarker label="COM" state={components.transport ?? 'UNKNOWN'} position={[-.85, .46, -.65]} />
-        <FaultMarker label="SENS" state={components.sensors ?? 'UNKNOWN'} position={[.85, .46, -.55]} />
-        <FaultMarker label="CTRL" state={components.control ?? 'UNKNOWN'} position={[-.68, .46, .68]} />
-        <FaultMarker label="ACT" state={components.actuators ?? 'UNKNOWN'} position={[.72, .46, .65]} />
+        <FaultAwareStm32 components={components} />
         <OrbitControls enablePan={false} minDistance={4.5} maxDistance={10} maxPolarAngle={Math.PI * .85} />
       </Canvas>
     </div>
@@ -151,13 +161,14 @@ function Stm32Panel({ snapshot }: { snapshot: TwinSnapshot }) {
 
 export function AvionicsScene({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
-    <div className="avionics-canvas" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 65fr) minmax(0, 35fr)', gap: 8, padding: 8 }}>
+    <div className="avionics-canvas" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr)', gap: 8, padding: 8 }}>
       <AirframePanel snapshot={snapshot} />
-      <Stm32Panel snapshot={snapshot} />
+      <Stm32Panel title="Flight Controller 1" components={snapshot.fc1.components} />
+      <Stm32Panel title="Flight Controller 2" components={snapshot.fc2.components} />
       <div className="legend"><span><i className="healthy" />Healthy</span><span><i className="degraded" />Degraded / blinking</span><span><i className="failed" />Failed / blinking</span></div>
     </div>
   );
 }
 
 useGLTF.preload('/models/drone-done.glb');
-useGLTF.preload('/models/stm32.glb');
+useGLTF.preload('/models/carte_stm32.glb');
