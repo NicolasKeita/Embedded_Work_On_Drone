@@ -4,8 +4,9 @@
 > engineer judge whether the system is coherent and how well it has been
 > validated.
 > Companion documents: [test matrix](test_matrix.md) ·
-> [SIL](sil.md) · [HIL](hil.md) · [Monte Carlo](monte_carlo.md) ·
-> [architecture](../architecture/overview.md) · [FMECA](../fmeca/fmeca.md).
+> [scenario reference](scenarios.md) · [SIL](sil.md) · [HIL](hil.md) ·
+> [Monte Carlo](monte_carlo.md) · [architecture](../architecture/overview.md) ·
+> [FMECA](../fmeca/fmeca.md).
 
 ## 1. Scope
 

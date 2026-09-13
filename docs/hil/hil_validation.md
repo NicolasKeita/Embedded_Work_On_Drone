@@ -666,7 +666,9 @@ This allows HIL to validate the complete chain instead of testing only the safet
 
 ## 15. Recommended Initial HIL Campaign
 
-The first campaign should be deliberately small.
+The first campaign should be deliberately small. The per-scenario detail for the
+launchable `NOMINAL-*` and `FAULT_INJECTOR-*` scenarios lives in the
+[scenario reference](../validation/scenarios.md).
 
 ### NOMINAL-001
 Nominal startup.

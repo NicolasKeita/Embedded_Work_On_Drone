@@ -58,6 +58,7 @@ components. Critical faults (`FC1_UNAVAILABLE`, `FC_COMMUNICATION_LOSS`) →
 | | What | Where |
 | :-- | :-- | :-- |
 | Matrix | what exactly is validated | [`docs/validation/test_matrix.md`](docs/validation/test_matrix.md) |
+| Scenarios | which scenarios can be launched on SIL/HIL | [`docs/validation/scenarios.md`](docs/validation/scenarios.md) |
 | SIL | deterministic fault scenarios | [`docs/validation/sil.md`](docs/validation/sil.md) |
 | HIL | real-time loop + timing | [`docs/validation/hil.md`](docs/validation/hil.md) |
 | Monte Carlo | dispersion campaign | [`docs/validation/monte_carlo.md`](docs/validation/monte_carlo.md) |

@@ -1,7 +1,8 @@
 # Monte Carlo Validation (SIL)
 
 > Statistical robustness exploration over the SIL engine. This documents the
-> **implemented** campaign. Related: [test matrix](test_matrix.md).
+> **implemented** campaign. Related: [test matrix](test_matrix.md) ·
+> [scenario reference](scenarios.md).
 
 ## 1. Objective
 
