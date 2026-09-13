@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
 import { AircraftScene } from '@/components/aircraft-scene';
 import { AvionicsScene } from '@/components/avionics-scene';
 import { createDemoSnapshots, createIdleSnapshot, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
+const subscribeToClientRender = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 function StatusDot({ tone = 'green' }: { tone?: 'green' | 'amber' | 'red' | 'gray' }) { return <span className={`status-dot ${tone}`} />; }
 function Metric({ label, value, unit }: { label: string; value: string; unit?: string }) { return <div className="metric"><span>{label}</span><strong>{value}{unit && <small>{unit}</small>}</strong></div>; }
@@ -21,6 +24,7 @@ export default function Home() {
   const [cursor, setCursor] = useState(0);
   const [snapshots, setSnapshots] = useState<TwinSnapshot[]>([]);
   const [connected, setConnected] = useState(false);
+  const scenesReady = useSyncExternalStore(subscribeToClientRender, clientSnapshot, serverSnapshot);
   const fileRef = useRef<HTMLInputElement>(null);
   const reviewingLiveRef = useRef(false);
   const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? idle;
@@ -130,7 +134,9 @@ export default function Home() {
         <div className="main-column">
           <section className="panel flight-panel" style={{ height: '64vh', minHeight: 520 }}>
             <div className="panel-heading"><div><Radio size={14} /><span>FLIGHT VIEW</span><b>LOCAL NED FRAME</b></div><div className="coordinates"><span>X <b>{current.aircraft.x_m.toFixed(1)} m</b></span><span>Y <b>{current.aircraft.y_m.toFixed(1)} m</b></span><span>Z <b>{current.aircraft.z_m.toFixed(1)} m</b></span></div></div>
-            <AircraftScene snapshot={current} trail={visibleSnapshots} />
+            {scenesReady
+              ? <AircraftScene snapshot={current} trail={visibleSnapshots} />
+              : <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }} />}
             <div className="viewer-controls" style={{ height: 42, display: 'flex', alignItems: 'center', gap: 10, padding: '0 12px', borderTop: '1px solid #1c333c', background: '#0b171e' }}>
               <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button>
               <button className="load-button" onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button>
@@ -141,7 +147,7 @@ export default function Home() {
             </div>
           </section>
           <div className="lower-grid" style={{ gridTemplateColumns: '1fr' }}>
-            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div><AvionicsScene snapshot={current} /></section>
+            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div>{scenesReady ? <AvionicsScene snapshot={current} /> : <div className="avionics-canvas" />}</section>
           </div>
         </div>
         <aside className="right-column">
