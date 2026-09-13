@@ -143,9 +143,9 @@ cmake --build --preset release
 ```
 
 Executables are `sil_runner`, `hil_runner`, and `sil_monte_carlo`. Named deployable
-outputs are copied under `artifacts/linux/` and `artifacts/stm32/`. See
-[`docs/build/build_targets.md`](docs/build/build_targets.md) for exact paths,
-flashing commands, and the current physical-HIL boundary.
+outputs are copied under `artifacts/linux/` and `artifacts/stm32/`. See the
+[`FC1/FC2 flashing guide`](docs/hil/flashing.md) for stable ST-LINK selection,
+flashing commands, verification, and physical-HIL launch commands.
 
 > This report was prepared in an environment with only GCC 12.2 and no `cmake`,
 > which cannot compile `import std;`; the validation results in the docs are the

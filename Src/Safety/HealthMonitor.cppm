@@ -66,6 +66,9 @@ struct LinkSupervision {
     std::float64_t monitoring_started_time = -1.0;
 };
 
+/* Rearms FC1 liveness supervision with a fresh initial-heartbeat window. */
+void rearm_link_supervision(LinkSupervision& supervision, std::float64_t current_time) noexcept;
+
 class HealthMonitor {
 public:
     explicit HealthMonitor(HealthMonitorConfig config = {});

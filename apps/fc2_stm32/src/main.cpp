@@ -300,6 +300,8 @@ int main()
                 .heartbeat_timeout_s = kHeartbeatTimeoutSeconds,
                 .initial_heartbeat_timeout_s = kInitialHeartbeatTimeoutSeconds,
             }};
+            sim::safety::rearm_link_supervision(
+                supervision, static_cast<std::float64_t>(k_uptime_get()) / 1000.0);
             safety = sim::safety::SafetyManager{};
             node_state = FlightCore::InterFc::NodeState::Healthy;
             detection = FlightCore::InterFc::DetectionCode::None;

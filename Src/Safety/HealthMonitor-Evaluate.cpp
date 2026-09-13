@@ -16,6 +16,13 @@ import Telemetry;
 
 namespace sim::safety {
 
+/* Rearms FC1 liveness supervision with a fresh initial-heartbeat window. */
+void rearm_link_supervision(LinkSupervision& supervision, std::float64_t current_time) noexcept
+{
+    supervision.last_heartbeat_time = -1.0;
+    supervision.monitoring_started_time = current_time;
+}
+
 /*
 Communication link loss and FC1 heartbeat timeout raise latched detection
 flags: these are physical events that only a reset can clear.

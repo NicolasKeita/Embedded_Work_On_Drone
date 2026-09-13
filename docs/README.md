@@ -19,6 +19,7 @@ Start here. The repository has two layers of documentation:
 | [validation/test_matrix.md](validation/test_matrix.md) | What exactly has been validated? |
 | [validation/sil.md](validation/sil.md) | What does SIL prove? |
 | [validation/hil.md](validation/hil.md) | What is the real HIL architecture and timing? |
+| [hil/flashing.md](hil/flashing.md) | How are FC1 and FC2 built, identified and flashed safely? |
 | [validation/monte_carlo.md](validation/monte_carlo.md) | What does Monte Carlo do? |
 | [validation/validation_report.md](validation/validation_report.md) | Executive validation report |
 | [demonstrations/fault_recovery.md](demonstrations/fault_recovery.md) | Degradation + recovery demo (sensor fault) |
