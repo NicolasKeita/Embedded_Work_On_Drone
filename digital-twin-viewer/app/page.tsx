@@ -7,6 +7,8 @@ import { AvionicsScene } from '@/components/avionics-scene';
 import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
+const WS_RETRY_INITIAL_DELAY_MS = 1_000;
+const WS_RETRY_MAX_DELAY_MS = 8_000;
 const subscribeToClientRender = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
@@ -55,24 +57,33 @@ export default function Home() {
     let socket: WebSocket | undefined;
     let retryTimer: number | undefined;
     let resetTimer: number | undefined;
+    let retryDelayMs = WS_RETRY_INITIAL_DELAY_MS;
     let missionFinished = false;
     let disposed = false;
     setSnapshots([]);
     setCursor(0);
     reviewingLiveRef.current = false;
     setReviewingLive(false);
+    const scheduleReconnect = () => {
+      if (disposed) return;
+      retryTimer = window.setTimeout(connect, retryDelayMs);
+      retryDelayMs = Math.min(retryDelayMs * 2, WS_RETRY_MAX_DELAY_MS);
+    };
     const connect = () => {
       if (disposed) return;
       try {
         socket = new WebSocket(WS_URL);
-        socket.onopen = () => setConnected(true);
+        socket.onopen = () => {
+          retryDelayMs = WS_RETRY_INITIAL_DELAY_MS;
+          setConnected(true);
+        };
         socket.onclose = () => {
           setConnected(false);
           missionFinished = false;
           if (resetTimer !== undefined) window.clearTimeout(resetTimer);
           setSnapshots([]);
           setCursor(0);
-          if (!disposed) retryTimer = window.setTimeout(connect, 500);
+          scheduleReconnect();
         };
         socket.onerror = () => socket?.close();
         socket.onmessage = (event) => {
@@ -95,7 +106,7 @@ export default function Home() {
         };
       } catch {
         setConnected(false);
-        retryTimer = window.setTimeout(connect, 500);
+        scheduleReconnect();
       }
     };
     connect();

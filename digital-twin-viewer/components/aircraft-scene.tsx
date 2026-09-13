@@ -140,7 +140,7 @@ export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; tra
 
   return (
     <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }}>
-      <Canvas camera={{ position: [8, 6, 10], fov: 40 }} shadows>
+      <Canvas camera={{ position: [8, 6, 10], fov: 40 }} shadows={{ type: THREE.PCFShadowMap }}>
         <FlightEnvironment snapshot={snapshot} />
         <CameraTracker snapshot={snapshot} />
         <ambientLight intensity={1.9} />

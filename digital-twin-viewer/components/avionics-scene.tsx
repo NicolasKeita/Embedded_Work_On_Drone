@@ -82,7 +82,7 @@ function AirframePanel({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
     <div style={{ minWidth: 0, position: 'relative', border: '1px solid #31505b', background: '#18313b' }}>
       <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae' }}>HELIBLADE · AIRFRAME</div>
-      <Canvas camera={{ position: [4.8, 4.2, 6.2], fov: 38 }} shadows>
+      <Canvas camera={{ position: [4.8, 4.2, 6.2], fov: 38 }} shadows={{ type: THREE.PCFShadowMap }}>
         <color attach="background" args={['#18313b']} />
         <SceneLighting />
         <directionalLight position={[-5, 4, 7]} intensity={5.5} color="#e8fbff" />
@@ -95,14 +95,14 @@ function AirframePanel({ snapshot }: { snapshot: TwinSnapshot }) {
   );
 }
 
-function Stm32Panel({ title, components }: { title: string; components: Record<string, ComponentState> }) {
+function Stm32Panel({ title, components, activeFault }: { title: string; components: Record<string, ComponentState>; activeFault?: string | null }) {
   return (
     <div style={{ minWidth: 0, position: 'relative', border: '1px solid #1b3039', background: '#09131a' }}>
       <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae' }}>{title}</div>
-      <Canvas orthographic camera={{ position: [0, 0, 8], zoom: 48 }} shadows>
+      <Canvas orthographic camera={{ position: [0, 0, 8], zoom: 48 }} shadows={{ type: THREE.PCFShadowMap }}>
         <color attach="background" args={['#09131a']} />
         <SceneLighting />
-        <Stm32FaultModel components={components} />
+        <Stm32FaultModel components={components} activeFault={activeFault} />
         <OrbitControls enablePan={false} minDistance={4.5} maxDistance={10} maxPolarAngle={Math.PI * .85} />
       </Canvas>
     </div>
@@ -113,7 +113,7 @@ export function AvionicsScene({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
     <div className="avionics-canvas" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr)', gap: 8, padding: 8 }}>
       <AirframePanel snapshot={snapshot} />
-      <Stm32Panel title="Flight Controller 1" components={snapshot.fc1.components} />
+      <Stm32Panel title="Flight Controller 1" components={snapshot.fc1.components} activeFault={snapshot.active_fault} />
       <Stm32Panel title="Flight Controller 2" components={snapshot.fc2.components} />
       <div className="legend"><span><i className="healthy" />Healthy</span><span><i className="degraded" />Degraded / blinking</span><span><i className="failed" />Failed / blinking</span></div>
     </div>

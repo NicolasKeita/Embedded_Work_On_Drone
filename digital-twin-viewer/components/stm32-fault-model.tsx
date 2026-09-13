@@ -22,8 +22,9 @@ function faultColor(state: ComponentState) {
 function findMesh(root: THREE.Object3D, names: string[]) {
   let match: THREE.Mesh | undefined;
   root.traverse((object) => {
-    if (match || !(object instanceof THREE.Mesh)) return;
-    if (names.includes(object.name) || names.includes(object.geometry.name)) match = object;
+    if (match || !('isMesh' in object) || object.isMesh !== true) return;
+    const mesh = object as THREE.Mesh;
+    if (names.includes(mesh.name) || names.includes(mesh.geometry.name)) match = mesh;
   });
   return match;
 }
@@ -61,7 +62,7 @@ function BlinkingFaultMesh({ mesh, state }: { mesh: THREE.Mesh; state: Component
   return <primitive ref={meshRef} object={mesh} />;
 }
 
-export function Stm32FaultModel({ components }: { components: Record<string, ComponentState> }) {
+export function Stm32FaultModel({ components, activeFault }: { components: Record<string, ComponentState>; activeFault?: string | null }) {
   const { scene } = useGLTF('/models/carte_stm32.glb');
   const model = useMemo(() => {
     scene.updateMatrixWorld(true);
@@ -75,7 +76,10 @@ export function Stm32FaultModel({ components }: { components: Record<string, Com
     };
   }, [scene]);
   const mcuState = components.mcu ?? 'UNKNOWN';
-  const barometerState = components.sensors ?? 'UNKNOWN';
+  const reportedBarometerState = components.sensors ?? 'UNKNOWN';
+  const barometerState = reportedBarometerState === 'UNKNOWN' && activeFault === 'INVALID_SENSOR_DATA'
+    ? 'DEGRADED'
+    : reportedBarometerState;
 
   return (
     <group position={MODEL_POSITION} scale={MODEL_SCALE} rotation={MODEL_ROTATION}>
