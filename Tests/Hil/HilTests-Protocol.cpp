@@ -20,15 +20,15 @@ namespace {
     /* Verifies that the inter-FC status and its CRC survive a complete frame round trip. */
     void test_inter_fc_status(sim::test::TestHarness& runner)
     {
-        const FlightCore::InterFc::Message status{
+        const FlightCore::InterFc::Message           status{
             .kind = FlightCore::InterFc::MessageKind::Status,
             .sequence = 42,
             .state = FlightCore::InterFc::NodeState::Safe,
             .detection = FlightCore::InterFc::DetectionCode::Fc1HeartbeatTimeout,
         };
         const FlightCore::InterFc::FrameCodec::Frame frame = FlightCore::InterFc::FrameCodec::encode(status);
-        FlightCore::InterFc::FrameParser parser{};
-        std::optional<FlightCore::InterFc::Message> decoded{};
+        FlightCore::InterFc::FrameParser             parser{};
+        std::optional<FlightCore::InterFc::Message>  decoded{};
 
         for (const std::uint8_t byte : frame) {
             const std::optional<FlightCore::InterFc::Message> candidate = parser.process(byte);
@@ -39,8 +39,7 @@ namespace {
         runner.check(decoded.has_value(), "inter-FC status frame accepted");
         runner.check(decoded.has_value() && decoded->kind == FlightCore::InterFc::MessageKind::Status,
                      "inter-FC status kind preserved");
-        runner.check(decoded.has_value() && decoded->sequence == 42,
-                     "inter-FC status sequence preserved");
+        runner.check(decoded.has_value() && decoded->sequence == 42, "inter-FC status sequence preserved");
         runner.check(decoded.has_value() && decoded->state == FlightCore::InterFc::NodeState::Safe,
                      "inter-FC SAFE state preserved");
         runner.check(decoded.has_value()

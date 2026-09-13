@@ -52,6 +52,7 @@ namespace {
     const bool detection_ok = detection == DetectionCode::None || detection == DetectionCode::Fc1HeartbeatTimeout
         || detection == DetectionCode::CommunicationTimeout
         || detection == DetectionCode::SensorValidationFailed || detection == DetectionCode::ActuatorMismatch;
+
     return kind_ok && state_ok && detection_ok;
 }
 

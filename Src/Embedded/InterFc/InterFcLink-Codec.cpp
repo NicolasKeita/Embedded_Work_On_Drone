@@ -39,8 +39,7 @@ FrameCodec::Frame FrameCodec::encode(const Message& message) noexcept
         static_cast<std::uint8_t>((commanded_rpm_bits >> 8u) & 0xFFu),
         static_cast<std::uint8_t>((commanded_rpm_bits >> 16u) & 0xFFu),
         static_cast<std::uint8_t>((commanded_rpm_bits >> 24u) & 0xFFu),
-        0,
-        0, };
+        0, 0, };
     const std::uint16_t crc = frame_crc(std::span<const std::uint8_t>{frame.data(), 20});
 
     frame[20] = static_cast<std::uint8_t>(crc & 0xFFu);

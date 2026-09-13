@@ -42,10 +42,10 @@ enum class TransportError : std::uint8_t {
 };
 
 struct Message {
-    MessageKind   kind = MessageKind::Heartbeat;
-    std::uint16_t sequence = 0;
-    NodeState     state = NodeState::Unknown;
-    DetectionCode detection = DetectionCode::None;
+    MessageKind    kind = MessageKind::Heartbeat;
+    std::uint16_t  sequence = 0;
+    NodeState      state = NodeState::Unknown;
+    DetectionCode  detection = DetectionCode::None;
     std::float32_t altitude_m = 0.0f;
     std::float32_t actual_rpm = 0.0f;
     std::float32_t commanded_rpm = 0.0f;

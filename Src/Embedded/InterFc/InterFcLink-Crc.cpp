@@ -16,6 +16,7 @@ namespace FlightCore::InterFc {
 std::uint16_t frame_crc(std::span<const std::uint8_t> bytes) noexcept
 {
     std::uint16_t crc = 0xFFFF;
+
     for (const std::uint8_t byte : bytes) {
         crc ^= static_cast<std::uint16_t>(byte) << 8u;
         for (std::uint8_t bit = 0; bit < 8; ++bit) {

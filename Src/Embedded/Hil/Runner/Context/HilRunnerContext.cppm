@@ -66,16 +66,16 @@ struct HilRunContext {
     std::size_t                                                injector_count = 0;
     sim::sil::SimulationState                                  env{};
 
-    sim::sil::SensorTelemetry         sensors{};
-    AircraftState                     sampled_truth{};
-    FlightCore::HAL::SensorData       last_sensor_data{};
-    FlightCore::HAL::ActuatorCommands actuator_cmd{};
+    sim::sil::SensorTelemetry                  sensors{};
+    AircraftState                              sampled_truth{};
+    FlightCore::HAL::SensorData                last_sensor_data{};
+    FlightCore::HAL::ActuatorCommands          actuator_cmd{};
     FlightCore::Transport::ActuatorDiagnostics actuator_diagnostics{};
-    ControlCommand                    command{};
-    HilResult                         result{};
-    HilTrace                          trace;
-    HilTelemetryRecorder              telemetry_recorder{};
-    HilTimingStats                    timing{};
+    ControlCommand                             command{};
+    HilResult                                  result{};
+    HilTrace                                   trace;
+    HilTelemetryRecorder                       telemetry_recorder{};
+    HilTimingStats                             timing{};
 
     sim::control::MissionState previous_mission_state = sim::control::MissionState::SPIN_UP;
     sim::safety::SafetyMode    previous_safety_mode = sim::safety::SafetyMode::NORMAL;
