@@ -56,10 +56,7 @@ the table below reflects those assertions (status = deterministic PASS).
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `NOMINAL-001` | none | — | none | NORMAL / HEALTHY | COMPLETE, `max_alt_err ≤ 10.5 m` | PASS |
 | `FAULT_INJECTOR-001` | `FC1_UNAVAILABLE` | t = 20.0 s (permanent) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED (response ≤ 200 ms) | PASS |
-| `FAULT_INJECTOR-002` | `FC_COMMUNICATION_LOSS` | t = 20.0 s (permanent) | `COMMUNICATION_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED | PASS |
 | `FAULT_INJECTOR-003` | `INVALID_SENSOR_DATA` | t = 20.0 s, duration 10.0 s | `SENSOR_VALIDATION_FAILED` ≤ 500 ms | DEGRADED → COMPENSATED | continues (not aborted) | PASS |
-| `FAULT_INJECTOR-004` | `ACTUATOR_DEGRADED` | efficiency 0.6 at t = 15.0 s | `ACTUATOR_MISMATCH` (sustained 0.5 s) | DEGRADED → COMPENSATED | continues | PASS |
-| `FAULT_INJECTOR-005` | `FC1_UNAVAILABLE` | t = 2.0 s (during climb) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED | PASS |
 
 > The per-scenario detail (objective, configuration, expected behaviour and
 > verifications for every launchable scenario on SIL and HIL) lives in the

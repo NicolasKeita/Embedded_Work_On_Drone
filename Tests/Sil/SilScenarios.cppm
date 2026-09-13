@@ -3,7 +3,8 @@ Filename: Tests/Sil/SilScenarios.cppm
 Description: Interface of the deterministic SIL test suite (nominal and fault-injection scenarios);
 observability tests live in the SilObservability module. Exposes the engine-level scenario
 catalog so a runner can execute one scenario by its standardised ID (NOMINAL-001,
-FAULT_INJECTOR-001..005).
+FAULT_INJECTOR-001 and FAULT_INJECTOR-003). Functional identities are shared
+with HIL through the FunctionalScenarios registry.
 Exports:
     struct SilScenarioEntry,
     sil_scenarios(),
@@ -54,7 +55,7 @@ telemetry table is streamed to stdout at telemetry_report_interval_s.
 bool run_sil_scenario(std::string_view id, sim::test::TestHarness& runner,
                       std::float64_t telemetry_report_interval_s = 1.0);
 
-/* Runs the six scenarios, the observability suite and the report artifacts. */
+/* Runs the three shared scenarios, the observability suite and the report artifacts. */
 void run_all_sil_scenarios(TestHarness& runner);
 
 }

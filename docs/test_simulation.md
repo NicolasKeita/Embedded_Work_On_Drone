@@ -13,7 +13,7 @@ Executable path: `build/SIL_RUNNER` (run as `SIL_RUNNER`).
 Usage: SIL_RUNNER [--scenario <id>] [--all] [-v | --verbose]
 - With no argument, the usage helper is printed: available options and the full
   pre-configured scenario catalog. Nothing is executed.
-- --scenario <id>   Run one scenario (NOMINAL-001..011, FAULT_INJECTOR-001..005).
+- --scenario <id>   Run one shared scenario (NOMINAL-001, FAULT_INJECTOR-001 or FAULT_INJECTOR-003).
 - --all             Run the full deterministic sweep (every scenario, in order).
 - -v, --verbose     Per-step telemetry logging.
 - -h, --help        Show this help and exit.
@@ -42,7 +42,7 @@ SIL_RUNNER --scenario NOMINAL-011
 ## Available scenarios
 
 The full launchable scenario catalog (nominal `NOMINAL-001..017` and fault
-injection `FAULT_INJECTOR-001..005`) is documented in the
+injection `FAULT_INJECTOR-001` and `FAULT_INJECTOR-003`) is documented in the
 [scenario reference](validation/scenarios.md), which details each scenario's
 objective, configuration, expected behaviour and verifications for both the
 SIL and HIL runners.
@@ -50,7 +50,7 @@ SIL and HIL runners.
 The `SIL_RUNNER` drives two catalogs:
 
 - the **SIL engine suite** (`Tests/Sil/SilScenarios*`): `NOMINAL-001` and
-  `FAULT_INJECTOR-001..005`;
+  `FAULT_INJECTOR-001` and `FAULT_INJECTOR-003`;
 - the **physics/autonomous catalog** (`Tests/Scenarios`): `NOMINAL-001..017`
   (open-loop physics `002..007`, autonomous cascade/mission `008..011`,
   low takeoff profiles `012..016`, stratosphere `017`).
@@ -92,10 +92,7 @@ The following scenarios are executed:
 
 - **NOMINAL-001 [SIL] — Nominal flight with no fault**: full mission with no fault; must COMPLETE with `NORMAL` safety, no fault detected, altitude error <= 10.5 m.
 - **FAULT_INJECTOR-001 [SIL] — FC1 failure**: heartbeat timeout < 300 ms, `SAFE_MODE` (response <= 200 ms), mission aborted.
-- **FAULT_INJECTOR-002 [SIL] — Communication loss**: `COMMUNICATION_TIMEOUT` < 300 ms, `SAFE_MODE`, mission aborted.
 - **FAULT_INJECTOR-003 [SIL] — Sensor fault**: altitude corruption invalidated < 500 ms, `DEGRADED` -> `COMPENSATED`, mission continues.
-- **FAULT_INJECTOR-004 [SIL] — Actuator degradation**: efficiency 0.6, `ACTUATOR_MISMATCH`, `DEGRADED` -> `COMPENSATED`, mission continues.
-- **FAULT_INJECTOR-005 [SIL] — FC1 failure during climb**: FC1 failure at t = 2 s across the climb transition, `SAFE_MODE`, mission aborted.
 
 > Note: `COMMUNICATION_DEGRADED` (packet loss) is handled at the communication
 > layer (`CommsBus`) and has no named deterministic scenario;

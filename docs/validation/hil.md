@@ -169,8 +169,8 @@ physical STM32 (not yet present).
 Faults are injected host-side into the simulated environment through the same
 `FaultInjector` set and mirrored into the reused `CommsBus`; the safety/health
 core then detects them naturally (same chain as SIL). HIL exposes
-`FAULT_INJECTOR-001..004` (`FC1_UNAVAILABLE`, `FC_COMMUNICATION_LOSS`,
-`INVALID_SENSOR_DATA` at t = 5 s / 20 s window, `ACTUATOR_DEGRADED`). They share
+the two shared fault scenarios (`FC1_UNAVAILABLE` and `INVALID_SENSOR_DATA`,
+activated at t = 5 s, with a 20 s window for the sensor fault). They share
 the deterministic outcome of their SIL counterparts (see
 [`demonstrations/mission_abort.md`](../demonstrations/mission_abort.md)).
 
@@ -195,5 +195,4 @@ HIL_RUNNER --selftest                   # deterministic HIL validation suite
 * **In-process loopback transport** — no real UART/CAN; CRC16 framing and the
   parser are exercised, but not over a lossy physical medium.
 * **No jitter statistic**; no printed elapsed wall-clock time.
-* **No HIL `FAULT_INJECTOR-005`** (the climb-transition FC1 failure is SIL-only).
 * Monte Carlo is not run against HIL (it remains a SIL technique).

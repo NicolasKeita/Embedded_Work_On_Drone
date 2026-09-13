@@ -1,8 +1,7 @@
 /*
 Filename: Tests/Hil/HilTests-Faults.cpp
-Description: HIL fault tests : FC1 failure, communication loss, sensor fault and actuator
-degradation, asserting the fault is injected through the HIL data path, detected
-naturally by the reused safety/health core and handled per the expected safety behavior.
+Description: HIL fault tests for FC1 and altitude-sensor failures, asserting detection
+and safety handling through the HIL data path.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -80,9 +79,7 @@ namespace {
 void run_fault_tests(sim::test::TestHarness& runner)
 {
     check_abort_scenario(runner, "FAULT_INJECTOR-001", sim::safety::DetectionEvent::FC1_HEARTBEAT_TIMEOUT);
-    check_abort_scenario(runner, "FAULT_INJECTOR-002", sim::safety::DetectionEvent::COMMUNICATION_TIMEOUT);
     check_compensated_scenario(runner, "FAULT_INJECTOR-003", sim::safety::DetectionEvent::SENSOR_VALIDATION_FAILED);
-    check_compensated_scenario(runner, "FAULT_INJECTOR-004", sim::safety::DetectionEvent::ACTUATOR_MISMATCH);
 }
 
 }

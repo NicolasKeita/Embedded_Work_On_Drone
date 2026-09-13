@@ -3,7 +3,7 @@ Filename: Src/Runners/MonteCarlo/main.cpp
 Description: Entry point of SIL_MONTE_CARLO : accelerated statistical batch simulation
 over the SIL engine. --seed selects the master RNG seed, --runs the iteration count
 and --scenario optionally restricts the campaign to one scenario template
-(NOMINAL-001 or FAULT_INJECTOR-001..004). Results are exported as CSV.
+(NOMINAL-001, FAULT_INJECTOR-001 or FAULT_INJECTOR-003). Results are exported as CSV.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.

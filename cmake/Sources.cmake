@@ -147,7 +147,7 @@ set(TEST_SIMULATION_FILES
     Tests/Scenarios/Altitude/FlightScenarios-Stratosphere.cpp
 )
 
-# Deterministic SIL test suite (NOMINAL-001..010 nominal, FAULT_INJECTOR-001..004 fault
+# Deterministic SIL test suite (NOMINAL-001 nominal, FAULT_INJECTOR-001/003 fault
 # injection) plus the observability and telemetry suites.
 set(TEST_SIL_FILES
     Tests/Sil/SilScenarios.cppm

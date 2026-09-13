@@ -122,7 +122,6 @@ MISSION_ABORTED
 ```text
 HIL_RUNNER --scenario FAULT_INJECTOR-001        # HIL, full descent to ground
 SIL_RUNNER --scenario FAULT_INJECTOR-001        # SIL (injection at t = 20 s)
-SIL_RUNNER --scenario FAULT_INJECTOR-005        # SIL: FC1 failure during climb
 ```
 
 ## 10. Limitations of this demo
@@ -132,4 +131,3 @@ SIL_RUNNER --scenario FAULT_INJECTOR-005        # SIL: FC1 failure during climb
 * `SAFE_MODE` is **irreversible** — there is no return to nominal once a
   heartbeat/communication timeout has latched.
 * This validates the supervision/detection/response chain, not real hardware.
-

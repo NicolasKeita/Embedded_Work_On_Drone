@@ -1,7 +1,7 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cpp
-Description: Definition of the target-agnostic functional scenario registry
-(NOMINAL-001 nominal station keeping and FAULT_INJECTOR-001..004 fault injection families).
+Description: Shared SIL/HIL functional scenario registry containing the nominal
+station-keeping scenario and the two supported fault-injection scenarios.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -18,10 +18,12 @@ namespace sim::test {
 
 namespace {
 
-// constexpr so the registry is constant-initialized: it can be safely read
-// during the dynamic initialization of other scenario catalogs (no static
-// initialization order fiasco).
-constexpr std::array<FunctionalScenario, 5> kScenarios{{
+/*
+This is the canonical scenario registry shared by the SIL and HIL runners.
+Target-specific catalogs may add execution timing, but must not redefine a
+functional scenario's identity, fault mode, parameters or expected outcome.
+*/
+constexpr std::array<FunctionalScenario, 3> kScenarios{{
     {
         "NOMINAL-001",
         "Nominal station-keeping mission with no injected fault",
@@ -39,14 +41,6 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
         true,
     },
     {
-        "FAULT_INJECTOR-002",
-        "FC1-FC2 communication loss",
-        FunctionalFamily::FaultInjection,
-        sim::sil::FailureMode::FC_COMMUNICATION_LOSS,
-        sim::sil::FaultParameters{},
-        true,
-    },
-    {
         "FAULT_INJECTOR-003",
         "Altitude sensor fault (out-of-range measurement)",
         FunctionalFamily::FaultInjection,
@@ -55,14 +49,6 @@ constexpr std::array<FunctionalScenario, 5> kScenarios{{
             .corruption = sim::sil::SensorCorruptionMode::AltitudeOutOfRange,
             .corrupted_altitude_m = 99999.0,
         },
-        true,
-    },
-    {
-        "FAULT_INJECTOR-004",
-        "Main-rotor actuator degradation (efficiency 0.6)",
-        FunctionalFamily::FaultInjection,
-        sim::sil::FailureMode::ACTUATOR_DEGRADED,
-        sim::sil::FaultParameters{.efficiency = 0.6},
         true,
     },
 }};

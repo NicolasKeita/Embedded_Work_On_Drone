@@ -150,10 +150,10 @@ transition that engages it (`safety_action_for()` maps one to the other).
 | Failure Mode | Implemented | Detection Mechanism | Safety Response | Status / Notes |
 | :--- | :---: | :--- | :--- | :--- |
 | **FM-01 FC1 Unavailable** | Yes | Heartbeat supervision → `FC1_HEARTBEAT_TIMEOUT` | `ENTER_SAFE_MODE`, mission abort | Fully tested (SIL FAULT_INJECTOR-001/005, HIL FAULT_INJECTOR-001) |
-| **FM-02 Communication Loss** | Yes | Link supervision → `COMMUNICATION_TIMEOUT` | `ENTER_SAFE_MODE`, mission abort | Fully tested (SIL/HIL FAULT_INJECTOR-002) |
+| **FM-02 Communication Loss** | Yes | Link supervision → `COMMUNICATION_TIMEOUT` | `ENTER_SAFE_MODE`, mission abort | No named functional scenario |
 | **FM-03 Communication Degraded** | Yes | Link supervision absorbs the loss rate; `COMMUNICATION_TIMEOUT` only if the supervision window is exceeded | Depends on absorption | Monte-Carlo coverage only (no deterministic scenario) |
 | **FM-04 Invalid Sensor Data** | Yes | Range/NaN validation → `SENSOR_VALIDATION_FAILED` | `ENTER_COMPENSATED` (nominal thrust), FC1 holds last valid measurement | Altitude channel only; fully tested (SIL/HIL FAULT_INJECTOR-003) |
-| **FM-05 Actuator Degraded** | Yes | Sustained RPM mismatch → `ACTUATOR_MISMATCH` | `ENTER_COMPENSATED` with 1.7× thrust margin | Main rotor only; fully tested (SIL/HIL FAULT_INJECTOR-004) |
+| **FM-05 Actuator Degraded** | Yes | Sustained RPM mismatch → `ACTUATOR_MISMATCH` | `ENTER_COMPENSATED` with 1.7× thrust margin | No named functional scenario |
 | **FM-06 Control Deadline Missed** | No | HIL bench deadline supervision (`DEADLINE_MISSED`) exists; no SIL detection | N/A | Documented; no injection path, no RTOS task-stall model |
 | **FM-07 Invalid Numerical State** | No | NaN rejected by sensor validation (FM-04 path only) | N/A | Documented; generic numerical-state guard is future work |
 | **IMU / GNSS sensor failure** | No | None | N/A | Future work (targets declared, injection rejected) |

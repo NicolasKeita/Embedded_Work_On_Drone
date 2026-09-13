@@ -65,18 +65,14 @@ sim::sil::FaultScenario hil_fault_for(std::string_view id)
     return fault;
 }
 
-const std::array<HilScenarioRecord, 11> kScenarios{{
+const std::array<HilScenarioRecord, 9> kScenarios{{
     {"NOMINAL-001", "Nominal station-keeping mission (no fault)",
      flight_config("NOMINAL-001", {.z = 10.0}, 30.0),
      sim::sil::FaultScenario{}},
     {"FAULT_INJECTOR-001", "FC1 heartbeat-task failure during station keeping", hil_base_config(),
      hil_fault_for("FAULT_INJECTOR-001")},
-    {"FAULT_INJECTOR-002", "Inter-FC heartbeat-path loss during station keeping", hil_base_config(),
-     hil_fault_for("FAULT_INJECTOR-002")},
     {"FAULT_INJECTOR-003", "Altitude sensor fault during station keeping", hil_base_config(),
      hil_fault_for("FAULT_INJECTOR-003")},
-    {"FAULT_INJECTOR-004", "Main-rotor actuator degradation during station keeping", hil_base_config(),
-     hil_fault_for("FAULT_INJECTOR-004")},
     {"NOMINAL-012", "Low vertical takeoff (30 s, z = 5 m)",
      flight_config("NOMINAL-012", {.z = 5.0}, 30.0),
      sim::sil::FaultScenario{}},

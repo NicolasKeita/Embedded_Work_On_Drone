@@ -63,7 +63,7 @@ public:
     MonteCarloRunner(std::uint64_t master_seed, SilConfig config = {});
     /*
     Restricts every generated run to one fault family (the scenario template of
-    the campaign, e.g. FAULT_INJECTOR-002 forces FC_COMMUNICATION_LOSS); a nullopt
+    the campaign, e.g. FAULT_INJECTOR-003 forces INVALID_SENSOR_DATA); a nullopt
     template keeps the fully random fault dispersion. FailureMode::NONE produces
     nominal-only runs.
     */

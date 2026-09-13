@@ -335,7 +335,7 @@ The fault must not be injected by directly modifying the expected HIL result.
 
 ---
 
-### FAULT_INJECTOR-002 — Communication loss
+### Communication-loss mechanism (no named functional scenario)
 
 Objective:
 
@@ -691,7 +691,7 @@ Communication latency measurement.
 ### FAULT_INJECTOR-003
 Sensor fault injection.
 
-### FAULT_INJECTOR-002
+### Communication-loss mechanism (no named functional scenario)
 Communication loss.
 
 ### SAFETY

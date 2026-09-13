@@ -62,7 +62,7 @@ Status legend: PASS = deterministic assertion encoded & designed to satisfy.
 | :--- | :--- | :--- |
 | Mission (TAKEOFF→CLIMB→STATION_KEEPING→COMPLETE) | PASS | `SIL_RUNNER --scenario NOMINAL-001/010` |
 | Control (altitude / X / Y / actuators / saturation) | PASS* | NOMINAL-001, 008, 009; `ControllerConfig` bounds |
-| Safety (DEGRADED/COMPENSATED/SAFE/SAFE_MODE/abort) | PASS | `FAULT_INJECTOR-001..005` (SIL/HIL) |
+| Safety (DEGRADED/COMPENSATED/SAFE/SAFE_MODE/abort) | PASS | shared `FAULT_INJECTOR-001/003` (SIL/HIL) |
 | Communication (heartbeat / loss / packet loss) | PASS / LIMITED | FM-01/02 PASS; FM-03 packet-loss LIMITED |
 | Monte Carlo (dispersion + statistics) | PASS* (tooling) | `SIL_MONTE_CARLO` |
 | HIL timing (real-time loop, deadlines) | PASS* | `HIL_RUNNER --selftest`, `--scenario NOMINAL-001` |
@@ -75,9 +75,7 @@ which is **not** reproduced here.
 | Failure mode → detection → response | Critical? | Outcome | Scenario |
 | :--- | :--- | :--- | :--- |
 | `FC1_UNAVAILABLE` → `FC1_HEARTBEAT_TIMEOUT` → `ENTER_SAFE_MODE` | yes | detected ≤ 300 ms, SAFE_MODE, ABORTED | FAULT_INJECTOR-001 (SIL/HIL), 005 (SIL) |
-| `FC_COMMUNICATION_LOSS` → `COMMUNICATION_TIMEOUT` → `ENTER_SAFE_MODE` | yes | detected ≤ 300 ms, SAFE_MODE, ABORTED | FAULT_INJECTOR-002 (SIL/HIL) |
 | `INVALID_SENSOR_DATA` → `SENSOR_VALIDATION_FAILED` → `ENTER_COMPENSATED` | no | detected ≤ 500 ms, DEGRADED+COMPENSATED, mission continues, **recoverable** | FAULT_INJECTOR-003 (SIL/HIL) |
-| `ACTUATOR_DEGRADED` → `ACTUATOR_MISMATCH` (0.5 s) → `ENTER_COMPENSATED` (1.7×) | no | DEGRADED+COMPENSATED, mission continues | FAULT_INJECTOR-004 (SIL/HIL) |
 
 The chain exercised end-to-end: Failure Mode → Detection Event → Health State
 → Safety Action → Safety Mode → Mission outcome.
@@ -145,4 +143,3 @@ Final project status:
 | Monte Carlo over faults | NOT IMPLEMENTED (library, not wired) |
 | FM-06 / FM-07 fault modes | NOT IMPLEMENTED |
 | Physical STM32 HIL | NOT IMPLEMENTED |
-

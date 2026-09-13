@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
 import { AircraftScene } from '@/components/aircraft-scene';
 import { AvionicsScene } from '@/components/avionics-scene';
-import { createDemoSnapshots, createIdleSnapshot, type TwinSnapshot } from '@/lib/twin-data';
+import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
 const subscribeToClientRender = () => () => {};
@@ -80,7 +80,7 @@ export default function Home() {
             const next = JSON.parse(event.data) as TwinSnapshot;
             if (missionFinished) return;
             setSnapshots((items) => {
-              const updated = [...items, next];
+              const updated = [...items, holdLastKnownAltitude(next, items.at(-1))];
               if (!reviewingLiveRef.current) setCursor(updated.length - 1);
               return updated;
             });
@@ -112,7 +112,7 @@ export default function Home() {
   const loadReplay = async (file: File) => {
     const text = await file.text();
     const parsed = text.trim().startsWith('[') ? JSON.parse(text) : text.split('\n').filter(Boolean).map((line) => JSON.parse(line));
-    setSnapshots(parsed as TwinSnapshot[]); setCursor(0); setMode('replay'); setPlaying(false);
+    setSnapshots(holdLastKnownAltitudes(parsed as TwinSnapshot[])); setCursor(0); setMode('replay'); setPlaying(false);
   };
   const togglePlayback = () => {
     if (mode === 'live' && !reviewingLiveRef.current) {
@@ -156,7 +156,7 @@ export default function Home() {
             <div className="state-block mission"><span>MISSION</span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>Station hold · target locked</small></div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderBottom: '1px solid #1b3039' }}><Metric label="PITCH" value={(current.aircraft.pitch_rad * 57.3).toFixed(1)} unit="°" /><Metric label="ROLL" value={(current.aircraft.roll_rad * 57.3).toFixed(1)} unit="°" /><Metric label="AIRSPEED" value={current.aircraft.airspeed_ms.toFixed(1)} unit="m/s" /></div>
             <div className="state-pair"><div><span>HEALTH</span><strong className={current.health === 'HEALTHY' ? 'ok' : 'warn'}><StatusDot tone={current.health === 'HEALTHY' ? 'green' : 'amber'} />{current.health}</strong></div><div><span>SAFETY</span><strong className={current.safety_mode === 'NORMAL' ? 'ok' : 'warn'}>{current.safety_mode}</strong></div></div>
-            <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{current.active_fault ? 'Compensation active' : 'No injected or detected fault'}</small></div>
+            <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{hasAltitudeFault(current) ? 'Barometer unavailable · altitude held at last known value' : current.active_fault ? 'Compensation active' : 'No injected or detected fault'}</small></div>
             <div className="actuators"><span>ACTUATORS</span><Metric label="ROTOR" value={current.actuators.rotor_rpm.toFixed(0)} unit="RPM" /><Metric label="LEFT SERVO" value={current.actuators.left_servo_deg.toFixed(1)} unit="°" /><Metric label="RIGHT SERVO" value={current.actuators.right_servo_deg.toFixed(1)} unit="°" /></div>
           </section>
           <section className="panel timeline-panel"><div className="panel-heading"><div><AlertTriangle size={14} /><span>EVENT TIMELINE</span></div><button aria-label="Filter events"><ChevronDown size={15} /></button></div><div className="events">{current.events.slice(-6).reverse().map((event, index) => <div className={`event ${event.level}`} key={`${event.time_s}-${event.type}-${index}`}><time>{event.time_s.toFixed(3)}</time><span>{event.type}</span><p>{event.message}</p></div>)}</div></section>

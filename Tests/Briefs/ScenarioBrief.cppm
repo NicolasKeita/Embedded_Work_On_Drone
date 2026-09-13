@@ -39,7 +39,7 @@ Returns an empty view when the ID is not an autonomous scenario.
 [[nodiscard]] std::string_view autonomous_scenario_brief(std::string_view id) noexcept;
 
 /*
-Module-internal lookup of the fault-injection scenario briefs (FAULT_INJECTOR-001..005).
+Module-internal lookup of the two shared fault-injection scenario briefs.
 Returns an empty view when the ID is not a fault-injection scenario.
 */
 [[nodiscard]] std::string_view fault_scenario_brief(std::string_view id) noexcept;

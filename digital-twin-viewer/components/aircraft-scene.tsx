@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Cloud, Clouds, ContactShadows, Environment, Grid, Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import type { TwinSnapshot } from '@/lib/twin-data';
+import { hasAltitudeFault, type TwinSnapshot } from '@/lib/twin-data';
 
 function displayAltitude(altitude: number, targetAltitude: number) {
   const reference = Math.max(targetAltitude, 1000);
@@ -157,7 +157,7 @@ export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; tra
         {points.length > 1 && <Line points={points} color="#3ff1dd" lineWidth={1.5} transparent opacity={.75} />}
         <Environment preset="city" environmentIntensity={1.6} />
       </Canvas>
-      <div className="scene-label altitude-label"><b>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>MSL ALTITUDE</small></div>
+      <div className="scene-label altitude-label" style={hasAltitudeFault(snapshot) ? { borderColor: '#e4a93e', color: '#e4a93e' } : undefined}><b style={hasAltitudeFault(snapshot) ? { color: '#e4a93e' } : undefined}>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>{hasAltitudeFault(snapshot) ? 'LAST KNOWN · BAROMETER FAULT' : 'MSL ALTITUDE'}</small></div>
       {snapshot.aircraft.altitude_m > 7000 && <div className="scene-label" style={{ left: 18, top: 18, color: '#8bc8e5' }}>STRATOSPHERIC ASCENT · {(snapshot.aircraft.altitude_m / 1000).toFixed(1)} km</div>}
     </div>
   );

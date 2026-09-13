@@ -47,7 +47,7 @@ not applicable.
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | COM-01 | Heartbeat publication while FC1 alive | SIL deterministic | one sequenced message/step; `CommsStats` recorded | PASS | `SIL_RUNNER --scenario NOMINAL-001` | [sil.md](sil.md) |
 | COM-02 | Heartbeat timeout detection | SIL/HIL deterministic | `FC1_HEARTBEAT_TIMEOUT` within configured timeout (100 ms) | PASS | `FAULT_INJECTOR-001` (SIL+HIL) | [sil.md](sil.md) |
-| COM-03 | Communication loss (link cut) | SIL/HIL deterministic | `COMMUNICATION_TIMEOUT` ≤ 300 ms → SAFE_MODE, ABORTED | PASS | `FAULT_INJECTOR-002` (SIL+HIL) | [sil.md](sil.md) |
+| COM-03 | Communication loss (link cut) | Component-level deterministic test | `COMMUNICATION_TIMEOUT` ≤ 300 ms → SAFE_MODE, ABORTED | PASS | No named functional scenario | [sil.md](sil.md) |
 | COM-04 | Packet loss (degraded link) | Injector/CommsBus layer | `comms_loss_probability = p` drops packets; supervision by heartbeat window | LIMITED | `CommsBus::set_link` (FM-03) | [FMECA](../fmeca/fmeca.md) |
 | COM-05 | Communication loss then recovery | — | **NOT IMPLEMENTED**: heartbeat/comm flags are latched; once SAFE_MODE engages the abort is irreversible | N/A | — | [sil.md](sil.md) |
 
@@ -68,11 +68,8 @@ not applicable.
 | Test ID | Failure mode | Injection point / time | Expected detection | Expected safety state | Expected mission result | Status | Executable / scenario | Ref |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | FI-01 | `FC1_UNAVAILABLE` | FC1 stop at t = 20.0 s (SIL) / t = 5.0 s (HIL) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE | ABORTED | PASS | `FAULT_INJECTOR-001` (SIL/HIL) | [FMECA FM-01](../fmeca/fmeca.md) |
-| FI-02 | `FC_COMMUNICATION_LOSS` | link cut at t = 20.0 s (SIL) / t = 5.0 s (HIL) | `COMMUNICATION_TIMEOUT` ≤ 300 ms | SAFE | ABORTED | PASS | `FAULT_INJECTOR-002` (SIL/HIL) | [FMECA FM-02](../fmeca/fmeca.md) |
 | FI-03 | `COMMUNICATION_DEGRADED` | `comms_loss_probability = p` | persisted/aggravated → heartbeat timeout | NORMAL or SAFE | continues or aborts | LIMITED | `CommsBus::set_link` (no named scenario) | [FMECA FM-03](../fmeca/fmeca.md) |
 | FI-04 | `INVALID_SENSOR_DATA` | altitude corruption (out of range / NaN), t = 20 s / 10 s (SIL), t = 5 s / 20 s (HIL) | `SENSOR_VALIDATION_FAILED` ≤ 500 ms | DEGRADED → COMPENSATED | continues (not aborted) | PASS | `FAULT_INJECTOR-003` (SIL/HIL) | [FMECA FM-04](../fmeca/fmeca.md) |
-| FI-05 | `ACTUATOR_DEGRADED` | main-rotor efficiency 0.6 at t = 15.0 s | `ACTUATOR_MISMATCH` (sustained 0.5 s) | DEGRADED → COMPENSATED | continues | PASS | `FAULT_INJECTOR-004` (SIL/HIL) | [FMECA FM-05](../fmeca/fmeca.md) |
-| FI-06 | `FC1_UNAVAILABLE` during climb transition | FC1 stop at t = 2.0 s (SIL) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED | PASS | `FAULT_INJECTOR-005` (SIL only) | [FMECA FM-01](../fmeca/fmeca.md) |
 | FI-07 | `CONTROL_DEADLINE_MISSED` | — | — | — | — | **NOT IMPLEMENTED** | — | [FMECA FM-06](../fmeca/fmeca.md) |
 | FI-08 | `INVALID_NUMERICAL_STATE` | — | — | — | — | **NOT IMPLEMENTED** | — | [FMECA FM-07](../fmeca/fmeca.md) |
 | FI-09 | IMU / GNSS / RPM / individual-servo faults | declared targets | — | — | — | **NOT IMPLEMENTED** (no injection path) | — | [FMECA §11](../fmeca/fmeca.md) |
@@ -81,10 +78,10 @@ not applicable.
 
 | Test ID | Requirement / behavior | Method | Expected result | Status | Executable / scenario | Ref |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| SIL-01 | Deterministic fault scenarios | 6 SIL scenarios (NOMINAL-001 + FAULT_INJECTOR-001..005) | each meets its assertions | PASS | `SIL_RUNNER --all` | [sil.md](sil.md) |
+| SIL-01 | Deterministic shared scenarios | 3 SIL scenarios (NOMINAL-001 + two fault scenarios) | each meets its assertions | PASS | `SIL_RUNNER --all` | [sil.md](sil.md) |
 | SIL-02 | Normal mission (no fault) | NOMINAL-001 | COMPLETE / NORMAL / HEALTHY, `max_alt_err ≤ 10.5 m` | PASS | `SIL_RUNNER --scenario NOMINAL-001` | [sil.md](sil.md) |
-| SIL-03 | Fault detection | each fault scenario | correct `DetectionEvent`, bounded latency | PASS | `FAULT_INJECTOR-001..005` | [sil.md](sil.md) |
-| SIL-04 | Safety response | each fault scenario | SAFE_MODE/COMPENSATED consistent with mode | PASS | `FAULT_INJECTOR-001..005` | [sil.md](sil.md) |
+| SIL-03 | Fault detection | each shared fault scenario | correct `DetectionEvent`, bounded latency | PASS | `FAULT_INJECTOR-001/003` | [sil.md](sil.md) |
+| SIL-04 | Safety response | each shared fault scenario | SAFE_MODE/COMPENSATED consistent with mode | PASS | `FAULT_INJECTOR-001/003` | [sil.md](sil.md) |
 | SIL-05 | Mission result | each scenario | COMPLETE (nominal) / ABORTED (critical) / continues (degraded) | PASS | `--all` | [sil.md](sil.md) |
 | SIL-06 | Observability suite | structured events/trace | event ordering, heartbeat/dropped/comms/fault-metadata/logging | PASS | `SilObservability` suite (`--all`) | [sil.md](sil.md) |
 
@@ -114,10 +111,10 @@ this matrix does **not** reproduce it):
 | Failure mode | Failure mode name | Primary validation | Status |
 | :--- | :--- | :--- | :--- |
 | FM-01 | `FC1_UNAVAILABLE` | SIL (`FAULT_INJECTOR-001`, `005`) · HIL (`FAULT_INJECTOR-001`) | PASS |
-| FM-02 | `FC_COMMUNICATION_LOSS` | SIL · HIL (`FAULT_INJECTOR-002`) | PASS |
+| FM-02 | `FC_COMMUNICATION_LOSS` | Component-level tests; no named scenario | PASS |
 | FM-03 | `COMMUNICATION_DEGRADED` | CommsBus packet-loss layer; no named deterministic scenario | LIMITED |
 | FM-04 | `INVALID_SENSOR_DATA` | SIL · HIL (`FAULT_INJECTOR-003`) | PASS |
-| FM-05 | `ACTUATOR_DEGRADED` | SIL · HIL (`FAULT_INJECTOR-004`) | PASS |
+| FM-05 | `ACTUATOR_DEGRADED` | Component-level tests; no named scenario | PASS |
 | FM-06 | `CONTROL_DEADLINE_MISSED` | future timing-fault test | **NOT IMPLEMENTED** |
 | FM-07 | `INVALID_NUMERICAL_STATE` | future numerical-integrity test | **NOT IMPLEMENTED** |
 
@@ -140,6 +137,6 @@ Requirement / mission behavior
 | HIL-02 | Timing / deadline monitoring | `HilTimingStats` | deadline misses, max/mean step, round-trip, max lateness | PASS | `--scenario NOMINAL-001` | [hil.md](hil.md) |
 | HIL-03 | Target interaction (loopback) | `--interface loopback` | SensorPacket/ActuatorPacket exchange over in-process channel | PASS | `--list` / `--scenario` | [hil.md](hil.md) |
 | HIL-04 | Telemetry | dual sensor/truth streams | 1 Hz human-readable table + structured events | PASS | `--scenario NOMINAL-001` | [hil.md](hil.md) |
-| HIL-05 | Fault injection through the HIL path | host-side injection → reused safety core | same detection/action as SIL baseline | PASS | `FAULT_INJECTOR-001..004` | [hil.md](hil.md) |
+| HIL-05 | Shared fault injection through the HIL path | host-side injection → reused safety core | same detection/action as SIL baseline | PASS | `FAULT_INJECTOR-001/003` | [hil.md](hil.md) |
 | HIL-06 | Physical-MCU (STM32) HIL | real target | — | **NOT IMPLEMENTED** | — | [hil.md](hil.md) |
 | HIL-07 | Deterministic selftest suite | `--selftest` (runner/timing/protocol/data/faults) | all HIL tests pass | PASS | `HIL_RUNNER --selftest` | [hil.md](hil.md) |

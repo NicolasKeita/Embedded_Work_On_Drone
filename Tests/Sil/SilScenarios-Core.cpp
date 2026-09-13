@@ -1,6 +1,6 @@
 /*
 Filename: Tests/Sil/SilScenarios-Core.cpp
-Description: SIL scenarios: nominal station-keeping, FC1 failure and communication loss.
+Description: SIL scenarios for nominal station keeping and the shared FC1 fault.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -38,10 +38,15 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 {
     return SILRunner{}.run(scenarios);
 }
+
+sim::sil::FaultScenario make_sil_fault(std::string_view id,
+                                       std::float64_t   start_time,
+                                       std::float64_t   duration);
+
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure injected at t = 20.0 s");
-    const FaultScenario scenario{.start_time = 20.0, .duration = 0.0, .failure_mode = FailureMode::FC1_UNAVAILABLE};
+    const FaultScenario scenario = make_sil_fault("FAULT_INJECTOR-001", 20.0, 0.0);
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
@@ -65,33 +70,4 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 
-void communication_loss_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
-{
-    runner.begin_scenario("FAULT_INJECTOR-002", "Communication loss injected at t = 20.0 s");
-    const FaultScenario scenario{
-                            .start_time = 20.0,
-                            .duration = 0.0,
-                            .failure_mode = FailureMode::FC_COMMUNICATION_LOSS,
-                        };
-    const std::array<FaultScenario, 1> scenarios{scenario};
-
-    const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
-    if (!outcome.has_value()) {
-        runner.check(false, "SIL runner failed");
-        output = SilRunOutput{};
-        record = {.name = "FAULT_INJECTOR-002", .scenario = scenario, .result = SimulationResult{}};
-        return;
-    }
-
-    output = std::move(outcome).value();
-    SimulationResult& r = output.result;
-    r.test_verdict = r.compute_verdict(true);
-    runner.check(r.fault_detected && r.first_detection_event == DetectionEvent::COMMUNICATION_TIMEOUT,
-                 "COMMUNICATION_TIMEOUT detection raised");
-    runner.check(r.detection_latency >= 0.0 && r.detection_latency <= 0.30, "alert raised within 300 ms");
-    runner.check(r.safe_mode_reached, "safety reaction engaged");
-    runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED (step 10 rule)");
-    record = {.name = "FAULT_INJECTOR-002", .scenario = scenario, .result = r, .events = output.events,
-              .telemetry = output.telemetry, .ground_truth = output.ground_truth};
-}
 }

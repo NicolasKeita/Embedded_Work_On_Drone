@@ -35,9 +35,11 @@ namespace {
         if (ctx.last_failure_mode == FailureMode::ACTUATOR_DEGRADED) {
             return "actuators";
         }
+        if (ctx.last_failure_mode == FailureMode::FC1_UNAVAILABLE) {
+            return "mcu";
+        }
         if (ctx.last_failure_mode == FailureMode::FC_COMMUNICATION_LOSS
-            || ctx.last_failure_mode == FailureMode::COMMUNICATION_DEGRADED
-            || ctx.last_failure_mode == FailureMode::FC1_UNAVAILABLE) {
+            || ctx.last_failure_mode == FailureMode::COMMUNICATION_DEGRADED) {
             return "transport";
         }
         return {};
