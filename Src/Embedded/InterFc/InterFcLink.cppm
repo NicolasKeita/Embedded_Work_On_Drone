@@ -82,3 +82,14 @@ private:
 };
 
 }
+
+namespace FlightCore::InterFc {
+
+constexpr std::uint8_t kSyncFirst = 0xA5;
+constexpr std::uint8_t kSyncSecond = 0x5A;
+constexpr std::uint8_t kProtocolVersion = 1;
+
+/* Computes the CRC-16/CCITT-FALSE checksum used by an FC-to-FC frame. */
+[[nodiscard]] std::uint16_t frame_crc(std::span<const std::uint8_t> bytes) noexcept;
+
+}

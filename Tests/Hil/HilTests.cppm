@@ -21,3 +21,10 @@ void run_fault_tests(sim::test::TestHarness& runner);
 void run_all_hil_tests(sim::test::TestHarness& runner);
 
 }
+
+namespace sim::test::hil {
+
+/* Transport-layer protocol tests (module-internal, driven by run_protocol_tests). */
+void run_transport_tests(sim::test::TestHarness& runner);
+
+}

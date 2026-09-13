@@ -16,6 +16,7 @@ import HilConfig;
 import HilReport;
 import HilRunnerContext;
 import HilRunnerEvents;
+import HilRunnerSafety;
 import HilTiming;
 import SilFaultScenario;
 

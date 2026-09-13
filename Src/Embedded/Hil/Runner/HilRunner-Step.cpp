@@ -20,6 +20,7 @@ import HilFcTarget;
 import HilProtocol;
 import HilRunnerContext;
 import HilRunnerEvents;
+import HilRunnerSafety;
 import HilSensorModel;
 import HilTransport;
 import SilTypes;

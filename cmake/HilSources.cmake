@@ -15,7 +15,9 @@ set(HIL_PROTOCOL_FILES
     Src/Embedded/Transport/Transport.cppm
     Src/Embedded/Transport/HilProtocol.cppm
     Src/Embedded/InterFc/InterFcLink.cppm
-    Src/Embedded/InterFc/InterFcLink.cpp
+    Src/Embedded/InterFc/InterFcLink-Codec.cpp
+    Src/Embedded/InterFc/InterFcLink-Crc.cpp
+    Src/Embedded/InterFc/InterFcLink-Parser.cpp
     Src/Embedded/Transport/Parser/HilProtocolParser.cppm
     Src/Embedded/Transport/Parser/HilProtocolParser-Crc.cpp
     Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
@@ -120,7 +122,14 @@ set(HIL_RUNNER_FILES
     Src/Embedded/Hil/Runner/HilRunner-Loop.cpp
     Src/Embedded/Hil/Runner/HilRunner-Inject.cpp
     Src/Embedded/Hil/Runner/HilRunner-Step.cpp
-    Src/Embedded/Hil/Runner/HilRunner-Apply.cpp
+)
+
+# Safety submodule of the HIL runner (embedded-FC2 supervision selection, health
+# dispatch, safety-mode application to the aircraft).
+set(HIL_RUNNER_SAFETY_FILES
+    Src/Embedded/Hil/Runner/Safety/HilRunnerSafety.cppm
+    Src/Embedded/Hil/Runner/Safety/HilRunnerSafety-Health.cpp
+    Src/Embedded/Hil/Runner/Safety/HilRunnerSafety-Apply.cpp
 )
 
 # Structured event recording of the HIL runner.
@@ -167,6 +176,7 @@ set(HIL_INFRA_FILES
     ${HIL_TARGET_FILES}
     ${HIL_CONTEXT_FILES}
     ${HIL_RUNNER_FILES}
+    ${HIL_RUNNER_SAFETY_FILES}
     ${HIL_RUNNER_EVENTS_FILES}
     ${HIL_REPORT_FILES}
 )
@@ -199,6 +209,7 @@ set(TEST_HIL_FILES
     Tests/Hil/HilTests-Runner.cpp
     Tests/Hil/HilTests-Timing.cpp
     Tests/Hil/HilTests-Protocol.cpp
+    Tests/Hil/Transport/HilTests-Transport.cpp
     Tests/Hil/HilTests-Data.cpp
     Tests/Hil/HilTests-Faults.cpp
 )

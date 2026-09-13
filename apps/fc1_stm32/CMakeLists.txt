@@ -19,7 +19,9 @@ set(FIRMWARE_CORE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/Types/FlightControllerTypes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Hal/HalTypes.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink.cppm
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink-Codec.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink-Crc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/InterFcLink-Parser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/ZephyrUartInterFcTransport.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/InterFc/ZephyrUartInterFcTransport.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Transport/HilProtocol.cppm

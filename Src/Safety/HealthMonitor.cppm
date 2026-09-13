@@ -1,16 +1,8 @@
 /*
 Filename: Src/Safety/HealthMonitor.cppm
 Description: FC2 health monitor : heartbeat and comms supervision, sensor validation.
-Exports:
-    enum class HealthState,
-    enum class DetectionEvent,
-    struct DetectionFlag,
-    struct HealthReport,
-    struct HealthMonitorConfig,
-    class HealthMonitor,
-    kDetectionEventCount,
-    detection_event_name(),
-    health_state_name()
+Exports: HealthState, DetectionEvent, DetectionFlag, HealthReport, HealthMonitorConfig,
+    HealthMonitor, kDetectionEventCount, detection_event_name(), health_state_name()
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -27,16 +19,15 @@ import Telemetry;
 export namespace sim::safety {
 
 /*
-Global health state of the system (system state, not a failure mode). FAILED
-was removed: no detection path ever produced it, so it was a dead state; it
-can be reintroduced when an integrity-loss detection mechanism exists.
+Global system health state (a state, not a failure mode). FAILED was removed as a
+dead state no detection path ever produced.
 */
 enum class HealthState { HEALTHY, DEGRADED, SAFE };
 
 /*
-Detection events raised by the FC2 supervision (detection outputs, never
-failure modes): FC1_HEARTBEAT_TIMEOUT (remote FC1 liveness supervision while
-the link stays up), COMMUNICATION_TIMEOUT (FC1-FC2 link supervision),
+Detection events raised by the FC2 supervision (detection outputs, never failure
+modes): FC1_HEARTBEAT_TIMEOUT (remote FC1 liveness supervision while the link
+stays up), COMMUNICATION_TIMEOUT (FC1-FC2 link supervision),
 SENSOR_VALIDATION_FAILED (range/NaN validation of the sensor telemetry) and
 ACTUATOR_MISMATCH (sustained commanded/actual RPM mismatch).
 */
