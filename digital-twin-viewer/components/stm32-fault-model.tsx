@@ -24,7 +24,8 @@ function findMesh(root: THREE.Object3D, names: string[]) {
   root.traverse((object) => {
     if (match || !('isMesh' in object) || object.isMesh !== true) return;
     const mesh = object as THREE.Mesh;
-    if (names.includes(mesh.name) || names.includes(mesh.geometry.name)) match = mesh;
+    const userDataName = typeof mesh.userData?.name === 'string' ? mesh.userData.name : '';
+    if (names.includes(mesh.name) || names.includes(mesh.geometry.name) || names.includes(userDataName)) match = mesh;
   });
   return match;
 }
@@ -68,7 +69,7 @@ export function Stm32FaultModel({ components, activeFault }: { components: Recor
     scene.updateMatrixWorld(true);
     const boardSource = findMesh(scene, ['geometry_0', 'Carte_entière']);
     const mcuSource = findMesh(scene, ['Cube', 'STM32L476RG']);
-    const barometerSource = findMesh(scene, ['Cube.001', 'Barometre']);
+    const barometerSource = findMesh(scene, ['Cube001', 'Cube.001', 'Barometre']);
     return {
       board: boardSource ? cloneInSceneSpace(boardSource) : undefined,
       mcu: mcuSource ? cloneInSceneSpace(mcuSource) : undefined,
@@ -77,7 +78,8 @@ export function Stm32FaultModel({ components, activeFault }: { components: Recor
   }, [scene]);
   const mcuState = components.mcu ?? 'UNKNOWN';
   const reportedBarometerState = components.sensors ?? 'UNKNOWN';
-  const barometerState = reportedBarometerState === 'UNKNOWN' && activeFault === 'INVALID_SENSOR_DATA'
+  const barometerFaultActive = activeFault === 'INVALID_SENSOR_DATA';
+  const barometerState = barometerFaultActive && !isFaulted(reportedBarometerState)
     ? 'DEGRADED'
     : reportedBarometerState;
 
