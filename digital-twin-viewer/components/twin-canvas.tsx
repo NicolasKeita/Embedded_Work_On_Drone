@@ -26,7 +26,7 @@ own pointer events to its tracked element instead.
 export function TwinCanvas({ children }: { children: ReactNode }) {
   return (
     <Canvas
-      style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 1 }}
+      style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 0 }}
       gl={{ antialias: true, preserveDrawingBuffer: false, autoClear: false }}
       camera={{ position: [0, 0, 0], fov: 40 }}
       shadows={{ type: THREE.PCFShadowMap }}
