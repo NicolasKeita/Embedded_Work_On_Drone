@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
-import { AircraftScene } from '@/components/aircraft-scene';
-import { AvionicsScene } from '@/components/avionics-scene';
+import { AircraftSceneContent, AircraftSceneOverlay } from '@/components/aircraft-scene';
+import { AvionicsSceneContent, AvionicsSceneDom, type AvionicsPanelRefs } from '@/components/avionics-scene';
+import { TwinCanvas } from '@/components/twin-canvas';
 import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
@@ -30,6 +31,23 @@ export default function Home() {
   const fileRef = useRef<HTMLInputElement>(null);
   const reviewingLiveRef = useRef(false);
   const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? idle;
+  const aircraftRef = useRef<HTMLDivElement>(null);
+  const [aircraftDom, setAircraftDom] = useState<HTMLDivElement | undefined>(undefined);
+  const aircraftCallbackRef = useCallback((node: HTMLDivElement | null) => { aircraftRef.current = node; setAircraftDom(node ?? undefined); }, []);
+  const airframeRef = useRef<HTMLDivElement>(null);
+  const [airframeDom, setAirframeDom] = useState<HTMLDivElement | undefined>(undefined);
+  const airframeCallbackRef = useCallback((node: HTMLDivElement | null) => { airframeRef.current = node; setAirframeDom(node ?? undefined); }, []);
+  const fc1Ref = useRef<HTMLDivElement>(null);
+  const [fc1Dom, setFc1Dom] = useState<HTMLDivElement | undefined>(undefined);
+  const fc1CallbackRef = useCallback((node: HTMLDivElement | null) => { fc1Ref.current = node; setFc1Dom(node ?? undefined); }, []);
+  const fc2Ref = useRef<HTMLDivElement>(null);
+  const [fc2Dom, setFc2Dom] = useState<HTMLDivElement | undefined>(undefined);
+  const fc2CallbackRef = useCallback((node: HTMLDivElement | null) => { fc2Ref.current = node; setFc2Dom(node ?? undefined); }, []);
+  const avionicsRefs: AvionicsPanelRefs = {
+    airframe: { ref: airframeRef, domElement: airframeDom, callbackRef: airframeCallbackRef },
+    fc1: { ref: fc1Ref, domElement: fc1Dom, callbackRef: fc1CallbackRef },
+    fc2: { ref: fc2Ref, domElement: fc2Dom, callbackRef: fc2CallbackRef },
+  };
 
   useEffect(() => {
     if (mode !== 'replay' || !playing) return;
@@ -141,12 +159,18 @@ export default function Home() {
         <div className="top-status"><div><StatusDot tone={connected && current.source === 'SIL' ? 'green' : 'red'} /><span>SIL {connected && current.source === 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={connected && current.source !== 'SIL' ? 'green' : 'red'} /><span>HIL {connected && current.source !== 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
         <div className="timing"><span>LOOP</span><strong>{current.hil.loop_hz.toFixed(1)} <small>Hz</small></strong><i /><span>DEADLINE MISSES</span><strong>{current.hil.deadline_misses}</strong></div>
       </header>
+      {scenesReady && (
+        <TwinCanvas>
+          <AircraftSceneContent track={aircraftRef} domElement={aircraftDom} snapshot={current} trail={visibleSnapshots} />
+          <AvionicsSceneContent refs={avionicsRefs} snapshot={current} />
+        </TwinCanvas>
+      )}
       <section className="workspace">
         <div className="main-column">
           <section className="panel flight-panel" style={{ height: '64vh', minHeight: 520 }}>
             <div className="panel-heading"><div><Radio size={14} /><span>FLIGHT VIEW</span><b>LOCAL NED FRAME</b></div><div className="coordinates"><span>X <b>{current.aircraft.x_m.toFixed(1)} m</b></span><span>Y <b>{current.aircraft.y_m.toFixed(1)} m</b></span><span>Z <b>{current.aircraft.z_m.toFixed(1)} m</b></span></div></div>
             {scenesReady
-              ? <AircraftScene snapshot={current} trail={visibleSnapshots} />
+              ? <div ref={aircraftCallbackRef} className="scene-canvas" style={{ height: 'calc(100% - 79px)', pointerEvents: 'auto', position: 'relative', zIndex: 2, background: 'transparent' }}><AircraftSceneOverlay snapshot={current} /></div>
               : <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }} />}
             <div className="viewer-controls" style={{ height: 42, display: 'flex', alignItems: 'center', gap: 10, padding: '0 12px', borderTop: '1px solid #1c333c', background: '#0b171e' }}>
               <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button>
@@ -158,7 +182,7 @@ export default function Home() {
             </div>
           </section>
           <div className="lower-grid" style={{ gridTemplateColumns: '1fr' }}>
-            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div>{scenesReady ? <AvionicsScene snapshot={current} /> : <div className="avionics-canvas" />}</section>
+            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div>{scenesReady ? <AvionicsSceneDom refs={avionicsRefs} /> : <div className="avionics-canvas" />}</section>
           </div>
         </div>
         <aside className="right-column">
