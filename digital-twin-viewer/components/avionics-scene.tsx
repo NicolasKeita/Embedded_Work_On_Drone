@@ -4,17 +4,16 @@ import { useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { Stm32FaultModel } from '@/components/stm32-fault-model';
 import type { ComponentState, TwinSnapshot } from '@/lib/twin-data';
 
 const degToRad = (deg: number) => (deg * Math.PI) / 180;
-export const AIRFRAME_DEFAULT_ROTATION: [number, number, number] = [degToRad(0), degToRad(-60), degToRad(90)];
-export const STM32_DEFAULT_ROTATION: [number, number, number] = [degToRad(90), degToRad(180), degToRad(180)];
-export const SHOW_AIRFRAME_AXES = false;
-export const AIRFRAME_AXES_SIZE = 2.8;
-export const AIRFRAME_MODEL_SCALE = 1.3;
+const AIRFRAME_DEFAULT_ROTATION: [number, number, number] = [degToRad(0), degToRad(-60), degToRad(90)];
+const SHOW_AIRFRAME_AXES = false;
+const AIRFRAME_AXES_SIZE = 2.8;
+const AIRFRAME_MODEL_SCALE = 1.3;
 
 const AIRFRAME_DEFAULT_POSITION: [number, number, number] = [0, .1, 0];
-const STM32_DEFAULT_POSITION: [number, number, number] = [0, .02, 0];
 
 const stateColor = (state: ComponentState) => state === 'HEALTHY' ? '#32d296' : state === 'DEGRADED' ? '#f1b84b' : state === 'FAILED' ? '#ff5454' : '#71808b';
 
@@ -75,74 +74,6 @@ function FaultAwareAirframe({ snapshot }: { snapshot: TwinSnapshot }) {
   return <primitive object={airframe.model} position={AIRFRAME_DEFAULT_POSITION} scale={AIRFRAME_MODEL_SCALE} rotation={AIRFRAME_DEFAULT_ROTATION} />;
 }
 
-type FaultMesh = {
-  baseColors: THREE.Color[];
-  materials: THREE.MeshStandardMaterial[];
-  mesh: THREE.Mesh;
-  state: ComponentState;
-};
-
-function isNamedPart(object: THREE.Mesh, names: string[]) {
-  return names.includes(object.name) || names.includes(object.geometry.name);
-}
-
-function isFaultedComponent(state: ComponentState) {
-  return state === 'DEGRADED' || state === 'FAILED';
-}
-
-function FaultAwareStm32({ components }: { components: Record<string, ComponentState> }) {
-  const { scene } = useGLTF('/models/carte_stm32.glb');
-  const board = useMemo(() => {
-    const clone = scene.clone();
-    const faultMeshes: FaultMesh[] = [];
-    clone.traverse((object) => {
-      if (!(object instanceof THREE.Mesh)) return;
-      object.castShadow = true;
-      object.receiveShadow = true;
-      const materials = (Array.isArray(object.material) ? object.material : [object.material])
-        .map((material) => material.clone())
-        .filter((material): material is THREE.MeshStandardMaterial => material instanceof THREE.MeshStandardMaterial);
-      object.material = Array.isArray(object.material) ? materials : materials[0];
-      if (isNamedPart(object, ['Cube', 'STM32L476RG'])) {
-        const state = components.mcu ?? 'UNKNOWN';
-        object.visible = isFaultedComponent(state);
-        faultMeshes.push({ baseColors: materials.map((material) => material.color.clone()), materials, mesh: object, state });
-      }
-      if (isNamedPart(object, ['Cube.001', 'Barometre'])) {
-        const state = components.sensors ?? 'UNKNOWN';
-        object.visible = isFaultedComponent(state);
-        faultMeshes.push({ baseColors: materials.map((material) => material.color.clone()), materials, mesh: object, state });
-      }
-    });
-    faultMeshes.forEach(({ mesh }) => mesh.removeFromParent());
-    return { model: clone, faultMeshes };
-  }, [components.mcu, components.sensors, scene]);
-
-  useFrame(({ clock }) => {
-    const pulse = (Math.sin(clock.elapsedTime * 8) + 1) * .5;
-    const blinkVisible = Math.sin(clock.elapsedTime * 8) >= 0;
-    board.faultMeshes.forEach(({ baseColors, materials, mesh, state }) => {
-      const active = isFaultedComponent(state);
-      const color = new THREE.Color(stateColor(state));
-      mesh.visible = active && blinkVisible;
-      materials.forEach((material, index) => {
-        material.color.copy(active ? color : baseColors[index]);
-        material.emissive.copy(active ? color : new THREE.Color('#000000'));
-        material.emissiveIntensity = active ? .65 + pulse * 1.6 : 0;
-      });
-    });
-  });
-
-  return (
-    <group position={STM32_DEFAULT_POSITION} scale={4.1} rotation={STM32_DEFAULT_ROTATION}>
-      <primitive object={board.model} />
-      {board.faultMeshes.map(({ mesh, state }) => isFaultedComponent(state)
-        ? <primitive key={mesh.uuid} object={mesh} />
-        : null)}
-    </group>
-  );
-}
-
 function SceneLighting() {
   return <><ambientLight intensity={1.8} /><hemisphereLight args={['#d9fbff', '#142c2a', 1.6]} /><directionalLight position={[3, 8, 5]} intensity={4} castShadow /></>;
 }
@@ -171,7 +102,7 @@ function Stm32Panel({ title, components }: { title: string; components: Record<s
       <Canvas orthographic camera={{ position: [0, 0, 8], zoom: 48 }} shadows>
         <color attach="background" args={['#09131a']} />
         <SceneLighting />
-        <FaultAwareStm32 components={components} />
+        <Stm32FaultModel components={components} />
         <OrbitControls enablePan={false} minDistance={4.5} maxDistance={10} maxPolarAngle={Math.PI * .85} />
       </Canvas>
     </div>
@@ -190,4 +121,3 @@ export function AvionicsScene({ snapshot }: { snapshot: TwinSnapshot }) {
 }
 
 useGLTF.preload('/models/drone-done.glb');
-useGLTF.preload('/models/carte_stm32.glb');
