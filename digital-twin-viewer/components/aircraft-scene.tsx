@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Cloud, Clouds, ContactShadows, Environment, Grid, Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { PortalView } from '@/components/portal-view';
 import { hasAltitudeFault, type TwinSnapshot } from '@/lib/twin-data';
 
 function displayAltitude(altitude: number, targetAltitude: number) {
@@ -117,8 +118,8 @@ function FlightEnvironment({ snapshot }: { snapshot: TwinSnapshot }) {
   );
 }
 
-function CameraTracker({ snapshot }: { snapshot: TwinSnapshot }) {
-  const { camera } = useThree();
+function CameraTracker({ snapshot, domElement }: { snapshot: TwinSnapshot; domElement: HTMLElement | undefined }) {
+  const camera = useThree((state) => state.camera);
   const controls = useRef<OrbitControlsImpl>(null);
   const target = useMemo(() => new THREE.Vector3(), []);
   const movement = useMemo(() => new THREE.Vector3(), []);
@@ -132,34 +133,39 @@ function CameraTracker({ snapshot }: { snapshot: TwinSnapshot }) {
     controls.current.update();
   });
 
-  return <OrbitControls ref={controls} enablePan={false} minDistance={6} maxDistance={18} maxPolarAngle={Math.PI * .86} />;
+  return <OrbitControls ref={controls} domElement={domElement} enablePan={false} minDistance={6} maxDistance={18} maxPolarAngle={Math.PI * .86} />;
 }
 
-export function AircraftScene({ snapshot, trail }: { snapshot: TwinSnapshot; trail: TwinSnapshot[] }) {
+export function AircraftSceneContent({ track, domElement, snapshot, trail }: { track: React.RefObject<HTMLDivElement | null>; domElement: HTMLElement | undefined; snapshot: TwinSnapshot; trail: TwinSnapshot[] }) {
   const points = trail.map((item) => [item.aircraft.x_m * .22, .5 + displayAltitude(item.aircraft.altitude_m, snapshot.target.altitude_m), item.aircraft.y_m * .22] as [number, number, number]);
 
   return (
-    <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }}>
-      <Canvas camera={{ position: [8, 6, 10], fov: 40 }} shadows={{ type: THREE.PCFShadowMap }}>
-        <FlightEnvironment snapshot={snapshot} />
-        <CameraTracker snapshot={snapshot} />
-        <ambientLight intensity={1.9} />
-        <hemisphereLight args={['#e4fdff', '#18382d', 1.8]} />
-        <directionalLight position={[5, 9, 6]} color="#fff7e7" intensity={5.2} castShadow />
-        <directionalLight position={[-6, 4, -5]} color="#55eaff" intensity={3.5} />
-        <pointLight position={[-5, 5, 4]} color="#7ff5ff" intensity={36} distance={18} />
-        <Drone snapshot={snapshot} />
-        <ContactShadows position={[0, .02, 0]} opacity={.6} scale={9} blur={2.4} far={8} />
-        <mesh position={[snapshot.target.x_m * .22, .03, snapshot.target.y_m * .22]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.5, 1.58, 64]} />
-          <meshBasicMaterial color="#27d7ca" transparent opacity={.75} />
-        </mesh>
-        {points.length > 1 && <Line points={points} color="#3ff1dd" lineWidth={1.5} transparent opacity={.75} />}
-        <Environment preset="city" environmentIntensity={1.6} />
-      </Canvas>
+    <PortalView track={track} cameraConfig={{ position: [8, 6, 10], fov: 40 }}>
+      <FlightEnvironment snapshot={snapshot} />
+      <CameraTracker snapshot={snapshot} domElement={domElement} />
+      <ambientLight intensity={1.9} />
+      <hemisphereLight args={['#e4fdff', '#18382d', 1.8]} />
+      <directionalLight position={[5, 9, 6]} color="#fff7e7" intensity={5.2} castShadow />
+      <directionalLight position={[-6, 4, -5]} color="#55eaff" intensity={3.5} />
+      <pointLight position={[-5, 5, 4]} color="#7ff5ff" intensity={36} distance={18} />
+      <Drone snapshot={snapshot} />
+      <ContactShadows position={[0, .02, 0]} opacity={.6} scale={9} blur={2.4} far={8} />
+      <mesh position={[snapshot.target.x_m * .22, .03, snapshot.target.y_m * .22]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.5, 1.58, 64]} />
+        <meshBasicMaterial color="#27d7ca" transparent opacity={.75} />
+      </mesh>
+      {points.length > 1 && <Line points={points} color="#3ff1dd" lineWidth={1.5} transparent opacity={.75} />}
+      <Environment preset="city" environmentIntensity={1.6} />
+    </PortalView>
+  );
+}
+
+export function AircraftSceneOverlay({ snapshot }: { snapshot: TwinSnapshot }) {
+  return (
+    <>
       <div className="scene-label altitude-label" style={hasAltitudeFault(snapshot) ? { borderColor: '#e4a93e', color: '#e4a93e' } : undefined}><b style={hasAltitudeFault(snapshot) ? { color: '#e4a93e' } : undefined}>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>{hasAltitudeFault(snapshot) ? 'LAST KNOWN · BAROMETER FAULT' : 'MSL ALTITUDE'}</small></div>
       {snapshot.aircraft.altitude_m > 7000 && <div className="scene-label" style={{ left: 18, top: 18, color: '#8bc8e5' }}>STRATOSPHERIC ASCENT · {(snapshot.aircraft.altitude_m / 1000).toFixed(1)} km</div>}
-    </div>
+    </>
   );
 }
 
