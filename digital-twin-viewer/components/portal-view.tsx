@@ -31,7 +31,7 @@ mutations to React render values.
 
 export type CameraConfig =
   | { orthographic: true; position: [number, number, number]; zoom: number }
-  | { orthographic?: false; position: [number, number, number]; fov: number };
+  | { orthographic?: false; position: [number, number, number]; fov: number; far?: number };
 
 function isOrthographicConfig(config: CameraConfig): config is { orthographic: true; position: [number, number, number]; zoom: number } {
   return config.orthographic === true;
@@ -45,7 +45,7 @@ function createCamera(config: CameraConfig): THREE.OrthographicCamera | THREE.Pe
     cam.updateProjectionMatrix();
     return cam;
   }
-  const cam = new THREE.PerspectiveCamera(config.fov, 1, 0.1, 1000);
+  const cam = new THREE.PerspectiveCamera(config.fov, 1, 0.1, config.far ?? 1000);
   cam.position.set(...config.position);
   cam.updateProjectionMatrix();
   return cam;

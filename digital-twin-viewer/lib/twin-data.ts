@@ -2,6 +2,8 @@ export type ComponentState = 'HEALTHY' | 'DEGRADED' | 'FAILED' | 'UNKNOWN';
 export interface TwinEvent { time_s: number; type: string; message: string; level: 'info' | 'warn' | 'critical' }
 export interface TwinSnapshot {
   source?: 'SIL' | 'HIL';
+  altitude_display_held?: boolean;
+  raw_altitude_m?: number;
   time_s: number;
   aircraft: { x_m: number; y_m: number; z_m: number; altitude_m: number; pitch_rad: number; roll_rad: number; airspeed_ms: number };
   target: { x_m: number; y_m: number; altitude_m: number };
@@ -13,18 +15,33 @@ export interface TwinSnapshot {
 const healthy = { mcu: 'HEALTHY', transport: 'HEALTHY', sensors: 'HEALTHY', control: 'HEALTHY', actuators: 'HEALTHY', supervision: 'HEALTHY', safety: 'HEALTHY' } as Record<string, ComponentState>;
 const unknown = { mcu: 'UNKNOWN', transport: 'UNKNOWN', sensors: 'UNKNOWN', control: 'UNKNOWN', actuators: 'UNKNOWN', supervision: 'UNKNOWN', safety: 'UNKNOWN' } as Record<string, ComponentState>;
 
-export function hasAltitudeFault(snapshot: TwinSnapshot) {
-  return snapshot.active_fault === 'INVALID_SENSOR_DATA';
+/* Display envelope in metres, including the stratospheric flight scenarios. */
+export const MAX_DISPLAY_ALTITUDE_M = 50000;
+
+export function isValidDisplayAltitude(altitude: number) {
+  return Number.isFinite(altitude) && Math.abs(altitude) <= MAX_DISPLAY_ALTITUDE_M;
 }
 
+export function hasAltitudeFault(snapshot: TwinSnapshot) {
+  return snapshot.active_fault === 'INVALID_SENSOR_DATA'
+    || snapshot.altitude_display_held === true
+    || !isValidDisplayAltitude(snapshot.aircraft.altitude_m);
+}
+
+/* Sanitize before storing samples so camera, trail, charts and replay agree. */
 export function holdLastKnownAltitude(snapshot: TwinSnapshot, previous?: TwinSnapshot): TwinSnapshot {
-  if (!previous || !hasAltitudeFault(snapshot)) return snapshot;
+  if (!hasAltitudeFault(snapshot)) return snapshot;
+  const previousAltitude = previous?.aircraft.altitude_m;
+  const altitude = previousAltitude !== undefined && isValidDisplayAltitude(previousAltitude) ? previousAltitude : 0;
+  const previousZ = previous?.aircraft.z_m;
   return {
     ...snapshot,
+    altitude_display_held: true,
+    raw_altitude_m: snapshot.raw_altitude_m ?? snapshot.aircraft.altitude_m,
     aircraft: {
       ...snapshot.aircraft,
-      z_m: previous.aircraft.z_m,
-      altitude_m: previous.aircraft.altitude_m,
+      z_m: previousZ !== undefined && isValidDisplayAltitude(previousZ) ? previousZ : 0,
+      altitude_m: altitude,
     },
   };
 }
