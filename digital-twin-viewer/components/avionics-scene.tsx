@@ -89,7 +89,7 @@ export type AvionicsPanelRefs = {
 export function AvionicsSceneContent({ refs, snapshot }: { refs: AvionicsPanelRefs; snapshot: TwinSnapshot }) {
   return (
     <>
-      <PortalView track={refs.airframe.ref} cameraConfig={{ position: [4.8, 4.2, 6.2], fov: 38 }} background="#18313b">
+      <PortalView track={refs.airframe.ref} cameraConfig={{ position: [4.8, 4.2, 6.2], fov: 38 }} background="#25282e">
         <SceneLighting />
         <directionalLight position={[-5, 4, 7]} intensity={5.5} color="#e8fbff" />
         <directionalLight position={[5, 1, -4]} intensity={3.2} color="#9edbe5" />
@@ -97,12 +97,12 @@ export function AvionicsSceneContent({ refs, snapshot }: { refs: AvionicsPanelRe
         <FaultAwareAirframe snapshot={snapshot} />
         <OrbitControls domElement={refs.airframe.domElement} enablePan={false} minDistance={4.5} maxDistance={11} maxPolarAngle={Math.PI * .85} />
       </PortalView>
-      <PortalView track={refs.fc1.ref} cameraConfig={{ orthographic: true, position: [0, 0, 8], zoom: 48 }} background="#09131a">
+      <PortalView track={refs.fc1.ref} cameraConfig={{ orthographic: true, position: [0, 0, 8], zoom: 48 }} background="#1c1e23">
         <SceneLighting />
         <Stm32FaultModel components={snapshot.fc1.components} activeFault={snapshot.active_fault} />
         <OrbitControls domElement={refs.fc1.domElement} enablePan={false} minDistance={4.5} maxDistance={10} maxPolarAngle={Math.PI * .85} />
       </PortalView>
-      <PortalView track={refs.fc2.ref} cameraConfig={{ orthographic: true, position: [0, 0, 8], zoom: 48 }} background="#09131a">
+      <PortalView track={refs.fc2.ref} cameraConfig={{ orthographic: true, position: [0, 0, 8], zoom: 48 }} background="#1c1e23">
         <SceneLighting />
         <Stm32FaultModel components={snapshot.fc2.components} />
         <OrbitControls domElement={refs.fc2.domElement} enablePan={false} minDistance={4.5} maxDistance={10} maxPolarAngle={Math.PI * .85} />
@@ -113,15 +113,15 @@ export function AvionicsSceneContent({ refs, snapshot }: { refs: AvionicsPanelRe
 
 export function AvionicsSceneDom({ refs }: { refs: AvionicsPanelRefs }) {
   return (
-    <div className="avionics-canvas" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr)', gap: 8, padding: 8 }}>
-      <div ref={refs.airframe.callbackRef} style={{ minWidth: 0, position: 'relative', zIndex: 2, border: '1px solid #31505b', background: 'transparent', pointerEvents: 'auto' }}>
-        <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae', pointerEvents: 'none' }}>HELIBLADE · AIRFRAME</div>
+    <div className="avionics-canvas">
+      <div ref={refs.airframe.callbackRef} className="hardware-view">
+        <div className="hardware-label">HELIBLADE · AIRFRAME</div>
       </div>
-      <div ref={refs.fc1.callbackRef} style={{ minWidth: 0, position: 'relative', zIndex: 2, border: '1px solid #1b3039', background: 'transparent', pointerEvents: 'auto' }}>
-        <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae', pointerEvents: 'none' }}>Flight Controller 1</div>
+      <div ref={refs.fc1.callbackRef} className="hardware-view">
+        <div className="hardware-label">Flight Controller 1</div>
       </div>
-      <div ref={refs.fc2.callbackRef} style={{ minWidth: 0, position: 'relative', zIndex: 2, border: '1px solid #1b3039', background: 'transparent', pointerEvents: 'auto' }}>
-        <div style={{ position: 'absolute', zIndex: 2, left: 10, top: 8, font: '700 9px var(--font-geist-mono)', letterSpacing: '.1em', color: '#88a4ae', pointerEvents: 'none' }}>Flight Controller 2</div>
+      <div ref={refs.fc2.callbackRef} className="hardware-view">
+        <div className="hardware-label">Flight Controller 2</div>
       </div>
       <div className="legend"><span><i className="healthy" />Healthy</span><span><i className="degraded" />Degraded / blinking</span><span><i className="failed" />Failed / blinking</span></div>
     </div>

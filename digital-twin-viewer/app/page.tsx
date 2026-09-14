@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { AlertTriangle, Box, ChevronDown, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
+import { AlertTriangle, Box, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
 import { AircraftSceneContent, AircraftSceneOverlay } from '@/components/aircraft-scene';
 import { AvionicsSceneContent, AvionicsSceneDom, type AvionicsPanelRefs } from '@/components/avionics-scene';
 import { TwinCanvas } from '@/components/twin-canvas';
@@ -154,10 +154,22 @@ export default function Home() {
 
   return (
     <main className="app-shell">
+      <nav className="workspace-rail" aria-label="Workspace sections">
+        <a className="rail-logo" href="#flight" aria-label="Digital Twin flight view"><Box size={25} /></a>
+        <a href="#flight"><Radio size={21} /><span>Flight</span></a>
+        <a href="#airframe"><CircleDot size={21} /><span>Airframe</span></a>
+        <a href="#system"><Gauge size={21} /><span>System</span></a>
+        <a href="#events"><AlertTriangle size={21} /><span>Events</span></a>
+        <span className="rail-caption">DIGITAL TWIN / HIL + SIL</span>
+      </nav>
       <header className="topbar">
         <div className="brand"><span className="brand-mark"><Box size={17} /></span><div><strong>DIGITAL TWIN</strong><span>{current.source ?? 'HIL'} FLIGHT TESTBED</span></div></div>
         <div className="top-status"><div><StatusDot tone={connected && current.source === 'SIL' ? 'green' : 'red'} /><span>SIL {connected && current.source === 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={connected && current.source !== 'SIL' ? 'green' : 'red'} /><span>HIL {connected && current.source !== 'SIL' ? 'LIVE' : 'OFFLINE'}</span></div><div><StatusDot tone={current.fc1.status === 'ONLINE' ? 'green' : 'red'} /><span>FC1</span></div><div><StatusDot tone={current.fc2.status === 'ONLINE' ? 'green' : 'red'} /><span>FC2</span></div></div>
         <div className="timing"><span>LOOP</span><strong>{current.hil.loop_hz.toFixed(1)} <small>Hz</small></strong><i /><span>DEADLINE MISSES</span><strong>{current.hil.deadline_misses}</strong></div>
+        <section className="header-controls" aria-label="Telemetry source">
+        <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => { setSnapshots(demo); setCursor(0); setMode('replay'); }}><Play size={13} />REPLAY</button></div>
+        <button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
+        </section>
       </header>
       {scenesReady && (
         <TwinCanvas>
@@ -167,41 +179,43 @@ export default function Home() {
       )}
       <section className="workspace">
         <div className="main-column">
-          <section className="panel flight-panel" style={{ height: '64vh', minHeight: 520 }}>
-            <div className="panel-heading"><div><Radio size={14} /><span>FLIGHT VIEW</span><b>LOCAL NED FRAME</b></div><div className="coordinates"><span>X <b>{current.aircraft.x_m.toFixed(1)} m</b></span><span>Y <b>{current.aircraft.y_m.toFixed(1)} m</b></span><span>Z <b>{current.aircraft.z_m.toFixed(1)} m</b></span></div></div>
+          <section className="telemetry-strip" aria-label="Flight measurements">
+            <Metric label={hasAltitudeFault(current) ? 'ALTITUDE · HELD' : 'ALTITUDE'} value={current.aircraft.altitude_m.toFixed(1)} unit="m" />
+            <Metric label="AIRSPEED" value={current.aircraft.airspeed_ms.toFixed(1)} unit="m/s" />
+            <Metric label="PITCH" value={(current.aircraft.pitch_rad * 57.3).toFixed(1)} unit="°" />
+            <Metric label="ROLL" value={(current.aircraft.roll_rad * 57.3).toFixed(1)} unit="°" />
+          </section>
+          <section className="panel flight-panel" id="flight">
+            <div className="panel-heading"><div><Radio size={14} /><span>Flight view</span><b>LOCAL NED FRAME</b></div><div className="coordinates"><span>X <b>{current.aircraft.x_m.toFixed(1)} m</b></span><span>Y <b>{current.aircraft.y_m.toFixed(1)} m</b></span><span>Z <b>{current.aircraft.z_m.toFixed(1)} m</b></span></div></div>
             {scenesReady
-              ? <div ref={aircraftCallbackRef} className="scene-canvas" style={{ height: 'calc(100% - 79px)', pointerEvents: 'auto', position: 'relative', zIndex: 2, background: 'transparent' }}><AircraftSceneOverlay snapshot={current} /></div>
-              : <div className="scene-canvas" style={{ height: 'calc(100% - 79px)' }} />}
-            <div className="viewer-controls" style={{ height: 42, display: 'flex', alignItems: 'center', gap: 10, padding: '0 12px', borderTop: '1px solid #1c333c', background: '#0b171e' }}>
-              <button className="icon-button" onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button>
-              <button className="load-button" onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button>
+              ? <div ref={aircraftCallbackRef} className="scene-canvas"><AircraftSceneOverlay snapshot={current} /></div>
+              : <div className="scene-canvas" />}
+            <div className="viewer-controls">
+              <button className="icon-button" aria-label={playing ? 'Pause playback' : 'Resume playback'} onClick={togglePlayback}>{playing ? <Pause size={16} /> : <Play size={16} />}</button>
+              <button className="load-button" aria-label={`Playback speed: ${playbackSpeed}×. Click to change`} onClick={cyclePlaybackSpeed}>{playbackSpeed}×</button>
               <span className="elapsed">{current.time_s.toFixed(2)} s</span>
-              <input className="scrubber" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, Math.max(0, snapshots.length - 1))} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }} />
-              <span className="duration">{snapshots.at(-1)?.time_s.toFixed(2)} s</span>
-              <button className="icon-button" onClick={() => { setCursor(0); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }}><RotateCcw size={15} /></button>
+              <input className="scrubber" aria-label="Playback position" type="range" min="0" max={Math.max(0, snapshots.length - 1)} value={Math.min(cursor, Math.max(0, snapshots.length - 1))} onChange={(event) => { setCursor(Number(event.target.value)); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }} />
+              <span className="duration">{(snapshots.at(-1)?.time_s ?? 0).toFixed(2)} s</span>
+              <button className="icon-button" aria-label="Restart playback" onClick={() => { setCursor(0); setPlaying(false); if (mode === 'live') { reviewingLiveRef.current = true; setReviewingLive(true); } }}><RotateCcw size={15} /></button>
             </div>
           </section>
-          <div className="lower-grid" style={{ gridTemplateColumns: '1fr' }}>
-            <section className="panel avionics-panel"><div className="panel-heading"><div><CircleDot size={14} /><span>AIRFRAME + FLIGHT CONTROLLER</span><b>FAULT LOCALIZATION</b></div></div>{scenesReady ? <AvionicsSceneDom refs={avionicsRefs} /> : <div className="avionics-canvas" />}</section>
+          <div className="lower-grid">
+            <section className="panel avionics-panel" id="airframe"><div className="panel-heading"><div><CircleDot size={14} /><span>Airframe & avionics</span><b>FAULT LOCALIZATION</b></div></div>{scenesReady ? <AvionicsSceneDom refs={avionicsRefs} /> : <div className="avionics-canvas" />}</section>
           </div>
         </div>
         <aside className="right-column">
-          <section className="panel overview-panel">
-            <div className="panel-heading"><div><Gauge size={14} /><span>SYSTEM STATE</span></div><span className="sim-time">T+ {current.time_s.toFixed(2)} s</span></div>
-            <div className="state-block mission"><span>MISSION</span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>Station hold · target locked</small></div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', borderBottom: '1px solid #1b3039' }}><Metric label="PITCH" value={(current.aircraft.pitch_rad * 57.3).toFixed(1)} unit="°" /><Metric label="ROLL" value={(current.aircraft.roll_rad * 57.3).toFixed(1)} unit="°" /><Metric label="AIRSPEED" value={current.aircraft.airspeed_ms.toFixed(1)} unit="m/s" /></div>
+          <section className="panel overview-panel" id="system">
+            <div className="panel-heading"><div><Gauge size={14} /><span>System state</span></div><span className="sim-time">T+ {current.time_s.toFixed(2)} s</span></div>
+            <div className="state-block mission"><span className="mission-label">MISSION STATUS <span>↗</span></span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>{stale ? 'Waiting for flight data' : mode === 'replay' ? 'Reviewing recorded flight data' : 'Receiving flight telemetry'}</small></div>
+
             <div className="state-pair"><div><span>HEALTH</span><strong className={current.health === 'HEALTHY' ? 'ok' : 'warn'}><StatusDot tone={current.health === 'HEALTHY' ? 'green' : 'amber'} />{current.health}</strong></div><div><span>SAFETY</span><strong className={current.safety_mode === 'NORMAL' ? 'ok' : 'warn'}>{current.safety_mode}</strong></div></div>
             <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{hasAltitudeFault(current) ? 'Barometer unavailable · altitude held at last known value' : current.active_fault ? 'Compensation active' : 'No injected or detected fault'}</small></div>
             <div className="actuators"><span>ACTUATORS</span><Metric label="ROTOR" value={current.actuators.rotor_rpm.toFixed(0)} unit="RPM" /><Metric label="LEFT SERVO" value={current.actuators.left_servo_deg.toFixed(1)} unit="°" /><Metric label="RIGHT SERVO" value={current.actuators.right_servo_deg.toFixed(1)} unit="°" /></div>
           </section>
-          <section className="panel timeline-panel"><div className="panel-heading"><div><AlertTriangle size={14} /><span>EVENT TIMELINE</span></div><button aria-label="Filter events"><ChevronDown size={15} /></button></div><div className="events">{current.events.slice(-6).reverse().map((event, index) => <div className={`event ${event.level}`} key={`${event.time_s}-${event.type}-${index}`}><time>{event.time_s.toFixed(3)}</time><span>{event.type}</span><p>{event.message}</p></div>)}</div></section>
+          <section className="panel timeline-panel" id="events"><div className="panel-heading"><div><AlertTriangle size={14} /><span>Event timeline</span></div><span className="event-count">{current.events.length}</span></div><div className="events">{current.events.length === 0 && <div className="empty-events"><CircleDot size={24} /><strong>All quiet on the timeline</strong><p>Flight events will appear here as telemetry arrives.</p></div>}{current.events.slice(-6).reverse().map((event, index) => <div className={`event ${event.level}`} key={`${event.time_s}-${event.type}-${index}`}><time>{event.time_s.toFixed(3)}</time><span>{event.type}</span><p>{event.message}</p></div>)}</div></section>
         </aside>
       </section>
-      <footer className="controlbar">
-        <div className="mode-switch"><button className={mode === 'live' ? 'active' : ''} onClick={() => setMode('live')}><Radio size={14} />LIVE</button><button className={mode === 'replay' ? 'active' : ''} onClick={() => { setSnapshots(demo); setCursor(0); setMode('replay'); }}><Play size={13} />REPLAY</button></div>
-        <button className="load-button" onClick={() => fileRef.current?.click()}><Upload size={14} />LOAD REPLAY</button><input ref={fileRef} hidden type="file" accept=".json,.jsonl" onChange={(event) => event.target.files?.[0] && loadReplay(event.target.files[0])} />
-        <div className="source"><StatusDot tone={mode === 'replay' ? 'amber' : stale ? 'red' : 'green'} /><span>{mode === 'replay' ? 'DEMO RECORDING' : connected ? WS_URL : 'WAITING FOR TELEMETRY'}</span></div>
-      </footer>
+
     </main>
   );
 }

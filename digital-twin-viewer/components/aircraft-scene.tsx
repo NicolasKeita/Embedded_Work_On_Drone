@@ -81,9 +81,9 @@ export function AircraftSceneContent({ track, domElement, snapshot, trail }: { t
       <Drone snapshot={snapshot} />
       <mesh position={[snapshot.target.x_m, .05, snapshot.target.y_m]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[1.5, 1.58, 64]} />
-        <meshBasicMaterial color="#27d7ca" transparent opacity={.75} />
+        <meshBasicMaterial color="#ef5b2a" transparent opacity={.75} />
       </mesh>
-      {points.length > 1 && <Line points={points} color="#3ff1dd" lineWidth={1.5} transparent opacity={.75} />}
+      {points.length > 1 && <Line points={points} color="#f26935" lineWidth={1.5} transparent opacity={.75} />}
     </PortalView>
   );
 }
@@ -91,8 +91,8 @@ export function AircraftSceneContent({ track, domElement, snapshot, trail }: { t
 export function AircraftSceneOverlay({ snapshot }: { snapshot: TwinSnapshot }) {
   return (
     <>
-      <div className="scene-label altitude-label" style={hasAltitudeFault(snapshot) ? { borderColor: '#e4a93e', color: '#e4a93e' } : undefined}><b style={hasAltitudeFault(snapshot) ? { color: '#e4a93e' } : undefined}>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>{hasAltitudeFault(snapshot) ? 'LAST KNOWN · BAROMETER FAULT' : 'ALTITUDE · DATUM 0 M'}</small></div>
-      <div className="scene-label" style={{ left: 18, top: 18, fontSize: 10, background: '#10252ddd', padding: '6px 9px', borderRadius: 4, color: '#e0eee8' }}>1 UNIT = 1 M · HOUSE 9.2 M · EIFFEL 330 M</div>
+      <div className="scene-label altitude-label" style={hasAltitudeFault(snapshot) ? { borderColor: '#f1c584', color: '#f1c584' } : undefined}><b style={hasAltitudeFault(snapshot) ? { color: '#f1c584' } : undefined}>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>{hasAltitudeFault(snapshot) ? 'LAST KNOWN · BAROMETER FAULT' : 'ALTITUDE · DATUM 0 M'}</small></div>
+      <div className="scene-label scene-scale">1 UNIT = 1 M · HOUSE 9.2 M · EIFFEL 330 M</div>
       {snapshot.aircraft.altitude_m > 7000 && <div className="scene-label" style={{ left: 18, top: 48, color: '#8bc8e5' }}>HIGH ALTITUDE · {(snapshot.aircraft.altitude_m / 1000).toFixed(1)} km</div>}
     </>
   );
