@@ -1,92 +1,40 @@
 # Mission
 
-## Objective
+## Objectif et progression
 
-The aircraft must reach a target altitude and maintain its
-position inside a predefined operational zone for a given
-duration.
+Atteindre une altitude cible puis maintenir la position dans la zone tolérée
+pendant la durée requise. La progression nominale du contrôleur est :
 
-## Mission phases
-
-1. Takeoff / ascent
-2. Climb to target altitude
-3. Station keeping
-4. Mission completion
-
-## Station keeping
-
-During the station-keeping phase, the aircraft must remain
-inside the defined operational zone while maintaining the
-target altitude.
-
-External disturbances such as wind may cause the aircraft
-to drift. The flight control system must compensate for
-these disturbances.
-
-## Mission parameters
-
-- Target altitude: TBD
-- Zone size: TBD
-- Mission duration: TBD
-
-## Aircraft state
-
-The aircraft state contains:
-
-- X position
-- Y position
-- Altitude
-- Pitch
-- Roll
-
-Schema needed:
-```
-            Z / altitude
-                   ↑
-                   │
-                   ●
-                  / \
-                 /   \
-                /     \
-               ↓
-              Y
-
-               └──────────→ X
+```text
+SPIN_UP → TAKEOFF → CLIMB → STATION_KEEPING → COMPLETE
 ```
 
-## Flight Zone
+Une réponse critique peut interrompre la mission vers `ABORTED`.
+`FAILED` existe aussi dans `MissionState` ; il ne faut pas le confondre avec
+les états de santé définis dans la [taxonomie](../safety/fault_taxonomy.md).
 
-The flight zone is defined as a simple 2D bounding rectangle (top-down view):
+## Configuration
 
-```
-                 Y
-                 ↑
+Les valeurs par défaut sont définies dans
+[ControllerConfig](../../Src/Control/Types/FlightControllerTypes.cppm) :
+spin-up de 3 s, transition de décollage de 12 s, vitesse de montée de
+0.617 m/s, tolérance d'altitude de 0.5 m, tolérance de position de 1 m
+et maintien de 5 s. Les transitions sont implémentées dans
+[FlightController-Mission.cpp](../../Src/Control/FlightController-Mission.cpp)
+et [FlightController-Takeoff.cpp](../../Src/Control/FlightController-Takeoff.cpp).
 
-        +-------------------+
-        |                   |
-        |                   |
-        |        ●          |  ← aircraft
-        |                   |
-        |                   |
-        +-------------------+
+L'altitude cible et la durée totale appartiennent à la configuration du
+[scénario](../validation/scenarios.md), et non à une constante universelle de
+mission. La durée totale d'essai est distincte du temps de maintien.
+Les limites de transmission de configuration au MCU sont décrites dans
+l'[architecture HIL](../hil/hil_architecture.md#limites-actuelles).
 
-                 └──────────→ X
-```
+## Critère de maintien
 
-### Boundary Conditions
+Le contrôleur compare l'erreur horizontale et l'erreur d'altitude aux tolérances
+configurées et accumule le temps de maintien lorsque les conditions sont
+satisfaites. Le modèle initial de rectangle géographique indépendant ne doit
+pas être interprété comme un géofencing matériel implémenté.
 
-$$x_{min} \le X \le x_{max}$$
-$$y_{min} \le Y \le y_{max}$$
-
-Based on these condition boundaries, the system determines the state:
-
-- **INSIDE**
-- **OUTSIDE**
-
-
-## Mission Success Criteria
-
-The mission succeeds if the aircraft stays:
-- Inside the zone
-- Within target altitude tolerance
-- For the required duration
+La réussite de mission et le verdict de test sont distincts ; voir les
+[conventions de preuve](../validation/evidence.md).

@@ -54,7 +54,7 @@ public:
     /*
     Processes the SensorPacket already on the channel for expected_sequence: drains it,
     runs one Flight Controller cycle and writes the answering ActuatorPacket back.
-    Returns the wall-clock instants measured on the target side; for a future remote
+    Returns the wall-clock instants measured on the target side; for a remote
     target these are host-side best-effort (the ActuatorPacket fc_timestamp field is the
     authoritative target clock).
     */
@@ -78,7 +78,7 @@ struct HostFcTargetConfig {
 /*
 Host FC emulator target: the real Flight Controller core exercised in-process over
 the shared byte channel. This is NOT the physical target; it exists only to drive the
-HIL runner before the STM32 arrives and shares the FC algorithm with the future
+HIL runner independently of board availability and shares the FC algorithm with the
 fc1_stm32 build.
 */
 class HostFcTarget final : public IFcTarget {

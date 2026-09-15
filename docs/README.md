@@ -1,59 +1,71 @@
-# Documentation Index
+# Index de la documentation
 
-Start here. The repository has two layers of documentation:
+Chaque sujet possède une référence principale. Les guides renvoient à cette
+référence au lieu de recopier ses tables, commandes ou états.
 
-1. **Canonical (current implementation)** — read first; describes what is
-   actually built and runnable.
-2. **Reference** — the safety/failure analysis and vocabulary.
-3. **Evolution notes** — earlier design notes that describe the *intended
-   roadmap* (some of which is not yet in code).
+## Découvrir et exécuter
 
-## 1. Canonical — current implementation
+| Document | Responsabilité |
+| --- | --- |
+| [Présentation](../README.md) | Objectif et parcours de démarrage |
+| [Compilation](build/build_targets.md) | Prérequis, commandes, noms des produits |
+| [Architecture](architecture/overview.md) | Composants et modes SIL/loopback/matériel |
+| [Schéma logiciel](architecture/architecture.svg) | Vue SIL/loopback |
+| [Banc STM32](hil/hardware.md) | Inventaire, identités et câblage |
+| [Flash](hil/flashing.md) | Chargement et vérification des rôles |
+| [SIL](validation/sil.md) | Exécution et observation de la simulation |
+| [HIL](validation/hil.md) | Sélection de cible, exécution et métriques |
+| [Monte Carlo](validation/monte_carlo.md) | Dispersion, reproductibilité et statistiques |
+| [Digital Twin](digital_twin/README.md) | Lancement, live et replay du viewer |
 
-| Document | Answers |
-| :-- | :-- |
-| [../README.md](../README.md) | What is the project, how to build/demo, current status |
-| [architecture/overview.md](architecture/overview.md) | What is the software architecture? FC1/FC2 responsibilities, layering, execution model |
-| [architecture/architecture.svg](architecture/architecture.svg) | Architecture diagram |
-| [validation/scenarios.md](validation/scenarios.md) | Which scenarios can be launched on SIL/HIL, and what each does |
-| [validation/test_matrix.md](validation/test_matrix.md) | What exactly has been validated? |
-| [validation/sil.md](validation/sil.md) | What does SIL prove? |
-| [validation/hil.md](validation/hil.md) | What is the real HIL architecture and timing? |
-| [hil/flashing.md](hil/flashing.md) | How are FC1 and FC2 built, identified and flashed safely? |
-| [validation/monte_carlo.md](validation/monte_carlo.md) | What does Monte Carlo do? |
-| [validation/validation_report.md](validation/validation_report.md) | Executive validation report |
-| [demonstrations/fault_recovery.md](demonstrations/fault_recovery.md) | Degradation + recovery demo (sensor fault) |
-| [demonstrations/mission_abort.md](demonstrations/mission_abort.md) | Mission abort demo (FC1 failure) |
+## Comprendre les contrats
 
-## 2. Reference
+| Document | Responsabilité |
+| --- | --- |
+| [Aéronef](system/aircraft.md) | Composants du modèle |
+| [Dynamique](system/flight_dynamics.md) | Causalité actionneurs/mouvement et hypothèses |
+| [Mission](system/mission.md) | Phases et critères de maintien |
+| [Interfaces](system/software_interfaces.md) | Données, producteurs et unités |
+| [Répartition FC1/FC2](system/distributed_architecture.md) | Justification de l'isolation et limites |
+| [Ordonnancement](system/scheduling.md) | Horloges, périodes et délais |
+| [Communication inter-FC](system/communication.md) | Messages et trames FC1 ↔ FC2 |
+| [Architecture HIL](hil/hil_architecture.md) | Répartition physique, boucle et limites du firmware |
+| [Protocole HIL](hil/hil_protocol.md) | Contrat binaire PC ↔ FC1 |
+| [Conception du runner](hil/hil_runner_design.md) | Étapes de la boucle et échéances |
+| [Guide du code HIL](hil/hil_code_guide.md) | Carte de lecture des modules |
+| [Télémétrie du viewer](digital_twin/telemetry.md) | Contrat et sémantique d'affichage |
+| [Assets 3D](digital_twin/assets.md) | Critères de conception des modèles visuels |
 
-| Document | What |
-| :-- | :-- |
-| [fmeca/fmeca.md](fmeca/fmeca.md) | **FMECA** — canonical failure-mode analysis (FM-01..FM-07), severity/detectability/occurrence, coverage, limits. Not duplicated elsewhere. |
-| [safety/fault_taxonomy.md](safety/fault_taxonomy.md) | Canonical fault/detection/safety vocabulary (failure mode ≠ detection ≠ response). |
+## Sûreté et validation
 
-## 3. Evolution notes (intended roadmap; not all in code)
+| Document | Responsabilité |
+| --- | --- |
+| [Taxonomie](safety/fault_taxonomy.md) | Vocabulaire, états, événements et cibles autorisées |
+| [Gestion des fautes](system/fault_handling.md) | Parcours de lecture de la chaîne de sûreté |
+| [FMECA](fmeca/fmeca.md) | Périmètre, échelles et synthèse de l'analyse |
+| [Modes FMECA détaillés](fmeca/failure_modes.md) | Causes, effets, criticité et mitigation par mode |
+| [Catalogue](validation/scenarios.md) | Scénarios lançables, paramètres par cible |
+| [Matrice](validation/test_matrix.md) | Traçabilité des comportements vers les tests |
+| [Preuves](validation/evidence.md) | Statuts, provenance et interprétation des résultats |
+| [Campagne HIL](hil/hil_validation.md) | Ordre des essais et critères à relever |
+| [Bilan](validation/validation_report.md) | État des conclusions publiées |
+| [Récupération capteur](demonstrations/fault_recovery.md) | Déroulement commenté d'une faute temporaire |
+| [Abandon de mission](demonstrations/mission_abort.md) | Déroulement commenté d'une faute critique |
 
-> These describe the *planned evolution* (independent OS processes, UDP/CAN
-> transport, physical STM32, FreeRTOS tasks). The **current** implementation is
-> single-process with in-process simulated communication and a host FC emulator;
-> for the current state, always read [architecture/overview.md](architecture/overview.md).
+## Contribution et évolution
 
-| Document | Scope / caveat |
-| :-- | :-- |
-| [system/distributed_architecture.md](system/distributed_architecture.md) | FC1/FC2 split rationale; describes a future multi-process/UDP topology **not** in code |
-| [system/communication.md](system/communication.md) | ITransport/UDPTransport/CANTransport design; actual transport is `CommsBus`/`LoopbackTransport`/`HilTransport` |
-| [system/fault_handling.md](system/fault_handling.md) | Safety state machine (HEALTHY/DEGRADED/SAFE; FAILED removed) — accurate |
-| [system/mission.md](system/mission.md) | Mission phases — accurate (some TBD placeholders) |
-| [system/aircraft.md](system/aircraft.md) · [system/flight_dynamics.md](system/flight_dynamics.md) · [system/scheduling.md](system/scheduling.md) · [system/software_interfaces.md](system/software_interfaces.md) | Physics/interface/scheduling notes |
-| [hil/hil_architecture.md](hil/hil_architecture.md) | Target STM32/FreeRTOS HIL — **future**; current HIL is the host emulator (see [validation/hil.md](validation/hil.md)) |
-| [hil/hil_protocol.md](hil/hil_protocol.md) | HIL-Proto wire protocol (Sensor/Actuator packets, CRC16) — **implemented** |
-| [hil/hil_validation.md](hil/hil_validation.md) · [hil/hil_runner_design.md](hil/hil_runner_design.md) · [hil/hil_code_guide.md](hil/hil_code_guide.md) | HIL validation/design/code guide |
-| [hil/hil_runner_results.md](hil/hil_runner_results.md) | Representative HIL output (clearly labeled; superseded by [validation/hil.md](validation/hil.md)) |
-| [test_simulation.md](test_simulation.md) | Original SIL_RUNNER usage reference |
+- [Règles C++](../AGENTS.md) : référence des conventions de contribution.
+- [Formatter/linter](../formatter_and_linter/README.md) : utilisation et comportements des outils.
+- [Feuille de route](architecture/roadmap.md) : propositions non implémentées.
 
-## Toolchain note
+## Entretien documentaire
 
-Building requires a **C++23-modules** toolchain (`import std;`): MSVC 2026 or
-GCC 16+. GCC ≤ 12 cannot compile this project. See [../README.md](../README.md)
-for build instructions.
+Mettre à jour le document propriétaire d'une information, puis ses liens et
+les éventuels résumés. Extraire une section lorsqu'elle constitue un sujet
+indépendant ; conserver un point d'entrée à l'ancien emplacement si utile.
+Distinguer code implémenté, projet d'évolution et résultat capturé. Ne pas
+éditer à la main les sorties générées sous `validation/data/`.
+
+Les anciens points d'entrée [test_simulation.md](test_simulation.md),
+[hil_runner_results.md](hil/hil_runner_results.md) et
+[digital_twin.md](../digital_twin.md) renvoient aux guides actuels.

@@ -34,13 +34,21 @@ There are two Monte Carlo subsystems; **only one is runnable**:
   `SIL_MONTE_CARLO` target but **not imported by any executable or test**, so
   it has no CLI and no captured results today.
 
-## 3. Variables randomized (`PhysicsDispersion`)
+## 3. Variables tirées et effet sur le modèle (`PhysicsDispersion`)
 
 ```
 Aircraft      mass_variation, cog_offset_{x,y,z}, actuator_gain_dispersion, actuator_lag_dispersion
 Environment   wind_speed_mean, wind_heading_rad, turbulence_intensity, atmospheric_density_offset, atmospheric_pressure_offset
 Sensors       imu_accel_noise_std, imu_gyro_noise_std, barometer_bias, barometer_drift, gps_latency_jitter
 ```
+
+Le tirage et l'export d'un champ ne prouvent pas son effet dynamique.
+Dans [Aircraft](../../Src/Simulation/Aircraft-Core.cpp) et son
+[intégration physique](../../Src/Simulation/Aircraft-Physics.cpp), seule
+`mass_variation` est consommée via `dispersion_` ; les actionneurs y suivent
+instantanément la commande bornée. Les autres champs restent des paramètres
+de modèle à raccorder. Ne pas présenter leurs statistiques d'entrée comme
+une validation de robustesse au vent, au bruit IMU ou au retard actionneur.
 
 Distributions: `sim::DispersionGenerator` uses `std::mt19937_64` with **normal
 distributions** for most parameters and **uniform distributions** for bounded
@@ -73,26 +81,23 @@ with its measured output, so failures are traceable to a specific dispersion.
 
 ## 6. Representative results
 
-The CSV report header (cols: run id, master/run seed, status, all 15 dispersion
+The CSV report header (cols: run id, master/run seed, status, all dispersion
 inputs, 4 metrics) is real:
 
 ```text
 run_id;master_seed;run_seed;status;mass_variation;cog_offset_x;...;overshoot;settling_time;steady_state_error;max_acceleration
 ```
 
-> No campaign was captured in this report's environment (no C++23 toolchain; see
-> the execution note in [test_matrix](test_matrix.md)). The earlier version of
-> this document contained an *illustrative* 10 000-run example (97.32 % →
-> 99.41 % pass rate) — those numbers were **not measured** from the project and
-> are not reproduced here. Run `SIL_MONTE_CARLO --runs N --output-csv out.csv`
-> on the configured toolchain to capture real statistics.
+Aucune statistique de campagne capturée n'est publiée ici. Les exemples de
+pourcentages des anciennes versions n'étaient pas mesurés. Enregistrer les
+prochaines campagnes avec les [conventions de preuve](evidence.md).
 
 ## 7. Reproduce
 
 ```text
-SIL_MONTE_CARLO                          # default: seed 42, 50 runs, NOMINAL-001
-SIL_MONTE_CARLO --runs 200 --seed 7 -v   # verbose per-run inputs
-SIL_MONTE_CARLO --scenario NOMINAL-010 --runs 100 --output-csv mc.csv --output-json mc.json
+./artifacts/linux/sil_monte_carlo                          # default: seed 42, 50 runs, NOMINAL-001
+./artifacts/linux/sil_monte_carlo --runs 200 --seed 7 -v   # verbose per-run inputs
+./artifacts/linux/sil_monte_carlo --scenario NOMINAL-010 --runs 100 --output-csv mc.csv --output-json mc.json
 ```
 
 ## 8. Limitations

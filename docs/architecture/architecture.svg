@@ -12,10 +12,10 @@
     </marker>
   </defs>
 
-  <title>Distributed Flight Control and Safety Testbed — current architecture</title>
-  <desc>Single deterministic engine: Aircraft -> Sensors -> FC1 -> Actuators -> Aircraft closed loop, supervised by FC2 (HealthMonitor + SafetyManager) over a simulated in-process CommsBus. SIL, Monte Carlo and HIL runners are external test infrastructure. HIL uses a host FC emulator over a loopback transport; no physical STM32 yet.</desc>
+  <title>Distributed Flight Control and Safety Testbed — SIL / loopback architecture</title>
+  <desc>Single deterministic engine: Aircraft -> Sensors -> FC1 -> Actuators -> Aircraft closed loop, supervised by FC2 (HealthMonitor + SafetyManager) over a simulated in-process CommsBus. SIL, Monte Carlo and HIL runners are external test infrastructure. This diagram shows the host loopback configuration. The physical two-STM32 configuration is documented in docs/hil/hil_architecture.md.</desc>
 
-  <text x="490" y="26" text-anchor="middle" font-size="17" font-weight="bold">Distributed Flight Control and Safety Testbed — Current Architecture</text>
+  <text x="490" y="26" text-anchor="middle" font-size="17" font-weight="bold">Distributed Flight Control and Safety Testbed — SIL / Loopback Architecture</text>
   <text x="490" y="45" text-anchor="middle" font-size="12" fill="#555">single deterministic engine (flight_sim_core) · in-process simulated comms · host FC emulator for HIL</text>
 
   <rect x="40" y="70" width="900" height="370" rx="10" fill="#f4f7fb" stroke="#7aa3c3" stroke-width="1.2" stroke-dasharray="6 4" />
@@ -78,7 +78,7 @@
   <rect x="70" y="512" width="200" height="66" rx="8" fill="#eef7ec" stroke="#4f7a45" stroke-width="1.6"/>
   <text x="170" y="534" text-anchor="middle" font-weight="bold">SIL_RUNNER</text>
   <text x="170" y="550" text-anchor="middle" font-size="10" fill="#444">max CPU speed · fixed step</text>
-  <text x="170" y="564" text-anchor="middle" font-size="10" fill="#444">6 deterministic fault scenarios</text>
+  <text x="170" y="564" text-anchor="middle" font-size="10" fill="#444">shared scenarios + observability</text>
 
   <rect x="300" y="512" width="200" height="66" rx="8" fill="#eef3fb" stroke="#3a5b9a" stroke-width="1.6"/>
   <text x="400" y="534" text-anchor="middle" font-weight="bold">SIL_MONTE_CARLO</text>
@@ -88,7 +88,7 @@
   <rect x="530" y="512" width="240" height="66" rx="8" fill="#fdeede" stroke="#a06a1e" stroke-width="1.6"/>
   <text x="650" y="534" text-anchor="middle" font-weight="bold">HIL_RUNNER</text>
   <text x="650" y="550" text-anchor="middle" font-size="10" fill="#444">100 Hz wall-clock paced</text>
-  <text x="650" y="564" text-anchor="middle" font-size="10" fill="#444">host FC emulator (loopback) — no STM32 yet</text>
+  <text x="650" y="564" text-anchor="middle" font-size="10" fill="#444">host FC emulator (loopback mode)</text>
 
   <rect x="790" y="512" width="130" height="66" rx="8" fill="#fff" stroke="#8a8a78" stroke-width="1.2"/>
   <text x="855" y="534" text-anchor="middle" font-weight="bold">FMECA</text>

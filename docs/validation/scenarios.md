@@ -34,20 +34,52 @@ panne FC1 pendant la montée ne font plus partie du catalogue.
 La différence de temporisation est une propriété de l'environnement d'exécution,
 pas une duplication du scénario fonctionnel.
 
-## Comportement du Digital Twin
+## Catalogue physique et autonome
 
-- Pour `FAULT_INJECTOR-001`, le flux de télémétrie marque le composant `mcu` de
-  FC1 en panne ; la puce STM du modèle clignote en rouge.
-- Pour `FAULT_INJECTOR-003`, le flux marque le composant `sensors` comme dégradé ;
-  le baromètre clignote, l'altitude affichée reste sur la dernière mesure valide
-  et le viewer indique explicitement que cette valeur est figée à cause de la
-  panne barométrique.
+Le [catalogue SIL](../../Tests/Scenarios/Scenarios-Catalog.cpp) ajoute les
+scénarios ci-dessous. Le [catalogue HIL](../../Src/Embedded/Hil/Config/HilScenarios.cpp)
+expose seulement ceux marqués « oui ».
+
+| Identifiant | Objet | SIL | HIL |
+| --- | --- | --- | --- |
+| `NOMINAL-002` | Repos au sol | oui | non |
+| `NOMINAL-003` | Montée en boucle ouverte | oui | non |
+| `NOMINAL-004` | Descente en boucle ouverte | oui | non |
+| `NOMINAL-005` | Translation X | oui | non |
+| `NOMINAL-006` | Translation Y | oui | non |
+| `NOMINAL-007` | Translation combinée | oui | non |
+| `NOMINAL-008` | Asservissement X, de 20 vers 0 m | oui | non |
+| `NOMINAL-009` | Asservissement Y, de −15 vers 0 m | oui | non |
+| `NOMINAL-010` | Mission autonome complète | oui | non |
+| `NOMINAL-011` | Maintien à 100 m | oui | non |
+| `NOMINAL-012` | Décollage vertical, z=5 m | oui | oui |
+| `NOMINAL-013` | Décollage avant, x=4 m, z=6 m | oui | oui |
+| `NOMINAL-014` | Décollage latéral, y=−4 m, z=7 m | oui | oui |
+| `NOMINAL-015` | Décollage diagonal, x=y=3 m, z=8 m | oui | oui |
+| `NOMINAL-016` | Décollage décalé, x=−3 m, y=2 m, z=9 m | oui | oui |
+| `NOMINAL-017` | Montée à 20 km, environ 9 h simulées | oui | oui |
+
+`NOMINAL-001` existe aussi dans le catalogue autonome (maintien à 10 m).
+Le runner SIL sélectionne d'abord la suite partagée pour un identifiant commun ;
+la campagne Monte Carlo utilise le catalogue autonome.
+
+« HIL oui » signifie présent dans le catalogue hôte. Le firmware FC1 utilise
+encore une consigne fixe ; voir les [limites matérielles](../hil/hil_architecture.md#limites-actuelles).
+Le HIL est cadencé en temps réel : `NOMINAL-017` représente environ neuf heures.
+
+## Détail des fautes
+
+- [Abandon après indisponibilité FC1](../demonstrations/mission_abort.md).
+- [Dégradation puis récupération capteur](../demonstrations/fault_recovery.md).
+- [Représentation dans le viewer](../digital_twin/telemetry.md).
+
+Ces guides complètent l'identité fonctionnelle sans redéfinir ses paramètres.
 
 ## Exécution
 
 ```sh
-SIL_RUNNER --scenario FAULT_INJECTOR-001
-SIL_RUNNER --scenario FAULT_INJECTOR-003
-HIL_RUNNER --scenario FAULT_INJECTOR-001
-HIL_RUNNER --scenario FAULT_INJECTOR-003
+./artifacts/linux/sil_runner --scenario FAULT_INJECTOR-001
+./artifacts/linux/sil_runner --scenario FAULT_INJECTOR-003
+./artifacts/linux/hil_runner --scenario FAULT_INJECTOR-001
+./artifacts/linux/hil_runner --scenario FAULT_INJECTOR-003
 ```

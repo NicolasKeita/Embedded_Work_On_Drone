@@ -1,4 +1,4 @@
-# Flight Dynamics Model (Étape 3 : Modèle de Mouvement)
+# Modèle de dynamique de vol
 
 > **Note:** The initial flight dynamics model is intentionally simplified and is intended for control-system development, not for aerodynamic prediction.
 
@@ -6,14 +6,16 @@
 
 ## 3.1 Question Fondamentale
 
-On a actuellement :
+Le modèle représente les grandeurs suivantes :
 
 ### Actionneurs
+
 - **Wing RPM**
 - **Left servo angle**
 - **Right servo angle**
 
 ### État
+
 - **X**
 - **Y**
 - **Altitude**
@@ -39,7 +41,8 @@ Il faut maintenant définir la chaîne de causalité :
 
 ## 3.2 Wing RPM → Altitude
 
-Pour notre modèle simplifié, on dira :
+Dans le modèle simplifié :
+
 * Plus les ailes tournent vite, plus elles génèrent de portance.
 
 ```
@@ -49,13 +52,13 @@ RPM ↓ ──► Portance ↓ ──► Altitude ↓
 
 ### Approximation de Simulation
 
-Notre premier modèle aura une relation du genre :
+La relation simplifiée est :
 
-$$	ext{Lift} = f(	ext{RPM})$$
+$$\text{Lift} = f(\text{RPM})$$
 
-Pas besoin de connaître immédiatement la vraie équation aérodynamique. On pourra commencer avec une approximation :
+La portance est approchée par :
 
-$$	ext{Lift} \propto 	ext{RPM}^2$$
+$$\text{Lift} \propto \text{RPM}^2$$
 
 *Ce n'est pas notre modèle aérodynamique définitif ; c'est une approximation de simulation.*
 
@@ -63,7 +66,7 @@ $$	ext{Lift} \propto 	ext{RPM}^2$$
 
 ## 3.3 Servos → Pitch / Roll
 
-C'est ici que ça devient intéressant. On a deux servos :
+Le modèle emploie deux servos :
 
 ```
        LEFT WING        RIGHT WING
@@ -111,7 +114,7 @@ Maintenant on introduit une relation extrêmement importante. Si l'aéronef s'in
 ────────────────────────
 
                                           ●
-                                 ```
+```
 
 Une partie de la force de portance devient horizontale :
 
@@ -193,7 +196,7 @@ Même chose pour $X$ / $Y$ :
 Pitch ──► accélération X ──► vitesse X ──► position X
 ```
 
-C'est cette dynamique que notre simulateur devra reproduire, et c'est justement ce qui donnera quelque chose à contrôler au **Flight Controller**.
+Le simulateur intègre cette dynamique ; le contrôleur calcule les corrections à partir des mesures.
 
 ---
 
@@ -236,26 +239,8 @@ Puis le système complet en boucle fermée :
 
 ---
 
-## 3.9 Et là, on peut commencer à réfléchir au Flight Controller
+## Références
 
-Notre objectif final sera :
-
-```
-             TARGET
-                │
-                ▼
-        ┌────────────────┐
-        │ Flight Control │
-        │                │
-        │ "Que dois-je   │
-        │  commander ?"  │
-        └───────┬────────┘
-                │
-          actuator commands
-                │
-                ▼
-             AIRCRAFT
-                │
-              sensors
-                │
-                └──────────►
+Les paramètres et l'intégration sont implémentés dans [Simulation](../../Src/Simulation/).
+Le [modèle aéronef](aircraft.md) décrit les composants, la [mission](mission.md)
+les objectifs et les [interfaces](software_interfaces.md) les unités.

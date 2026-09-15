@@ -40,39 +40,33 @@ FC1 ──heartbeat──► CommsBus ──► FC2 (HealthMonitor → SafetyMan
   supervision, safety, recovery). Logging is purely observational: it never
   alters the run.
 
-Per-step pipeline (fixed `dt = 0.01 s`, 100 Hz, duration 30 s):
+Per-step pipeline (fixed `dt = 0.01 s`; duration comes from the scenario configuration):
 
 ```text
 apply_injectors → update_fc1 → update_monitoring → apply_actuators → update_metrics
 ```
 
-## 3. Deterministic scenarios
+## 3. Exécution et scénarios
 
-The SIL suite (`Tests/Sil/SilScenarios*`) runs six deterministic scenarios. Each
-embeds explicit `runner.check(...)` assertions that encode the expected result;
-the table below reflects those assertions (status = deterministic PASS).
+Après [compilation](../build/build_targets.md), depuis la racine :
 
-| Scenario | Fault | Injection point / time | Expected detection | Expected safety state | Expected mission result | Result |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NOMINAL-001` | none | — | none | NORMAL / HEALTHY | COMPLETE, `max_alt_err ≤ 10.5 m` | PASS |
-| `FAULT_INJECTOR-001` | `FC1_UNAVAILABLE` | t = 20.0 s (permanent) | `FC1_HEARTBEAT_TIMEOUT` ≤ 300 ms | SAFE_MODE | ABORTED (response ≤ 200 ms) | PASS |
-| `FAULT_INJECTOR-003` | `INVALID_SENSOR_DATA` | t = 20.0 s, duration 10.0 s | `SENSOR_VALIDATION_FAILED` ≤ 500 ms | DEGRADED → COMPENSATED | continues (not aborted) | PASS |
+```sh
+./artifacts/linux/sil_runner --help
+./artifacts/linux/sil_runner --scenario NOMINAL-001
+./artifacts/linux/sil_runner --scenario FAULT_INJECTOR-003
+./artifacts/linux/sil_runner --all
+```
 
-> The per-scenario detail (objective, configuration, expected behaviour and
-> verifications for every launchable scenario on SIL and HIL) lives in the
-> [scenario reference](scenarios.md); this table is a quick SIL-engine summary.
+Sans argument, le runner affiche l'aide. `-v` active le détail des observations.
+Les identités et fenêtres d'injection sont centralisées dans le
+[catalogue](scenarios.md). La suite partagée comprend trois scénarios ; `--all`
+ajoute les scénarios physiques/autonomes et les suites d'observabilité et de
+télémétrie. Attention à la durée du profil stratosphérique du catalogue.
 
-A `--all` sweep also runs the **observability suite** (`SilObservability*`:
-event ordering, heartbeat/dropped/comms/fault-metadata/logging) and the
-**telemetry suite** (`SilObservabilityTelemetry*`: sampling, fault-path, hold),
-then emits `docs/validation/data/` artifacts (`sil.md`, `sil.json`, `sil.csv`,
-trace `*.jsonl`, telemetry/truth `*.csv`).
-
-In addition to the SIL engine suite, the SIL runner drives the
-**physics/autonomous catalog** (`Tests/Scenarios`): `NOMINAL-001` (autonomous
-altitude hold, z: 0 → 10 m), `NOMINAL-002..007` (open-loop physics), and
-`NOMINAL-008..011` (cascaded X/Y, full mission, 0 → 100 m hold). The full catalog
-(`NOMINAL-001..017`) is documented in the [scenario reference](scenarios.md).
+Les résultats de suite sont exportés sous `docs/validation/data/` : résumé
+`sil.md`, données `sil.json` / `sil.csv`, traces JSONL et télémétries CSV.
+Ces sorties sont ignorées par Git. Appliquer les [conventions de preuve](evidence.md).
+Les codes de sortie sont 0 pour succès/aide, 1 pour échec et 2 pour argument invalide.
 
 ## 4. Telemetry
 

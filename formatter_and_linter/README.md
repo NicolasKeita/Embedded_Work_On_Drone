@@ -2,11 +2,15 @@
 
 Tools for formatting and linting C++ code.
 
+The contribution rules are maintained in [AGENTS.md](../AGENTS.md). This page
+describes tool behavior; automated formatting does not replace those rules.
+
 ## Linter
 
 Checks for style violations and code quality issues.
 
 ### Features
+
 - **Line length** : Ensures lines don't exceed 120 characters
 - **Comment placement** : Comments only above functions
 - **Comment language** : Comments must be written in English
@@ -24,15 +28,15 @@ Checks for style violations and code quality issues.
 **Invalid code :**
 ```cpp
 void function() {
-    int x = 5; // Inline comment - FORBIDDEN
+    std::int32_t x = 5; // Inline comment - FORBIDDEN
 }
 ```
 
 **Valid code :**
 ```cpp
-// Comment above function
+/* Function documentation. */
 void function() {
-    int x = 5;
+    std::int32_t x = 5;
 }
 ```
 
@@ -41,6 +45,7 @@ void function() {
 Automatically formats C++ code according to defined rules.
 
 ### Changes
+
 - Function parameter alignment
 - Include organization (system vs local)
 - If statements on multiple lines
@@ -111,7 +116,7 @@ void sample()
 **Before :**  (member alignment)
 ```cpp
 struct SilConfig {
-    double dt = 0.01;
+    std::float64_t dt = 0.01;
     sim::control::TargetState target{.z = 10.0};
 };
 ```
@@ -119,7 +124,7 @@ struct SilConfig {
 **After :**
 ```cpp
 struct SilConfig {
-    double                    dt = 0.01;
+    std::float64_t             dt = 0.01;
     sim::control::TargetState target{.z = 10.0};
 };
 ```
@@ -165,7 +170,10 @@ void generate_faults() {
 ```
 
 ## Usage
+
+Depuis la racine du dépôt, utiliser le [script principal](../formatter_and_linter.py) :
+
 ```bash
-python formatter.py file.cpp
-python formatter.py -i file.cpp  # in-place modification
+python formatter_and_linter.py file.cpp
+python formatter_and_linter.py -i file.cpp  # in-place modification
 ```

@@ -7,12 +7,6 @@ The receive-side primitives (CRC-16-CCITT, HilFrameParser FSM) live in
 HilProtocolParser and the HAL<->wire converters/encoders live in
 HilProtocolCodec.
 
-Wire-size note: the protocol prose quotes a 68-octet SensorPacket payload
-(78-octet frame). The packed struct reproduced verbatim is 80 octets
-(8-byte sim_timestamp_us + 17 float fields + 4-byte sensor_valid_flags),
-i.e. a 90-octet frame; 68 == 17x4 is the float-fields-only sum. payload_len is
-read from the header at runtime so the parser stays length-agnostic.
-
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */

@@ -52,7 +52,7 @@ stays agnostic (the `HealthMonitor` never sees the injector).
 
 | ID | Failure Mode | Meaning | Injection representation | Parameters |
 | :--- | :--- | :--- | :--- | :--- |
-| FM-01 | `FC1_UNAVAILABLE` | Primary flight controller no longer operational (crash, stopped execution, no heartbeat). | `fc1_alive = false`: heartbeat and command emission stop. | none |
+| FM-01 | `FC1_UNAVAILABLE` | Primary flight controller no longer operational (crash, stopped execution, no heartbeat). | `fc1_alive = false` in SIL/loopback; hardware injection suppresses inter-FC heartbeats. | none |
 | FM-02 | `FC_COMMUNICATION_LOSS` | FC1 alive, but the FC1→FC2 communication path is cut. | `comms_link_up = false`: every packet dropped. | none |
 | FM-03 | `COMMUNICATION_DEGRADED` | Intermittent packet loss; the link stays up. Not a total loss. | `comms_loss_probability = p`. | `loss_probability` |
 | FM-04 | `INVALID_SENSOR_DATA` | A sensor channel delivers invalid data (out of range, NaN, extreme noise). | `sensor_corruption` + `corrupted_altitude_m` applied to the sensor chain. | `corruption`, `corrupted_altitude_m` |
@@ -145,21 +145,13 @@ transition that engages it (`safety_action_for()` maps one to the other).
 
 ---
 
-## 5. Implementation Coverage Matrix
+## 5. Couverture et analyse
 
-| Failure Mode | Implemented | Detection Mechanism | Safety Response | Status / Notes |
-| :--- | :---: | :--- | :--- | :--- |
-| **FM-01 FC1 Unavailable** | Yes | Heartbeat supervision → `FC1_HEARTBEAT_TIMEOUT` | `ENTER_SAFE_MODE`, mission abort | Fully tested (SIL FAULT_INJECTOR-001/005, HIL FAULT_INJECTOR-001) |
-| **FM-02 Communication Loss** | Yes | Link supervision → `COMMUNICATION_TIMEOUT` | `ENTER_SAFE_MODE`, mission abort | No named functional scenario |
-| **FM-03 Communication Degraded** | Yes | Link supervision absorbs the loss rate; `COMMUNICATION_TIMEOUT` only if the supervision window is exceeded | Depends on absorption | Monte-Carlo coverage only (no deterministic scenario) |
-| **FM-04 Invalid Sensor Data** | Yes | Range/NaN validation → `SENSOR_VALIDATION_FAILED` | `ENTER_COMPENSATED` (nominal thrust), FC1 holds last valid measurement | Altitude channel only; fully tested (SIL/HIL FAULT_INJECTOR-003) |
-| **FM-05 Actuator Degraded** | Yes | Sustained RPM mismatch → `ACTUATOR_MISMATCH` | `ENTER_COMPENSATED` with 1.7× thrust margin | No named functional scenario |
-| **FM-06 Control Deadline Missed** | No | HIL bench deadline supervision (`DEADLINE_MISSED`) exists; no SIL detection | N/A | Documented; no injection path, no RTOS task-stall model |
-| **FM-07 Invalid Numerical State** | No | NaN rejected by sensor validation (FM-04 path only) | N/A | Documented; generic numerical-state guard is future work |
-| **IMU / GNSS sensor failure** | No | None | N/A | Future work (targets declared, injection rejected) |
-| **Servo actuator failure** | No | None | N/A | Future work (targets declared, injection rejected) |
-
----
+La [matrice de validation](../validation/test_matrix.md) relie les mécanismes
+aux tests et le [catalogue](../validation/scenarios.md) aux scénarios lançables.
+Les causes, gravités et limites sont dans l'[analyse FMECA](../fmeca/failure_modes.md).
+La table des cibles de la section 2.1 décrit l'autorisation d'injection, sans
+revendiquer une campagne de tests exécutée.
 
 ## 6. Enum Inventory (classification review)
 
@@ -188,29 +180,7 @@ Every enum of the fault/safety vocabulary classified by concept:
 | `FailureReason` | `ValidationTypes` | Test-verdict classification (INFRASTRUCTURE) |
 | `FunctionalFamily` | `FunctionalScenarios` | Test taxonomy |
 
-### Cleanup performed
 
-- `sim::safety::FaultDomain` renamed to `DetectionEvent`: it classified
-  detection outputs, not fault domains.
-- `FaultType` renamed to `FailureMode`; values renamed to explicit root causes
-  (`FC1Failure` → `FC1_UNAVAILABLE`, `CommunicationLoss` →
-  `FC_COMMUNICATION_LOSS`, `CommunicationLossRate` → `COMMUNICATION_DEGRADED`,
-  `SensorFault` → `INVALID_SENSOR_DATA`, `ActuatorDegradation` →
-  `ACTUATOR_DEGRADED`).
-- `HealthState::FAILED` removed (dead state, never produced).
-- `SilEventType::MessageGenerated / MessageDelivered / MessageDropped` removed
-  (dead event types, never emitted; the heartbeat events carry the traffic).
-- Watchdog terminology removed from the heartbeat/link supervision:
-  `WatchdogTimeout` → `SupervisionTimeout`, `WatchdogKick` →
-  `SupervisionReset`, `WatchdogRecovery` → `SupervisionRecovery`,
-  `watchdog_triggered` → `supervision_triggered`,
-  `FailureReason::WatchdogMissed` → `SupervisionMissed`.
-- Typed injection events renamed to mark their injection nature:
-  `SensorFault` → `SensorFaultInjected`, `ActuatorFault` →
-  `ActuatorFaultInjected`.
-
-
----
 
 ## 7. Logging Contract
 
@@ -249,5 +219,4 @@ Out of scope here (the FMECA itself is in [`../fmeca/fmeca.md`](../fmeca/fmeca.m
 FMECA execution or matrix generation, new physical sensor/actuator hardware
 models, new flight dynamics, new RTOS scheduler features, new Monte-Carlo
 suites. This document only aligns the architecture and the vocabulary; the
-coverage matrix above is
-the honest statement of what exists.
+target table above describes the supported injection paths.

@@ -1,62 +1,34 @@
-# HIL Runner & Real-Time Closed-Loop Mission — Design
+# Conception du runner HIL
 
-## Status
+Le runner possède le modèle aéronef, l'injection, les canaux, les observations et
+le verdict. La [répartition hôte/STM32](hil_architecture.md) change avec le canal,
+sans remplacer le contrôleur par un algorithme de démonstration.
 
-> **HIL infrastructure and host-target closed-loop validation implemented and ready
-> for physical STM32 integration.** No physical STM32 is available yet. The
-> host-side FC emulator (`fc1_hil_host`) exercises the same Flight Controller core
-> that will later run on the STM32 target over the very same HIL-Proto wire path.
-> It is **not** a real-hardware HIL run.
+## Un pas de boucle
 
-## Component separation
+1. Réinitialiser l'environnement puis appliquer les injecteurs actifs.
+2. Échantillonner les capteurs depuis la vérité terrain privée ; appliquer la corruption.
+3. Encoder et transmettre la mesure. Sur matériel, ajouter si nécessaire la commande de suppression du heartbeat inter-FC.
+4. Faire répondre la cible loopback, ou attendre la réponse série de FC1.
+5. Vérifier la trame, sa séquence et l'écho du temps simulé ; relever les diagnostics.
+6. Évaluer la santé sur l'hôte ou décoder celle de FC2, puis appliquer la sûreté aux actionneurs simulés.
+7. Avancer la physique, enregistrer les métriques et attendre l'échéance absolue suivante.
 
-| Layer | Where | Role |
-|---|---|---|
-| HIL runner / orchestrator | `Src/Embedded/Hil/HilRunner*` | Loads scenario, owns the aircraft simulator, paces real time, exchanges SensorPacket/ActuatorPacket over the transport, records telemetry/events, monitors deadlines, computes verdict. Independent of physics internals and FC internals. |
-| Aircraft simulator | `Src/Simulation/Aircraft` (shared) | Evolves from actuator commands — never replayed. |
-| HIL transport | `Src/Embedded/Hil/HilTransport` + `Src/Embedded/Transport/*` | Framing/codec/parser over `ITransport`. Replaceable byte channel (loopback host / OS pipe / future UART). |
-| FC target interface | `HilFcTarget` (`IFcTarget`) | The thing on the far end of the transport. |
-| Host FC emulator | `fc1_hil_host` exe + `HostFcTarget` | Runs the **real** `sim::control::FlightController` core (`Src/Control/*`), the same core the future `fc1_stm32` firmware will use — not a HIL-specific algorithm. |
-| **REAL HIL TARGET (future)** | `fc1_stm32` on STM32 | Drop-in replacement of `fc1_hil_host`; only the transport (`serial`) and the target process change — the runner and the aircraft stay untouched. |
-| Safety / health / fault / telemetry cores | `Src/Safety/*`, `Src/SIL/Core/{CommsBus,Telemetry,Faults...}` (shared) | Reused verbatim by the HIL runner so the detection chain matches the validated SIL baseline. |
+Les sources sont dans [Runner](../../Src/Embedded/Hil/Runner/), notamment
+[Step](../../Src/Embedded/Hil/Runner/HilRunner-Step.cpp),
+[Loop](../../Src/Embedded/Hil/Runner/HilRunner-Loop.cpp) et
+[Safety](../../Src/Embedded/Hil/Runner/Safety/).
 
-## Closed loop (one step)
+## Échéances
 
-```
-read aircraft ground truth (private to PC)
-  -> sensor model -> HAL::SensorData (measurement, never truth)
-  -> SensorPacket (HIL-Proto) -> transport
-  -> [HostFcTarget / future STM32] decode -> FlightController::update -> encode
-  -> ActuatorPacket -> transport
-  -> runner decode/validate (sequence, timestamp echo, deadline)
-  -> apply actuator (efficiency) -> Aircraft::update(dt)
-  -> record truth + sensor telemetry, events, timing
-  -> schedule next step on an absolute wall-clock deadline
-```
+L'échéance avance d'une période à chaque pas à partir d'une origine monotone.
+Une surcharge ne redéfinit pas l'origine de l'horloge. La politique `Warn`
+enregistre les dépassements, `Fail` les fait échouer au verdict et `Abort`
+interrompt l'exécution. Les valeurs configurées et les métriques sont dans le
+[guide HIL](../validation/hil.md).
 
-## Time bases (kept separate)
+## Contrats
 
-* `sim_timestamp_us` — simulation/aircraft time, advanced by the control period each step.
-* wall clock — `std::chrono::steady_clock` (monotonic), used only for pacing, transport latency and deadlines. Never used to claim "0 us" comm latency.
-
-## Real-time pacing (absolute, drift-free)
-
-```
-next_deadline = start + period      // wall clock, microseconds
-for each step:
-    run one closed-loop exchange
-    sleep until next_deadline if early            // absolute, not `sleep(period)`
-    if now > next_deadline: record DEADLINE_MISSED (+policy)
-    next_deadline += period                       // carry overruns, no drift accumulation
-```
-
-## Timestep
-
-The project control rate is **100 Hz / 10 ms** (`hil_protocol.md` §1.3 ControlTask,
-mirroring `SilConfig::dt = 0.01`). `dt = 0.01 s` ⇒ 30 s mission = **3000 steps**
-(computed from configuration, never hard-coded).
-
-## Deadline policy
-
-`Warn` (default, conservative) records and continues; `Fail` flags the verdict;
-`Abort` terminates the loop early. Policy is configurable per scenario.
+Le [protocole](hil_protocol.md) définit les octets, le
+[guide du code](hil_code_guide.md) les points d'entrée et
+l'[ordonnancement](../system/scheduling.md) la séparation des horloges.
