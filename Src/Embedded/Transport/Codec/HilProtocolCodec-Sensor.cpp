@@ -1,6 +1,6 @@
 /*
 Filename: Src/Embedded/Transport/Codec/HilProtocolCodec-Sensor.cpp
-Description: SensorPacket side of the HIL-Proto v1.0 conversion layer: builds
+Description: SensorPacket side of the HIL-Proto v1.1 conversion layer: builds
 and decodes the packed HilSensorPayload and serializes the full SensorPacket
 frame (Header + Payload + CRC-16).
 
@@ -19,7 +19,9 @@ import HilProtocolParser;
 namespace FlightCore::Transport
 {
 
-HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor) noexcept
+/* Combines sensor measurements with the runner setpoint configuration. */
+HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor,
+                                    const HilControlSetpoint& setpoint) noexcept
 {
     return HilSensorPayload{
         .sim_timestamp_us   = sensor.timestamp_us,
@@ -41,16 +43,23 @@ HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor) no
         .altitude_baro_m    = sensor.altitude_baro_m,
         .wing_rpm_meas      = sensor.wing_rpm_meas,
         .sensor_valid_flags = sensor.sensor_valid_flags,
+        .setpoint = setpoint,
     };
 }
 
+/* Rejects malformed payloads and non-finite or negative setpoint altitude/hold values. */
 bool decodeSensorPayload(std::span<const std::uint8_t> bytes, HilSensorPayload& out) noexcept
 {
-    if (bytes.size() < sizeof(HilSensorPayload)) {
+    if (bytes.size() != sizeof(HilSensorPayload)) {
         return false;
     }
     std::memcpy(&out, bytes.data(), sizeof(HilSensorPayload));
-    return true;
+    return std::isfinite(out.setpoint.target_x_m)
+        && std::isfinite(out.setpoint.target_y_m)
+        && std::isfinite(out.setpoint.target_z_m)
+        && out.setpoint.target_z_m >= 0.0f
+        && std::isfinite(out.setpoint.station_hold_seconds)
+        && out.setpoint.station_hold_seconds >= 0.0f;
 }
 
 FlightCore::HAL::SensorData toSensorData(const HilSensorPayload& payload) noexcept

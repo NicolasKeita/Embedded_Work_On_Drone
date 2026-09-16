@@ -76,7 +76,7 @@ namespace {
         Fixture                           fixture{};
         const FlightCore::HAL::SensorData sensor{};
 
-        runner.check(sim::hil::send_sensor_frame(fixture.channel, sensor, 5), "sensor frame queued");
+        runner.check(sim::hil::send_sensor_frame(fixture.channel, sensor, 5, {}), "sensor frame queued");
         runner.check(fixture.receive(5, 0) == sim::hil::ReceiveResult::Timeout,
                      "wrong message id dropped, then timeout");
         runner.check(fixture.transport.stats().messages_dropped >= 1, "wrong-type frame dropped");

@@ -15,7 +15,7 @@ Les valeurs multioctets sont little-endian, les flottants `std::float32_t`.
 | 0 | 1 | Synchronisation `0x48` (`H`) |
 | 1 | 1 | Synchronisation `0x49` (`I`) |
 | 2 | 1 | `msg_id` : capteurs `0x01`, actionneurs `0x02` |
-| 3 | 1 | `protocol_ver` : `0x10` |
+| 3 | 1 | `protocol_ver` : `0x11` (v1.1) |
 | 4 | 2 | `sequence_num`, compteur 16 bits |
 | 6 | 2 | `payload_len`, nombre d'octets utiles |
 
@@ -25,7 +25,7 @@ La trame est `header (8) + payload + CRC (2)`. Le CRC-16/CCITT-FALSE
 128 octets. Les identifiants TimeSync, FaultInjectionCmd et AckNack des anciennes
 propositions ne sont pas des messages implémentés.
 
-## SensorPacket — 80 octets utiles, 90 octets sur le fil
+## SensorPacket — 96 octets utiles, 106 octets sur le fil
 
 | Offset payload | Taille | Champ / unité |
 | --- | --- | --- |
@@ -38,9 +38,11 @@ propositions ne sont pas des messages implémentés.
 | 68 | 4 | `altitude_baro_m` |
 | 72 | 4 | `wing_rpm_meas` |
 | 76 | 4 | `sensor_valid_flags` |
+| 80 | 12 | `setpoint.target_x_m`, `setpoint.target_y_m`, `setpoint.target_z_m` |
+| 92 | 4 | `setpoint.station_hold_seconds` |
 
-Les 17 flottants représentent 68 octets ; timestamp et flags portent le total
-à 80. Les champs reflètent les conventions du modèle, avec altitude positive
+Les mesures occupent les 80 premiers octets ; la configuration de mission
+ajoute 16 octets. Les champs reflètent les conventions du modèle, avec altitude positive
 vers le haut ; la présence de champs de lacet/accélération ne prouve pas une
 simulation complète 6-DOF ni une fusion GNSS/INS.
 
@@ -50,6 +52,27 @@ Les bits de validité 0..4 correspondent à IMU1, IMU2, baromètre, GPS et tachy
 supprimer les heartbeats inter-FC. Les autres bits restent réservés.
 Il faut conserver la distinction entre validité annoncée et validation réelle
 des valeurs par les consommateurs.
+
+Les consignes opérationnelles (`HilControlSetpoint`) viennent du runner, sont
+distinctes des mesures et protégées par le même CRC. FC1 et le loopback stockent
+la cible reçue (x, y, z) comme setpoint courant et l’utilisent dans la boucle de
+contrôle. Une nouvelle cible valide prend effet au prochain cycle sans remise
+à zéro du contrôleur. Aucun setpoint implicite à 10 m n’est choisi par le codec
+ou le firmware : l’émetteur doit fournir les consignes explicitement.
+
+`station_hold_seconds` est le temps de maintien dans la zone cible nécessaire
+pour déclarer la mission opérationnelle COMPLETE ; ce n’est ni la durée de
+l’essai ni un délai avant une panne. Ce paramètre du contrôleur est chargé lors
+du premier paquet (`sequence_num = 0`, `sim_timestamp_us = 0`). Les coordonnées
+sont ensuite actualisées à chaque paquet valide. Les valeurs doivent être
+finies ; altitude cible et durée de maintien doivent être positives ou nulles.
+Sinon le paquet est rejeté sans remplacer la consigne courante.
+
+Le protocole ne transporte aucun identifiant de scénario, durée d’exécution,
+instant d’injection ou programme de fautes. Ces informations restent dans le
+runner. Le bit de suppression de heartbeat est uniquement une commande de test
+immédiate : FC1 n’en planifie jamais l’activation. La période matérielle reste
+fixée à 10 ms ; les gains du contrôleur ne sont pas transmis.
 
 ## ActuatorPacket — 44 octets utiles, 54 octets sur le fil
 
@@ -83,7 +106,7 @@ Le codec transporte les octets ; leur interprétation dépend du producteur.
 
 [HilFrameParser](../../Src/Embedded/Transport/Parser/HilProtocolParser.cppm)
 cherche les octets de synchronisation, accumule l'en-tête et le payload dans
-des buffers fixes puis vérifie le CRC. Le traitement applicatif vérifie le
+des buffers fixes, rejette les versions différentes de `0x11`, puis vérifie le CRC. Le traitement applicatif vérifie le
 type et la taille attendus.
 
 Le [runner](../../Src/Embedded/Hil/Transport/HilTransport-Accept.cpp)
@@ -98,7 +121,9 @@ PC pour obtenir une latence. La [cadence](../system/scheduling.md) et la
 
 ## Compatibilité et extensions
 
-Les deux extrémités doivent être construites avec le même contrat. La taille
+Le runner et FC1 doivent être reconstruits ensemble avec le contrat v1.1.
+Les anciens paquets v1.0 (`0x10`, capteurs de 80 octets) ne sont pas acceptés.
+Le protocole FC1 ↔ FC2 reste inchangé. La taille
 44 octets est inchangée depuis que `fc_detection_code` a pris un octet de
 l'ancien champ réservé ; une taille identique ne garantit donc pas la même
 sémantique avec un ancien firmware.

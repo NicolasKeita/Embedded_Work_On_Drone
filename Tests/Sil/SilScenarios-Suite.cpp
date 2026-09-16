@@ -37,7 +37,7 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 /* SIL execution bindings for the canonical scenarios defined by FunctionalScenarios. */
 const std::array<SilScenarioEntry, 3> kSilScenarios{{
     {"NOMINAL-001",        "Nominal station-keeping mission (no fault)", nominal_scenario},
-    {"FAULT_INJECTOR-001", "FC1 failure injected at t = 20.0 s",        fc1_failure_scenario},
+    {"FAULT_INJECTOR-001", "FC1 failure at 30 m, injected at t = 70.0 s",        fc1_failure_scenario},
     {"FAULT_INJECTOR-003", "Altitude sensor corruption at t = 20.0 s",  sensor_fault_scenario},
 }};
 

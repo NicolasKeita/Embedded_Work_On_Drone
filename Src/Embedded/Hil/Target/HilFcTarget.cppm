@@ -69,7 +69,6 @@ public:
 
 /* Bundles the Flight Controller configuration passed to the host emulator target. */
 struct HostFcTargetConfig {
-    sim::control::TargetState        target{};
     sim::control::ControllerConfig   controller{};
     std::float64_t                   dt = 0.0;
     sim::sil::SensorValidationLimits sensor_limits{};
@@ -102,12 +101,13 @@ private:
 
     FlightCore::Transport::ITransport&                           channel_;
     MonotonicClock&                                              clock_;
+    sim::control::ControllerConfig                               controller_config_;
     sim::control::FlightController                               fc_;
     FlightCore::Sim::SimulatedSensorInput                        sensor_input_;
     FlightCore::Sim::SimulatedActuatorOutput                     actuator_output_;
     FlightCore::Transport::HilFrameParser                        parser_{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload_buffer_{};
-    sim::control::TargetState                                    target_;
+    sim::control::TargetState                                    current_setpoint_{};
     std::float64_t                                               dt_;
     sim::sil::SensorValidationLimits                             sensor_limits_;
     AircraftState                                                fc_view_{};

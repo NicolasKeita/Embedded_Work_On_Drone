@@ -1,6 +1,6 @@
 /*
 Filename: Src/Embedded/Transport/Codec/HilProtocolCodec.cppm
-Description: HIL-Proto v1.0 HAL<->wire conversion and frame encoding layer:
+Description: HIL-Proto v1.1 HAL<->wire conversion and frame encoding layer:
 builds/decodes the packed SensorPacket/ActuatorPacket payloads from/to the HAL
 data structures and serializes complete frames (Header + Payload + CRC-16).
 Implementations live in the hil_protocol_codec-*.cpp translation units.
@@ -21,9 +21,10 @@ export namespace FlightCore::Transport
 {
 
 /* Builds a HilSensorPayload from the HAL sensor snapshot. */
-[[nodiscard]] HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor) noexcept;
+[[nodiscard]] HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor,
+                                                  const HilControlSetpoint& setpoint) noexcept;
 
-/* Decodes raw payload bytes into a HilSensorPayload; false on short input. */
+/* Decodes a complete sensor payload; rejects invalid setpoint setpoints and hold durations. */
 [[nodiscard]] bool decodeSensorPayload(std::span<const std::uint8_t> bytes, HilSensorPayload& out) noexcept;
 
 /* Maps a decoded HilSensorPayload back onto the HAL sensor snapshot. */

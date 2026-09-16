@@ -70,7 +70,8 @@ class HilTransport {
 public:
     explicit HilTransport(FlightCore::Transport::ITransport* channel) noexcept;
 
-    [[nodiscard]] bool sendSensor(const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence);
+    [[nodiscard]] bool sendSensor(const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence,
+                                  const FlightCore::Transport::HilControlSetpoint& setpoint);
 
     /* Records an actuator packet dropped without consuming a wire receive (comm loss path). */
     void noteDroppedFrame() noexcept;
@@ -102,7 +103,8 @@ private:
 
 /* Encodes and sends one SensorPacket frame on the channel (host SDK side helper). */
 [[nodiscard]] bool send_sensor_frame(FlightCore::Transport::ITransport& channel,
-                                     const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence) noexcept;
+                                     const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence,
+                                     const FlightCore::Transport::HilControlSetpoint& setpoint) noexcept;
 
 /* Encodes and sends one ActuatorPacket frame on the channel (host FC target helper). */
 [[nodiscard]] bool send_actuator_frame(FlightCore::Transport::ITransport& channel,

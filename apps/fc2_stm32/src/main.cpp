@@ -23,11 +23,14 @@ import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;
 import InterFcLink;
+import StatusLed;
 import SafetyManager;
 import Telemetry;
 import ZephyrUartInterFcTransport;
 
 namespace {
+
+FlightCore::Status::StatusLed status_led{};
 
 constexpr std::int64_t kLinkReportPeriodMs = 1000;
 constexpr std::int64_t kStatusPeriodMs = 100;
@@ -127,6 +130,7 @@ void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
         if ((*received)->kind != FlightCore::InterFc::MessageKind::Heartbeat) {
             continue;
         }
+        status_led.mark_activity(k_uptime_get());
         inter_fc_last_sequence = (*received)->sequence;
         inter_fc_heartbeat_count = inter_fc_heartbeat_count + 1;
         supervision.last_heartbeat_time = static_cast<std::float64_t>(k_uptime_get()) / 1000.0;
@@ -248,6 +252,10 @@ void process_sensor(const device* uart,
 /* Zephyr FC2 entry point. SensorPackets act as the initial supervision heartbeat. */
 int main()
 {
+    const auto led_initialized = status_led.initialize();
+    if (!led_initialized.has_value()) {
+        printk("[LED] initialization failed: %d\n", led_initialized.error());
+    }
     inter_fc_startup_state = 1;
     const device* uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
     const device* inter_fc_uart = DEVICE_DT_GET(DT_NODELABEL(usart3));
@@ -317,6 +325,9 @@ int main()
                                          detection);
         publish_fc2_status(inter_fc_transport, node_state, detection, last_status_ms);
         report_inter_fc_transport(inter_fc_transport, last_transport_report_ms);
+        const bool led_fault = node_state != FlightCore::InterFc::NodeState::Healthy
+            || detection != FlightCore::InterFc::DetectionCode::None;
+        static_cast<void>(status_led.update(k_uptime_get(), led_fault));
         std::uint8_t byte = 0;
         if (uart_poll_in(uart, &byte) == 0) {
             const bool complete = parser.processByte(byte, header, payload);

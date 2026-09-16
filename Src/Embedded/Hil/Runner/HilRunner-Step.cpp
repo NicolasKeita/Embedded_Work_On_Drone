@@ -96,7 +96,13 @@ void exchange_actuators(HilRunContext& ctx)
     const std::uint64_t sensor_send_wall = ctx.clock.nowUs();
     ctx.sensor_send_wall_us = sensor_send_wall;
     ctx.actuator_receive_wall_us = 0;
-    if (!ctx.transport.sendSensor(wire, sequence)) {
+    const FlightCore::Transport::HilControlSetpoint setpoint{
+        .target_x_m = static_cast<std::float32_t>(ctx.config.target.x),
+        .target_y_m = static_cast<std::float32_t>(ctx.config.target.y),
+        .target_z_m = static_cast<std::float32_t>(ctx.config.target.z),
+        .station_hold_seconds = static_cast<std::float32_t>(ctx.config.controller.station_hold_seconds),
+    };
+    if (!ctx.transport.sendSensor(wire, sequence, setpoint)) {
         record_step_error(ctx, ReceiveResult::SendFailed);
         return;
     }

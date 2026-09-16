@@ -35,8 +35,12 @@ du sol doivent être lus dans la capture ; ils ne sont pas garantis par une
 chronologie illustrative.
 
 Les délais hôte et MCU diffèrent : voir l'[ordonnancement](../system/scheduling.md).
-La mission peut être encore en phase de décollage/montée lorsque l'injection
-survient ; le nom historique « station keeping » ne garantit pas sa phase.
+La consigne de stationnement est de 30 m en SIL et HIL (loopback et FC1 STM32
+avec le firmware HIL-Proto v1.1). La faute permanente est
+injectée à 70 s, sur une fenêtre de simulation de 100 s. Le maintien est prolongé
+à 120 s pour éviter la fin de mission avant la faute. Vérifier dans la capture
+l’altitude et la phase de vol à l’injection. Le runner transmet au firmware la cible et la durée de
+maintien via le [protocole HIL](../hil/hil_protocol.md).
 
 ## Interprétation
 

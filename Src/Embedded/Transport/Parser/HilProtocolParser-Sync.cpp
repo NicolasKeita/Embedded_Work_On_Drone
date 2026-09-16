@@ -1,6 +1,6 @@
 /*
 Filename: Src/Embedded/Transport/Parser/HilProtocolParser-Sync.cpp
-Description: Sync-hunt and header accumulation steps of the HIL-Proto v1.0
+Description: Sync-hunt and header accumulation steps of the HIL-Proto v1.1
 HilFrameParser receive FSM (HilProtocolParser).
 
 Copyright (c) 2026 Nicolas K.
@@ -46,7 +46,7 @@ bool HilFrameParser::handleHeaderByte(std::uint8_t byte) noexcept
     }
 
     std::memcpy(&header_, header_bytes_.data(), kHeaderSize);
-    if (header_.payload_len > kMaxPayload) {
+    if (header_.protocol_ver != kProtocolVer || header_.payload_len > kMaxPayload) {
         ++rejected_;
         reset();
         return false;

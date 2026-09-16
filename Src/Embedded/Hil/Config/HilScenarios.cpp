@@ -48,13 +48,21 @@ HilConfig stratosphere_config()
     return config;
 }
 
+/* Holds at 30 m long enough to inject the FC1 failure during station keeping. */
+HilConfig fc1_failure_config()
+{
+    HilConfig config = flight_config("FAULT_INJECTOR-001", {.z = 30.0}, 100.0);
+    config.controller.station_hold_seconds = 120.0;
+    return config;
+}
+
 /* Builds a HIL-timed fault from the shared functional scenario definition. */
 sim::sil::FaultScenario hil_fault_for(std::string_view id)
 {
     using sim::sil::FailureMode;
     const sim::test::FunctionalScenario* scenario = sim::test::find_functional_scenario(id);
     sim::sil::FaultScenario fault{
-        .start_time = 5.0,
+        .start_time = id == "FAULT_INJECTOR-001" ? 70.0 : 5.0,
         .failure_mode = scenario->failure_mode,
         .parameters = scenario->parameters,
     };
@@ -83,7 +91,7 @@ const std::array<HilScenarioRecord, 11> kScenarios{{
     {"NOMINAL-001", "Nominal station-keeping mission (no fault)",
      flight_config("NOMINAL-001", {.z = 10.0}, 30.0),
      sim::sil::FaultScenario{}},
-    {"FAULT_INJECTOR-001", "FC1 heartbeat-task failure during station keeping", hil_base_config(),
+    {"FAULT_INJECTOR-001", "FC1 heartbeat-task failure at 30 m, t = 70 s", fc1_failure_config(),
      hil_fault_for("FAULT_INJECTOR-001")},
     {"FAULT_INJECTOR-003", "Altitude sensor fault during station keeping", hil_base_config(),
      hil_fault_for("FAULT_INJECTOR-003")},

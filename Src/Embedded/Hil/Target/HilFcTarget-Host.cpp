@@ -32,13 +32,14 @@ HostFcTarget::HostFcTarget(FlightCore::Transport::ITransport& channel,
                             const HostFcTargetConfig& config)
     : channel_{channel},
       clock_{clock},
+      controller_config_{config.controller},
       fc_{config.controller},
-      target_{config.target},
       dt_{config.dt},
       sensor_limits_{config.sensor_limits}
 {
 }
 
+/* Receives a mission-configured frame and rearms the controller at the start of each run. */
 bool HostFcTarget::receive_sensor(std::uint16_t                            expected_sequence,
                                   FcStepOutcome&                           outcome,
                                   FlightCore::Transport::HilSensorPayload& out_payload)
@@ -49,7 +50,7 @@ bool HostFcTarget::receive_sensor(std::uint16_t                            expec
         return false;
     }
     if (header.msg_id != FlightCore::Transport::kMsgIdSensor
-        || header.payload_len < FlightCore::Transport::kSensorPayloadSize) {
+        || header.payload_len != FlightCore::Transport::kSensorPayloadSize) {
         return false;
     }
     if (header.sequence_num != expected_sequence) {
@@ -62,11 +63,20 @@ bool HostFcTarget::receive_sensor(std::uint16_t                            expec
     if (!FlightCore::Transport::decodeSensorPayload(span, out_payload)) {
         return false;
     }
+    if (header.sequence_num == 0 && out_payload.sim_timestamp_us == 0) {
+        controller_config_.station_hold_seconds = out_payload.setpoint.station_hold_seconds;
+        fc_ = sim::control::FlightController{controller_config_};
+        FlightCore::HAL::SensorData discarded{};
+        static_cast<void>(sensor_input_.readSensorData(discarded));
+        fc_view_ = AircraftState{};
+        have_view_ = false;
+    }
     outcome.sequence = header.sequence_num;
     outcome.echo_sim_timestamp_us = out_payload.sim_timestamp_us;
     return true;
 }
 
+/* Runs control against the received target, retaining the last valid sensor measurement. */
 ControlCommand HostFcTarget::update_control(const FlightCore::Transport::HilSensorPayload& sensor_payload)
 {
     FlightCore::HAL::SensorData     sensor = FlightCore::Transport::toSensorData(sensor_payload);
@@ -84,7 +94,12 @@ ControlCommand HostFcTarget::update_control(const FlightCore::Transport::HilSens
         fc_view_ = AircraftState{};
     }
 
-    return fc_.update(target_, fc_view_, dt_);
+    current_setpoint_ = sim::control::TargetState{
+        .x = sensor_payload.setpoint.target_x_m,
+        .y = sensor_payload.setpoint.target_y_m,
+        .z = sensor_payload.setpoint.target_z_m,
+    };
+    return fc_.update(current_setpoint_, fc_view_, dt_);
 }
 
 }

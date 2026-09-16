@@ -8,6 +8,8 @@ project(fc1_stm32_bootstrap LANGUAGES NONE)
 set(FIRMWARE_NAME fc1_stm32)
 set(FIRMWARE_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 set(FIRMWARE_CORE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Simulation/Aircraft.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Simulation/PhysicsDispersion.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Control/FlightController.cppm

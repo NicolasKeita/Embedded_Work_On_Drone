@@ -24,13 +24,18 @@ import HilProtocol;
 import HilProtocolCodec;
 import HilProtocolParser;
 import InterFcLink;
+import StatusLed;
 import ZephyrUartInterFcTransport;
 
 namespace {
 
+FlightCore::Status::StatusLed status_led{};
+
 constexpr std::float64_t kControlPeriodSeconds = 0.01;
 constexpr std::float64_t kRadiansPerDegree = std::numbers::pi / 180.0;
 constexpr std::uint32_t kUartReceiveCapacity = 256;
+std::int64_t last_remote_status_ms = -1;
+
 constexpr std::int64_t kHeartbeatPeriodMs = 100;
 constexpr std::int64_t kLinkReportPeriodMs = 1000;
 
@@ -118,6 +123,7 @@ void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
         }
         if ((*received)->kind == FlightCore::InterFc::MessageKind::Acknowledgement
             || (*received)->kind == FlightCore::InterFc::MessageKind::Status) {
+            last_remote_status_ms = now_ms;
             inter_fc_remote_state = static_cast<std::uint8_t>((*received)->state);
             inter_fc_remote_detection = static_cast<std::uint8_t>((*received)->detection);
         }
@@ -137,6 +143,7 @@ void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
 void process_sensor(const device* uart,
                     FlightCore::InterFc::IInterFcTransport& inter_fc_transport,
                     sim::control::FlightController& controller,
+                    sim::control::TargetState& current_setpoint,
                     const FlightCore::Transport::HilHeader& header,
                     std::span<const std::uint8_t> payload) noexcept
 {
@@ -150,7 +157,8 @@ void process_sensor(const device* uart,
             : 0u;
     if (header.sequence_num == 0 && sensor_payload.sim_timestamp_us == 0) {
         controller = sim::control::FlightController{
-            sim::control::ControllerConfig{.hover_rpm = kNominalAircraftHoverRpm}};
+            sim::control::ControllerConfig{.hover_rpm = kNominalAircraftHoverRpm,
+                                           .station_hold_seconds = sensor_payload.setpoint.station_hold_seconds}};
         inter_fc_remote_state = static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Unknown);
         inter_fc_remote_detection = static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
         const FlightCore::InterFc::Message reset_supervision{
@@ -160,8 +168,12 @@ void process_sensor(const device* uart,
     }
     const FlightCore::HAL::SensorData sensor = FlightCore::Transport::toSensorData(sensor_payload);
     const AircraftState measured = to_aircraft_state(sensor);
-    const sim::control::TargetState target{.z = 10.0};
-    const ControlCommand command = controller.update(target, measured, kControlPeriodSeconds);
+    current_setpoint = sim::control::TargetState{
+        .x = sensor_payload.setpoint.target_x_m,
+        .y = sensor_payload.setpoint.target_y_m,
+        .z = sensor_payload.setpoint.target_z_m,
+    };
+    const ControlCommand command = controller.update(current_setpoint, measured, kControlPeriodSeconds);
     const FlightCore::InterFc::Message monitoring_sample{
         .kind = FlightCore::InterFc::MessageKind::MonitoringSample,
         .sequence = header.sequence_num,
@@ -188,6 +200,7 @@ void process_sensor(const device* uart,
         actuators, sensor_payload.sim_timestamp_us, diagnostics);
     const auto response = FlightCore::Transport::encodeActuatorFrame(response_payload, header.sequence_num);
     send_frame(uart, response);
+    status_led.mark_activity(k_uptime_get());
 }
 
 }
@@ -195,6 +208,10 @@ void process_sensor(const device* uart,
 /* Zephyr FC1 entry point. Incoming SensorPackets provide the 100 Hz release cadence. */
 int main()
 {
+    const auto led_initialized = status_led.initialize();
+    if (!led_initialized.has_value()) {
+        printk("[LED] initialization failed: %d\n", led_initialized.error());
+    }
     inter_fc_startup_state = 1;
     const device* uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
     const device* inter_fc_uart = DEVICE_DT_GET(DT_NODELABEL(usart3));
@@ -211,6 +228,7 @@ int main()
 
     sim::control::ControllerConfig config{.hover_rpm = kNominalAircraftHoverRpm};
     sim::control::FlightController controller{config};
+    sim::control::TargetState current_setpoint{};
     FlightCore::Transport::HilFrameParser parser{};
     FlightCore::Transport::HilHeader header{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload{};
@@ -227,12 +245,20 @@ int main()
                               inter_fc_heartbeat_suppressed != 0,
                               last_heartbeat_ms,
                               last_report_ms);
+        const std::int64_t led_now_ms = k_uptime_get();
+        const bool remote_missing = last_remote_status_ms < 0
+            ? led_now_ms >= 2000 : led_now_ms - last_remote_status_ms >= 500;
+        const bool led_fault = remote_missing || inter_fc_heartbeat_suppressed != 0
+            || inter_fc_remote_state == static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Degraded)
+            || inter_fc_remote_state == static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Safe)
+            || inter_fc_remote_detection != static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
+        static_cast<void>(status_led.update(led_now_ms, led_fault));
         std::uint8_t byte = 0;
         if (ring_buf_get(&uart_receive_buffer, &byte, 1) == 1) {
             const bool complete = parser.processByte(byte, header, payload);
             if (complete && header.msg_id == FlightCore::Transport::kMsgIdSensor
                 && header.payload_len == FlightCore::Transport::kSensorPayloadSize) {
-                process_sensor(uart, inter_fc_transport, controller, header,
+                process_sensor(uart, inter_fc_transport, controller, current_setpoint, header,
                     std::span<const std::uint8_t>{payload.data(), header.payload_len});
             }
         }

@@ -9,6 +9,9 @@ bench. Always select a board by its ST-LINK serial number; `/dev/ttyACM0` and
 Use the [bench identity table and wiring](hardware.md) to identify FC1 and FC2.
 The commands below select those ST-LINK identities explicitly.
 Build both images using the [build guide](../build/build_targets.md) first.
+The HIL runner and FC1 must use HIL-Proto v1.1 together: mission targets and
+station-hold duration now arrive in SensorPackets. Rebuild the host runner
+when updating FC1 from v1.0; the FC1–FC2 protocol is unchanged.
 
 ## Flash FC1
 

@@ -17,6 +17,7 @@ import HilConfig;
 import HilRunner;
 import HilRunnerContext;
 import HilScenarios;
+import HilTelemetry;
 import SilFaultScenario;
 import TestHarness;
 
@@ -80,12 +81,18 @@ namespace {
                               sim::safety::DetectionEvent domain)
     {
         runner.set_context(id);
-        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario(id, 12.0);
+        const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> o = run_scenario(id, 100.0);
         runner.check(o.has_value(), "run executed");
         if (!o) {
             return;
         }
         const sim::hil::HilResult& r = (*o).result;
+        const auto before_fault = std::ranges::find_if(o->telemetry.rbegin(), o->telemetry.rend(),
+            [](const sim::hil::HilSensorSample& sample) { return sample.time_s < 70.0; });
+        runner.check(before_fault != o->telemetry.rend()
+                         && std::abs(before_fault->z - 30.0) <= 0.5
+                         && before_fault->mission_state == static_cast<std::uint8_t>(sim::control::MissionState::STATION_KEEPING),
+                     "station keeping at 30 m before FC1 failure");
         runner.check(r.fault_detected, "fault detected");
         runner.check(r.first_detection_event == domain, "fault classified as expected");
         runner.check(r.safe_mode_reached, "SAFE_MODE engaged");

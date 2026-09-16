@@ -1,6 +1,6 @@
 /*
 Filename: Src/Embedded/Transport/HilProtocol.cppm
-Description: HIL-Proto v1.0 binary contract (docs/hil/hil_protocol.md): wire
+Description: HIL-Proto v1.1 binary contract (docs/hil/hil_protocol.md): wire
 constants, packed HilHeader, HilSensorPayload (msg 0x01), HilActuatorPayload
 (msg 0x02) and the FC-side ActuatorDiagnostics echoed in the ActuatorPacket.
 The receive-side primitives (CRC-16-CCITT, HilFrameParser FSM) live in
@@ -22,13 +22,13 @@ inline constexpr std::uint8_t kSync1         = 0x48;
 inline constexpr std::uint8_t kSync2         = 0x49;
 inline constexpr std::uint8_t kMsgIdSensor   = 0x01;
 inline constexpr std::uint8_t kMsgIdActuator = 0x02;
-inline constexpr std::uint8_t kProtocolVer   = 0x10;
+inline constexpr std::uint8_t kProtocolVer   = 0x11;
 inline constexpr std::uint32_t kHilCommandSuppressInterFcHeartbeat = 1u << 31;
 
 inline constexpr std::size_t kHeaderSize           = 8;
 inline constexpr std::size_t kCrcSize              = 2;
 inline constexpr std::size_t kMaxPayload           = 128;
-inline constexpr std::size_t kSensorPayloadSize    = 80;
+inline constexpr std::size_t kSensorPayloadSize    = 96;
 inline constexpr std::size_t kActuatorPayloadSize  = 44;
 inline constexpr std::size_t kSensorFrameSize    = kHeaderSize + kSensorPayloadSize + kCrcSize;
 inline constexpr std::size_t kActuatorFrameSize  = kHeaderSize + kActuatorPayloadSize + kCrcSize;
@@ -42,6 +42,15 @@ struct HilHeader
     std::uint8_t  protocol_ver;
     std::uint16_t sequence_num;
     std::uint16_t payload_len;
+};
+
+/* Operational target and in-position dwell; contains no test identity, schedule or run duration. */
+struct HilControlSetpoint
+{
+    std::float32_t target_x_m = 0.0f;
+    std::float32_t target_y_m = 0.0f;
+    std::float32_t target_z_m = 0.0f;
+    std::float32_t station_hold_seconds = 5.0f;
 };
 
 struct HilSensorPayload
@@ -65,6 +74,7 @@ struct HilSensorPayload
     std::float32_t altitude_baro_m;
     std::float32_t wing_rpm_meas;
     std::uint32_t  sensor_valid_flags;
+    HilControlSetpoint setpoint{};
 };
 
 struct HilActuatorPayload
@@ -86,7 +96,8 @@ struct HilActuatorPayload
 #pragma pack(pop)
 
 static_assert(sizeof(HilHeader) == 8);
-static_assert(sizeof(HilSensorPayload) == 80);
+static_assert(sizeof(HilControlSetpoint) == 16);
+static_assert(sizeof(HilSensorPayload) == 96);
 static_assert(sizeof(HilActuatorPayload) == 44);
 static_assert(kMaxPayload >= kSensorPayloadSize);
 static_assert(kMaxPayload >= kActuatorPayloadSize);
