@@ -21,11 +21,26 @@ npm ci
 npm run dev
 ```
 
-Ouvrir l'adresse affichée par le serveur de développement. Dans un autre
-terminal à la racine, lancer un scénario selon le [guide HIL](../validation/hil.md)
+Ouvrir l'adresse locale affichée par le serveur (`localhost` ou `127.0.0.1`).
+Le panneau **Scenario runner** propose les scénarios de `hil_runner --list`.
+Le binaire `artifacts/linux/hil_runner` doit être [compilé](../build/build_targets.md).
+**RUN SCENARIO** lance le runner depuis la racine du dépôt et active le mode LIVE.
+
+**Auto** conserve le comportement du terminal : FC1 autorisé, avec repli loopback
+si indisponible. **Loopback** force l'émulateur hôte. Les logs affichent la cible
+réellement sélectionnée et les résultats ; le code de sortie est conservé.
+**STOP** termine le processus lancé par le panneau ; ce n'est pas une commande
+d'atterrissage. Un seul lancement simultané est accepté, même entre plusieurs
+onglets. Fermer l'onglet laisse le scénario tourner ; fermer le serveur local
+termine son runner.
+
+L'API fonctionne avec `npm run dev` et accepte uniquement les requêtes locales
+de même origine. Elle n'est pas disponible dans le build Cloudflare / `npm start`.
+Le lancement en terminal reste possible selon le [guide HIL](../validation/hil.md)
 ou le [guide SIL](../validation/sil.md). Le viewer se connecte à
 `ws://localhost:8765/twin` ; navigateur et runner doivent accéder au même hôte.
-Un seul runner doit publier sur ce port à la fois.
+Un seul runner doit publier sur ce port à la fois : arrêter tout runner lancé
+séparément avant d'utiliser le panneau.
 
 ## Live et replay
 

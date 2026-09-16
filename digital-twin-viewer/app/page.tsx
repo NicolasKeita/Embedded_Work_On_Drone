@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { AlertTriangle, Box, CircleDot, Gauge, Pause, Play, Radio, RotateCcw, Upload } from 'lucide-react';
 import { AircraftSceneContent, AircraftSceneOverlay } from '@/components/aircraft-scene';
 import { AvionicsSceneContent, AvionicsSceneDom, type AvionicsPanelRefs } from '@/components/avionics-scene';
+import { ScenarioPanel } from '@/components/scenario-panel';
 import { TwinCanvas } from '@/components/twin-canvas';
 import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, type TwinSnapshot } from '@/lib/twin-data';
 
@@ -159,6 +160,7 @@ export default function Home() {
         <a href="#flight"><Radio size={21} /><span>Flight</span></a>
         <a href="#airframe"><CircleDot size={21} /><span>Airframe</span></a>
         <a href="#system"><Gauge size={21} /><span>System</span></a>
+        <a href="#scenarios"><Play size={21} /><span>Scenarios</span></a>
         <a href="#events"><AlertTriangle size={21} /><span>Events</span></a>
         <span className="rail-caption">DIGITAL TWIN / HIL + SIL</span>
       </nav>
@@ -204,6 +206,7 @@ export default function Home() {
           </div>
         </div>
         <aside className="right-column">
+          <ScenarioPanel onStart={() => { setMode('live'); setPlaying(true); setSnapshots([]); setCursor(0); reviewingLiveRef.current = false; setReviewingLive(false); }} />
           <section className="panel overview-panel" id="system">
             <div className="panel-heading"><div><Gauge size={14} /><span>System state</span></div><span className="sim-time">T+ {current.time_s.toFixed(2)} s</span></div>
             <div className="state-block mission"><span className="mission-label">MISSION STATUS <span>↗</span></span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>{stale ? 'Waiting for flight data' : mode === 'replay' ? 'Reviewing recorded flight data' : 'Receiving flight telemetry'}</small></div>

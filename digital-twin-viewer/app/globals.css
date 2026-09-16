@@ -173,3 +173,14 @@ button:hover { background: #33363d; color: #eeeef0; }
   .header-controls { flex-wrap: wrap; gap: 8px; }
   .header-controls .load-button { padding: 0 10px; }
 }
+
+.scenario-content { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.scenario-content label, .scenario-status { font: 11px var(--font-geist-mono), monospace; color: #b5b7bf; }
+.scenario-content select { width: 100%; min-width: 0; background: #111214; color: #eeeef0; border: 1px solid #41444b; border-radius: 4px; padding: 10px 8px; font: 12px var(--font-geist-mono), monospace; }
+.scenario-content select:focus-visible { outline: 2px solid var(--primary); }
+.scenario-content p { margin: 0 0 4px; color: #a7a9b0; font-size: 12px; line-height: 1.5; }
+.scenario-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0; }
+.scenario-start { background: #ef7042; color: #17181b; border-color: #ef7042; }
+.scenario-command { font-size: 11px; overflow-wrap: anywhere; color: #c1c3cb; }
+.scenario-output { margin: 0; height: 170px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 10px; background: #111214; border-radius: 4px; font: 11px/1.6 var(--font-geist-mono), monospace; color: #c1c3cb; }
+.scenario-content .scenario-error { color: #f18077; }
