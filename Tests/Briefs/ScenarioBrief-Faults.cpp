@@ -25,10 +25,10 @@ Outcome. Numeric values mirror the actual scenario configuration.
 */
 constexpr std::array<BriefEntry, 2> kBriefs{{
     {"FAULT_INJECTOR-001",
-     "  Mission   : The drone climbs to 30 m and holds position; then, at\n"
+     "  Mission   : The drone climbs to 10 m and holds position; then, at\n"
      "              70 seconds into the flight, its main computer (FC1) dies.\n"
      "  Start     : On the ground at (0, 0, 0), motors off.\n"
-     "  Goal      : Climb to and hold 30 m, then survive a sudden FC1 failure.\n"
+     "  Goal      : Climb to and hold 10 m, then survive a sudden FC1 failure.\n"
      "  Faults    : FC1 (primary flight controller) stops working at t = 70 s\n"
      "              for the rest of the mission.\n"
      "  Outcome   : The backup heartbeat supervision must notice the failure within 0.3 s,\n"
