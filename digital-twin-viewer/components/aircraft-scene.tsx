@@ -6,6 +6,8 @@ import { Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { PortalView } from '@/components/portal-view';
+import { WindEffect } from '@/components/wind-effect';
+import { windVelocity } from '@/lib/wind';
 import { FlightEnvironment } from '@/components/flight-environment';
 import { dronePosition, visualSpinStep, WORLD } from '@/lib/flight-world';
 import { hasAltitudeFault, type TwinSnapshot } from '@/lib/twin-data';
@@ -79,6 +81,7 @@ export function AircraftSceneContent({ track, domElement, snapshot, trail }: { t
       <hemisphereLight args={['#e4efff', '#63734c', 1.3]} />
       <directionalLight position={[180, 350, 140]} color="#fff0d7" intensity={2.5} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-400} shadow-camera-right={400} shadow-camera-top={400} shadow-camera-bottom={-400} shadow-camera-far={1200} shadow-normalBias={.15} shadow-bias={-.00015} />
       <Drone snapshot={snapshot} />
+      <WindEffect snapshot={snapshot} />
       <mesh position={[snapshot.target.x_m, .05, snapshot.target.y_m]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[1.5, 1.58, 64]} />
         <meshBasicMaterial color="#ef5b2a" transparent opacity={.75} />
@@ -89,9 +92,11 @@ export function AircraftSceneContent({ track, domElement, snapshot, trail }: { t
 }
 
 export function AircraftSceneOverlay({ snapshot }: { snapshot: TwinSnapshot }) {
+  const [windX, windY, windSpeed] = windVelocity(snapshot);
   return (
     <>
       <div className="scene-label altitude-label" style={hasAltitudeFault(snapshot) ? { borderColor: '#f1c584', color: '#f1c584' } : undefined}><b style={hasAltitudeFault(snapshot) ? { color: '#f1c584' } : undefined}>{snapshot.aircraft.altitude_m.toFixed(1)} m</b><small>{hasAltitudeFault(snapshot) ? 'LAST KNOWN · BAROMETER FAULT' : 'ALTITUDE · DATUM 0 M'}</small></div>
+      {windSpeed > 0 && <div className="scene-label" style={{ left: 18, top: 78, color: "#bcefff" }}>VENT · {windSpeed.toFixed(1)} m/s · X {windX.toFixed(1)} / Y {windY.toFixed(1)}</div>}
       <div className="scene-label scene-scale">1 UNIT = 1 M · HOUSE 9.2 M · EIFFEL 330 M</div>
       {snapshot.aircraft.altitude_m > 7000 && <div className="scene-label" style={{ left: 18, top: 48, color: '#8bc8e5' }}>HIGH ALTITUDE · {(snapshot.aircraft.altitude_m / 1000).toFixed(1)} km</div>}
     </>

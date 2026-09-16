@@ -55,7 +55,8 @@ export function ScenarioPanel({ onStart }: { onStart: () => void }) {
         <label htmlFor="scenario-id">SCENARIO</label>
         <select id="scenario-id" value={scenario} disabled={active || pending} onChange={(event) => setScenario(event.target.value)}>
           {!catalog?.scenarios.length && <option value="NOMINAL-001">NOMINAL-001</option>}
-          {catalog?.scenarios.map((item) => <option key={item.id} value={item.id}>{item.id}</option>)}
+          {[['NOMINAL-', 'Nominal'], ['WIND-', 'Vent'], ['FAULT_INJECTOR-', 'Fault injection']].map(([prefix, label]) =>
+            <optgroup key={prefix} label={label}>{catalog?.scenarios.filter((item) => item.id.startsWith(prefix)).map((item) => <option key={item.id} value={item.id}>{item.id}</option>)}</optgroup>)}
         </select>
         <p>{catalog?.scenarios.find((item) => item.id === scenario)?.description ?? 'Loading the local runner catalog…'}</p>
         <label htmlFor="scenario-target">INTERFACE</label>

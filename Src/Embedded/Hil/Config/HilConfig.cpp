@@ -13,6 +13,20 @@ import std;
 
 namespace sim::hil {
 
+/* Evaluates the active interval and smooth periodic gusts without random state. */
+std::float64_t wind_factor(const HilConfig& config, std::float64_t time_s) noexcept
+{
+    if (time_s < config.wind_start_s || time_s >= config.wind_end_s) {
+        return 0.0;
+    }
+    if (config.wind_gust_period_s <= 0.0) {
+        return 1.0;
+    }
+    const std::float64_t phase = (time_s - config.wind_start_s) / config.wind_gust_period_s;
+    return 0.5 - 0.5 * std::cos(2.0 * std::numbers::pi * phase);
+}
+
+/* Returns the deadline policy label. */
 std::string_view deadline_policy_name(DeadlinePolicy policy) noexcept
 {
     switch (policy) {

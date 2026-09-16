@@ -13,6 +13,7 @@ import std;
 import FlightControllerTypes;
 import HealthMonitor;
 import HilEvents;
+import HilConfig;
 import HilRunnerContext;
 import HilTelemetry;
 import SafetyManager;
@@ -81,6 +82,9 @@ void write_twin_snapshot(std::ostream& out, const HilRunContext& ctx, const HilS
     const std::float64_t   airspeed = std::hypot(sample.vx, sample.vy, sample.vz);
 
     out << std::setprecision(8) << "{\"source\":\"HIL\",\"time_s\":" << sample.time_s;
+    const std::float64_t wind = sim::hil::wind_factor(ctx.config, sample.time_s);
+    out << ",\"wind\":{\"x_mps\":" << ctx.config.wind_x_mps * wind
+        << ",\"y_mps\":" << ctx.config.wind_y_mps * wind << '}';
     write_aircraft_state(out, sample, airspeed);
     out << ",\"mission\":";
     write_json_string(out, sim::control::mission_state_name(

@@ -65,7 +65,21 @@ sim::sil::FaultScenario hil_fault_for(std::string_view id)
     return fault;
 }
 
-const std::array<HilScenarioRecord, 9> kScenarios{{
+/* Creates a station-keeping mission with a bounded horizontal wind disturbance. */
+HilConfig wind_config(std::string_view id, std::float64_t x, std::float64_t y, std::float64_t period)
+{
+    HilConfig config = flight_config(id, {.z = 10.0}, 45.0);
+    config.wind_x_mps = x;
+    config.wind_y_mps = y;
+    config.wind_gust_period_s = period;
+    return config;
+}
+
+const std::array<HilScenarioRecord, 11> kScenarios{{
+    {"WIND-001", "Steady crosswind (4 m/s, 8-24 s, altitude 10 m)",
+     wind_config("WIND-001", 0.0, 4.0, 0.0), sim::sil::FaultScenario{}},
+    {"WIND-002", "Diagonal gusts (peak 5 m/s, period 4 s, 8-24 s)",
+     wind_config("WIND-002", 3.0, 4.0, 4.0), sim::sil::FaultScenario{}},
     {"NOMINAL-001", "Nominal station-keeping mission (no fault)",
      flight_config("NOMINAL-001", {.z = 10.0}, 30.0),
      sim::sil::FaultScenario{}},

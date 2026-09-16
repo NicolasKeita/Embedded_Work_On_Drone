@@ -36,7 +36,7 @@ namespace {
 Applies the returned actuator command to the aircraft: holds the last command on a
 missed response, engages the SAFE_MODE controlled descent or the COMPENSATED thrust
 margin, then scales by the actuator efficiency and integrates the physics. The aircraft
-state evolves only from actuator commands — it is never replayed.
+state evolves from actuator commands and configured wind disturbances.
 */
 void apply_actuators(HilRunContext& ctx)
 {
@@ -57,6 +57,8 @@ void apply_actuators(HilRunContext& ctx)
     ctx.last_effective_rpm = effective.wing_rpm;
     effective.wing_rpm *= ctx.env.actuator_efficiency;
     ctx.aircraft.set_command(effective);
+    const std::float64_t wind = sim::hil::wind_factor(cfg, ctx.time);
+    ctx.aircraft.set_wind(cfg.wind_x_mps * wind, cfg.wind_y_mps * wind);
     ctx.aircraft.update(cfg.dt_s);
 }
 

@@ -74,6 +74,13 @@ struct HilConfig {
     std::float64_t                   safe_descent_rpm_rate = 4000.0;
     sim::sil::SensorValidationLimits sensor_limits{};
 
+    /* Horizontal wind disturbance, active on [start, end), with optional periodic gusts. */
+    std::float64_t wind_x_mps = 0.0;
+    std::float64_t wind_y_mps = 0.0;
+    std::float64_t wind_start_s = 8.0;
+    std::float64_t wind_end_s = 24.0;
+    std::float64_t wind_gust_period_s = 0.0;
+
     /* Determinism identifiers. */
     std::uint64_t    seed = 42;
     std::string_view scenario_id = "NOMINAL-001";
@@ -98,6 +105,9 @@ struct HilConfig {
     */
     std::uint64_t transport_timeout_us = 10000;
 };
+
+/* Returns the instantaneous deterministic wind multiplier at simulation time. */
+[[nodiscard]] std::float64_t wind_factor(const HilConfig& config, std::float64_t time_s) noexcept;
 
 /* Human-readable name of a deadline policy. */
 [[nodiscard]] std::string_view deadline_policy_name(DeadlinePolicy policy) noexcept;

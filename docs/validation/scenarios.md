@@ -83,3 +83,13 @@ Ces guides complètent l'identité fonctionnelle sans redéfinir ses paramètres
 ./artifacts/linux/hil_runner --scenario FAULT_INJECTOR-001
 ./artifacts/linux/hil_runner --scenario FAULT_INJECTOR-003
 ```
+
+## HIL wind scenarios
+
+The Digital Twin scenario selector includes a **Vent** group:
+- **WIND-001**: 45 s station keeping at 10 m; constant +Y crosswind at 4 m/s from 8 s (inclusive) to 24 s (exclusive).
+- **WIND-002**: same mission with diagonal (+X/+Y) gusts peaking at (3, 4) m/s, following a smooth four-second cosine cycle during the same interval.
+
+The host physics applies a simplified horizontal acceleration of 0.08 times the wind velocity (SI units), only above ground. This is a deterministic disturbance model, not a calibrated aerodynamic drag model. Zero wind leaves nominal dynamics unchanged.
+
+HIL TwinSnapshot messages include optional `wind: { x_mps, y_mps }`. The viewer displays directional streaks and speed from these values, using snapshot time so pauses and replay remain synchronized. Older recordings without wind metadata show no wind effect.

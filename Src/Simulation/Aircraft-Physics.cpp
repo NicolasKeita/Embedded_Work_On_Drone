@@ -26,6 +26,13 @@ namespace
     constexpr std::float64_t kAttitudeTauS = 0.25;
 }
 
+/* Sets the deterministic horizontal wind used by the translation model. */
+void Aircraft::set_wind(std::float64_t x_mps, std::float64_t y_mps) noexcept
+{
+    wind_x_mps_ = x_mps;
+    wind_y_mps_ = y_mps;
+}
+
 /* Smooth first-order attitude dynamics with time constant kAttitudeTauS. */
 void Aircraft::update_attitude(std::float64_t dt)
 {
@@ -42,7 +49,7 @@ void Aircraft::update_attitude(std::float64_t dt)
 
 /*
 Translation: vertical force balance (lift vs weight), attitude-induced horizontal
-accelerations, then explicit Euler integration. Ground contact locked at z = 0.
+accelerations and a simplified linear wind disturbance (0.08 / s), then explicit Euler integration. Ground contact locked at z = 0.
 */
 void Aircraft::update_translation(std::float64_t dt)
 {
@@ -50,8 +57,9 @@ void Aircraft::update_translation(std::float64_t dt)
     const std::float64_t lift = kLiftCoeff * state_.actual_rpm * state_.actual_rpm;
     const std::float64_t weight = current_mass * kGravityMps2;
     const std::float64_t az = (lift - weight) / current_mass;
-    const std::float64_t ax = kPitchAccelGainMps2PerRad * state_.pitch;
-    const std::float64_t ay = kRollAccelGainMps2PerRad * state_.roll;
+    const std::float64_t wind_gain = state_.z > 0.0 ? 0.08 : 0.0;
+    const std::float64_t ax = kPitchAccelGainMps2PerRad * state_.pitch + wind_gain * wind_x_mps_;
+    const std::float64_t ay = kRollAccelGainMps2PerRad * state_.roll + wind_gain * wind_y_mps_;
 
     state_.vz += az * dt;
     state_.vx += ax * dt;

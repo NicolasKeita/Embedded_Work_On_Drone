@@ -57,6 +57,8 @@ public:
     explicit Aircraft(const sim::PhysicsDispersion& dispersion);
 
     void update(std::float64_t dt);
+    /* Sets the horizontal ambient wind velocity in world coordinates (m/s). */
+    void set_wind(std::float64_t x_mps, std::float64_t y_mps) noexcept;
     void set_command(const ControlCommand& cmd);
     void set_dispersion(const sim::PhysicsDispersion& dispersion);
 
@@ -69,6 +71,8 @@ private:
     void update_attitude(std::float64_t dt);
     void update_translation(std::float64_t dt);
 
+    std::float64_t wind_x_mps_ = 0.0;
+    std::float64_t wind_y_mps_ = 0.0;
     AircraftState          state_{};
     ControlCommand         command_{};
     sim::PhysicsDispersion dispersion_{};
