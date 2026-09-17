@@ -11,6 +11,7 @@ module SilScenarios;
 import std;
 
 import FlightController;
+import FunctionalScenarios;
 import SafetyManager;
 import SilTypes;
 import TestHarness;
@@ -28,15 +29,16 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 
 void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("NOMINAL-001", "Nominal station-keeping mission (no fault)");
-    const FaultScenario scenario{};
-    const std::array<FaultScenario, 1> scenarios{scenario};
+    const sim::test::FunctionalScenario& scenario = *sim::test::find_functional_scenario("NOMINAL-001");
+    runner.begin_scenario(scenario.id, scenario.description);
+    const FaultScenario fault{};
+    const std::array<FaultScenario, 1> scenarios{fault};
 
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "NOMINAL-001", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = scenario.id, .scenario = fault, .result = SimulationResult{}};
         return;
     }
 
@@ -48,7 +50,7 @@ void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord&
     runner.check(r.final_safety_mode == SafetyMode::NORMAL, "safety mode NORMAL");
     runner.check(!r.fault_detected, "no fault detected");
     runner.check(r.max_altitude_error_m <= 10.5, "altitude error bounded (<= 10.5 m)");
-    record = {.name = "NOMINAL-001", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = scenario.id, .scenario = fault, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 

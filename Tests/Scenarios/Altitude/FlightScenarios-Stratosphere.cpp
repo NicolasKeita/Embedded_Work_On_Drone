@@ -1,6 +1,8 @@
 /*
 Filename: Tests/Scenarios/Altitude/FlightScenarios-Stratosphere.cpp
-Description: Long-duration autonomous climb to the 20 km stratosphere target.
+Description: Simulation binding of the long-duration autonomous climb to the 20 km
+stratosphere target (NOMINAL-017). The mission definition comes from the shared
+FunctionalScenarios registry.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,6 +14,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import FunctionalScenarios;
 import MissionRunner;
 import TestHarness;
 
@@ -22,7 +25,8 @@ void stratosphere_climb(TestHarness&                  runner,
                         std::float64_t                hover_rpm,
                         const sim::PhysicsDispersion& dispersion)
 {
-    runner.begin_scenario("NOMINAL-017", "Stratosphere climb (approximately 9 h, z = 20 km)");
+    const sim::test::FunctionalScenario& scenario = *sim::test::find_functional_scenario("NOMINAL-017");
+    runner.begin_scenario(scenario.id, scenario.description);
     runner.log_header();
 
     sim::control::ControllerConfig config{.hover_rpm = hover_rpm};
@@ -31,10 +35,10 @@ void stratosphere_climb(TestHarness&                  runner,
     const MissionRunTrace trace = run_mission(
         controller,
         aircraft,
-        {.target = {.z = 20000.0},
-         .duration = 32430.0,
+        {.target = scenario.target,
+         .duration = scenario.duration_s,
          .axis = TrackingAxis::z_axis,
-         .tolerance = 2.0,
+         .tolerance = scenario.tracking_tolerance,
          .verbose = runner.verbose()},
         dispersion);
 
@@ -44,7 +48,8 @@ void stratosphere_climb(TestHarness&                  runner,
                           trace.metrics.time_within_tolerance,
                           trace.metrics.steady_state_error,
                           trace.metrics.max_acceleration);
-    runner.check(std::abs(final_state.z - 20000.0) <= 2.0, "stratosphere target reached (20 km +/- 2 m)");
+    runner.check(std::abs(final_state.z - scenario.target.z) <= scenario.tracking_tolerance,
+                 "stratosphere target reached (20 km +/- 2 m)");
     runner.check(trace.metrics.time_within_tolerance >= 32300.0, "climb duration remains close to nine hours");
     runner.check(final_state.z > 0.0, "scenario ends airborne without landing");
 }
