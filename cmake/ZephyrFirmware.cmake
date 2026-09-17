@@ -81,6 +81,15 @@ target_compile_options(flight_firmware_core PRIVATE -fno-exceptions -fno-rtti -W
 set_target_properties(flight_firmware_core PROPERTIES
     CXX_EXTENSIONS OFF CXX_SCAN_FOR_MODULES ON CXX_MODULE_STD ON)
 
+set(ZEPHYR_HEADER_SOURCES
+    "${PROJECT_ROOT}/Src/Embedded/InterFc/ZephyrUartInterFcTransport.cppm"
+    "${PROJECT_ROOT}/Src/Embedded/InterFc/ZephyrUartInterFcTransport.cpp"
+    "${PROJECT_ROOT}/Src/Embedded/Status/StatusLed.cpp"
+    "${FIRMWARE_MAIN}"
+)
+set_source_files_properties(${ZEPHYR_HEADER_SOURCES}
+    PROPERTIES COMPILE_OPTIONS -Wno-pedantic)
+
 target_sources(app PRIVATE "${FIRMWARE_MAIN}")
 target_compile_features(app PRIVATE cxx_std_23)
 target_compile_options(app PRIVATE -fno-exceptions -fno-rtti -Wall -Wextra -Wpedantic)
@@ -89,6 +98,8 @@ set_target_properties(app PROPERTIES
 set_source_files_properties("${FIRMWARE_MAIN}"
     TARGET_DIRECTORY app PROPERTIES CXX_SCAN_FOR_MODULES ON)
 target_link_libraries(app PRIVATE flight_firmware_core)
+target_link_options(zephyr_interface INTERFACE
+    "LINKER:--no-warn-rwx-segments")
 
 set(FIRMWARE_ARTIFACT_DIR "${PROJECT_ROOT}/artifacts/stm32")
 add_custom_target(named_firmware_artifacts ALL

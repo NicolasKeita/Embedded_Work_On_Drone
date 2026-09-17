@@ -6,8 +6,6 @@ Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
-module;
-
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/kernel.h>
