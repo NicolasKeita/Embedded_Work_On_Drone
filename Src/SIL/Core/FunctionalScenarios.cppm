@@ -1,13 +1,18 @@
 /*
 Filename: Src/SIL/Core/FunctionalScenarios.cppm
-Description: Target-agnostic functional scenario registry. Each entry binds a
-standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx) to its declarative fault identity (failure mode and
-parameters) and expected outcome, shared by the SIL and HIL runners.
-The execution target (SIL/HIL) is injected at runtime by the harness, so the
-scenario names never encode the execution environment.
+Description: Target-agnostic functional scenario registry. This module is the single
+canonical source shared by the SIL and HIL execution layers: each entry binds a
+standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx, WIND-xxx) to its
+description, declarative fault identity (failure mode and parameters) and shared
+mission profile (target, duration, tracking tolerance, wind disturbance and
+sensor/report overrides). Execution layers must not redefine any of these
+fields; they only contribute environment-specific parameters such as fault
+activation timing. The execution target (SIL/HIL) is injected at runtime by the
+harness, so the scenario names never encode the execution environment.
 Exports:
     enum class FunctionalFamily,
     struct FunctionalScenario,
+    functional_scenario_count,
     functional_scenarios(),
     find_functional_scenario()
 
@@ -19,6 +24,7 @@ export module FunctionalScenarios;
 
 import std;
 
+import FlightControllerTypes;
 import SilFaultScenario;
 
 export namespace sim::test {
@@ -37,6 +43,11 @@ parameters; FailureMode::NONE for nominal scenarios), whether a fault is
 expected, and the family used to group the scenario in the taxonomy. The fault
 activation timing (start time and duration) is target-specific and applied by
 each runner.
+
+The mission fields below the fault identity are the shared, target-independent
+definition of the run: mission target, mission window (s), tracking tolerance
+of the acceptance criteria and the horizontal wind disturbance. The override
+fields carry a value of 0.0 when the runner/controller default applies.
 */
 struct FunctionalScenario {
     std::string_view          id;
@@ -45,13 +56,39 @@ struct FunctionalScenario {
     sim::sil::FailureMode     failure_mode;
     sim::sil::FaultParameters parameters;
     bool                      fault_expected;
+
+    /* Mission target of the scenario, identical under SIL and HIL. */
+    sim::control::TargetState target{};
+
+    /* Mission window in seconds. */
+    std::float64_t duration_s = 30.0;
+
+    /* Tracking tolerance (m) applied by the acceptance criteria. */
+    std::float64_t tracking_tolerance = 1.0;
+
+    /* Station-keeping window override (s); 0.0 keeps the controller default. */
+    std::float64_t station_hold_seconds = 0.0;
+
+    /* Sensor altitude-range override (m); 0.0 keeps the sensor default. */
+    std::float64_t sensor_max_altitude_m = 0.0;
+
+    /* Human-readable report period override (s); 0.0 keeps the runner default. */
+    std::float64_t report_period_s = 0.0;
+
+    /* Horizontal wind disturbance (m/s) and optional gust period (s); 0.0 is nominal. */
+    std::float64_t wind_x_mps = 0.0;
+    std::float64_t wind_y_mps = 0.0;
+    std::float64_t wind_gust_period_s = 0.0;
 };
+
+/* Number of scenarios held by the shared registry (compile-time constant). */
+constexpr std::size_t functional_scenario_count = 11;
 
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;
 
 /*
 Resolves a functional scenario by its standardised ID (NOMINAL-xxx,
-FAULT_INJECTOR-xxx); returns nullptr when the ID is unknown.
+FAULT_INJECTOR-xxx, WIND-xxx); returns nullptr when the ID is unknown.
 */
 [[nodiscard]] const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept;
 

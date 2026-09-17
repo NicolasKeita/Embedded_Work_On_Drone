@@ -1,6 +1,7 @@
 /*
 Filename: Tests/Sil/SilScenarios-Suite.cpp
-Description: SIL suite catalog for the scenarios shared with HIL.
+Description: SIL suite catalog binding the canonical scenarios of the shared
+FunctionalScenarios registry to SIL execution functions and SIL fault timing.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -20,6 +21,13 @@ void nominal_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::
 void fc1_failure_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
 void sensor_fault_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
 
+/* Canonical description of a registered scenario (empty view when the ID is unknown). */
+std::string_view shared_description(std::string_view id)
+{
+    const sim::test::FunctionalScenario* shared = sim::test::find_functional_scenario(id);
+    return shared == nullptr ? std::string_view{} : shared->description;
+}
+
 /* Applies SIL timing to a fault identity owned by the shared functional registry. */
 sim::sil::FaultScenario make_sil_fault(std::string_view id,
                                        std::float64_t   start_time,
@@ -36,9 +44,9 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 
 /* SIL execution bindings for the canonical scenarios defined by FunctionalScenarios. */
 const std::array<SilScenarioEntry, 3> kSilScenarios{{
-    {"NOMINAL-001",        "Nominal station-keeping mission (no fault)", nominal_scenario},
-    {"FAULT_INJECTOR-001", "FC1 failure at 10 m, injected at t = 70.0 s",        fc1_failure_scenario},
-    {"FAULT_INJECTOR-003", "Altitude sensor corruption at t = 20.0 s",  sensor_fault_scenario},
+    {"NOMINAL-001",        shared_description("NOMINAL-001"),        nominal_scenario},
+    {"FAULT_INJECTOR-001", shared_description("FAULT_INJECTOR-001"), fc1_failure_scenario},
+    {"FAULT_INJECTOR-003", shared_description("FAULT_INJECTOR-003"), sensor_fault_scenario},
 }};
 
 std::span<const SilScenarioEntry> sil_scenarios() noexcept

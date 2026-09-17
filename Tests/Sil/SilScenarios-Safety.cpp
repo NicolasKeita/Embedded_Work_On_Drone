@@ -12,6 +12,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import FunctionalScenarios;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
@@ -38,16 +39,18 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
                                        std::float64_t   start_time,
                                        std::float64_t   duration);
 
+/* SIL fault activation timing: property of the accelerated SIL environment, not the scenario identity. */
 void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FAULT_INJECTOR-003", "Altitude sensor corruption injected at t = 20.0 s");
-    const FaultScenario scenario = make_sil_fault("FAULT_INJECTOR-003", 20.0, 10.0);
+    const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-003");
+    runner.begin_scenario(shared.id, shared.description);
+    const FaultScenario scenario = make_sil_fault(shared.id, 20.0, 10.0);
     const std::array<FaultScenario, 1> scenarios{scenario};
     const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FAULT_INJECTOR-003", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = shared.id, .scenario = scenario, .result = SimulationResult{}};
         return;
     }
     output = std::move(outcome).value();
@@ -59,7 +62,7 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     runner.check(r.degraded_reached, "HealthMonitor in DEGRADED state");
     runner.check(r.compensated_reached, "COMPENSATED mode engaged");
     runner.check(r.final_state != sim::control::MissionState::ABORTED, "mission not aborted");
-    record = {.name = "FAULT_INJECTOR-003", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = shared.id, .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 

@@ -12,6 +12,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import FunctionalScenarios;
 import HealthMonitor;
 import SafetyManager;
 import SilEvents;
@@ -47,19 +48,20 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 /* Holds at 10 m before injecting the permanent FC1 failure. */
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure at 10 m, injected at t = 70.0 s");
-    const FaultScenario scenario = make_sil_fault("FAULT_INJECTOR-001", 70.0, 0.0);
+    const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-001");
+    runner.begin_scenario(shared.id, shared.description);
+    const FaultScenario scenario = make_sil_fault(shared.id, 70.0, 0.0);
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     sim::sil::SilConfig config{};
-    config.target.z = 10.0;
-    config.duration_s = 100.0;
-    config.controller.station_hold_seconds = 120.0;
+    config.target = shared.target;
+    config.duration_s = shared.duration_s;
+    config.controller.station_hold_seconds = shared.station_hold_seconds;
     const std::expected<SilRunOutput, SilError> outcome = SILRunner{config}.run(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};
-        record = {.name = "FAULT_INJECTOR-001", .scenario = scenario, .result = SimulationResult{}};
+        record = {.name = shared.id, .scenario = scenario, .result = SimulationResult{}};
         return;
     }
 
@@ -67,7 +69,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     const auto before_fault = std::ranges::find_if(output.telemetry.rbegin(), output.telemetry.rend(),
         [&scenario](const sim::sil::TelemetrySample& sample) { return sample.time < scenario.start_time; });
     runner.check(before_fault != output.telemetry.rend()
-                     && std::abs(before_fault->altitude_m - 10.0) <= 0.5
+                     && std::abs(before_fault->altitude_m - shared.target.z) <= 0.5
                      && before_fault->mission_state == static_cast<std::uint8_t>(sim::control::MissionState::STATION_KEEPING),
                  "station keeping at 10 m before FC1 failure");
     SimulationResult& r = output.result;
@@ -78,7 +80,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     runner.check(r.response_latency >= 0.0 && r.response_latency <= 0.20, "response latency <= 200 ms");
     runner.check(r.final_state == sim::control::MissionState::ABORTED, "mission ABORTED by the SafetyManager");
     runner.check(!r.mission_success && r.test_verdict, "verdict PASS with mission not successful");
-    record = {.name = "FAULT_INJECTOR-001", .scenario = scenario, .result = r, .events = output.events,
+    record = {.name = shared.id, .scenario = scenario, .result = r, .events = output.events,
               .telemetry = output.telemetry, .ground_truth = output.ground_truth};
 }
 

@@ -1,6 +1,10 @@
 /*
 Filename: Src/Embedded/Hil/Config/HilScenarios.cpp
-Description: Registry of nominal and fault-injection HIL flight scenarios.
+Description: HIL execution bindings of the canonical scenarios defined by the
+shared FunctionalScenarios registry. Contains no scenario definition of its
+own: each HilConfig is derived from the registry's mission profile (target,
+duration, wind disturbance and sensor/report overrides); only the HIL fault
+activation timing is defined here.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -25,94 +29,64 @@ HilConfig hil_base_config()
 
 namespace {
 
-/* Creates the configuration shared by one nominal flight scenario. */
-HilConfig flight_config(std::string_view                 id,
-                        const sim::control::TargetState& target,
-                        std::float64_t                   duration_s)
+/*
+HIL fault activation timing: property of the real-time bench, not of the scenario
+identity. FC1_UNAVAILABLE activates at 70 s (permanent, duration <= 0);
+INVALID_SENSOR_DATA activates at 5 s for 20 s.
+*/
+sim::sil::FaultScenario hil_fault_timing(const sim::test::FunctionalScenario& shared)
 {
-    HilConfig config = hil_base_config();
-
-    config.scenario_id = id;
-    config.target = target;
-    config.duration_s = duration_s;
-    return config;
-}
-
-/* Creates the stratosphere configuration with a suitable sensor range. */
-HilConfig stratosphere_config()
-{
-    HilConfig config = flight_config("NOMINAL-017", {.z = 20000.0}, 32430.0);
-
-    config.sensor_limits.max_altitude_m = 25000.0;
-    config.report_period_s = 300.0;
-    return config;
-}
-
-/* Holds at 10 m long enough to inject the FC1 failure during station keeping. */
-HilConfig fc1_failure_config()
-{
-    HilConfig config = flight_config("FAULT_INJECTOR-001", {.z = 10.0}, 100.0);
-    config.controller.station_hold_seconds = 120.0;
-    return config;
-}
-
-/* Builds a HIL-timed fault from the shared functional scenario definition. */
-sim::sil::FaultScenario hil_fault_for(std::string_view id)
-{
-    using sim::sil::FailureMode;
-    const sim::test::FunctionalScenario* scenario = sim::test::find_functional_scenario(id);
     sim::sil::FaultScenario fault{
-        .start_time = id == "FAULT_INJECTOR-001" ? 70.0 : 5.0,
-        .failure_mode = scenario->failure_mode,
-        .parameters = scenario->parameters,
+        .start_time = shared.id == "FAULT_INJECTOR-001" ? 70.0 : 5.0,
+        .failure_mode = shared.failure_mode,
+        .parameters = shared.parameters,
     };
 
-    if (scenario->failure_mode == FailureMode::INVALID_SENSOR_DATA) {
+    if (shared.failure_mode == sim::sil::FailureMode::INVALID_SENSOR_DATA) {
         fault.duration = 20.0;
     }
     return fault;
 }
 
-/* Creates a station-keeping mission with a bounded horizontal wind disturbance. */
-HilConfig wind_config(std::string_view id, std::float64_t x, std::float64_t y, std::float64_t period)
+/* Derives one HIL execution binding from a canonical scenario of the registry. */
+HilScenarioRecord make_hil_record(const sim::test::FunctionalScenario& shared)
 {
-    HilConfig config = flight_config(id, {.z = 10.0}, 45.0);
-    config.wind_x_mps = x;
-    config.wind_y_mps = y;
-    config.wind_gust_period_s = period;
-    return config;
+    HilConfig config = hil_base_config();
+
+    config.scenario_id = shared.id;
+    config.target = shared.target;
+    config.duration_s = shared.duration_s;
+    config.wind_x_mps = shared.wind_x_mps;
+    config.wind_y_mps = shared.wind_y_mps;
+    config.wind_gust_period_s = shared.wind_gust_period_s;
+
+    if (shared.station_hold_seconds > 0.0) {
+        config.controller.station_hold_seconds = shared.station_hold_seconds;
+    }
+    if (shared.sensor_max_altitude_m > 0.0) {
+        config.sensor_limits.max_altitude_m = shared.sensor_max_altitude_m;
+    }
+    if (shared.report_period_s > 0.0) {
+        config.report_period_s = shared.report_period_s;
+    }
+
+    return {shared.id, shared.description, config,
+            shared.fault_expected ? hil_fault_timing(shared) : sim::sil::FaultScenario{}};
 }
 
-const std::array<HilScenarioRecord, 11> kScenarios{{
-    {"WIND-001", "Steady crosswind (4 m/s, 8-24 s, altitude 10 m)",
-     wind_config("WIND-001", 0.0, 4.0, 0.0), sim::sil::FaultScenario{}},
-    {"WIND-002", "Diagonal gusts (peak 5 m/s, period 4 s, 8-24 s)",
-     wind_config("WIND-002", 3.0, 4.0, 4.0), sim::sil::FaultScenario{}},
-    {"NOMINAL-001", "Nominal station-keeping mission (no fault)",
-     flight_config("NOMINAL-001", {.z = 10.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"FAULT_INJECTOR-001", "FC1 heartbeat-task failure at 10 m, t = 70 s", fc1_failure_config(),
-     hil_fault_for("FAULT_INJECTOR-001")},
-    {"FAULT_INJECTOR-003", "Altitude sensor fault during station keeping", hil_base_config(),
-     hil_fault_for("FAULT_INJECTOR-003")},
-    {"NOMINAL-012", "Low vertical takeoff (30 s, z = 5 m)",
-     flight_config("NOMINAL-012", {.z = 5.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"NOMINAL-013", "Low forward takeoff (30 s, x = 4 m, z = 6 m)",
-     flight_config("NOMINAL-013", {.x = 4.0, .z = 6.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"NOMINAL-014", "Low lateral takeoff (30 s, y = -4 m, z = 7 m)",
-     flight_config("NOMINAL-014", {.y = -4.0, .z = 7.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"NOMINAL-015", "Low diagonal takeoff (30 s, x = 3 m, y = 3 m, z = 8 m)",
-     flight_config("NOMINAL-015", {.x = 3.0, .y = 3.0, .z = 8.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"NOMINAL-016", "Low offset takeoff (30 s, x = -3 m, y = 2 m, z = 9 m)",
-     flight_config("NOMINAL-016", {.x = -3.0, .y = 2.0, .z = 9.0}, 30.0),
-     sim::sil::FaultScenario{}},
-    {"NOMINAL-017", "Stratosphere climb (approximately 9 h, z = 20 km)", stratosphere_config(),
-     sim::sil::FaultScenario{}},
-}};
+/* Builds the HIL catalog in the canonical registry order. */
+std::array<HilScenarioRecord, sim::test::functional_scenario_count> build_hil_scenarios()
+{
+    std::array<HilScenarioRecord, sim::test::functional_scenario_count> records{};
+    const std::span<const sim::test::FunctionalScenario> shared = sim::test::functional_scenarios();
+
+    for (std::size_t index = 0; index < records.size(); ++index) {
+        records[index] = make_hil_record(shared[index]);
+    }
+    return records;
+}
+
+const std::array<HilScenarioRecord, sim::test::functional_scenario_count> kScenarios = build_hil_scenarios();
 
 }
 

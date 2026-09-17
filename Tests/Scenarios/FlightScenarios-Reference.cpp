@@ -1,7 +1,9 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Reference.cpp
-Description: Implementation of the no-fault reference run (NOMINAL-001): take off,
-climb to 10 m and hold altitude for the 30-second mission with tracking metrics.
+Description: Simulation binding of the no-fault reference run (NOMINAL-001): take
+off, climb to 10 m and hold altitude for the 30-second mission with tracking
+metrics. The mission definition comes from the shared FunctionalScenarios
+registry.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -13,6 +15,7 @@ import std;
 
 import Aircraft;
 import FlightController;
+import FunctionalScenarios;
 import MissionRunner;
 import TestHarness;
 
@@ -32,15 +35,16 @@ void autonomous_altitude_hold(TestHarness&                  runner,
                               std::float64_t                hover_rpm,
                               const sim::PhysicsDispersion& dispersion)
 {
-    runner.begin_scenario("NOMINAL-001", "Autonomous altitude hold (z: 0 -> 10 m)");
+    const sim::test::FunctionalScenario& scenario = *sim::test::find_functional_scenario("NOMINAL-001");
+    runner.begin_scenario(scenario.id, scenario.description);
     runner.log_header();
 
     FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};
     Aircraft aircraft{dispersion};
 
     const MissionRunTrace trace = run_mission(controller, aircraft,
-                    {.target = {.z = 10.0}, .duration = 30.0, .axis = TrackingAxis::z_axis, .tolerance = 1.0,
-                     .verbose = runner.verbose()},
+                    {.target = scenario.target, .duration = scenario.duration_s, .axis = TrackingAxis::z_axis,
+                     .tolerance = scenario.tracking_tolerance, .verbose = runner.verbose()},
                     dispersion);
 
     print_metrics_report("altitude", trace.metrics);

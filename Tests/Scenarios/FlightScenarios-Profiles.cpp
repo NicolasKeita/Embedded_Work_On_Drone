@@ -1,6 +1,9 @@
 /*
 Filename: Tests/Scenarios/FlightScenarios-Profiles.cpp
-Description: Five low-altitude 30-second takeoff profiles without landing.
+Description: Five low-altitude 30-second takeoff profiles without landing. Each
+profile is the simulation binding of one canonical scenario of the shared
+FunctionalScenarios registry (identity, description, target, duration and
+tracking tolerance).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -12,27 +15,24 @@ import std;
 
 import Aircraft;
 import FlightController;
+import FunctionalScenarios;
 import MissionRunner;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {
 namespace {
 
-struct LowFlightProfile {
-    std::string_view          id;
-    std::string_view          description;
-    sim::control::TargetState target;
-};
-
 /*
-Executes one complete 30-second profile from rest and verifies that it remains
-airborne at the end, reaches the requested low altitude and moves as requested.
+Executes one complete profile from rest and verifies that it remains airborne at
+the end, reaches the requested low altitude and moves as requested. The mission
+definition comes from the shared registry entry.
 */
 void run_low_flight_profile(TestHarness&                  runner,
                             std::float64_t                hover_rpm,
                             const sim::PhysicsDispersion& dispersion,
-                            const LowFlightProfile&       profile)
+                            std::string_view              id)
 {
+    const sim::test::FunctionalScenario& profile = *sim::test::find_functional_scenario(id);
     runner.begin_scenario(profile.id, profile.description);
     runner.log_header();
 
@@ -44,9 +44,9 @@ void run_low_flight_profile(TestHarness&                  runner,
         controller,
         aircraft,
         {.target = profile.target,
-         .duration = 30.0,
+         .duration = profile.duration_s,
          .axis = TrackingAxis::z_axis,
-         .tolerance = 0.75,
+         .tolerance = profile.tracking_tolerance,
          .verbose = runner.verbose()},
         dispersion);
 
@@ -69,8 +69,7 @@ void low_vertical_takeoff(TestHarness&                  runner,
                           std::float64_t                hover_rpm,
                           const sim::PhysicsDispersion& dispersion)
 {
-    run_low_flight_profile(runner, hover_rpm, dispersion,
-                           {"NOMINAL-012", "Low vertical takeoff (30 s, z = 5 m)", {.z = 5.0}});
+    run_low_flight_profile(runner, hover_rpm, dispersion, "NOMINAL-012");
 }
 
 /* Runs the 6 m takeoff profile with a 4 m forward translation. */
@@ -78,9 +77,7 @@ void low_forward_takeoff(TestHarness&                  runner,
                          std::float64_t                hover_rpm,
                          const sim::PhysicsDispersion& dispersion)
 {
-    run_low_flight_profile(runner, hover_rpm, dispersion,
-                           {"NOMINAL-013", "Low forward takeoff (30 s, x = 4 m, z = 6 m)",
-                            {.x = 4.0, .z = 6.0}});
+    run_low_flight_profile(runner, hover_rpm, dispersion, "NOMINAL-013");
 }
 
 /* Runs the 7 m takeoff profile with a 4 m left translation. */
@@ -88,9 +85,7 @@ void low_lateral_takeoff(TestHarness&                  runner,
                          std::float64_t                hover_rpm,
                          const sim::PhysicsDispersion& dispersion)
 {
-    run_low_flight_profile(runner, hover_rpm, dispersion,
-                           {"NOMINAL-014", "Low lateral takeoff (30 s, y = -4 m, z = 7 m)",
-                            {.y = -4.0, .z = 7.0}});
+    run_low_flight_profile(runner, hover_rpm, dispersion, "NOMINAL-014");
 }
 
 /* Runs the 8 m takeoff profile with a positive diagonal translation. */
@@ -98,9 +93,7 @@ void low_diagonal_takeoff(TestHarness&                  runner,
                           std::float64_t                hover_rpm,
                           const sim::PhysicsDispersion& dispersion)
 {
-    run_low_flight_profile(runner, hover_rpm, dispersion,
-                           {"NOMINAL-015", "Low diagonal takeoff (30 s, x = 3 m, y = 3 m, z = 8 m)",
-                            {.x = 3.0, .y = 3.0, .z = 8.0}});
+    run_low_flight_profile(runner, hover_rpm, dispersion, "NOMINAL-015");
 }
 
 /* Runs the 9 m takeoff profile with an opposed diagonal translation. */
@@ -108,9 +101,7 @@ void low_offset_takeoff(TestHarness&                  runner,
                         std::float64_t                hover_rpm,
                         const sim::PhysicsDispersion& dispersion)
 {
-    run_low_flight_profile(runner, hover_rpm, dispersion,
-                           {"NOMINAL-016", "Low offset takeoff (30 s, x = -3 m, y = 2 m, z = 9 m)",
-                            {.x = -3.0, .y = 2.0, .z = 9.0}});
+    run_low_flight_profile(runner, hover_rpm, dispersion, "NOMINAL-016");
 }
 
 }
