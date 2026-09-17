@@ -2,15 +2,22 @@
 
 ## Architecture
 
-Les identités fonctionnelles des scénarios sont définies une seule fois dans
+Les scénarios partagés sont définis une seule fois dans
 `Src/SIL/Core/FunctionalScenarios.cpp`. Ce registre est la source canonique
-partagée par les exécuteurs SIL et HIL : l'identifiant, le mode de défaillance,
-les paramètres d'injection et le résultat attendu ne doivent pas être redéfinis
-dans un catalogue propre à une cible.
+consultée par les exécuteurs SIL et HIL : l'identifiant, la description, le mode
+de défaillance, les paramètres d'injection, le résultat attendu et le profil de
+mission (cible, durée, tolérance de suivi, perturbation de vent et dépassements
+capteur/rapport) ne doivent pas être redéfinis dans un catalogue propre à une
+cible.
 
 Les couches SIL et HIL ajoutent uniquement leurs paramètres d'exécution. Elles
 peuvent donc employer des instants et des durées d'injection différents tout en
-exécutant le même scénario fonctionnel.
+exécutant le même scénario fonctionnel. Modifier un scénario (cible, durée,
+description, identité de faute) se fait donc dans le registre canonique et
+se propage automatiquement au catalogue SIL (`Tests/Scenarios/Scenarios-Catalog.cpp`),
+aux scénarios de vol autonomes (`Tests/Scenarios/FlightScenarios-*.cpp`), à la
+suite SIL (`Tests/Sil/SilScenarios-*.cpp`) et au catalogue HIL
+(`Src/Embedded/Hil/Config/HilScenarios.cpp`).
 
 ## Scénarios partagés
 
@@ -19,10 +26,20 @@ exécutant le même scénario fonctionnel.
 | `NOMINAL-001` | Maintien de position nominal, sans faute injectée | oui | oui |
 | `FAULT_INJECTOR-001` | Indisponibilité du calculateur de vol principal FC1 | oui | oui |
 | `FAULT_INJECTOR-003` | Mesure d'altitude/barométrique hors plage | oui | oui |
+| `NOMINAL-012` | Décollage vertical, z=5 m | oui | oui |
+| `NOMINAL-013` | Décollage avant, x=4 m, z=6 m | oui | oui |
+| `NOMINAL-014` | Décollage latéral, y=−4 m, z=7 m | oui | oui |
+| `NOMINAL-015` | Décollage diagonal, x=y=3 m, z=8 m | oui | oui |
+| `NOMINAL-016` | Décollage décalé, x=−3 m, y=2 m, z=9 m | oui | oui |
+| `NOMINAL-017` | Montée à 20 km, environ 9 h simulées | oui | oui |
+| `WIND-001` | Vent traversier constant 4 m/s | non | oui |
+| `WIND-002` | Rafales diagonales, pointe 5 m/s | non | oui |
 
 Il existe exactement deux scénarios fonctionnels d'injection de faute. Les
 anciens scénarios de perte de communication, de dégradation d'actuateur et de
-panne FC1 pendant la montée ne font plus partie du catalogue.
+panne FC1 pendant la montée ne font plus partie du catalogue. Les scénarios
+`WIND-xxx` sont enregistrés dans le registre canonique (profil de mission et
+vent) mais ne disposent pas encore de binding d'exécution SIL.
 
 ## Temporisation par cible
 
@@ -37,8 +54,11 @@ pas une duplication du scénario fonctionnel.
 ## Catalogue physique et autonome
 
 Le [catalogue SIL](../../Tests/Scenarios/Scenarios-Catalog.cpp) ajoute les
-scénarios ci-dessous. Le [catalogue HIL](../../Src/Embedded/Hil/Config/HilScenarios.cpp)
-expose seulement ceux marqués « oui ».
+scénarios ci-dessous (leur description locale est leur définition unique : ils
+n'existent dans aucun autre catalogue). Les scénarios partagés de ce tableau
+prennent leur description et leur profil de mission dans le registre canonique.
+Le [catalogue HIL](../../Src/Embedded/Hil/Config/HilScenarios.cpp) expose
+seulement ceux marqués « oui ».
 
 | Identifiant | Objet | SIL | HIL |
 | --- | --- | --- | --- |
