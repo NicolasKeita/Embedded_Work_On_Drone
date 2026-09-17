@@ -88,7 +88,7 @@ def parse_arguments() -> Tuple[bool, bool, bool, List[str]]:
         A tuple containing:
         - in_place: Whether to modify the file in place (bool)
         - check_only: Whether to only check without modifying (bool)
-        - recursive: Whether to search recursively in Src/ for .cpp files (bool)
+        - recursive: Whether to search recursively in Src/, Tests/ and apps/ for .cpp files (bool)
         - input_files: List of paths to input files (List[str])
     """
     in_place = False

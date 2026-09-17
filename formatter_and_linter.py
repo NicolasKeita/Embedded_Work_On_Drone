@@ -282,7 +282,7 @@ def format_file(input_file: str, in_place: bool, check_only: bool) -> bool:
 
 def check_directory_structure() -> bool:
     directory_violations = linter.check_directory_file_counts(
-        ["Src", "Tests"],
+        ["Src", "Tests", "apps"],
         max_files=linter.MAX_FILES_PER_DIRECTORY,
     )
     linter.print_directory_file_count_warnings(
@@ -290,13 +290,13 @@ def check_directory_structure() -> bool:
         linter.MAX_FILES_PER_DIRECTORY,
     )
 
-    module_filename_violations = linter.check_module_filename_convention(["Src", "Tests"])
+    module_filename_violations = linter.check_module_filename_convention(["Src", "Tests", "apps"])
     linter.print_module_filename_warnings(module_filename_violations)
 
-    module_size_violations = linter.check_module_implementation_counts(["Src", "Tests"])
+    module_size_violations = linter.check_module_implementation_counts(["Src", "Tests", "apps"])
     linter.print_module_size_warnings(module_size_violations)
 
-    cmake_length_violations = linter.check_cmake_file_lengths(["Src", "Tests"])
+    cmake_length_violations = linter.check_cmake_file_lengths(["Src", "Tests", "apps"])
     linter.print_cmake_length_warnings(
         cmake_length_violations,
         linter.MAX_CMAKELISTS_LINES,
@@ -316,23 +316,25 @@ def main() -> NoReturn:
     if check_only:
         input_files = file_handler.find_source_files("Src", include_hpp=False, include_cppm=True)
         input_files += file_handler.find_source_files("Tests", include_hpp=False, include_cppm=True)
+        input_files += file_handler.find_source_files("apps", include_hpp=False, include_cppm=True)
         if not input_files:
-            print("No source files found in Src/ or Tests/", file=sys.stderr)
+            print("No source files found in Src/, Tests/ or apps/", file=sys.stderr)
             sys.exit(1)
-        print(f"Checking {len(input_files)} files in Src/ and Tests/...")
+        print(f"Checking {len(input_files)} files in Src/, Tests/ and apps/...")
     elif recursive:
         input_files = file_handler.find_source_files("Src", include_hpp=False, include_cppm=True)
         input_files += file_handler.find_source_files("Tests", include_hpp=False, include_cppm=True)
+        input_files += file_handler.find_source_files("apps", include_hpp=False, include_cppm=True)
         if not input_files:
-            print("No .cpp/.cppm files found in Src/ or Tests/", file=sys.stderr)
+            print("No .cpp/.cppm files found in Src/, Tests/ or apps/", file=sys.stderr)
             sys.exit(1)
-        print(f"Found {len(input_files)} .cpp/.cppm files in Src/ and Tests/...")
+        print(f"Found {len(input_files)} .cpp/.cppm files in Src/, Tests/ and apps/...")
     elif not input_files:
         print("Usage: python formatter_and_linter.py [-i] [-r/--recursive] <input_file.cpp> ...", file=sys.stderr)
         print("       python formatter_and_linter.py --check", file=sys.stderr)
         print("  -i, --in-place    : Modify the file in place (otherwise create output.cpp)", file=sys.stderr)
-        print("  -r, --recursive   : Process all .cpp/.cppm files in Src/ and Tests/ recursively", file=sys.stderr)
-        print("  --check           : Check all files in Src/ and Tests/ and CMakeLists.txt without modifying", file=sys.stderr)
+        print("  -r, --recursive   : Process all .cpp/.cppm files in Src/, Tests/ and apps/ recursively", file=sys.stderr)
+        print("  --check           : Check all files in Src/, Tests/ and apps/ and CMakeLists.txt without modifying", file=sys.stderr)
         sys.exit(1)
 
     has_any_long_lines = False
