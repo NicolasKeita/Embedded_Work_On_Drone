@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Play, Square, Terminal } from 'lucide-react';
+import { Play, Square, Terminal, Trash2 } from 'lucide-react';
 
 type Run = { status: string; scenario: string; command: string; output: string; exitCode: number | null };
 type Catalog = { scenarios: { id: string; description: string }[]; run: Run };
@@ -30,7 +30,7 @@ export function ScenarioPanel({ onStart }: { onStart: () => void }) {
     void refresh();
     return () => { disposed = true; clearTimeout(timer); };
   }, []);
-  const act = async (method: 'POST' | 'DELETE') => {
+  const act = async (method: 'POST' | 'DELETE' | 'PATCH') => {
     setPending(true);
     setError('');
     try {
@@ -67,6 +67,7 @@ export function ScenarioPanel({ onStart }: { onStart: () => void }) {
         <div className="scenario-actions">
           <button className="load-button scenario-start" disabled={!catalog || active || pending} onClick={() => void act('POST')}><Play size={14} />RUN SCENARIO</button>
           <button className="load-button" disabled={!active || pending || catalog?.run.status === 'stopping'} onClick={() => void act('DELETE')}><Square size={13} />STOP</button>
+          <button className="load-button" disabled={!catalog?.run.output || pending} onClick={() => void act('PATCH')}><Trash2 size={13} />CLEAN</button>
         </div>
         <output className="scenario-status">{catalog?.run.status.toUpperCase() ?? 'CONNECTING'}{catalog?.run.scenario && ` · ${catalog.run.scenario}`}{catalog?.run.exitCode != null && ` · exit ${catalog.run.exitCode}`}</output>
         {error && <p role="alert" className="scenario-error">{error}</p>}

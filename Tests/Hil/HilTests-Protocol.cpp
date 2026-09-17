@@ -33,17 +33,21 @@ namespace {
         FlightCore::Sim::LoopbackTransport channel{};
         sim::hil::HilTransport transport{&channel};
         sim::hil::MonotonicClock clock{};
-        sim::hil::HostFcTargetConfig config{};
-        config.controller.hover_rpm = Aircraft{}.hover_rpm();
-        config.controller.spin_up_seconds = 0.01;
-        config.controller.takeoff_transition_seconds = 0.01;
-        config.dt = 0.01;
+        const sim::hil::HostFcTargetConfig config{
+            .controller{
+                .hover_rpm = Aircraft{}.hover_rpm(),
+                .spin_up_seconds = 0.01,
+                .takeoff_transition_seconds = 0.01,
+            },
+            .dt = 0.01,
+        };
         sim::hil::HostFcTarget target{channel, clock, config};
-        FlightCore::HAL::SensorData sensor{};
-        sensor.position_z_m = 10.0f;
-        sensor.altitude_baro_m = 10.0f;
-        sensor.wing_rpm_meas = static_cast<std::float32_t>(config.controller.hover_rpm);
-        sensor.sensor_valid_flags = 0x1Fu;
+        FlightCore::HAL::SensorData sensor{
+            .position_z_m = 10.0f,
+            .altitude_baro_m = 10.0f,
+            .wing_rpm_meas = static_cast<std::float32_t>(config.controller.hover_rpm),
+            .sensor_valid_flags = 0x1Fu,
+        };
         FlightCore::Transport::HilControlSetpoint setpoint{
             .target_z_m = 10.0f,
             .station_hold_seconds = 120.0f,

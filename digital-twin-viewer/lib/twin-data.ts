@@ -29,6 +29,12 @@ export function hasAltitudeFault(snapshot: TwinSnapshot) {
     || !isValidDisplayAltitude(snapshot.aircraft.altitude_m);
 }
 
+export function isFaultDetectionPending(snapshot: TwinSnapshot) {
+  return snapshot.active_fault !== null
+    && snapshot.health === 'HEALTHY'
+    && snapshot.safety_mode === 'NORMAL';
+}
+
 /* Sanitize before storing samples so camera, trail, charts and replay agree. */
 export function holdLastKnownAltitude(snapshot: TwinSnapshot, previous?: TwinSnapshot): TwinSnapshot {
   if (!hasAltitudeFault(snapshot)) return snapshot;

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes } from '../lib/twin-data.ts';
+import { createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, isFaultDetectionPending } from '../lib/twin-data.ts';
 
 function sample(altitude, fault = null) {
   const snapshot = createIdleSnapshot();
@@ -35,4 +35,16 @@ test('fault burst holds last good altitude and resumes on recovery in replay and
 test('invalid first frame uses safe launch datum and valid high altitude remains available', () => {
   assert.equal(holdLastKnownAltitude(sample(99999)).aircraft.altitude_m, 0);
   assert.equal(holdLastKnownAltitude(sample(20000)).aircraft.altitude_m, 20000);
+});
+
+test('distinguishes an injected fault awaiting detection from a nominal state', () => {
+  const pending = sample(120, 'FC1_UNAVAILABLE');
+  pending.health = 'HEALTHY';
+  pending.safety_mode = 'NORMAL';
+  assert.equal(isFaultDetectionPending(pending), true);
+
+  pending.health = 'SAFE';
+  pending.safety_mode = 'SAFE_MODE';
+  assert.equal(isFaultDetectionPending(pending), false);
+  assert.equal(isFaultDetectionPending(sample(120)), false);
 });

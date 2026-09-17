@@ -6,7 +6,7 @@ import { AircraftSceneContent, AircraftSceneOverlay } from '@/components/aircraf
 import { AvionicsSceneContent, AvionicsSceneDom, type AvionicsPanelRefs } from '@/components/avionics-scene';
 import { ScenarioPanel } from '@/components/scenario-panel';
 import { TwinCanvas } from '@/components/twin-canvas';
-import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, type TwinSnapshot } from '@/lib/twin-data';
+import { createDemoSnapshots, createIdleSnapshot, hasAltitudeFault, holdLastKnownAltitude, holdLastKnownAltitudes, isFaultDetectionPending, type TwinSnapshot } from '@/lib/twin-data';
 
 const WS_URL = 'ws://localhost:8765/twin';
 const WS_RETRY_INITIAL_DELAY_MS = 1_000;
@@ -32,6 +32,7 @@ export default function Home() {
   const fileRef = useRef<HTMLInputElement>(null);
   const reviewingLiveRef = useRef(false);
   const current = snapshots[Math.min(cursor, snapshots.length - 1)] ?? idle;
+  const faultDetectionPending = isFaultDetectionPending(current);
   const aircraftRef = useRef<HTMLDivElement>(null);
   const [aircraftDom, setAircraftDom] = useState<HTMLDivElement | undefined>(undefined);
   const aircraftCallbackRef = useCallback((node: HTMLDivElement | null) => { aircraftRef.current = node; setAircraftDom(node ?? undefined); }, []);
@@ -211,8 +212,8 @@ export default function Home() {
             <div className="panel-heading"><div><Gauge size={14} /><span>System state</span></div><span className="sim-time">T+ {current.time_s.toFixed(2)} s</span></div>
             <div className="state-block mission"><span className="mission-label">MISSION STATUS <span>↗</span></span><strong>{current.mission.replaceAll('_', ' ')}</strong><small>{stale ? 'Waiting for flight data' : mode === 'replay' ? 'Reviewing recorded flight data' : 'Receiving flight telemetry'}</small></div>
 
-            <div className="state-pair"><div><span>HEALTH</span><strong className={current.health === 'HEALTHY' ? 'ok' : 'warn'}><StatusDot tone={current.health === 'HEALTHY' ? 'green' : 'amber'} />{current.health}</strong></div><div><span>SAFETY</span><strong className={current.safety_mode === 'NORMAL' ? 'ok' : 'warn'}>{current.safety_mode}</strong></div></div>
-            <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{hasAltitudeFault(current) ? 'Barometer unavailable · altitude held at last known value' : current.active_fault ? 'Compensation active' : 'No injected or detected fault'}</small></div>
+            <div className="state-pair"><div><span>HEALTH</span><strong className={current.health === 'HEALTHY' && !faultDetectionPending ? 'ok' : 'warn'}><StatusDot tone={current.health === 'HEALTHY' && !faultDetectionPending ? 'green' : 'amber'} />{faultDetectionPending ? `${current.health} · DETECTION PENDING` : current.health}</strong></div><div><span>SAFETY</span><strong className={current.safety_mode === 'NORMAL' && !faultDetectionPending ? 'ok' : 'warn'}>{faultDetectionPending ? `${current.safety_mode} · RESPONSE PENDING` : current.safety_mode}</strong></div></div>
+            <div className={`fault-block ${current.active_fault ? 'active' : ''}`}><span>ACTIVE FAULT</span><strong>{current.active_fault ?? 'NONE'}</strong><small>{hasAltitudeFault(current) ? 'Barometer unavailable · altitude held at last known value' : faultDetectionPending ? 'Injected fault · awaiting FC2 detection' : current.active_fault ? 'Safety response active' : 'No injected or detected fault'}</small></div>
             <div className="actuators"><span>ACTUATORS</span><Metric label="ROTOR" value={current.actuators.rotor_rpm.toFixed(0)} unit="RPM" /><Metric label="LEFT SERVO" value={current.actuators.left_servo_deg.toFixed(1)} unit="°" /><Metric label="RIGHT SERVO" value={current.actuators.right_servo_deg.toFixed(1)} unit="°" /></div>
           </section>
           <section className="panel timeline-panel" id="events"><div className="panel-heading"><div><AlertTriangle size={14} /><span>Event timeline</span></div><span className="event-count">{current.events.length}</span></div><div className="events">{current.events.length === 0 && <div className="empty-events"><CircleDot size={24} /><strong>All quiet on the timeline</strong><p>Flight events will appear here as telemetry arrives.</p></div>}{current.events.slice(-6).reverse().map((event, index) => <div className={`event ${event.level}`} key={`${event.time_s}-${event.type}-${index}`}><time>{event.time_s.toFixed(3)}</time><span>{event.type}</span><p>{event.message}</p></div>)}</div></section>

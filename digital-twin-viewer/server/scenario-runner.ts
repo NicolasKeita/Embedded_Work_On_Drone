@@ -48,6 +48,11 @@ export function scenarioRunner(): Plugin {
       respond(res, 200, { run });
       return;
     }
+    if (req.method === 'PATCH') {
+      run.output = '';
+      respond(res, 200, { run });
+      return;
+    }
     if (req.method !== 'POST') { respond(res, 405, { error: 'Method not allowed.' }); return; }
     if (!req.headers['content-type']?.startsWith('application/json')) { respond(res, 415, { error: 'JSON required.' }); return; }
     let body = '';
