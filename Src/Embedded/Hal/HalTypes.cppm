@@ -31,32 +31,32 @@ inline constexpr std::uint32_t kFlagTachometerOk = 1u << 4;
 */
 struct SensorData
 {
-    std::uint64_t timestamp_us;
+    std::uint64_t timestamp_us = 0;
 
-    std::float32_t position_x_m;
-    std::float32_t position_y_m;
-    std::float32_t position_z_m;
+    std::float32_t position_x_m = 0.0f;
+    std::float32_t position_y_m = 0.0f;
+    std::float32_t position_z_m = 0.0f;
 
-    std::float32_t velocity_x_ms;
-    std::float32_t velocity_y_ms;
-    std::float32_t velocity_z_ms;
+    std::float32_t velocity_x_ms = 0.0f;
+    std::float32_t velocity_y_ms = 0.0f;
+    std::float32_t velocity_z_ms = 0.0f;
 
-    std::float32_t gyro_roll_rad_s;
-    std::float32_t gyro_pitch_rad_s;
-    std::float32_t gyro_yaw_rad_s;
+    std::float32_t gyro_roll_rad_s = 0.0f;
+    std::float32_t gyro_pitch_rad_s = 0.0f;
+    std::float32_t gyro_yaw_rad_s = 0.0f;
 
-    std::float32_t accel_x_m_s2;
-    std::float32_t accel_y_m_s2;
-    std::float32_t accel_z_m_s2;
+    std::float32_t accel_x_m_s2 = 0.0f;
+    std::float32_t accel_y_m_s2 = 0.0f;
+    std::float32_t accel_z_m_s2 = 0.0f;
 
-    std::float32_t roll_rad;
-    std::float32_t pitch_rad;
-    std::float32_t yaw_rad;
+    std::float32_t roll_rad = 0.0f;
+    std::float32_t pitch_rad = 0.0f;
+    std::float32_t yaw_rad = 0.0f;
 
-    std::float32_t altitude_baro_m;
-    std::float32_t wing_rpm_meas;
+    std::float32_t altitude_baro_m = 0.0f;
+    std::float32_t wing_rpm_meas = 0.0f;
 
-    std::uint32_t sensor_valid_flags;
+    std::uint32_t sensor_valid_flags = 0;
 };
 
 /*

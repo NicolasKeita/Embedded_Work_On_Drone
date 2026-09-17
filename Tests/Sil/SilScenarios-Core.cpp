@@ -54,8 +54,8 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     const sim::sil::SilConfig config{
-        .target = shared.target,
         .duration_s = shared.duration_s,
+        .target = shared.target,
         .controller{.station_hold_seconds = shared.station_hold_seconds},
     };
     const std::expected<SilRunOutput, SilError> outcome = SILRunner{config}.run(scenarios);
