@@ -76,7 +76,7 @@ ENTER_SAFE_MODE
 
 - abandon de mission ;
 - passage en `SAFE_MODE` ;
-- descente contrôlée ;
+- maintien de position ;
 - état final de mission `ABORTED`.
 
 ### Couverture
@@ -168,7 +168,7 @@ ENTER_SAFE_MODE
 ### Réponse
 
 - abandon mission ;
-- descente contrôlée ;
+- maintien de position ;
 - passage `SAFE_MODE`.
 
 ### Couverture

@@ -88,7 +88,7 @@ namespace {
         }
         const sim::hil::HilResult& r = (*o).result;
         const auto before_fault = std::ranges::find_if(o->telemetry.rbegin(), o->telemetry.rend(),
-            [](const sim::hil::HilSensorSample& sample) { return sample.time_s < 70.0; });
+            [](const sim::hil::HilSensorSample& sample) { return sample.time_s < 40.0; });
         runner.check(before_fault != o->telemetry.rend()
                          && std::abs(before_fault->z - 10.0) <= 0.5
                          && before_fault->mission_state == static_cast<std::uint8_t>(sim::control::MissionState::STATION_KEEPING),

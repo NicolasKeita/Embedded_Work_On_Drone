@@ -29,15 +29,15 @@ Injection → absence de heartbeat → FC1_HEARTBEAT_TIMEOUT
 ```
 
 Suivre l'événement d'injection, la détection rapportée, la transition de sûreté,
-puis les commandes et la vérité terrain. La descente de sécurité est appliquée
-aux actionneurs simulés par le runner. Le profil exact et l'instant d'atteinte
-du sol doivent être lus dans la capture ; ils ne sont pas garantis par une
-chronologie illustrative.
+puis les commandes et la vérité terrain. Le maintien de position est appliqué
+aux actionneurs simulés par le runner : après l'abandon, le drone reste sur
+place jusqu'à la fin de la fenêtre. Vérifier dans la capture que l'altitude et
+la position restent constantes après l'injection.
 
 Les délais hôte et MCU diffèrent : voir l'[ordonnancement](../system/scheduling.md).
 La consigne de stationnement est de 30 m en SIL et HIL (loopback et FC1 STM32
 avec le firmware HIL-Proto v1.1). La faute permanente est
-injectée à 70 s, sur une fenêtre de simulation de 100 s. Le maintien est prolongé
+injectée à 40 s, sur une fenêtre de simulation de 100 s. Le maintien est prolongé
 à 120 s pour éviter la fin de mission avant la faute. Vérifier dans la capture
 l’altitude et la phase de vol à l’injection. Le runner transmet au firmware la cible et la durée de
 maintien via le [protocole HIL](../hil/hil_protocol.md).

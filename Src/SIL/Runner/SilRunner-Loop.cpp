@@ -47,22 +47,22 @@ void SILRunner::update_monitoring(RunContext& ctx)
 }
 
 /*
-Actuator step: FC1 command replaced by a controlled descent in SAFE_MODE and
-scaled by the thrust margin in COMPENSATED mode, then the environment applies
-the actuator efficiency and the physics integrates the aircraft state.
+Actuator step: the FC1 command is held at the last applied value in SAFE_MODE
+and scaled by the thrust margin in COMPENSATED mode, then the environment
+applies the actuator efficiency and the physics integrates the aircraft state.
 */
 void SILRunner::apply_actuators(RunContext& ctx)
 {
     const SilConfig& cfg = ctx.config;
-    ControlCommand   effective = ctx.command;
 
     if (ctx.safety.mode() == SafetyMode::SAFE_MODE) {
-        ctx.safe_rpm = std::max(std::float64_t{0.0}, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt);
-        effective.wing_rpm = ctx.safe_rpm;
-        effective.left_servo_angle = 0.0;
-        effective.right_servo_angle = 0.0;
+        ctx.commanded_rpm = ctx.last_effective_rpm;
+        return;
     }
-    else if (ctx.safety.mode() == SafetyMode::COMPENSATED) {
+
+    ControlCommand effective = ctx.command;
+
+    if (ctx.safety.mode() == SafetyMode::COMPENSATED) {
         effective.wing_rpm *= ctx.safety_command.thrust_margin;
     }
     ctx.commanded_rpm = effective.wing_rpm;

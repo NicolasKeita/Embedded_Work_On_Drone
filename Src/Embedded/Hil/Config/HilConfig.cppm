@@ -71,7 +71,6 @@ struct HilConfig {
     std::float64_t                   heartbeat_timeout_s = 0.10;
     std::float64_t                   actuator_mismatch_rpm = 60.0;
     std::float64_t                   thrust_compensation_margin = 1.7;
-    std::float64_t                   safe_descent_rpm_rate = 4000.0;
     sim::sil::SensorValidationLimits sensor_limits{};
 
     /* Horizontal wind disturbance, active on [start, end), with optional periodic gusts. */

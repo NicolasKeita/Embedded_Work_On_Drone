@@ -82,7 +82,7 @@ std::string_view fault_expected_behavior(const FaultScenario& scenario)
         return {};
     case FailureMode::FC1_UNAVAILABLE:
         return "Heartbeat supervision must raise FC1_HEARTBEAT_TIMEOUT within 300ms, SafetyManager must "
-               "engage SAFE_MODE with a controlled descent and the mission must be aborted.";
+               "engage SAFE_MODE holding the aircraft in place and the mission must be aborted.";
     case FailureMode::FC_COMMUNICATION_LOSS:
         return "Link supervision must raise COMMUNICATION_TIMEOUT within 300ms, SafetyManager must "
                "engage SAFE_MODE and the mission must be aborted.";

@@ -40,6 +40,12 @@ public:
     void setLiveStream(std::ostream& out);
 
     /*
+    Registers the signal-safe flag used by the CLI to request a graceful stop. The
+    runner checks it between real-time cycles and still performs target cleanup.
+    */
+    void setStopRequestedFlag(const volatile std::sig_atomic_t& stop_requested) noexcept;
+
+    /*
     Executes the configured scenario(s) and returns the structured run output, or a
     typed error. The run is paced in real time by a monotonic steady clock.
     */
@@ -48,11 +54,12 @@ public:
 private:
     [[nodiscard]] static std::expected<std::unique_ptr<HilRunContext>, HilError> makeContext(const HilConfig& config,
                                                                                                 std::span<const sim::sil::FaultScenario> scenarios);
-    static void execute(HilRunContext& ctx);
+    void execute(HilRunContext& ctx);
     static void finalize(HilRunContext& ctx);
 
     HilConfig     config_;
     std::ostream* live_out_ = nullptr;
+    const volatile std::sig_atomic_t* stop_requested_ = nullptr;
 };
 
 }

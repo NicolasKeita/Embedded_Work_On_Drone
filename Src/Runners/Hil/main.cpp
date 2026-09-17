@@ -10,6 +10,8 @@ Copyright (c) 2026 Nicolas K.
 All rights reserved.
 */
 
+#include <csignal>
+
 import std;
 
 import HilConfig;
@@ -24,6 +26,14 @@ import TestHarness;
 
 namespace
 {
+    volatile std::sig_atomic_t stop_requested = 0;
+
+    /* Records a termination request so the HIL runner can restore the embedded targets. */
+    void handle_stop_signal(int) noexcept
+    {
+        stop_requested = 1;
+    }
+
     /* Runs the deterministic HIL validation suite (protocol, timing, faults, runner). */
     int run_selftest()
     {
@@ -83,6 +93,9 @@ int main(int argc, char** argv)
 
     sim::hil::HilRunner runner{config};
     runner.setLiveStream(std::cout);
+    runner.setStopRequestedFlag(stop_requested);
+    static_cast<void>(std::signal(SIGTERM, handle_stop_signal));
+    static_cast<void>(std::signal(SIGINT, handle_stop_signal));
     const std::expected<sim::hil::HilRunOutput, sim::hil::HilError> outcome = runner.run(scenarios);
     if (!outcome.has_value()) {
         std::cerr << "HIL run failed\n";

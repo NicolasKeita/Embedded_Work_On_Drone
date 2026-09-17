@@ -1,7 +1,7 @@
 /*
 Filename: Src/Embedded/Hil/Runner/Safety/HilRunnerSafety-Apply.cpp
 Description: Application of the HIL safety mode to the actuator command : SAFE_MODE
-controlled descent, COMPENSATED thrust margin, actuator efficiency and physics update.
+position hold, COMPENSATED thrust margin, actuator efficiency and physics update.
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -33,23 +33,24 @@ namespace {
 }
 
 /*
-Applies the returned actuator command to the aircraft: holds the last command on a
-missed response, engages the SAFE_MODE controlled descent or the COMPENSATED thrust
-margin, then scales by the actuator efficiency and integrates the physics. The aircraft
-state evolves from actuator commands and configured wind disturbances.
+Applies the returned actuator command to the aircraft: SAFE_MODE freezes the
+aircraft at its last position, COMPENSATED applies the thrust margin, then the
+actuator efficiency scales the command and the physics integrates the state.
+The aircraft state evolves from actuator commands and configured wind
+disturbances.
 */
 void apply_actuators(HilRunContext& ctx)
 {
     const HilConfig& cfg = ctx.config;
-    ControlCommand   effective = ctx.this_received ? to_control_command(ctx.actuator_cmd) : ctx.command;
 
     if (ctx.safety.mode() == sim::safety::SafetyMode::SAFE_MODE) {
-        ctx.safe_rpm = std::max(std::float64_t{0.0}, ctx.last_effective_rpm - cfg.safe_descent_rpm_rate * cfg.dt_s);
-        effective.wing_rpm = ctx.safe_rpm;
-        effective.left_servo_angle = 0.0;
-        effective.right_servo_angle = 0.0;
+        ctx.commanded_rpm = ctx.last_effective_rpm;
+        return;
     }
-    else if (ctx.safety.mode() == sim::safety::SafetyMode::COMPENSATED) {
+
+    ControlCommand effective = ctx.this_received ? to_control_command(ctx.actuator_cmd) : ctx.command;
+
+    if (ctx.safety.mode() == sim::safety::SafetyMode::COMPENSATED) {
         effective.wing_rpm *= ctx.safety_command.thrust_margin;
     }
     ctx.command = effective;

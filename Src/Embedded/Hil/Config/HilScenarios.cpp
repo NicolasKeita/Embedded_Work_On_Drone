@@ -31,13 +31,13 @@ namespace {
 
 /*
 HIL fault activation timing: property of the real-time bench, not of the scenario
-identity. FC1_UNAVAILABLE activates at 70 s (permanent, duration <= 0);
+identity. FC1_UNAVAILABLE activates at 40 s (permanent, duration <= 0);
 INVALID_SENSOR_DATA activates at 5 s for 20 s.
 */
 sim::sil::FaultScenario hil_fault_timing(const sim::test::FunctionalScenario& shared)
 {
     sim::sil::FaultScenario fault{
-        .start_time = shared.id == "FAULT_INJECTOR-001" ? 70.0 : 5.0,
+        .start_time = shared.id == "FAULT_INJECTOR-001" ? 40.0 : 5.0,
         .failure_mode = shared.failure_mode,
         .parameters = shared.parameters,
     };

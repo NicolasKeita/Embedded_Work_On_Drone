@@ -45,7 +45,7 @@ vent) mais ne disposent pas encore de binding d'exécution SIL.
 
 | Scénario | SIL | HIL |
 |---|---|---|
-| `FAULT_INJECTOR-001` | maintien à 10 m, activation à 70 s, permanente | maintien à 10 m, activation à 70 s, permanente (firmware v1.1 sur cartes) |
+| `FAULT_INJECTOR-001` | maintien à 10 m, activation à 40 s, permanente | maintien à 10 m, activation à 40 s, permanente (firmware v1.1 sur cartes) |
 | `FAULT_INJECTOR-003` | activation à 20 s pendant 10 s | activation à 5 s pendant 20 s |
 
 La différence de temporisation est une propriété de l'environnement d'exécution,

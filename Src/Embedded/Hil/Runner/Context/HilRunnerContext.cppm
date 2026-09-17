@@ -101,7 +101,6 @@ struct HilRunContext {
 
     std::float64_t commanded_rpm = 0.0;
     std::float64_t last_effective_rpm = 0.0;
-    std::float64_t safe_rpm = 0.0;
 
     bool fault_expected = false;
     bool aborted_on_deadline = false;
