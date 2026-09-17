@@ -47,8 +47,8 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 /* Holds at 10 m before injecting the permanent FC1 failure. */
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
-    runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure at 10 m, injected at t = 70.0 s");
-    const FaultScenario scenario = make_sil_fault("FAULT_INJECTOR-001", 70.0, 0.0);
+    runner.begin_scenario("FAULT_INJECTOR-001", "FC1 failure at 10 m, injected at t = 40.0 s");
+    const FaultScenario scenario = make_sil_fault("FAULT_INJECTOR-001", 40.0, 0.0);
     const std::array<FaultScenario, 1> scenarios{scenario};
 
     sim::sil::SilConfig config{};

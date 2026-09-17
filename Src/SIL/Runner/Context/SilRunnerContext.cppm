@@ -45,7 +45,6 @@ struct SilConfig {
     std::float64_t                 heartbeat_timeout_s = 0.10;
     std::float64_t                 actuator_mismatch_rpm = 60.0;
     std::float64_t                 thrust_compensation_margin = 1.7;
-    std::float64_t                 safe_descent_rpm_rate = 4000.0;
     SensorValidationLimits         sensor_limits{};
     std::uint64_t                  seed = 42;
     std::float64_t                 transport_latency_s = 0.004;
@@ -103,7 +102,6 @@ struct RunContext {
     std::float64_t                                      last_fault_start = 0.0;
     std::float64_t                                      commanded_rpm = 0.0;
     std::float64_t                                      last_effective_rpm = 0.0;
-    std::float64_t                                      safe_rpm = 0.0;
     std::float64_t                                      time = 0.0;
     std::float64_t                                      mission_end_time = -1.0;
     std::float64_t                                      position_error_sum = 0.0;
