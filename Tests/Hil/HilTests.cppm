@@ -10,6 +10,9 @@ All rights reserved.
 
 export module HilTests;
 
+import std;
+
+import HilConfig;
 import TestHarness;
 
 export namespace sim::test::hil {
@@ -26,5 +29,14 @@ namespace sim::test::hil {
 
 /* Transport-layer protocol tests (module-internal, driven by run_protocol_tests). */
 void run_transport_tests(sim::test::TestHarness& runner);
+
+/* Scenario configuration helper (module-internal, shared by the HIL test units). */
+sim::hil::HilConfig test_config(std::string_view id, std::float64_t duration_s);
+
+/* Wind disturbance tests (module-internal, driven by run_runner_tests). */
+void test_wind(sim::test::TestHarness& runner);
+
+/* FC2 supervision rearm tests (module-internal, driven by run_fault_tests). */
+void test_supervision_rearm(sim::test::TestHarness& runner);
 
 }

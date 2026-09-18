@@ -14,7 +14,8 @@ Exports:
     struct FunctionalScenario,
     functional_scenario_count,
     functional_scenarios(),
-    find_functional_scenario()
+    find_functional_scenario(),
+    nominal/fault/wind scenario counts and catalog accessors
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -82,7 +83,16 @@ struct FunctionalScenario {
 };
 
 /* Number of scenarios held by the shared registry (compile-time constant). */
-constexpr std::size_t functional_scenario_count = 11;
+export constexpr std::size_t functional_scenario_count = 11;
+
+/* Number of nominal-mission scenarios held by the nominal catalog. */
+export constexpr std::size_t nominal_scenario_count = 7;
+
+/* Number of fault-injection scenarios held by the fault catalog. */
+export constexpr std::size_t fault_scenario_count = 2;
+
+/* Number of wind-disturbance scenarios held by the wind catalog. */
+export constexpr std::size_t wind_scenario_count = 2;
 
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;
 
@@ -91,5 +101,20 @@ Resolves a functional scenario by its standardised ID (NOMINAL-xxx,
 FAULT_INJECTOR-xxx, WIND-xxx); returns nullptr when the ID is unknown.
 */
 [[nodiscard]] const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept;
+
+}
+
+namespace sim::test {
+
+/*
+Catalog accessors shared by the FunctionalScenarios-*.cpp implementation units
+(module-internal, not exported to importers). The registry assembly concatenates
+these catalogs in a stable order: nominal first, then fault injection, then wind.
+*/
+[[nodiscard]] const std::array<FunctionalScenario, nominal_scenario_count>& nominal_scenarios() noexcept;
+
+[[nodiscard]] const std::array<FunctionalScenario, fault_scenario_count>& fault_scenarios() noexcept;
+
+[[nodiscard]] const std::array<FunctionalScenario, wind_scenario_count>& wind_scenarios() noexcept;
 
 }
