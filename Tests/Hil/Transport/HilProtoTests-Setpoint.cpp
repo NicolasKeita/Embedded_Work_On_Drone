@@ -60,9 +60,11 @@ namespace {
     /* Rejects malformed setpoint values before either FC implementation uses them. */
     void test_invalid_control_setpoint(sim::test::TestHarness& runner)
     {
+        using Setpoint = FlightCore::Transport::HilControlSetpoint;
+
         const std::float32_t nan = std::numeric_limits<std::float32_t>::quiet_NaN();
         const std::float32_t infinity = std::numeric_limits<std::float32_t>::infinity();
-        const std::array<FlightCore::Transport::HilControlSetpoint, 6> invalid{{
+        const std::array<Setpoint, 6> invalid{{
             {.target_x_m = nan},
             {.target_y_m = infinity},
             {.target_z_m = nan},
