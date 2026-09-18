@@ -38,17 +38,24 @@ namespace {
         return scenarios;
     }
 
-    const std::array<FunctionalScenario, functional_scenario_count> kScenarios = assemble_scenarios();
+    /* Registry storage of the assembled catalogs, initialized on first use. */
+    const std::array<FunctionalScenario, functional_scenario_count>* registry_storage() noexcept
+    {
+        static const std::array<FunctionalScenario, functional_scenario_count> kScenarios =
+            assemble_scenarios();
+
+        return &kScenarios;
+    }
 }
 
 std::span<const FunctionalScenario> functional_scenarios() noexcept
 {
-    return kScenarios;
+    return std::span<const FunctionalScenario>{*registry_storage()};
 }
 
 const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept
 {
-    for (const FunctionalScenario& scenario : kScenarios) {
+    for (const FunctionalScenario& scenario : *registry_storage()) {
         if (scenario.id == id) {
             return &scenario;
         }
