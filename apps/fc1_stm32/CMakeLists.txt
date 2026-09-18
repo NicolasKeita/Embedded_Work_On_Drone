@@ -9,6 +9,11 @@ set(FIRMWARE_NAME fc1_stm32)
 set(FIRMWARE_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 set(FIRMWARE_CORE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware-State.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware-InterFc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware-Control.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware-Respond.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc1Firmware-Run.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Simulation/Aircraft.cppm

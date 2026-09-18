@@ -9,6 +9,12 @@ set(FIRMWARE_NAME fc2_stm32)
 set(FIRMWARE_MAIN "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
 set(FIRMWARE_CORE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware.cppm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-Boot.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-Convert.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-InterFc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-Safety.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-Process.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Fc2Firmware-Run.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cppm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Embedded/Status/StatusLed.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Src/Simulation/Aircraft.cppm
