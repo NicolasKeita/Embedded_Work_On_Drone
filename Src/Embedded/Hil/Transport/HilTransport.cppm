@@ -22,7 +22,6 @@ import Transport;
 export namespace sim::hil {
 
 enum class FrameAcceptanceError : std::uint8_t { NotActuatorFrame };
-
 using FlightCore::Transport::ActuatorDiagnostics;
 
 /* Reception outcome of one actuator frame on the HIL bench transport (never an aircraft failure mode). */
@@ -108,8 +107,7 @@ private:
 
 /* Encodes and sends one ActuatorPacket frame on the channel (host FC target helper). */
 [[nodiscard]] bool send_actuator_frame(FlightCore::Transport::ITransport& channel,
-                                       const FlightCore::HAL::ActuatorCommands& cmds,
-                                       std::uint64_t echo_sim_ts_us,
+                                       const FlightCore::HAL::ActuatorCommands& cmds, std::uint64_t echo_sim_ts_us,
                                        const FlightCore::Transport::ActuatorDiagnostics& diagnostics,
                                        std::uint16_t sequence) noexcept;
 

@@ -48,8 +48,9 @@ void Aircraft::update_attitude(std::float64_t dt)
 }
 
 /*
-Translation: vertical force balance (lift vs weight), attitude-induced horizontal
-accelerations and a simplified linear wind disturbance (0.08 / s), then explicit Euler integration. Ground contact locked at z = 0.
+Translation: vertical force balance (lift vs weight), attitude-induced horizontal accelerations
+and a simplified linear wind disturbance (0.08 / s), then explicit Euler integration. Ground
+contact locked at z = 0.
 */
 void Aircraft::update_translation(std::float64_t dt)
 {

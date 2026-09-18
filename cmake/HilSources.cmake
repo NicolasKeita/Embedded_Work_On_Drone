@@ -120,6 +120,7 @@ set(HIL_RUNNER_FILES
     Src/Embedded/Hil/Runner/HilRunner-Finalize.cpp
     Src/Embedded/Hil/Runner/HilRunner-Metrics.cpp
     Src/Embedded/Hil/Runner/HilRunner-Loop.cpp
+    Src/Embedded/Hil/Runner/HilRunner-Run.cpp
     Src/Embedded/Hil/Runner/HilRunner-Inject.cpp
     Src/Embedded/Hil/Runner/HilRunner-Step.cpp
 )
