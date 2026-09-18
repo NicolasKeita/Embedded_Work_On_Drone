@@ -25,13 +25,11 @@ namespace sim::test::hil {
 namespace {
     using MissionState = sim::control::MissionState;
 
-    /* Changes the wire setpoint during one control session without resetting the FC. */
-    void test_dynamic_setpoint(sim::test::TestHarness& runner)
-    {
+    struct DynamicSession {
         FlightCore::Sim::LoopbackTransport channel{};
         sim::hil::HilTransport transport{&channel};
         sim::hil::MonotonicClock clock{};
-        const sim::hil::HostFcTargetConfig config{
+        sim::hil::HostFcTargetConfig config{
             .controller{
                 .hover_rpm = Aircraft{}.hover_rpm(),
                 .spin_up_seconds = 0.01,
@@ -50,21 +48,43 @@ namespace {
             .target_z_m = 10.0f,
             .station_hold_seconds = 120.0f,
         };
+        std::uint64_t sensor_send_wall_us = 0;
+    };
+
+    /* Sends one sensor sample with the setpoint active at the given step. */
+    bool send_step(DynamicSession& session, std::uint16_t step)
+    {
+        session.sensor.timestamp_us = static_cast<std::uint64_t>(step) * 10000u;
+        session.setpoint.target_z_m = step >= 5 ? 30.0f : 10.0f;
+        session.sensor_send_wall_us = session.clock.nowUs();
+        return session.transport.sendSensor(session.sensor, step, session.setpoint);
+    }
+
+    /* Decodes the actuator answer of the given step into the output bundle. */
+    sim::hil::ReceiveResult receive_step(DynamicSession& session, std::uint16_t step,
+                                         FlightCore::HAL::ActuatorCommands& commands,
+                                         FlightCore::Transport::ActuatorDiagnostics& diagnostics,
+                                         std::int64_t& rtt)
+    {
+        return session.transport.receiveActuator(
+            session.clock, session.clock.nowUs() + 50000,
+            sim::hil::ActuatorExpectations{step, session.sensor.timestamp_us, session.sensor_send_wall_us},
+            sim::hil::ActuatorReceiveOutputs{commands, diagnostics, rtt});
+    }
+
+    /* Changes the wire setpoint during one control session without resetting the FC. */
+    void test_dynamic_setpoint(sim::test::TestHarness& runner)
+    {
+        DynamicSession session{};
         std::float32_t hover_command = 0.0f;
         for (std::uint16_t step = 0; step < 7; ++step) {
-            sensor.timestamp_us = static_cast<std::uint64_t>(step) * 10000u;
-            setpoint.target_z_m = step >= 5 ? 30.0f : 10.0f;
-            const std::uint64_t sent = clock.nowUs();
-            runner.check(transport.sendSensor(sensor, step, setpoint), "dynamic setpoint sent");
-            const sim::hil::FcStepOutcome response = target.respond(step);
-            runner.check(response.ok, "same FC instance accepts the updated setpoint");
             FlightCore::HAL::ActuatorCommands commands{};
             FlightCore::Transport::ActuatorDiagnostics diagnostics{};
             std::int64_t rtt = 0;
-            const auto received =
-                transport.receiveActuator(clock, clock.nowUs() + 50000,
-                                          sim::hil::ActuatorExpectations{step, sensor.timestamp_us, sent},
-                                          sim::hil::ActuatorReceiveOutputs{commands, diagnostics, rtt});
+            runner.check(send_step(session, step), "dynamic setpoint sent");
+            const sim::hil::FcStepOutcome response = session.target.respond(step);
+            runner.check(response.ok, "same FC instance accepts the updated setpoint");
+            const sim::hil::ReceiveResult received = receive_step(session, step, commands, diagnostics, rtt);
             runner.check(received == sim::hil::ReceiveResult::Ok, "dynamic control response decoded");
             if (step == 4) {
                 hover_command = commands.wing_rpm_cmd;

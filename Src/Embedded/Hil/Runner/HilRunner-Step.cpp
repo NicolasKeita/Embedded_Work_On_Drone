@@ -54,8 +54,8 @@ namespace {
         const ActuatorReceiveOutputs outputs{.commands = ctx.actuator_cmd,
                                               .diagnostics = diag,
                                               .round_trip_us = ctx.this_rtt_us};
-        const ReceiveResult result =
-            ctx.transport.receiveActuator(ctx.clock, ctx.next_deadline_us, expectations, outputs);
+        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, ctx.next_deadline_us,
+                                                                 expectations, outputs);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
             ctx.actuator_diagnostics = diag;
@@ -92,8 +92,7 @@ void exchange_actuators(HilRunContext& ctx)
     ctx.last_sensor_data = wire;
 
     const std::uint16_t sequence = static_cast<std::uint16_t>(ctx.step);
-    const std::uint64_t sensor_send_wall = ctx.clock.nowUs();
-    ctx.sensor_send_wall_us = sensor_send_wall;
+    ctx.sensor_send_wall_us = ctx.clock.nowUs();
     ctx.actuator_receive_wall_us = 0;
     const FlightCore::Transport::HilControlSetpoint setpoint{
         .target_x_m = static_cast<std::float32_t>(ctx.config.target.x),
@@ -114,7 +113,7 @@ void exchange_actuators(HilRunContext& ctx)
         ctx.transport.noteTimeoutFrame();
         return;
     }
-    receive_actuator_answer(ctx, sequence, sensor_send_wall);
+    receive_actuator_answer(ctx, sequence, ctx.sensor_send_wall_us);
 }
 
 }
