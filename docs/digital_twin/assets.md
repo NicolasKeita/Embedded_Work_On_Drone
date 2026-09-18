@@ -90,6 +90,11 @@ An AI coding agent can generate this geometry directly from React Three Fiber pr
 
 ## État du dépôt
 
+Une [maquette visuelle X721](x721_model.md) est disponible séparément, avec trois
+GLB (deux ailes, trois ailes, aile isolée), une source procédurale modifiable et
+un studio local sous `/models/x721`. Elle prépare un remplacement ultérieur ;
+les modèles actifs du simulateur restent conservés.
+
 Les modèles utilisés et disponibles sont sous
 [public/models](../../digital-twin-viewer/public/models/). Les scènes sont dans
 [components](../../digital-twin-viewer/components/), notamment les vues aéronef,
