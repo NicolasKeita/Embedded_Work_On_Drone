@@ -16,6 +16,7 @@ import FlightControllerTypes;
 import HalTypes;
 import HilClock;
 import HilFcTarget;
+import HilProtocol;
 import HilTransport;
 import LoopbackTransport;
 import TestHarness;

@@ -213,7 +213,7 @@ set(TEST_HIL_FILES
     Tests/Hil/HilTests-Runner.cpp
     Tests/Hil/HilTests-Wind.cpp
     Tests/Hil/HilTests-Timing.cpp
-    Tests/Hil/HilTests-Health.cpp
+    Tests/Hil/Health/HilTests-Health.cpp
     Tests/Hil/Transport/HilProtoTests.cppm
     Tests/Hil/Transport/HilProtoTests-InterFc.cpp
     Tests/Hil/Transport/HilProtoTests-Setpoint.cpp

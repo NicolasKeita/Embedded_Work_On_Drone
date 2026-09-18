@@ -83,16 +83,16 @@ struct FunctionalScenario {
 };
 
 /* Number of scenarios held by the shared registry (compile-time constant). */
-export constexpr std::size_t functional_scenario_count = 11;
+constexpr std::size_t functional_scenario_count = 11;
 
 /* Number of nominal-mission scenarios held by the nominal catalog. */
-export constexpr std::size_t nominal_scenario_count = 7;
+constexpr std::size_t nominal_scenario_count = 7;
 
 /* Number of fault-injection scenarios held by the fault catalog. */
-export constexpr std::size_t fault_scenario_count = 2;
+constexpr std::size_t fault_scenario_count = 2;
 
 /* Number of wind-disturbance scenarios held by the wind catalog. */
-export constexpr std::size_t wind_scenario_count = 2;
+constexpr std::size_t wind_scenario_count = 2;
 
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;
 

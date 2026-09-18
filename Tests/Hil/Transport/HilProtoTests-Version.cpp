@@ -12,6 +12,7 @@ module HilProtoTests;
 import std;
 
 import HilProtocolCodec;
+import HilProtocol;
 import HilProtocolParser;
 import TestHarness;
 

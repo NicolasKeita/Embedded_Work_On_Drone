@@ -13,6 +13,7 @@ import std;
 
 import FlightControllerTypes;
 import SilFaultScenario;
+import Telemetry;
 
 namespace sim::test {
 

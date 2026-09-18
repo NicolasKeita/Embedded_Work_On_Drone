@@ -14,6 +14,7 @@ import std;
 import HalTypes;
 import HilProtocol;
 import HilProtocolCodec;
+import HilProtocolParser;
 import HilTransport;
 import LoopbackTransport;
 import TestHarness;
