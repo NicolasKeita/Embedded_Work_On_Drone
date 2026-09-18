@@ -23,9 +23,9 @@ namespace fc2 {
 namespace {
     /* Consumes pending FC1 messages and refreshes the supervised link state. */
     void poll_inter_fc_messages(FlightCore::InterFc::IInterFcTransport& transport,
-                                Fc2Health& health,
-                                FlightCore::InterFc::NodeState node_state,
-                                FlightCore::InterFc::DetectionCode detection) noexcept
+                                Fc2Health&                              health,
+                                FlightCore::InterFc::NodeState          node_state,
+                                FlightCore::InterFc::DetectionCode      detection) noexcept
     {
         while (true) {
             const auto received = transport.poll();
@@ -63,10 +63,10 @@ namespace {
 }
 
 void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
-                           Fc2Health& health,
-                           FlightCore::InterFc::NodeState node_state,
-                           FlightCore::InterFc::DetectionCode detection,
-                           std::int64_t& last_report_ms) noexcept
+                           Fc2Health&                              health,
+                           FlightCore::InterFc::NodeState          node_state,
+                           FlightCore::InterFc::DetectionCode      detection,
+                           std::int64_t&                           last_report_ms) noexcept
 {
     poll_inter_fc_messages(transport, health, node_state, detection);
     const std::int64_t now_ms = k_uptime_get();
@@ -81,9 +81,10 @@ void service_inter_fc_link(FlightCore::InterFc::IInterFcTransport& transport,
 
 /* Reports FC2 raw-byte and validated-frame diagnostics for the USART3 adapter. */
 void report_inter_fc_transport(const FlightCore::InterFc::ZephyrUartInterFcTransport& transport,
-                               std::int64_t& last_transport_report_ms) noexcept
+                               std::int64_t&                                          last_transport_report_ms) noexcept
 {
     const std::int64_t now_ms = k_uptime_get();
+
     if (now_ms - last_transport_report_ms >= kLinkReportPeriodMs) {
         printk("[INTERFC-RX] role=FC2 bytes=%u valid_frames=%u\n",
                static_cast<unsigned int>(transport.received_byte_count()),

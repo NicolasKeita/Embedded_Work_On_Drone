@@ -57,7 +57,7 @@ extern FlightCore::Status::StatusLed status_led;
 
 /* Hardware channels of one FC1 unit: HIL console UART and inter-FC USART. */
 struct Fc1Links {
-    const device* uart = nullptr;
+    const device*                           uart = nullptr;
     FlightCore::InterFc::IInterFcTransport* inter_fc_transport = nullptr;
 };
 
@@ -65,9 +65,9 @@ struct Fc1Links {
 struct Fc1Control {
     sim::control::FlightController controller{sim::control::ControllerConfig{
         .hover_rpm = kNominalAircraftHoverRpm}};
-    sim::control::TargetState current_setpoint{};
-    FlightCore::Transport::HilFrameParser parser{};
-    FlightCore::Transport::HilHeader header{};
+    sim::control::TargetState                                    current_setpoint{};
+    FlightCore::Transport::HilFrameParser                        parser{};
+    FlightCore::Transport::HilHeader                             header{};
     std::array<std::uint8_t, FlightCore::Transport::kMaxPayload> payload{};
 };
 

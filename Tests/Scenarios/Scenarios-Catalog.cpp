@@ -29,6 +29,7 @@ their single definition.
 std::string_view shared_description(std::string_view id)
 {
     const FunctionalScenario* shared = find_functional_scenario(id);
+
     return shared != nullptr ? shared->description : std::string_view{};
 }
 

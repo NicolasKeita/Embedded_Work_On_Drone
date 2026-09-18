@@ -27,8 +27,8 @@ private:
     std::int64_t last_activity_ms_ = -1;
     std::int64_t pattern_started_ms_ = 0;
     std::uint8_t mode_ = 0;
-    bool initialized_ = false;
-    bool illuminated_ = false;
+    bool         initialized_ = false;
+    bool         illuminated_ = false;
 };
 
 }

@@ -21,7 +21,7 @@ namespace FlightCore::Transport
 
 /* Combines sensor measurements with the runner setpoint configuration. */
 HilSensorPayload makeSensorPayload(const FlightCore::HAL::SensorData& sensor,
-                                    const HilControlSetpoint& setpoint) noexcept
+                                   const HilControlSetpoint&          setpoint) noexcept
 {
     return HilSensorPayload{
         .sim_timestamp_us   = sensor.timestamp_us,

@@ -57,8 +57,8 @@ private:
     void execute(HilRunContext& ctx);
     static void finalize(HilRunContext& ctx);
 
-    HilConfig     config_;
-    std::ostream* live_out_ = nullptr;
+    HilConfig                         config_;
+    std::ostream*                     live_out_ = nullptr;
     const volatile std::sig_atomic_t* stop_requested_ = nullptr;
 };
 

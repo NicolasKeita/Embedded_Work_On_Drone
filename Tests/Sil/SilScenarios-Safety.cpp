@@ -43,6 +43,7 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-003");
+
     runner.begin_scenario(shared.id, shared.description);
     const FaultScenario scenario = make_sil_fault(shared.id, 20.0, 10.0);
     const std::array<FaultScenario, 1> scenarios{scenario};

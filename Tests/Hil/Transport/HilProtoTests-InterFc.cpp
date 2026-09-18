@@ -20,7 +20,7 @@ namespace {
     /* Verifies that the inter-FC status and its CRC survive a complete frame round trip. */
     void test_inter_fc_status(sim::test::TestHarness& runner)
     {
-        const FlightCore::InterFc::Message status{
+        const FlightCore::InterFc::Message           status{
             .kind = FlightCore::InterFc::MessageKind::Status,
             .sequence = 42,
             .state = FlightCore::InterFc::NodeState::Safe,

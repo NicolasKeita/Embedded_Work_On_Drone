@@ -10,9 +10,9 @@ module;
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/drivers/uart.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
-#include <zephyr/drivers/uart.h>
 
 module Fc2Firmware;
 
@@ -68,8 +68,7 @@ namespace {
             reset_supervision(session.health);
         }
         session.node_state = evaluate_fc1_health(session.health, session.detection);
-        publish_fc2_status(boot.inter_fc_transport, session.node_state, session.detection,
-                          session.last_status_ms);
+        publish_fc2_status(boot.inter_fc_transport, session.node_state, session.detection, session.last_status_ms);
         report_inter_fc_transport(boot.inter_fc_transport, session.last_transport_report_ms);
         update_status_led(session.node_state, session.detection);
         std::uint8_t byte = 0;
@@ -91,6 +90,7 @@ namespace {
 export int run_fc2_firmware()
 {
     const auto led_initialized = status_led.initialize();
+
     if (!led_initialized.has_value()) {
         printk("[LED] initialization failed: %d\n", led_initialized.error());
     }

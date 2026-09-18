@@ -26,6 +26,7 @@ void stratosphere_climb(TestHarness&                  runner,
                         const sim::PhysicsDispersion& dispersion)
 {
     const sim::test::FunctionalScenario& scenario = *sim::test::find_functional_scenario("NOMINAL-017");
+
     runner.begin_scenario(scenario.id, scenario.description);
     runner.log_header();
 

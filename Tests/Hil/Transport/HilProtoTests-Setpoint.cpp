@@ -25,15 +25,16 @@ namespace {
     /* Exercises the control setpoint through the real sensor transport and parser. */
     void test_control_setpoint(sim::test::TestHarness& runner)
     {
-        FlightCore::Sim::LoopbackTransport channel{};
-        sim::hil::HilTransport transport{&channel};
-        const FlightCore::HAL::SensorData sensor{.timestamp_us = 1234};
+        FlightCore::Sim::LoopbackTransport              channel{};
+        sim::hil::HilTransport                          transport{&channel};
+        const FlightCore::HAL::SensorData               sensor{.timestamp_us = 1234};
         const FlightCore::Transport::HilControlSetpoint setpoint{
             .target_x_m = 4.0f,
             .target_y_m = -3.0f,
             .target_z_m = 30.0f,
             .station_hold_seconds = 120.0f,
         };
+
         runner.check(transport.sendSensor(sensor, 42, setpoint), "control setpoint sent");
         FlightCore::Transport::HilFrameParser parser{};
         FlightCore::Transport::HilHeader header{};

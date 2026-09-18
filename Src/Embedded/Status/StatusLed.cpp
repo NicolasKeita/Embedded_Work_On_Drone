@@ -8,8 +8,8 @@ All rights reserved.
 
 module;
 
-#include <zephyr/drivers/gpio.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/drivers/gpio.h>
 
 module StatusLed;
 

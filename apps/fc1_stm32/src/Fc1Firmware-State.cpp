@@ -33,6 +33,7 @@ void update_status_led() noexcept
         || inter_fc.remote_state == static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Degraded)
         || inter_fc.remote_state == static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Safe)
         || inter_fc.remote_detection != static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
+
     static_cast<void>(status_led.update(now_ms, led_fault));
 }
 

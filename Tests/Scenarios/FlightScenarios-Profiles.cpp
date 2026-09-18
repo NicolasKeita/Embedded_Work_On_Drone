@@ -33,6 +33,7 @@ void run_low_flight_profile(TestHarness&                  runner,
                             std::string_view              id)
 {
     const sim::test::FunctionalScenario& profile = *sim::test::find_functional_scenario(id);
+
     runner.begin_scenario(profile.id, profile.description);
     runner.log_header();
 

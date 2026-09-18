@@ -12,8 +12,8 @@ import std;
 
 import FlightControllerTypes;
 import HealthMonitor;
-import HilEvents;
 import HilConfig;
+import HilEvents;
 import HilRunnerContext;
 import HilTelemetry;
 import SafetyManager;

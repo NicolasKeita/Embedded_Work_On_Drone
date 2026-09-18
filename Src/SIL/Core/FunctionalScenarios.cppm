@@ -112,9 +112,7 @@ Catalog accessors shared by the FunctionalScenarios-*.cpp implementation units
 these catalogs in a stable order: nominal first, then fault injection, then wind.
 */
 [[nodiscard]] const std::array<FunctionalScenario, nominal_scenario_count>& nominal_scenarios() noexcept;
-
 [[nodiscard]] const std::array<FunctionalScenario, fault_scenario_count>& fault_scenarios() noexcept;
-
 [[nodiscard]] const std::array<FunctionalScenario, wind_scenario_count>& wind_scenarios() noexcept;
 
 }

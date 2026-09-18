@@ -35,8 +35,7 @@ void reset_embedded_supervision(HilRunContext& ctx)
     const AircraftState reset_truth = ctx.aircraft.state();
     const sim::sil::SensorTelemetry reset_telemetry = ctx.sensor_model.sample(reset_truth);
     const sim::sil::SensorValidity reset_validity = sim::sil::validate(reset_telemetry, ctx.config.sensor_limits);
-    const FlightCore::HAL::SensorData reset_sensor =
-        to_sensor_data(reset_telemetry, 0, reset_truth, reset_validity);
+    const FlightCore::HAL::SensorData reset_sensor = to_sensor_data(reset_telemetry, 0, reset_truth, reset_validity);
     const FlightCore::Transport::HilControlSetpoint setpoint{
         .target_x_m = static_cast<std::float32_t>(ctx.config.target.x),
         .target_y_m = static_cast<std::float32_t>(ctx.config.target.y),

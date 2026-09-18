@@ -22,13 +22,14 @@ import SafetyManager;
 
 namespace fc2 {
 
-FlightCore::InterFc::NodeState evaluate_fc1_health(Fc2Health& health,
+FlightCore::InterFc::NodeState evaluate_fc1_health(Fc2Health&                          health,
                                                    FlightCore::InterFc::DetectionCode& detection) noexcept
 {
-    const std::float64_t now = static_cast<std::float64_t>(k_uptime_get()) / 1000.0;
+    const std::float64_t          now = static_cast<std::float64_t>(k_uptime_get()) / 1000.0;
     const sim::safety::SafetyMode previous_mode = health.safety.mode();
     const sim::safety::HealthReport report =
         health.monitor.evaluate(now, health.supervision, health.telemetry, health.commanded_rpm);
+
     static_cast<void>(health.safety.update(now, report));
     const FlightCore::InterFc::NodeState node_state = to_node_state(health.safety.mode());
     inter_fc.node_state = static_cast<std::uint8_t>(node_state);
@@ -45,11 +46,12 @@ FlightCore::InterFc::NodeState evaluate_fc1_health(Fc2Health& health,
 }
 
 void publish_fc2_status(FlightCore::InterFc::IInterFcTransport& transport,
-                        FlightCore::InterFc::NodeState node_state,
-                        FlightCore::InterFc::DetectionCode detection,
-                        std::int64_t& last_status_ms) noexcept
+                        FlightCore::InterFc::NodeState          node_state,
+                        FlightCore::InterFc::DetectionCode      detection,
+                        std::int64_t&                           last_status_ms) noexcept
 {
     const std::int64_t now_ms = k_uptime_get();
+
     if (now_ms - last_status_ms < kStatusPeriodMs) {
         return;
     }

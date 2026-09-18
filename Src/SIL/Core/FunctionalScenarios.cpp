@@ -16,9 +16,9 @@ namespace sim::test {
 
 namespace {
     /* Copies one catalog into the assembled registry starting at the given index. */
-    std::size_t append_catalog(std::span<FunctionalScenario> scenarios,
+    std::size_t append_catalog(std::span<FunctionalScenario>       scenarios,
                                std::span<const FunctionalScenario> catalog,
-                               std::size_t index)
+                               std::size_t                         index)
     {
         for (const FunctionalScenario& scenario : catalog) {
             scenarios[index] = scenario;
@@ -31,7 +31,8 @@ namespace {
     std::array<FunctionalScenario, functional_scenario_count> assemble_scenarios()
     {
         std::array<FunctionalScenario, functional_scenario_count> scenarios{{}};
-        std::size_t index = 0;
+        std::size_t                                               index = 0;
+
         index = append_catalog(scenarios, nominal_scenarios(), index);
         index = append_catalog(scenarios, fault_scenarios(), index);
         static_cast<void>(append_catalog(scenarios, wind_scenarios(), index));

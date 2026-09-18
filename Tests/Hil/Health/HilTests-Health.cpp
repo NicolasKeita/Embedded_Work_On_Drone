@@ -32,18 +32,15 @@ void test_supervision_rearm(sim::test::TestHarness& runner)
         .initial_heartbeat_timeout_s = initial_timeout_s,
     }};
 
-    const sim::safety::HealthReport stale_report =
-        monitor.evaluate_link(reset_time_s, supervision);
-    runner.check(stale_report.state == sim::safety::HealthState::SAFE,
-                 "stale initial-heartbeat window has expired");
+    const sim::safety::HealthReport stale_report = monitor.evaluate_link(reset_time_s, supervision);
+    runner.check(stale_report.state == sim::safety::HealthState::SAFE, "stale initial-heartbeat window has expired");
 
     monitor = sim::safety::HealthMonitor{sim::safety::HealthMonitorConfig{
         .initial_heartbeat_timeout_s = initial_timeout_s,
     }};
     sim::safety::rearm_link_supervision(supervision, reset_time_s);
 
-    const sim::safety::HealthReport grace_report =
-        monitor.evaluate_link(reset_time_s + initial_timeout_s, supervision);
+    const sim::safety::HealthReport grace_report = monitor.evaluate_link(reset_time_s + initial_timeout_s, supervision);
     runner.check(grace_report.state == sim::safety::HealthState::HEALTHY,
                  "rearm grants the complete initial-heartbeat window");
 

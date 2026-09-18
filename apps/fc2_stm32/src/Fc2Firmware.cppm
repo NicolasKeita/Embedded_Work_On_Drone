@@ -48,8 +48,8 @@ extern FlightCore::Status::StatusLed status_led;
 /* Hardware handles of a booted FC2 unit. */
 struct Fc2Boot {
     FlightCore::InterFc::ZephyrUartInterFcTransport inter_fc_transport{nullptr};
-    const device* uart = nullptr;
-    bool ready = false;
+    const device*                                   uart = nullptr;
+    bool                                            ready = false;
 };
 
 /* Configures the HIL console UART and the inter-FC USART of the FC2 unit. */
@@ -64,7 +64,7 @@ Health and safety supervision state of one FC2 run: the monitored link, the shar
 HealthMonitor/SafetyManager cores, the monitoring sample and the supervision reset.
 */
 struct Fc2Health {
-    sim::safety::LinkSupervision&  supervision;
+    sim::safety::LinkSupervision& supervision;
     sim::safety::HealthMonitor&   monitor;
     sim::safety::SafetyManager&   safety;
     sim::sil::SensorTelemetry&    telemetry;

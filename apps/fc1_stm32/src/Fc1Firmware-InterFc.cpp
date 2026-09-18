@@ -23,7 +23,7 @@ namespace fc1 {
 namespace {
     /* Consumes pending inter-FC messages and refreshes the remote supervision state. */
     void poll_inter_fc_messages(FlightCore::InterFc::IInterFcTransport& transport,
-                               std::int64_t now_ms) noexcept
+                                std::int64_t                            now_ms) noexcept
     {
         while (true) {
             const auto received = transport.poll();
@@ -45,11 +45,12 @@ namespace {
 }
 
 void service_inter_fc_link(const Fc1Links& links,
-                           bool heartbeat_suppressed,
-                           std::int64_t& last_heartbeat_ms,
-                           std::int64_t& last_report_ms) noexcept
+                           bool            heartbeat_suppressed,
+                           std::int64_t&   last_heartbeat_ms,
+                           std::int64_t&   last_report_ms) noexcept
 {
     const std::int64_t now_ms = k_uptime_get();
+
     if (!heartbeat_suppressed && now_ms - last_heartbeat_ms >= kHeartbeatPeriodMs) {
         const FlightCore::InterFc::Message heartbeat{
             .kind = FlightCore::InterFc::MessageKind::Heartbeat,

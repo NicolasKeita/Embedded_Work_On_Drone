@@ -18,8 +18,8 @@ import SafetyManager;
 import SilEvents;
 import SilReporting;
 import SilRunner;
-import SilTypes;
 import SilTelemetry;
+import SilTypes;
 import Telemetry;
 import TestHarness;
 
@@ -50,6 +50,7 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-001");
+
     runner.begin_scenario(shared.id, shared.description);
     const FaultScenario scenario = make_sil_fault(shared.id, 40.0, 0.0);
     const std::array<FaultScenario, 1> scenarios{scenario};

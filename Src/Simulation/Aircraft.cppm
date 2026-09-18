@@ -71,8 +71,8 @@ private:
     void update_attitude(std::float64_t dt);
     void update_translation(std::float64_t dt);
 
-    std::float64_t wind_x_mps_ = 0.0;
-    std::float64_t wind_y_mps_ = 0.0;
+    std::float64_t         wind_x_mps_ = 0.0;
+    std::float64_t         wind_y_mps_ = 0.0;
     AircraftState          state_{};
     ControlCommand         command_{};
     sim::PhysicsDispersion dispersion_{};

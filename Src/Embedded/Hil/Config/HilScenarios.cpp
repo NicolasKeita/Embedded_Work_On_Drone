@@ -78,7 +78,7 @@ HilScenarioRecord make_hil_record(const sim::test::FunctionalScenario& shared)
 std::array<HilScenarioRecord, sim::test::functional_scenario_count> build_hil_scenarios()
 {
     std::array<HilScenarioRecord, sim::test::functional_scenario_count> records{};
-    const std::span<const sim::test::FunctionalScenario> shared = sim::test::functional_scenarios();
+    const std::span<const sim::test::FunctionalScenario>                shared = sim::test::functional_scenarios();
 
     for (std::size_t index = 0; index < records.size(); ++index) {
         records[index] = make_hil_record(shared[index]);

@@ -11,8 +11,8 @@ module HilProtoTests;
 
 import std;
 
-import HilProtocolCodec;
 import HilProtocol;
+import HilProtocolCodec;
 import HilProtocolParser;
 import TestHarness;
 
@@ -23,7 +23,8 @@ namespace {
     void test_protocol_version(sim::test::TestHarness& runner)
     {
         const auto payload = FlightCore::Transport::makeSensorPayload({}, {});
-        auto frame = FlightCore::Transport::encodeSensorFrame(payload, 0);
+        auto       frame = FlightCore::Transport::encodeSensorFrame(payload, 0);
+
         frame[3] = 0x10;
         const std::uint16_t crc = FlightCore::Transport::HilCrc::compute(
             std::span<const std::uint8_t>{frame.data(), frame.size() - 2});

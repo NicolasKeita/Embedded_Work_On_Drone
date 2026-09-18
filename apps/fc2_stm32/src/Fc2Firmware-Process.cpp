@@ -10,8 +10,8 @@ All rights reserved.
 module;
 
 #include <zephyr/device.h>
-#include <zephyr/kernel.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/kernel.h>
 
 module Fc2Firmware;
 
@@ -30,12 +30,13 @@ void send_frame(const device* uart, std::span<const std::uint8_t> frame) noexcep
     }
 }
 
-void process_sensor(const device* uart,
-                    Fc2Health& health,
+void process_sensor(const device*                           uart,
+                    Fc2Health&                              health,
                     const FlightCore::Transport::HilHeader& header,
-                    std::span<const std::uint8_t> payload) noexcept
+                    std::span<const std::uint8_t>           payload) noexcept
 {
     FlightCore::Transport::HilSensorPayload sensor_payload{};
+
     if (!FlightCore::Transport::decodeSensorPayload(payload, sensor_payload)) {
         return;
     }

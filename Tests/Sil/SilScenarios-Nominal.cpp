@@ -30,6 +30,7 @@ std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> sc
 void nominal_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRecord& record)
 {
     const sim::test::FunctionalScenario& scenario = *sim::test::find_functional_scenario("NOMINAL-001");
+
     runner.begin_scenario(scenario.id, scenario.description);
     const FaultScenario fault{};
     const std::array<FaultScenario, 1> scenarios{fault};

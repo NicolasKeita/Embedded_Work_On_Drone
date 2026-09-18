@@ -10,10 +10,10 @@ module;
 
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
+#include <zephyr/drivers/uart.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <zephyr/sys/ring_buffer.h>
-#include <zephyr/drivers/uart.h>
 
 module Fc1Firmware;
 
@@ -55,9 +55,9 @@ namespace {
     /* Configures the HIL console UART (interrupt reception) and the inter-FC USART. */
     Fc1Boot boot_fc1_hardware()
     {
-        Fc1Boot boot{.uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console))};
-
+        Fc1Boot       boot{.uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console))};
         const device* inter_fc_uart = DEVICE_DT_GET(DT_NODELABEL(usart3));
+
         boot.inter_fc_transport = FlightCore::InterFc::ZephyrUartInterFcTransport{inter_fc_uart};
         inter_fc.startup_state = 1;
         if (!device_is_ready(boot.uart)) {

@@ -45,8 +45,7 @@ constexpr std::array<BriefEntry, 2> kBriefs{{
      "              t = 20 s to t = 30 s.\n"
      "  Outcome   : The bad reading must be rejected within 0.5 s; the drone\n"
      "              drops to a degraded but still-flying state with thrust\n"
-     "              compensation. The mission is NOT aborted."},
-}};
+     "              compensation. The mission is NOT aborted."}, }};
 
 }
 

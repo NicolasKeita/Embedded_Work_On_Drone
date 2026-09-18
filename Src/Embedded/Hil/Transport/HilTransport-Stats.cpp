@@ -39,8 +39,9 @@ void HilCommStats::record_stale() noexcept { ++stale_packets; }
 HilTransport::HilTransport(FlightCore::Transport::ITransport* channel) noexcept : channel_{channel} {}
 
 /* Sends one configured sensor frame and updates transport statistics. */
-bool HilTransport::sendSensor(const FlightCore::HAL::SensorData& sensor, std::uint16_t sequence,
-                               const FlightCore::Transport::HilControlSetpoint& setpoint)
+bool HilTransport::sendSensor(const FlightCore::HAL::SensorData&               sensor,
+                              std::uint16_t                                    sequence,
+                              const FlightCore::Transport::HilControlSetpoint& setpoint)
 {
     if (!send_sensor_frame(*channel_, sensor, sequence, setpoint)) {
         ++stats_.messages_dropped;

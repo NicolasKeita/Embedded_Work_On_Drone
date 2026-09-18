@@ -24,10 +24,10 @@ import InterFcLink;
 namespace fc1 {
 
 /* Publishes the monitoring sample of one control cycle to the FC2 supervisor. */
-void publish_monitoring_sample(const Fc1Links& links,
+void publish_monitoring_sample(const Fc1Links&                         links,
                                const FlightCore::Transport::HilHeader& header,
-                               const FlightCore::HAL::SensorData& sensor,
-                               const ControlCommand& command) noexcept
+                               const FlightCore::HAL::SensorData&      sensor,
+                               const ControlCommand&                   command) noexcept
 {
     const FlightCore::InterFc::Message monitoring_sample{
         .kind = FlightCore::InterFc::MessageKind::MonitoringSample,
@@ -38,12 +38,13 @@ void publish_monitoring_sample(const Fc1Links& links,
         .actual_rpm = sensor.wing_rpm_meas,
         .commanded_rpm = static_cast<std::float32_t>(command.wing_rpm),
     };
+
     static_cast<void>(links.inter_fc_transport->send(monitoring_sample));
 }
 
 /* Builds the actuator packet of one control cycle from the FC1 command. */
 FlightCore::HAL::ActuatorCommands build_actuator_packet(const ControlCommand& command,
-                                                        std::uint8_t mode_flags) noexcept
+                                                        std::uint8_t          mode_flags) noexcept
 {
     return FlightCore::HAL::ActuatorCommands{
         .timestamp_us = static_cast<std::uint64_t>(k_uptime_get()) * 1000u,
@@ -56,10 +57,10 @@ FlightCore::HAL::ActuatorCommands build_actuator_packet(const ControlCommand& co
 }
 
 /* Sends the actuator answer of one control cycle on the HIL console UART. */
-void send_actuator_response(const Fc1Links& links,
-                             const FlightCore::Transport::HilHeader& header,
-                             const FlightCore::HAL::ActuatorCommands& actuators,
-                             std::uint64_t sim_timestamp_us) noexcept
+void send_actuator_response(const Fc1Links&                          links,
+                            const FlightCore::Transport::HilHeader&  header,
+                            const FlightCore::HAL::ActuatorCommands& actuators,
+                            std::uint64_t                            sim_timestamp_us) noexcept
 {
     const FlightCore::Transport::ActuatorDiagnostics diagnostics{
         .fc_health_status = inter_fc.remote_state,
@@ -69,6 +70,7 @@ void send_actuator_response(const Fc1Links& links,
         FlightCore::Transport::makeActuatorPayload(actuators, sim_timestamp_us, diagnostics);
     const std::array<std::uint8_t, FlightCore::Transport::kActuatorFrameSize> response =
         FlightCore::Transport::encodeActuatorFrame(response_payload, header.sequence_num);
+
     send_frame(links.uart, response);
     status_led.mark_activity(k_uptime_get());
 }

@@ -20,9 +20,9 @@ import Transport;
 namespace sim::hil {
 
 /* Sends sensor measurements and the scenario setpoint settings in one CRC-protected frame. */
-bool send_sensor_frame(FlightCore::Transport::ITransport& channel,
-                       const FlightCore::HAL::SensorData& sensor,
-                       std::uint16_t                      sequence,
+bool send_sensor_frame(FlightCore::Transport::ITransport&               channel,
+                       const FlightCore::HAL::SensorData&               sensor,
+                       std::uint16_t                                    sequence,
                        const FlightCore::Transport::HilControlSetpoint& setpoint) noexcept
 {
     const auto payload = FlightCore::Transport::makeSensorPayload(sensor, setpoint);

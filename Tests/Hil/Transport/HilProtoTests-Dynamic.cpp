@@ -45,10 +45,7 @@ namespace {
             .wing_rpm_meas = static_cast<std::float32_t>(config.controller.hover_rpm),
             .sensor_valid_flags = 0x1Fu,
         };
-        FlightCore::Transport::HilControlSetpoint setpoint{
-            .target_z_m = 10.0f,
-            .station_hold_seconds = 120.0f,
-        };
+        FlightCore::Transport::HilControlSetpoint setpoint{ .target_z_m = 10.0f, .station_hold_seconds = 120.0f, };
         std::uint64_t sensor_send_wall_us = 0;
     };
 
@@ -62,10 +59,11 @@ namespace {
     }
 
     /* Decodes the actuator answer of the given step into the output bundle. */
-    sim::hil::ReceiveResult receive_step(DynamicSession& session, std::uint16_t step,
-                                         FlightCore::HAL::ActuatorCommands& commands,
+    sim::hil::ReceiveResult receive_step(DynamicSession&                             session,
+                                         std::uint16_t                               step,
+                                         FlightCore::HAL::ActuatorCommands&          commands,
                                          FlightCore::Transport::ActuatorDiagnostics& diagnostics,
-                                         std::int64_t& rtt)
+                                         std::int64_t&                               rtt)
     {
         return session.transport.receiveActuator(
             session.clock, session.clock.nowUs() + 50000,
@@ -78,6 +76,7 @@ namespace {
     {
         DynamicSession session{};
         std::float32_t hover_command = 0.0f;
+
         for (std::uint16_t step = 0; step < 7; ++step) {
             FlightCore::HAL::ActuatorCommands commands{};
             FlightCore::Transport::ActuatorDiagnostics diagnostics{};

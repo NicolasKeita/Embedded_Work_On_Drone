@@ -10,8 +10,8 @@ All rights reserved.
 module;
 
 #include <zephyr/device.h>
-#include <zephyr/kernel.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/kernel.h>
 
 module Fc1Firmware;
 
@@ -53,23 +53,22 @@ void send_frame(const device* uart, std::span<const std::uint8_t> frame) noexcep
 }
 
 void reset_controller(const Fc1Links& links,
-                      Fc1Control& control,
-                      std::float32_t station_hold_seconds) noexcept
+                      Fc1Control&     control,
+                      std::float32_t  station_hold_seconds) noexcept
 {
     control.controller = sim::control::FlightController{
         sim::control::ControllerConfig{.hover_rpm = kNominalAircraftHoverRpm,
                                        .station_hold_seconds = station_hold_seconds}};
     inter_fc.remote_state = static_cast<std::uint8_t>(FlightCore::InterFc::NodeState::Unknown);
     inter_fc.remote_detection = static_cast<std::uint8_t>(FlightCore::InterFc::DetectionCode::None);
-    const FlightCore::InterFc::Message reset_supervision{
-        .kind = FlightCore::InterFc::MessageKind::ResetSupervision,
-    };
+    const FlightCore::InterFc::Message reset_supervision{ .kind = FlightCore::InterFc::MessageKind::ResetSupervision, };
     static_cast<void>(links.inter_fc_transport->send(reset_supervision));
 }
 
 void process_sensor(const Fc1Links& links, Fc1Control& control) noexcept
 {
     const FlightCore::Transport::HilHeader& header = control.header;
+
     if (header.msg_id != FlightCore::Transport::kMsgIdSensor
         || header.payload_len != FlightCore::Transport::kSensorPayloadSize) {
         return;
@@ -81,8 +80,7 @@ void process_sensor(const Fc1Links& links, Fc1Control& control) noexcept
     }
     inter_fc.heartbeat_suppressed =
         (sensor_payload.sensor_valid_flags & FlightCore::Transport::kHilCommandSuppressInterFcHeartbeat) != 0
-            ? 1u
-            : 0u;
+            ? 1u : 0u;
     if (header.sequence_num == 0 && sensor_payload.sim_timestamp_us == 0) {
         reset_controller(links, control, sensor_payload.setpoint.station_hold_seconds);
     }
@@ -93,8 +91,7 @@ void process_sensor(const Fc1Links& links, Fc1Control& control) noexcept
         .y = sensor_payload.setpoint.target_y_m,
         .z = sensor_payload.setpoint.target_z_m,
     };
-    const ControlCommand command =
-        control.controller.update(control.current_setpoint, measured, kControlPeriodSeconds);
+    const ControlCommand command = control.controller.update(control.current_setpoint, measured, kControlPeriodSeconds);
     publish_monitoring_sample(links, header, sensor, command);
     const std::uint8_t mode_flags = static_cast<std::uint8_t>(control.controller.state());
     const FlightCore::HAL::ActuatorCommands actuators = build_actuator_packet(command, mode_flags);

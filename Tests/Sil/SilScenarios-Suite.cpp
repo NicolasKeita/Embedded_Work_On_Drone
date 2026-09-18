@@ -25,6 +25,7 @@ void sensor_fault_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, 
 std::string_view shared_description(std::string_view id)
 {
     const sim::test::FunctionalScenario* shared = sim::test::find_functional_scenario(id);
+
     return shared == nullptr ? std::string_view{} : shared->description;
 }
 
@@ -34,6 +35,7 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
                                        std::float64_t   duration)
 {
     const sim::test::FunctionalScenario* shared = sim::test::find_functional_scenario(id);
+
     return {
         .start_time = start_time,
         .duration = duration,
