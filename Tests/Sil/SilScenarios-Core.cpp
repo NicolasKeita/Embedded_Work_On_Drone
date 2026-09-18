@@ -34,6 +34,7 @@ using sim::sil::SilError;
 using sim::sil::SilRunOutput;
 using sim::sil::SimulationResult;
 using sim::sil::SILRunner;
+using MissionState = sim::control::MissionState;
 
 /* Test case: climb mission towards 10 m, optional faults applied by the engine. */
 std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> scenarios)
@@ -71,7 +72,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
         [&scenario](const sim::sil::TelemetrySample& sample) { return sample.time < scenario.start_time; });
     runner.check(before_fault != output.telemetry.rend()
                      && std::abs(before_fault->altitude_m - shared.target.z) <= 0.5
-                     && before_fault->mission_state == static_cast<std::uint8_t>(sim::control::MissionState::STATION_KEEPING),
+                     && before_fault->mission_state == static_cast<std::uint8_t>(MissionState::STATION_KEEPING),
                  "station keeping at 10 m before FC1 failure");
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);

@@ -61,6 +61,9 @@ set(SIL_FILES
     Src/SIL/Core/SilFaultScenario-Semantics.cpp
     Src/SIL/Core/FunctionalScenarios.cppm
     Src/SIL/Core/FunctionalScenarios.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Nominal.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Faults.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Wind.cpp
     Src/SIL/Core/Telemetry/Telemetry.cppm
     Src/SIL/Core/Telemetry/Telemetry-Chain.cpp
     Src/SIL/Core/Telemetry/Telemetry-Validation.cpp

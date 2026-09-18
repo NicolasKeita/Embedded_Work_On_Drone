@@ -120,6 +120,7 @@ set(HIL_RUNNER_FILES
     Src/Embedded/Hil/Runner/HilRunner-Finalize.cpp
     Src/Embedded/Hil/Runner/HilRunner-Metrics.cpp
     Src/Embedded/Hil/Runner/HilRunner-Loop.cpp
+    Src/Embedded/Hil/Runner/HilRunner-Run.cpp
     Src/Embedded/Hil/Runner/HilRunner-Inject.cpp
     Src/Embedded/Hil/Runner/HilRunner-Step.cpp
 )
@@ -191,6 +192,9 @@ set(SIL_CORE_FILES
     Src/SIL/Core/SilFaultScenario-Semantics.cpp
     Src/SIL/Core/FunctionalScenarios.cppm
     Src/SIL/Core/FunctionalScenarios.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Nominal.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Faults.cpp
+    Src/SIL/Core/Scenarios/FunctionalScenarios-Wind.cpp
     Src/SIL/Faults/FaultInjectors.cppm
     Src/SIL/Faults/FaultInjectors-Base.cpp
     Src/SIL/Faults/FaultInjectors-Injectors.cpp
@@ -207,8 +211,14 @@ set(TEST_HIL_FILES
     Tests/Hil/HilTests.cppm
     Tests/Hil/HilTests-Core.cpp
     Tests/Hil/HilTests-Runner.cpp
+    Tests/Hil/HilTests-Wind.cpp
     Tests/Hil/HilTests-Timing.cpp
-    Tests/Hil/HilTests-Protocol.cpp
+    Tests/Hil/HilTests-Health.cpp
+    Tests/Hil/Transport/HilProtoTests.cppm
+    Tests/Hil/Transport/HilProtoTests-InterFc.cpp
+    Tests/Hil/Transport/HilProtoTests-Setpoint.cpp
+    Tests/Hil/Transport/HilProtoTests-Dynamic.cpp
+    Tests/Hil/Transport/HilProtoTests-Version.cpp
     Tests/Hil/Transport/HilTests-Transport.cpp
     Tests/Hil/HilTests-Data.cpp
     Tests/Hil/HilTests-Faults.cpp

@@ -75,6 +75,7 @@ void apply_injectors(HilRunContext& ctx);
 void exchange_actuators(HilRunContext& ctx);
 void update_metrics(HilRunContext& ctx);
 void handle_deadline(HilRunContext& ctx, const HilStepTiming& timing);
+void reset_embedded_supervision(HilRunContext& ctx);
 bool any_fault_expected(std::span<const sim::sil::FaultScenario> scenarios);
 std::expected<std::unique_ptr<FlightCore::Transport::ITransport>, HilError>
 open_hil_channel(const HilConfig& config);

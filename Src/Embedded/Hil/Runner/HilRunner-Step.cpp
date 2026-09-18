@@ -30,10 +30,9 @@ namespace sim::hil {
 
 namespace {
     /*
-    FC-to-simulator half of the step: lets the FC target respond, models the
-    FC1-FC2/actuator-link delivery through the reused CommsBus and captures the
-    ActuatorPacket (or drains a logically dropped one so the channel stays clean for
-    the next lockstep).
+    FC-to-simulator half of the step: the FC target responds, the CommsBus models the
+    inter-FC/actuator-link delivery, and the ActuatorPacket is captured (or a dropped
+    one is drained so the channel stays clean for the next lockstep).
     */
     void receive_actuator_answer(HilRunContext& ctx, std::uint16_t sequence, std::uint64_t sensor_send_wall)
     {
@@ -56,7 +55,7 @@ namespace {
                                               .diagnostics = diag,
                                               .round_trip_us = ctx.this_rtt_us};
         const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, ctx.next_deadline_us,
-                                                                   expectations, outputs);
+                                                                 expectations, outputs);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
             ctx.actuator_diagnostics = diag;
@@ -93,8 +92,7 @@ void exchange_actuators(HilRunContext& ctx)
     ctx.last_sensor_data = wire;
 
     const std::uint16_t sequence = static_cast<std::uint16_t>(ctx.step);
-    const std::uint64_t sensor_send_wall = ctx.clock.nowUs();
-    ctx.sensor_send_wall_us = sensor_send_wall;
+    ctx.sensor_send_wall_us = ctx.clock.nowUs();
     ctx.actuator_receive_wall_us = 0;
     const FlightCore::Transport::HilControlSetpoint setpoint{
         .target_x_m = static_cast<std::float32_t>(ctx.config.target.x),
@@ -115,7 +113,7 @@ void exchange_actuators(HilRunContext& ctx)
         ctx.transport.noteTimeoutFrame();
         return;
     }
-    receive_actuator_answer(ctx, sequence, sensor_send_wall);
+    receive_actuator_answer(ctx, sequence, ctx.sensor_send_wall_us);
 }
 
 }
