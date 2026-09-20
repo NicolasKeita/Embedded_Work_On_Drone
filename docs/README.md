@@ -55,7 +55,7 @@ référence au lieu de recopier ses tables, commandes ou états.
 ## Contribution et évolution
 
 - [Règles C++](../AGENTS.md) : référence des conventions de contribution.
-- [Formatter/linter](../formatter_and_linter/README.md) : utilisation et comportements des outils.
+- [Formatter/linter](build/build_targets.md#formatter-et-linter) : récupération et commandes CMake.
 - [Feuille de route](architecture/roadmap.md) : propositions non implémentées.
 
 ## Entretien documentaire

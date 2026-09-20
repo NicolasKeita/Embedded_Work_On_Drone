@@ -1,1 +1,0 @@
-# Linter module for the formatter package

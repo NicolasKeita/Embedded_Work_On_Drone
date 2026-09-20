@@ -20,6 +20,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Sources)
 include(HilSources)
+include(CodeQuality)
 
 function(target_add_mixed_sources TARGET VISIBILITY BASE_DIR)
     set(ALL_FILES ${ARGN})

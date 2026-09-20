@@ -23,6 +23,36 @@ cmake --preset release
 cmake --build --preset release
 ```
 
+## Formatter et linter
+
+À la configuration du projet hôte, CMake récupère
+[My_Linter_And_Formatter_Cpp](https://github.com/NicolasKeita/My_Linter_And_Formatter_Cpp)
+via Git/SSH dans `<build>/_deps/formatter_and_linter-src`. Git, Python **3.9+**
+et un accès SSH au dépôt GitHub sont nécessaires au premier téléchargement.
+La révision est fixée dans [CodeQuality.cmake](../../cmake/CodeQuality.cmake) ;
+modifier `GIT_TAG` pour mettre à jour l'outil.
+
+Après configuration, depuis la racine du dépôt :
+
+```sh
+cmake --build build/linux --target lint
+cmake --build build/linux --target format
+```
+
+Avec les presets, utiliser par exemple `cmake --build --preset linux-debug --target lint`
+ou `cmake --build --preset release --target lint` sous Windows.
+La cible `lint` exécute `--check` sans modifier les sources ; `format` exécute
+`-i -r` pour les reformater sur place. Les deux parcourent `Src/`, `Tests/` et
+`apps/` depuis la racine du projet et signalent les violations par un code de
+sortie non nul. Ces cibles s'exécutent uniquement sur demande.
+Les règles détaillées sont dans la
+[documentation de l'outil](https://github.com/NicolasKeita/My_Linter_And_Formatter_Cpp/blob/7c4293c0261a1a864f51c2558e481f211411ee7b/formatter_and_linter/README.md).
+
+Pour configurer uniquement la compilation, sans télécharger l'outil ni rechercher
+Python, ajouter `-DDRONE_ENABLE_CODE_QUALITY=OFF` à la commande de configuration.
+Pour utiliser un clone existant sans accès réseau, conserver l'option activée et
+passer `-DFETCHCONTENT_SOURCE_DIR_FORMATTER_AND_LINTER=/chemin/vers/le/clone`.
+
 ## Firmwares Zephyr
 
 Les applications utilisent [ZephyrFirmware.cmake](../../cmake/ZephyrFirmware.cmake)

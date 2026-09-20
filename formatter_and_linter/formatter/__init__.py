@@ -1,1 +1,0 @@
-# Formatter package for C++ code formatting
