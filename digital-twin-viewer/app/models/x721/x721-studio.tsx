@@ -8,11 +8,7 @@ import Link from 'next/link';
 import * as THREE from 'three';
 import styles from './x721-studio.module.css';
 
-const MODELS = {
-  two: { label: 'Deux ailes', url: '/models/x721-concept.glb' },
-  three: { label: 'Trois ailes', url: '/models/x721-three-wing-concept.glb' },
-  wing: { label: 'Aile seule', url: '/models/x721-wing.glb' },
-} as const;
+const MODEL_URL = '/models/x721-three-wing-concept.glb';
 const subscribeToClientRender = () => () => {};
 const clientSnapshot = () => true;
 const serverSnapshot = () => false;
@@ -25,7 +21,6 @@ const VIEWS = {
 } as const;
 
 type ViewName = keyof typeof VIEWS;
-type ModelName = keyof typeof MODELS;
 type CameraCommand = { view: ViewName; revision: number };
 
 class ModelErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -125,9 +120,7 @@ export function X721Studio() {
   const [selectedView, setSelectedView] = useState<ViewName | null>('perspective');
   const [autoRotate, setAutoRotate] = useState(false);
   const [wireframe, setWireframe] = useState(false);
-  const [modelName, setModelName] = useState<ModelName>('two');
   const [modelBounds, setModelBounds] = useState<THREE.Vector3 | null>(null);
-  const selectedModel = MODELS[modelName];
 
   const chooseView = (view: ViewName) => {
     setAutoRotate(false);
@@ -145,22 +138,16 @@ export function X721Studio() {
 
       <section className={styles.heading}>
         <div><p className={styles.eyebrow}>ÉTUDE DE FORME / 001</p><h1>X721<span>Une silhouette, en trois dimensions.</span></h1></div>
-        <a href={selectedModel.url} download className={styles.download}><ArrowDownToLine size={17} />Télécharger le modèle<span>GLB</span></a>
+        <a href={MODEL_URL} download className={styles.download}><ArrowDownToLine size={17} />Télécharger le modèle<span>GLB</span></a>
       </section>
 
-      <div className={styles.variantBar}>
-        <span>CONFIGURATION</span>
-        <fieldset aria-label="Configuration du modèle">
-          {(Object.keys(MODELS) as ModelName[]).map((name) => <button type="button" key={name} aria-pressed={modelName === name} onClick={() => { setModelName(name); chooseView('perspective'); }}>{MODELS[name].label}</button>)}
-        </fieldset>
-      </div>
       <section className={styles.viewer} aria-label="Aperçu interactif du modèle X721">
         <div className={styles.viewerTop}>
           <span className={styles.modelLabel}><Box size={15} />X721 / CONCEPT</span>
           <span className={styles.viewportLabel}>APERÇU 3D</span>
         </div>
         <div className={styles.canvas}>
-          <ModelErrorBoundary key={modelName}>
+          <ModelErrorBoundary>
             {ready ? (
               <Canvas camera={{ position: [3, 2.3, 8], fov: 38, near: 0.05, far: 100 }} dpr={[1, 2]} gl={{ antialias: true }} fallback={<div className={styles.fallback}>Votre navigateur ne prend pas en charge WebGL.</div>}>
                 <color attach="background" args={['#eaf0f0']} />
@@ -171,7 +158,7 @@ export function X721Studio() {
                 <directionalLight position={[-5, 2, -4]} intensity={2.5} color="#cbdfff" />
                 <directionalLight position={[0, 4, -6]} intensity={2} color="#ffffff" />
                 <Suspense fallback={<Html center><span className={styles.loading}>Chargement du modèle…</span></Html>}>
-                  <Model url={selectedModel.url} wireframe={wireframe} onBounds={setModelBounds} />
+                  <Model url={MODEL_URL} wireframe={wireframe} onBounds={setModelBounds} />
                 </Suspense>
                 <CameraRig command={command} autoRotate={autoRotate} onOrbit={() => setSelectedView(null)} bounds={modelBounds} />
               </Canvas>

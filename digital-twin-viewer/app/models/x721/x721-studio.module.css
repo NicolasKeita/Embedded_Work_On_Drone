@@ -15,12 +15,6 @@
 .download { display: inline-flex; align-items: center; gap: 10px; color: #f4f6ee; background: #294b43; padding: 14px 17px; border: 1px solid #294b43; border-radius: 5px; font-size: 12px; white-space: nowrap; }
 .download > span { margin-left: 11px; padding-left: 11px; border-left: 1px solid #668179; font: 10px var(--font-geist-mono), monospace; opacity: .8; }
 .download:hover { background: #3c6157; }
-.variantBar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
-.variantBar > span { color: #89968e; font: 9px var(--font-geist-mono), monospace; letter-spacing: .12em; }
-.variantBar > fieldset { display: flex; gap: 4px; }
-.variantBar button { background: transparent; color: #819086; font-size: 11px; border: 1px solid transparent; border-radius: 4px; padding: 8px 12px; }
-.variantBar button[aria-pressed='true'] { color: #34574a; background: #e8eee6; border-color: #d7e1d5; }
-.variantBar button:hover { background: #e3eadf; color: #294b43; }
 .viewer { position: relative; isolation: isolate; border: 1px solid #d4dedb; border-radius: 8px; overflow: hidden; background: #eaf0f0; }
 .viewerTop { position: absolute; z-index: 1; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; pointer-events: none; }
 .modelLabel { display: flex; align-items: center; gap: 9px; color: #596e6d; font-size: 10px; letter-spacing: .08em; }
@@ -68,9 +62,6 @@
   .viewerTop { padding: 17px 14px; }
   .hint { left: 14px; font-size: 9px; }
   .viewButtons { gap: 1px; }
-  .variantBar > span { display: none; }
-  .variantBar > fieldset { width: 100%; }
-  .variantBar button { flex: 1; }
   .toolbar button { padding: 0 10px; }
   .footer { padding: 20px 4px 0; }
 }

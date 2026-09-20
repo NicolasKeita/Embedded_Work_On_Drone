@@ -90,10 +90,15 @@ An AI coding agent can generate this geometry directly from React Three Fiber pr
 
 ## État du dépôt
 
-Une [maquette visuelle X721](x721_model.md) est disponible séparément, avec trois
-GLB (deux ailes, trois ailes, aile isolée), une source procédurale modifiable et
-un studio local sous `/models/x721`. Elle prépare un remplacement ultérieur ;
-les modèles actifs du simulateur restent conservés.
+Deux modèles sont conservés dans le dépôt :
+
+- `x721-three-wing-concept.glb` : drone à trois ailes, utilisé dans les scènes de
+  vol, d'avionique et dans le studio `/models/x721`.
+- `carte_stm32.glb` : carte STM32 utilisée dans les panneaux FC1 et FC2.
+
+La [maquette X721](x721_model.md) dispose d'une source procédurale modifiable.
+Son générateur produit uniquement le modèle retenu. Les anciennes variantes,
+les anciens drones et les copies redondantes ont été supprimés.
 
 Les modèles utilisés et disponibles sont sous
 [public/models](../../digital-twin-viewer/public/models/). Les scènes sont dans

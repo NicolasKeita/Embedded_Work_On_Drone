@@ -2,88 +2,37 @@
   "generator": "scripts/generate-x721-model.mjs",
   "parameters": {
     "wingSpan": 2.2,
-    "wingChord": 0.235,
+    "wingChord": 0.19,
     "wingRadius": 2.05,
     "wingHeight": 0.14,
-    "capsuleHeight": -0.38,
     "spanSegments": 80,
     "sectionSegments": 48
   },
   "measuredDimensions": false,
   "variants": [
     {
-      "filename": "x721-concept.glb",
-      "description": "Two independent wings and suspended capsule",
-      "bytes": 599056,
-      "meshes": 28,
-      "uniqueGeometries": 17,
-      "triangles": 44832,
-      "bounds": {
-        "min": [
-          -3.1500000238418577,
-          -0.511,
-          -0.26100000000000023
-        ],
-        "max": [
-          3.1500000238418577,
-          0.3300308728218079,
-          0.261
-        ]
-      },
-      "size": [
-        6.3000000476837155,
-        0.8410308728218079,
-        0.5220000000000002
-      ]
-    },
-    {
       "filename": "x721-three-wing-concept.glb",
-      "description": "Three-wing visual variant from reference image 2",
-      "bytes": 609260,
-      "meshes": 40,
-      "uniqueGeometries": 18,
-      "triangles": 64248,
+      "description": "Three continuous wings and a coplanar central motor",
+      "bytes": 371708,
+      "meshes": 19,
+      "uniqueGeometries": 11,
+      "triangles": 36384,
       "bounds": {
         "min": [
-          -1.6870487166956023,
-          -0.511,
-          -2.7926713924326423
+          -1.6720258380730244,
+          0.03800000000000002,
+          -2.783997929415894
         ],
         "max": [
           3.1500000238418577,
-          0.3300308728218079,
-          2.783023523858976
+          0.265,
+          2.772848690620851
         ]
       },
       "size": [
-        4.83704874053746,
-        0.8410308728218079,
-        5.575694916291618
-      ]
-    },
-    {
-      "filename": "x721-wing.glb",
-      "description": "Isolated wing unit for visual inspection",
-      "bytes": 431612,
-      "meshes": 11,
-      "uniqueGeometries": 11,
-      "triangles": 19128,
-      "bounds": {
-        "min": [
-          -1.100000023841858,
-          -0.1540619283914566,
-          -0.21000000000000002
-        ],
-        "max": [
-          1.100000023841858,
-          0.19003087282180786,
-          0.261
-        ]
-      },
-      "size": [
-        2.200000047683716,
-        0.34409280121326447,
-        0.47100000000000003
+        4.822025861914883,
+        0.22699999999999998,
+        5.556846620036745
       ]
     }
   ]

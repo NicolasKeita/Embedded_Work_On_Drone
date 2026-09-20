@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Line, OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -13,32 +13,30 @@ import { dronePosition, visualSpinStep, WORLD } from '@/lib/flight-world';
 import { hasAltitudeFault, type TwinSnapshot } from '@/lib/twin-data';
 
 function Drone({ snapshot }: { snapshot: TwinSnapshot }) {
-  const { scene } = useGLTF('/models/drone.glb');
-  const spinner = useRef<THREE.Group>(null);
+  const { scene } = useGLTF('/models/x721-three-wing-concept.glb');
+  const spinner = useRef<THREE.Object3D>(null);
   const model = useMemo(() => {
     const clone = scene.clone();
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
-      const material = object.material as THREE.MeshStandardMaterial;
-      object.material = material.clone();
-      const brightMaterial = object.material as THREE.MeshStandardMaterial;
-      brightMaterial.color.set('#d8fbff');
-      brightMaterial.emissive.set('#3da9b8');
-      brightMaterial.emissiveIntensity = .08;
-      brightMaterial.roughness = .38;
-      brightMaterial.metalness = .12;
+      object.material = Array.isArray(object.material)
+        ? object.material.map((material) => material.clone())
+        : object.material.clone();
       object.castShadow = true;
     });
     const bounds = new THREE.Box3().setFromObject(clone);
     const size = bounds.getSize(new THREE.Vector3());
-    const center = bounds.getCenter(new THREE.Vector3());
-    const scale = WORLD.droneSpan / Math.max(size.x, size.y, size.z);
-    clone.position.copy(center).multiplyScalar(-scale);
-    clone.position.y = -bounds.min.y * scale;
+    const scale = WORLD.droneSpan / Math.max(size.x, size.y, size.z, .001);
+    const motorDatum = clone.getObjectByName('central_capsule')?.position.y ?? .14;
+    clone.position.set(0, -motorDatum * scale, 0);
     clone.scale.setScalar(scale);
-    return clone;
+    return { scene: clone, rotor: clone.getObjectByName('rotor_assembly') ?? clone };
   }, [scene]);
 
+  useEffect(() => {
+    spinner.current = model.rotor;
+    return () => { spinner.current = null; };
+  }, [model]);
 
   useFrame((_, delta) => {
     if (!spinner.current) return;
@@ -47,7 +45,7 @@ function Drone({ snapshot }: { snapshot: TwinSnapshot }) {
 
   return (
     <group position={dronePosition(snapshot.aircraft)} rotation={[snapshot.aircraft.roll_rad, 0, -snapshot.aircraft.pitch_rad]}>
-      <group ref={spinner}><primitive object={model} /></group>
+      <primitive object={model.scene} />
     </group>
   );
 }
@@ -103,4 +101,4 @@ export function AircraftSceneOverlay({ snapshot }: { snapshot: TwinSnapshot }) {
   );
 }
 
-useGLTF.preload('/models/drone.glb');
+useGLTF.preload('/models/x721-three-wing-concept.glb');

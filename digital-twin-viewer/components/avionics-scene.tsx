@@ -9,71 +9,70 @@ import { PortalView } from '@/components/portal-view';
 import { Stm32FaultModel } from '@/components/stm32-fault-model';
 import type { ComponentState, TwinSnapshot } from '@/lib/twin-data';
 
-const degToRad = (deg: number) => (deg * Math.PI) / 180;
-const AIRFRAME_DEFAULT_ROTATION: [number, number, number] = [degToRad(0), degToRad(-60), degToRad(90)];
 const SHOW_AIRFRAME_AXES = false;
 const AIRFRAME_AXES_SIZE = 2.8;
-const AIRFRAME_MODEL_SCALE = 1.3;
-
-const AIRFRAME_DEFAULT_POSITION: [number, number, number] = [0, .1, 0];
+const AIRFRAME_DISPLAY_SPAN = 5;
 
 const stateColor = (state: ComponentState) => state === 'HEALTHY' ? '#32d296' : state === 'DEGRADED' ? '#f1b84b' : state === 'FAILED' ? '#ff5454' : '#71808b';
 
-function brightenAirframeMaterial(source: THREE.Material) {
-  const material = source.clone();
-  if (material instanceof THREE.MeshStandardMaterial) {
-    material.color.lerp(new THREE.Color('#d8eef2'), .38);
-    material.emissive.copy(material.color);
-    material.emissiveIntensity = .12;
-    material.envMapIntensity = 1.8;
-    material.roughness = Math.min(material.roughness, .68);
-  }
-  return material;
-}
+type WingMaterialState = {
+  material: THREE.MeshStandardMaterial;
+  color: THREE.Color;
+  emissive: THREE.Color;
+  emissiveIntensity: number;
+};
 
 function FaultAwareAirframe({ snapshot }: { snapshot: TwinSnapshot }) {
-  const { scene } = useGLTF('/models/drone-done.glb');
+  const { scene } = useGLTF('/models/x721-three-wing-concept.glb');
   const wingState = snapshot.active_fault === 'ACTUATOR_DEGRADED'
     ? snapshot.fc1.components.actuators ?? 'DEGRADED'
     : 'HEALTHY';
   const airframe = useMemo(() => {
     const clone = scene.clone();
-    const materials: THREE.MeshStandardMaterial[] = [];
+    const materials: WingMaterialState[] = [];
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
       object.castShadow = true;
       object.receiveShadow = true;
-      const isWing = object.name === 'helice_droite' || object.name === 'helice_gauche';
+      const isWing = object.userData.role === 'wing_shell';
       const clonedMaterials = (Array.isArray(object.material) ? object.material : [object.material])
-        .map((material) => brightenAirframeMaterial(material));
+        .map((material) => material.clone());
       object.material = Array.isArray(object.material) ? clonedMaterials : clonedMaterials[0];
       if (isWing) {
         clonedMaterials.forEach((material) => {
-          if (material instanceof THREE.MeshStandardMaterial) materials.push(material);
+          if (material instanceof THREE.MeshStandardMaterial) {
+            materials.push({ material, color: material.color.clone(), emissive: material.emissive.clone(), emissiveIntensity: material.emissiveIntensity });
+          }
         });
       }
     });
+    const bounds = new THREE.Box3().setFromObject(clone);
+    const size = bounds.getSize(new THREE.Vector3());
+    const center = bounds.getCenter(new THREE.Vector3());
+    const scale = AIRFRAME_DISPLAY_SPAN / Math.max(size.x, size.y, size.z, .001);
+    clone.position.copy(center).multiplyScalar(-scale);
+    clone.scale.setScalar(scale);
     return { model: clone, wingMaterials: materials };
   }, [scene]);
+  const faultColor = useMemo(() => new THREE.Color(stateColor(wingState)), [wingState]);
 
   useFrame(({ clock }) => {
     const active = wingState === 'DEGRADED' || wingState === 'FAILED';
-    const color = new THREE.Color(stateColor(wingState));
     const pulse = (Math.sin(clock.elapsedTime * 8) + 1) * .5;
-    airframe.wingMaterials.forEach((material) => {
+    airframe.wingMaterials.forEach(({ material, color, emissive, emissiveIntensity }) => {
       if (active) {
-        material.color.copy(color);
-        material.emissive.copy(color);
+        material.color.copy(faultColor);
+        material.emissive.copy(faultColor);
         material.emissiveIntensity = .65 + pulse * 1.35;
         return;
       }
-      material.color.lerp(new THREE.Color('#d8eef2'), .12);
-      material.emissive.copy(material.color);
-      material.emissiveIntensity = .12;
+      material.color.copy(color);
+      material.emissive.copy(emissive);
+      material.emissiveIntensity = emissiveIntensity;
     });
   });
 
-  return <primitive object={airframe.model} position={AIRFRAME_DEFAULT_POSITION} scale={AIRFRAME_MODEL_SCALE} rotation={AIRFRAME_DEFAULT_ROTATION} />;
+  return <primitive object={airframe.model} />;
 }
 
 function SceneLighting() {
@@ -115,7 +114,7 @@ export function AvionicsSceneDom({ refs }: { refs: AvionicsPanelRefs }) {
   return (
     <div className="avionics-canvas">
       <div ref={refs.airframe.callbackRef} className="hardware-view">
-        <div className="hardware-label">HELIBLADE · AIRFRAME</div>
+        <div className="hardware-label">X721 · AIRFRAME</div>
       </div>
       <div ref={refs.fc1.callbackRef} className="hardware-view">
         <div className="hardware-label">Flight Controller 1</div>
@@ -128,4 +127,4 @@ export function AvionicsSceneDom({ refs }: { refs: AvionicsPanelRefs }) {
   );
 }
 
-useGLTF.preload('/models/drone-done.glb');
+useGLTF.preload('/models/x721-three-wing-concept.glb');

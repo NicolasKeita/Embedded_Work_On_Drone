@@ -18,10 +18,9 @@ globalThis.FileReader ??= BinaryFileReader;
 const outputDirectory = new URL('../public/models/', import.meta.url);
 const parameters = Object.freeze({
   wingSpan: 2.2,
-  wingChord: 0.235,
+  wingChord: 0.19,
   wingRadius: 2.05,
   wingHeight: 0.14,
-  capsuleHeight: -0.38,
   spanSegments: 80,
   sectionSegments: 48,
 });
@@ -29,7 +28,7 @@ const parameters = Object.freeze({
 const materials = {
   graphite: new THREE.MeshPhysicalMaterial({
     name: 'Graphite shell', color: '#242b31', metalness: 0.36,
-    roughness: 0.3, clearcoat: 0.65, clearcoatRoughness: 0.24,
+    roughness: 0.38, clearcoat: 0.4, clearcoatRoughness: 0.3,
   }),
   inset: new THREE.MeshStandardMaterial({
     name: 'Satin inset', color: '#10191f', metalness: 0.28, roughness: 0.47,
@@ -44,7 +43,7 @@ const materials = {
     name: 'Tethers', color: '#76848c', metalness: 0.4, roughness: 0.58,
   }),
   red: new THREE.MeshPhysicalMaterial({
-    name: 'Red suspended capsule', color: '#aa1725', metalness: 0.22,
+    name: 'Red central motor', color: '#aa1725', metalness: 0.22,
     roughness: 0.28, clearcoat: 0.75, clearcoatRoughness: 0.22,
   }),
   lens: new THREE.MeshStandardMaterial({
@@ -56,13 +55,14 @@ const materials = {
 /** Cosmetic dimensions inferred from the silhouette, without aerodynamic meaning. */
 function wingSection(span) {
   const fraction = Math.abs(span);
-  const taper = Math.pow(Math.max(0, 1 - fraction ** 2), 0.64);
+  const taper = Math.pow(Math.max(0, 1 - fraction ** 6), 0.58);
+  const outerTip = Math.max(0, (span - 0.68) / 0.32);
   return {
     x: span * parameters.wingSpan / 2,
     chord: 0.004 + parameters.wingChord * taper,
-    y: 0.007 + 0.074 * fraction ** 4,
-    z: 0.032 * fraction ** 2 - 0.008 * span,
-    thickness: 0.001 + 0.024 * taper,
+    y: 0.035 * outerTip ** 2,
+    z: 0.018 * fraction ** 2 - 0.006 * span,
+    thickness: 0.001 + 0.013 * taper,
   };
 }
 
@@ -73,7 +73,7 @@ function wingPoint(span, angle) {
   const contour = Math.sin(angle) * (1 - 0.5 * chordFraction);
   return new THREE.Vector3(
     section.x,
-    section.y + section.thickness * contour + 0.007 * section.chord / (parameters.wingChord + 0.004) * Math.sin(chordFraction * Math.PI),
+    section.y + section.thickness * contour + 0.004 * section.chord / (parameters.wingChord + 0.004) * Math.sin(chordFraction * Math.PI),
     section.z + (chordFraction - 0.46) * section.chord,
   );
 }
@@ -137,24 +137,7 @@ function tube(parent, name, points, radius, material, segments = 48) {
   return addMesh(parent, name, new THREE.TubeGeometry(curve, segments, radius, 6, false), material);
 }
 
-/** Create a thin bevelled silhouette for an upper or lower appendage. */
-function fin(parent, name, points, width) {
-  const shape = new THREE.Shape();
-  points.forEach(([z, y], index) => {
-    if (index === 0) shape.moveTo(z, y);
-    else shape.lineTo(z, y);
-  });
-  shape.closePath();
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: width, bevelEnabled: true, bevelSegments: 2,
-    steps: 1, bevelSize: 0.0018, bevelThickness: 0.0018,
-  });
-  geometry.translate(0, 0, -width / 2);
-  geometry.rotateY(-Math.PI / 2);
-  return addMesh(parent, name, geometry, materials.graphite);
-}
-
-/** Create one independent wing unit from the visible reference features. */
+/** Create a continuous slender wing without an aircraft fuselage or tail. */
 function createWing() {
   const wing = new THREE.Group();
   wing.name = 'wing_unit';
@@ -171,40 +154,26 @@ function createWing() {
     }
     tube(wing, side < 0 ? 'inner_panel_seam' : 'outer_panel_seam', seamPoints, 0.0008, materials.seam, 36);
   }
-  ellipsoid(wing, 'central_fairing', materials.graphite, [0, -0.018, 0.022], [0.084, 0.051, 0.232]);
-  ellipsoid(wing, 'upper_fairing', materials.inset, [0, 0.021, 0.001], [0.059, 0.033, 0.154]);
-  fin(wing, 'dorsal_fin', [[-0.035, 0.032], [0.025, 0.185], [0.046, 0.188], [0.072, 0.031]], 0.008);
-  fin(wing, 'ventral_fin', [[0.036, -0.046], [0.103, -0.152], [0.119, -0.148], [0.139, -0.031]], 0.007);
-  const propeller = new THREE.Group();
-  propeller.name = 'propeller';
-  propeller.position.set(0, -0.038, 0.237);
-  propeller.rotation.z = -0.48;
-  wing.add(propeller);
-  ellipsoid(propeller, 'propeller_hub', materials.edge, [0, 0, 0], [0.014, 0.014, 0.024]);
-  for (const side of [-1, 1]) {
-    const blade = ellipsoid(propeller, side < 0 ? 'blade_a' : 'blade_b', materials.inset, [side * 0.064, 0, 0], [0.061, 0.012, 0.004]);
-    blade.rotation.x = side * 0.3;
-    blade.rotation.z = 0.13;
-  }
   return wing;
 }
 
-/** Create the red suspended capsule visible in the first and third references. */
+/** Center the red motor block on the same horizontal datum as the wings. */
 function createCapsule() {
   const capsule = new THREE.Group();
   capsule.name = 'central_capsule';
-  capsule.position.y = parameters.capsuleHeight;
-  ellipsoid(capsule, 'capsule_shell', materials.red, [0, -0.029, 0], [0.063, 0.102, 0.06]);
-  ellipsoid(capsule, 'capsule_cap', materials.inset, [0, 0.054, 0], [0.041, 0.025, 0.039]);
-  ellipsoid(capsule, 'capsule_marker', materials.lens, [0, 0.08, 0], [0.018, 0.016, 0.018]);
+  capsule.position.y = parameters.wingHeight;
+  capsule.userData.role = 'central_motor';
+  ellipsoid(capsule, 'capsule_shell', materials.red, [0, 0, 0], [0.063, 0.102, 0.06]);
+  ellipsoid(capsule, 'capsule_cap', materials.inset, [0, 0.083, 0], [0.041, 0.025, 0.039]);
+  ellipsoid(capsule, 'capsule_marker', materials.lens, [0, 0.109, 0], [0.018, 0.016, 0.018]);
   const seam = addMesh(capsule, 'capsule_seam', new THREE.TorusGeometry(0.06, 0.0016, 6, 40), materials.inset);
   seam.rotation.x = Math.PI / 2;
   seam.scale.y = 0.97;
-  seam.position.y = -0.032;
+  seam.position.y = -0.003;
   return capsule;
 }
 
-/** Assemble radial wing units and explicitly illustrative tether paths. */
+/** Assemble radial wings and motor with horizontal, coplanar visual links. */
 function createAssembly(count, prototype) {
   const root = new THREE.Group();
   root.name = 'X721_Concept';
@@ -224,10 +193,10 @@ function createAssembly(count, prototype) {
     wing.rotation.y = angle;
     rotor.add(wing);
     wing.updateMatrix();
-    const anchor = wingPoint(-0.97, Math.PI * 1.5).applyMatrix4(wing.matrix);
-    const endpoint = new THREE.Vector3(Math.cos(angle) * 0.025, parameters.capsuleHeight + 0.07, -Math.sin(angle) * 0.025);
+    const innerTip = wingSection(-1);
+    const anchor = new THREE.Vector3(innerTip.x, innerTip.y, innerTip.z).applyMatrix4(wing.matrix);
+    const endpoint = new THREE.Vector3(Math.cos(angle) * 0.06, parameters.wingHeight, -Math.sin(angle) * 0.06);
     const midpoint = endpoint.clone().lerp(anchor, 0.5);
-    midpoint.y -= 0.012;
     tube(rotor, `tether_${index + 1}`, [endpoint, midpoint, anchor], 0.0016, materials.tether, 24);
   }
   root.add(createCapsule());
@@ -294,8 +263,8 @@ async function exportModel(filename, model, description) {
     title: description,
     purpose: 'Visual interpretation of supplied X721 reference images; not engineering CAD.',
     scale: 'Arbitrary display proportions. Numeric units must not be interpreted as measured metres.',
-    orientation: 'Y up; two-wing assembly spans X; capsule below the origin.',
-    uncertainFeatures: 'Wing sections, appendages, propellers, tethers and dimensions are artistic approximations.',
+    orientation: 'Y up; three radial wings in XZ; motor center and wing attachment points share one horizontal datum.',
+    uncertainFeatures: 'Wing sections, motor shell, tethers and dimensions are artistic approximations.',
   };
   const statistics = inspectModel(model);
   const scene = new THREE.Scene();
@@ -309,9 +278,7 @@ async function exportModel(filename, model, description) {
 await mkdir(outputDirectory, { recursive: true });
 const wing = createWing();
 const variants = [];
-variants.push(await exportModel('x721-concept.glb', createAssembly(2, wing), 'Two independent wings and suspended capsule'));
-variants.push(await exportModel('x721-three-wing-concept.glb', createAssembly(3, wing), 'Three-wing visual variant from reference image 2'));
-variants.push(await exportModel('x721-wing.glb', wing, 'Isolated wing unit for visual inspection'));
+variants.push(await exportModel('x721-three-wing-concept.glb', createAssembly(3, wing), 'Three continuous wings and a coplanar central motor'));
 await writeFile(new URL('x721-model-info.json', outputDirectory), `${JSON.stringify({
   generator: 'scripts/generate-x721-model.mjs',
   parameters,
