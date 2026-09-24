@@ -17,6 +17,8 @@ import TestHarness;
 
 namespace sim::test::sil {
 
+void steady_wind_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
+void gust_wind_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
 void nominal_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
 void fc1_failure_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
 void sensor_fault_scenario(TestHarness& runner, sim::sil::SilRunOutput& output, sim::sil::ScenarioRecord& record);
@@ -45,10 +47,12 @@ sim::sil::FaultScenario make_sil_fault(std::string_view id,
 }
 
 /* SIL execution bindings for the canonical scenarios defined by FunctionalScenarios. */
-const std::array<SilScenarioEntry, 3> kSilScenarios{{
+const std::array<SilScenarioEntry, 5> kSilScenarios{{
     {"NOMINAL-001",        shared_description("NOMINAL-001"),        nominal_scenario},
     {"FAULT_INJECTOR-001", shared_description("FAULT_INJECTOR-001"), fc1_failure_scenario},
     {"FAULT_INJECTOR-003", shared_description("FAULT_INJECTOR-003"), sensor_fault_scenario},
+    {"WIND-001", shared_description("WIND-001"), steady_wind_scenario},
+    {"WIND-002", shared_description("WIND-002"), gust_wind_scenario},
 }};
 
 std::span<const SilScenarioEntry> sil_scenarios() noexcept

@@ -14,11 +14,13 @@ All rights reserved.
 
 import std;
 
+import ConfigFile;
 import HilConfig;
 import HilReport;
 import HilRunner;
 import HilRunnerCli;
 import HilRunnerTypes;
+import HilRuntimeConfig;
 import HilScenarios;
 import HilTests;
 import SilFaultScenario;
@@ -85,8 +87,20 @@ int main(int argc, char** argv)
         return reject_unknown_scenario(options.scenario_id);
     }
 
-    const sim::hil::HilConfig config = sim::hil::hil_config_from_options(options);
+    const std::expected<sim::hil::HilConfig, std::string> configuration =
+        sim::hil::hil_config_from_options(options);
+    if (!configuration.has_value()) {
+        std::cerr << "HIL configuration error: " << configuration.error() << "\n";
+        return 2;
+    }
+    const sim::hil::HilConfig& config = *configuration;
     const std::array<sim::sil::FaultScenario, 1> scenarios{sim::hil::hil_fault_from_options(options)};
+    const auto snapshot = sim::config::write_configuration_snapshot(
+        options.config_output_path, sim::host::hil_configuration_text(config, scenarios[0]));
+    if (!snapshot) {
+        std::cerr << "HIL configuration error: " << snapshot.error() << "\n";
+        return 2;
+    }
     const bool fault_expected = scenarios[0].failure_mode != sim::sil::FailureMode::NONE;
 
     sim::hil::write_header(std::cout, config, fault_expected, sim::hil::detect_stm32_probe());

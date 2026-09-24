@@ -57,6 +57,8 @@ set(HIL_CLOCK_FILES
 set(HIL_CONFIG_FILES
     Src/Embedded/Hil/Config/HilConfig.cppm
     Src/Embedded/Hil/Config/HilConfig.cpp
+    Src/Embedded/Hil/Config/HilHardwareConfig.cppm
+    Src/Embedded/Hil/Config/HilHardwareConfig.cpp
     Src/Embedded/Hil/Config/HilScenarios.cppm
     Src/Embedded/Hil/Config/HilScenarios.cpp
 )
@@ -208,6 +210,8 @@ set(SIL_CORE_FILES
 
 # HIL deterministic test suite (runner, protocol, data-integrity, fault tests).
 set(TEST_HIL_FILES
+    Tests/Config/RuntimeConfigTests.cppm
+    Tests/Config/RuntimeConfigTests.cpp
     Tests/Hil/HilTests.cppm
     Tests/Hil/HilTests-Core.cpp
     Tests/Hil/HilTests-Runner.cpp
@@ -222,4 +226,6 @@ set(TEST_HIL_FILES
     Tests/Hil/Transport/HilTests-Transport.cpp
     Tests/Hil/HilTests-Data.cpp
     Tests/Hil/HilTests-Faults.cpp
+    Tests/Hil/Config/HilHardwareConfigTests.cppm
+    Tests/Hil/Config/HilHardwareConfigTests.cpp
 )

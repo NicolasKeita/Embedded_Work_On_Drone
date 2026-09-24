@@ -20,6 +20,11 @@ void print_hil_usage(std::string_view name)
     std::cout << "Usage: " << name << " [options]\n";
     std::cout << "  --scenario <id>         functional scenario ID (default NOMINAL-001)\n";
     std::cout << "  --interface <channel>   auto (trusted FC1, default), loopback or the trusted FC1 device\n";
+    std::cout << "  --hardware-config <path>  ST-LINK identities (default config/hil_hardware.conf)\n";
+    std::cout << "  --config <path>        host runner settings (default config/hil.conf)\n";
+    std::cout << "  --simulation-config <path>  model settings (default config/simulation.conf)\n";
+    std::cout << "  --scenarios-dir <path> shared profiles (default config/scenarios)\n";
+    std::cout << "  --config-output <path> resolved run configuration snapshot\n";
     std::cout << "  --duration <s>          override mission duration in seconds\n";
     std::cout
         << "  --telemetry-period <s>  override human-readable report period (default 1 s)\n";

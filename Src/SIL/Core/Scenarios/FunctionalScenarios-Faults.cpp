@@ -30,6 +30,8 @@ namespace {
             .duration_s = 100.0,
             .tracking_tolerance = 1.0,
             .station_hold_seconds = 120.0,
+            .sil_fault_start_s = 40.0,
+            .hil_fault_start_s = 40.0,
         },
         {
             .id = "FAULT_INJECTOR-003",
@@ -44,6 +46,10 @@ namespace {
             .target = {.z = 10.0},
             .duration_s = 30.0,
             .tracking_tolerance = 1.0,
+            .sil_fault_start_s = 20.0,
+            .sil_fault_duration_s = 10.0,
+            .hil_fault_start_s = 5.0,
+            .hil_fault_duration_s = 20.0,
         },
     }};
 }

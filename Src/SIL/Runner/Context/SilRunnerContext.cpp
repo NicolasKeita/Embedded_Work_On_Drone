@@ -22,6 +22,27 @@ namespace sim::sil {
 using sim::safety::HealthMonitorConfig;
 using sim::safety::SafetyManagerConfig;
 
+/* Uses the same raised-cosine gust and half-open activation interval as HIL. */
+std::float64_t wind_factor(std::float64_t start_s, std::float64_t end_s,
+                           std::float64_t gust_period_s, std::float64_t time_s) noexcept
+{
+    if (time_s < start_s || time_s >= end_s) {
+        return 0.0;
+    }
+    if (gust_period_s <= 0.0) {
+        return 1.0;
+    }
+    const std::float64_t phase = (time_s - start_s) / gust_period_s;
+    return 0.5 - 0.5 * std::cos(2.0 * std::numbers::pi * phase);
+}
+
+/* Resolves the configured wind envelope without allocation or filesystem access. */
+std::float64_t wind_factor(const SilConfig& config, std::float64_t time_s) noexcept
+{
+    return wind_factor(config.wind_start_s, config.wind_end_s, config.wind_gust_period_s, time_s);
+}
+
+
 /*
 Assembles the run context: flight controller, comms bus, monitoring stack and
 trace are built from the configuration; telemetry recorders reserve their

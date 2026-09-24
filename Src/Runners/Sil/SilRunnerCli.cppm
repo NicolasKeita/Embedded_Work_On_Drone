@@ -18,6 +18,10 @@ export namespace sim::test::sil {
 struct CliOptions {
     std::optional<std::string>    scenario;
     std::optional<std::float64_t> telemetry_period;
+    std::string                   config_path = "config/sil.conf";
+    std::string                   simulation_config_path = "config/simulation.conf";
+    std::string                   scenarios_dir = "config/scenarios";
+    std::string                   config_output = "docs/validation/data/sil_configuration.txt";
     bool                          all = false;
     bool                          verbose = false;
     bool                          help = false;

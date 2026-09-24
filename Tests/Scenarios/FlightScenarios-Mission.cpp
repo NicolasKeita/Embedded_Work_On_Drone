@@ -13,6 +13,7 @@ import std;
 import Aircraft;
 import FlightController;
 import MissionRunner;
+import SilRuntimeConfig;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {
@@ -32,7 +33,7 @@ void autonomous_mission(TestHarness&                  runner,
 {
     runner.begin_scenario("NOMINAL-010", "Full mission (20, -15, 0) -> (0, 0, 100)");
     runner.log_header();
-    ControllerConfig config{.hover_rpm = hover_rpm};
+    ControllerConfig config = sim::host::sil_controller_config(hover_rpm);
     FlightController controller{config, dispersion};
     Aircraft aircraft{dispersion};
     std::cout << "-- Phase 1: station keeping at point (20, -15, 100) --" << std::endl;

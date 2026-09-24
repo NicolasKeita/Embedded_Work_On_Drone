@@ -40,20 +40,59 @@ namespace {
     }
 
     /* Registry storage of the assembled catalogs, initialized on first use. */
-    const std::array<FunctionalScenario, functional_scenario_count>* registry_storage() noexcept
+    std::array<FunctionalScenario, functional_scenario_count>* registry_storage() noexcept
     {
-        static const std::array<FunctionalScenario, functional_scenario_count> kScenarios =
+        static std::array<FunctionalScenario, functional_scenario_count> scenarios =
             assemble_scenarios();
 
-        return &kScenarios;
+        return &scenarios;
     }
 }
 
+/* Returns the canonical profiles with any validated startup overrides applied. */
 std::span<const FunctionalScenario> functional_scenarios() noexcept
 {
     return std::span<const FunctionalScenario>{*registry_storage()};
 }
 
+/* Reconstructs the baseline from immutable catalogs instead of previously loaded values. */
+std::array<FunctionalScenario, functional_scenario_count> functional_scenario_defaults() noexcept
+{
+    return assemble_scenarios();
+}
+
+/* Commits only profile values and retains stable literal-backed scenario identities. */
+std::expected<void, std::string> apply_functional_scenarios(
+    std::span<const FunctionalScenario> scenarios)
+{
+    std::array<FunctionalScenario, functional_scenario_count>& registry = *registry_storage();
+
+    if (scenarios.size() != registry.size()) {
+        return std::unexpected("Scenario configuration must preserve the complete fixed catalog");
+    }
+    for (std::size_t index = 0; index < registry.size(); ++index) {
+        const FunctionalScenario& current = registry[index];
+        const FunctionalScenario& replacement = scenarios[index];
+
+        if (replacement.id != current.id || replacement.description != current.description
+            || replacement.family != current.family || replacement.failure_mode != current.failure_mode
+            || replacement.fault_expected != current.fault_expected
+            || replacement.parameters.corruption != current.parameters.corruption) {
+            return std::unexpected("Scenario configuration cannot change identity: " + std::string(current.id));
+        }
+    }
+    for (std::size_t index = 0; index < registry.size(); ++index) {
+        const std::string_view id = registry[index].id;
+        const std::string_view description = registry[index].description;
+
+        registry[index] = scenarios[index];
+        registry[index].id = id;
+        registry[index].description = description;
+    }
+    return {};
+}
+
+/* Resolves a stable canonical identity in the current startup-configured registry. */
 const FunctionalScenario* find_functional_scenario(std::string_view id) noexcept
 {
     for (const FunctionalScenario& scenario : *registry_storage()) {

@@ -17,6 +17,7 @@ import MissionRunner;
 import Scenarios;
 import SilFaultScenario;
 import SilTelemetry;
+import SilRuntimeConfig;
 import TestHarness;
 import TwinWebSocketPublisher;
 
@@ -25,7 +26,7 @@ namespace sim::test::sil {
 /* Replays one completed SIL scenario to the localhost viewer at its recorded telemetry cadence. */
 void stream_sil_twin(const sim::sil::ScenarioRecord& record)
 {
-    if (record.telemetry.empty()) {
+    if (!sim::host::sil_runtime_options().viewer_enabled || record.telemetry.empty()) {
         return;
     }
 
@@ -37,7 +38,7 @@ void stream_sil_twin(const sim::sil::ScenarioRecord& record)
     for (const sim::sil::TelemetrySample& sample : record.telemetry) {
         const std::float64_t delay_s = std::clamp(sample.time - previous_time,
                                                   std::float64_t{0.0},
-                                                  std::float64_t{0.1});
+                                                  sim::host::sil_runtime_options().viewer_replay_max_delay_s);
         std::this_thread::sleep_for(std::chrono::duration<std::float64_t>{delay_s});
         std::ostringstream snapshot;
         write_snapshot(snapshot, record, sample);
@@ -55,6 +56,8 @@ void publish_functional_sample(const sim::test::MissionViewerSample& sample, voi
     std::ostringstream   out;
 
     out << std::setprecision(8) << "{\"source\":\"SIL\",\"time_s\":" << sample.time
+        << ",\"wind\":{\"x_mps\":" << sample.wind_x_mps
+        << ",\"y_mps\":" << sample.wind_y_mps << '}'
         << ",\"aircraft\":{\"x_m\":" << aircraft.x << ",\"y_m\":" << aircraft.y
         << ",\"z_m\":" << aircraft.z << ",\"altitude_m\":" << aircraft.z
         << ",\"pitch_rad\":" << aircraft.pitch << ",\"roll_rad\":" << aircraft.roll
@@ -69,10 +72,12 @@ void publish_functional_sample(const sim::test::MissionViewerSample& sample, voi
     write_components(out, {}, false);
     out << "},\"fc2\":{\"status\":\"ONLINE\",\"components\":";
     write_components(out, {}, false);
-    out << "},\"hil\":{\"loop_hz\":100,\"deadline_misses\":0},\"events\":[]}";
+    out << "},\"hil\":{\"loop_hz\":" << 1.0 / sample.dt_s
+        << ",\"deadline_misses\":0},\"events\":[]}";
 
     context.publisher.publish(out.str());
-    std::this_thread::sleep_for(std::chrono::milliseconds{50});
+    std::this_thread::sleep_for(std::chrono::duration<std::float64_t>{
+        sim::host::sil_runtime_options().viewer_period_s});
 }
 
 /* Runs one functional SIL mission while streaming its compressed progress to the viewer. */
@@ -80,6 +85,10 @@ void run_functional_sil_twin(const sim::test::ScenarioEntry& entry,
                              sim::test::TestHarness&         runner,
                              std::float64_t                  hover_rpm)
 {
+    if (!sim::host::sil_runtime_options().viewer_enabled) {
+        entry.run(runner, hover_rpm, {});
+        return;
+    }
     FunctionalViewerContext context{};
 
     std::cout << "\n--- Digital Twin SIL live stream: ws://localhost:8765/twin ---" << std::endl;

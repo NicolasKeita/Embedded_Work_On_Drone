@@ -13,6 +13,7 @@ import std;
 import Aircraft;
 import PhysicsDispersion;
 import Scenarios;
+import SilRuntimeConfig;
 import TestHarness;
 
 namespace sim::monte_carlo {
@@ -31,7 +32,8 @@ namespace {
             metrics.passed = false;
             return metrics;
         }
-        sim::test::TestHarness runner{sim::test::HarnessConfig{.verbose = verbose}};
+        sim::test::TestHarness runner{sim::test::HarnessConfig{
+            .dt = sim::host::sil_runtime_options().runner.dt, .verbose = verbose}};
         const Aircraft reference{dispersion};
         scenario_entry->run(runner, reference.hover_rpm(), dispersion);
         metrics.passed = runner.passed();

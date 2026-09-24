@@ -15,6 +15,8 @@ import SafetyManager;
 import SilEvents;
 import SilFaultScenario;
 import SilTelemetry;
+import SilRunnerContext;
+import SilRuntimeConfig;
 
 namespace sim::test::sil {
 
@@ -95,7 +97,11 @@ void write_snapshot(std::ostream&                    out,
                                              : std::string_view{};
     const auto safety_mode = static_cast<sim::safety::SafetyMode>(sample.safety_state);
 
-    out << std::setprecision(8) << "{\"source\":\"SIL\",\"time_s\":" << sample.time << ",\"aircraft\":";
+    const auto config = sim::host::sil_config_for_scenario(record.name);
+    const std::float64_t wind = sim::sil::wind_factor(config, sample.time);
+    out << std::setprecision(8) << "{\"source\":\"SIL\",\"time_s\":" << sample.time
+        << ",\"wind\":{\"x_mps\":" << config.wind_x_mps * wind
+        << ",\"y_mps\":" << config.wind_y_mps * wind << "},\"aircraft\":";
     write_state_json(out, sample);
     out << ",\"health\":";
     write_json_string(out, active ? "DEGRADED" : "HEALTHY");
@@ -112,7 +118,8 @@ void write_snapshot(std::ostream&                    out,
     write_fc_status(out, fc1_failed ? "OFFLINE" : "ONLINE", affected, fc1_failed);
     out << ",\"fc2\":{\"status\":\"ONLINE\",\"components\":";
     write_components(out, {}, false);
-    out << "},\"hil\":{\"loop_hz\":100,\"deadline_misses\":0},\"events\":";
+    out << "},\"hil\":{\"loop_hz\":" << 1.0 / config.dt
+        << ",\"deadline_misses\":0},\"events\":";
     write_recent_events(out, record.events, sample.time);
     out << '}';
 }

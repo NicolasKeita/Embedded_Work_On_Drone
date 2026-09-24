@@ -35,7 +35,7 @@ std::string_view shared_description(std::string_view id)
 
 }
 
-const std::array<ScenarioEntry, 17> ScenarioCatalog::scenarios_{{
+const std::array<ScenarioEntry, 19> ScenarioCatalog::scenarios_{{
     {"NOMINAL-001",        shared_description("NOMINAL-001"),     flight_scenarios::autonomous_altitude_hold},
     {"NOMINAL-002",         "Grounded rest (RPM = 0, servos = 0)",         scenarios::rest},
     {"NOMINAL-003",        "Vertical climb (RPM > hover)",              scenarios::climb},
@@ -64,6 +64,8 @@ const std::array<ScenarioEntry, 17> ScenarioCatalog::scenarios_{{
      flight_scenarios::low_offset_takeoff},
     {"NOMINAL-017", shared_description("NOMINAL-017"),
      flight_scenarios::stratosphere_climb},
+    {"WIND-001", shared_description("WIND-001"), flight_scenarios::steady_crosswind},
+    {"WIND-002", shared_description("WIND-002"), flight_scenarios::diagonal_gusts},
 }};
 
 std::span<const ScenarioEntry> ScenarioCatalog::all() noexcept

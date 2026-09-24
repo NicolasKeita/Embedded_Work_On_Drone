@@ -13,6 +13,7 @@ import std;
 namespace sim::hil {
 
 namespace {
+    /* Applies one value option and reports missing or invalid arguments. */
     [[nodiscard]] std::expected<void, std::string> apply_value_option(HilCliOptions& options,
                                                                        const std::string& arg,
                                                                        int argc,
@@ -24,6 +25,29 @@ namespace {
         }
         if (arg == "--interface") {
             return apply_string_option(options.interface_name, argc, argv, i, "--interface");
+        }
+        if (arg == "--config") {
+            return apply_string_option(options.config_path, argc, argv, i, "--config");
+        }
+        if (arg == "--simulation-config") {
+            return apply_string_option(options.simulation_config_path, argc, argv, i, "--simulation-config");
+        }
+        if (arg == "--scenarios-dir") {
+            return apply_string_option(options.scenarios_directory, argc, argv, i, "--scenarios-dir");
+        }
+        if (arg == "--config-output") {
+            return apply_string_option(options.config_output_path, argc, argv, i, "--config-output");
+        }
+        if (arg == "--hardware-config") {
+            const auto result = apply_string_option(options.hardware_config_path, argc, argv, i,
+                                                    "--hardware-config");
+            if (!result.has_value()) {
+                return result;
+            }
+            if (options.hardware_config_path.empty()) {
+                return std::unexpected("--hardware-config requires a nonempty path");
+            }
+            return {};
         }
         if (arg == "--duration") {
             return apply_float_argument(options.duration, argc, argv, i, "--duration");

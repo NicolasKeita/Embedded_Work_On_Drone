@@ -13,6 +13,7 @@ import std;
 import SilObservability;
 import SilObservabilityTelemetry;
 import SilReporting;
+import SilRuntimeConfig;
 import SilTwinViewer;
 import TestHarness;
 
@@ -36,15 +37,17 @@ bool run_sil_scenario(std::string_view id, TestHarness& runner, std::float64_t t
 
     std::cout << "\n--- Mission telemetry (period " << telemetry_report_interval_s << " s) ---\n";
     sim::sil::write_telemetry_table(std::cout, record.telemetry, telemetry_report_interval_s);
-    stream_sil_twin(record);
+    if (sim::host::sil_runtime_options().viewer_enabled) {
+        stream_sil_twin(record);
+    }
     return true;
 }
 
-/* Runs the three shared scenarios, the observability suite and the report artifacts. */
+/* Runs the five shared scenarios, the observability suite and the report artifacts. */
 void run_all_sil_scenarios(TestHarness& runner)
 {
-    std::array<SilRunOutput, 3>             outputs{};
-    std::array<ScenarioRecord, 3>           records{};
+    std::array<SilRunOutput, 5>             outputs{};
+    std::array<ScenarioRecord, 5>           records{};
     const std::span<const SilScenarioEntry> entries = sil_scenarios();
 
     for (std::size_t index = 0; index < entries.size(); ++index) {

@@ -18,6 +18,7 @@ import SafetyManager;
 import SilEvents;
 import SilReporting;
 import SilRunner;
+import SilRuntimeConfig;
 import SilTelemetry;
 import SilTypes;
 import Telemetry;
@@ -37,9 +38,9 @@ using sim::sil::SILRunner;
 using MissionState = sim::control::MissionState;
 
 /* Test case: climb mission towards 10 m, optional faults applied by the engine. */
-std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> scenarios)
+std::expected<SilRunOutput, SilError> run_case(std::string_view id, std::span<const FaultScenario> scenarios)
 {
-    return SILRunner{}.run(scenarios);
+    return SILRunner{sim::host::sil_config_for_scenario(id)}.run(scenarios);
 }
 
 sim::sil::FaultScenario make_sil_fault(std::string_view id,
@@ -52,14 +53,10 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-001");
 
     runner.begin_scenario(shared.id, shared.description);
-    const FaultScenario scenario = make_sil_fault(shared.id, 40.0, 0.0);
+    const FaultScenario scenario = make_sil_fault(shared.id, shared.sil_fault_start_s, shared.sil_fault_duration_s);
     const std::array<FaultScenario, 1> scenarios{scenario};
 
-    const sim::sil::SilConfig config{
-        .duration_s = shared.duration_s,
-        .target = shared.target,
-        .controller{.station_hold_seconds = shared.station_hold_seconds},
-    };
+    const sim::sil::SilConfig config = sim::host::sil_config_for_scenario(shared.id);
     const std::expected<SilRunOutput, SilError> outcome = SILRunner{config}.run(scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
@@ -74,7 +71,7 @@ void fc1_failure_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRec
     runner.check(before_fault != output.telemetry.rend()
                      && std::abs(before_fault->altitude_m - shared.target.z) <= 0.5
                      && before_fault->mission_state == static_cast<std::uint8_t>(MissionState::STATION_KEEPING),
-                 "station keeping at 10 m before FC1 failure");
+                 "station keeping at configured target before FC1 failure");
     SimulationResult& r = output.result;
     r.test_verdict = r.compute_verdict(true);
     runner.check(r.fault_detected, "FC1 failure detected");

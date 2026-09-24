@@ -11,7 +11,9 @@ module HilTests;
 
 import std;
 
+import HilHardwareConfigTests;
 import HilProtoTests;
+import RuntimeConfigTests;
 import TestHarness;
 
 namespace sim::test::hil {
@@ -28,6 +30,12 @@ void run_protocol_tests(sim::test::TestHarness& runner)
 
 void run_all_hil_tests(sim::test::TestHarness& runner)
 {
+    std::cout << "\n=== Host runtime configuration tests ===" << std::endl;
+    sim::test::config::run_runtime_config_tests(runner);
+
+    std::cout << "\n=== HIL hardware configuration tests ===" << std::endl;
+    sim::test::hil::run_hardware_config_tests(runner);
+
     std::cout << "\n=== HIL runner tests ===" << std::endl;
     run_runner_tests(runner);
 

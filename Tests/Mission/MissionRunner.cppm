@@ -15,6 +15,7 @@ import std;
 import Aircraft;
 import FlightController;
 import PhysicsDispersion;
+import SilRuntimeConfig;
 
 using sim::control::FlightController;
 
@@ -52,6 +53,13 @@ struct MissionRunRequest {
     std::float64_t            tolerance = 0.0;
     bool                      stop_on_zone = false;
     bool                      verbose = true;
+    std::float64_t            dt_s = sim::host::sil_runtime_options().runner.dt;
+    std::float64_t            report_period_s = sim::host::sil_runtime_options().report_period_s;
+    std::float64_t            wind_x_mps = 0.0;
+    std::float64_t            wind_y_mps = 0.0;
+    std::float64_t            wind_start_s = 0.0;
+    std::float64_t            wind_end_s = 0.0;
+    std::float64_t            wind_gust_period_s = 0.0;
 };
 
 struct MissionViewerSample {
@@ -59,6 +67,9 @@ struct MissionViewerSample {
     AircraftState              aircraft{};
     sim::control::TargetState  target{};
     sim::control::MissionState mission = sim::control::MissionState::SPIN_UP;
+    std::float64_t             wind_x_mps = 0.0;
+    std::float64_t             wind_y_mps = 0.0;
+    std::float64_t             dt_s = 0.01;
 };
 
 using MissionViewerCallback = void (*)(const MissionViewerSample&, void*);

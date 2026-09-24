@@ -28,6 +28,11 @@ export namespace sim::hil {
 struct HilCliOptions {
     std::string                   scenario_id{"NOMINAL-001"};
     std::string                   interface_name{"auto"};
+    std::string                   hardware_config_path{};
+    std::string                   config_path{"config/hil.conf"};
+    std::string                   simulation_config_path{"config/simulation.conf"};
+    std::string                   scenarios_directory{"config/scenarios"};
+    std::string                   config_output_path{"docs/validation/data/hil_configuration.txt"};
     std::optional<std::float64_t> duration{};
     std::optional<std::float64_t> telemetry_period{};
     std::optional<std::uint64_t>  seed{};
@@ -49,9 +54,10 @@ void print_hil_usage(std::string_view name);
 void list_hil_scenarios();
 
 /*
-Builds the HilConfig of the selected scenario with the command-line overrides applied.
+Builds the selected scenario configuration and loads hardware identities before discovery.
+Explicit loopback requires no hardware file unless --hardware-config is supplied.
 */
-[[nodiscard]] HilConfig hil_config_from_options(const HilCliOptions& options);
+[[nodiscard]] std::expected<HilConfig, std::string> hil_config_from_options(const HilCliOptions& options);
 
 /* Returns the fault scenario bound to the selected HIL scenario record (empty when nominal). */
 [[nodiscard]] sim::sil::FaultScenario hil_fault_from_options(const HilCliOptions& options);

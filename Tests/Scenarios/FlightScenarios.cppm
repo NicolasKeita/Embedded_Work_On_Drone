@@ -60,4 +60,12 @@ void low_offset_takeoff(TestHarness& runner, std::float64_t hover_rpm,
 void stratosphere_climb(TestHarness& runner, std::float64_t hover_rpm,
                         const sim::PhysicsDispersion& dispersion = {});
 
+/* WIND-001: steady crosswind, followed by recovery at the configured mission target. */
+void steady_crosswind(TestHarness& runner, std::float64_t hover_rpm,
+                      const sim::PhysicsDispersion& dispersion = {});
+
+/* WIND-002: diagonal periodic gusts, followed by recovery at the configured target. */
+void diagonal_gusts(TestHarness& runner, std::float64_t hover_rpm,
+                     const sim::PhysicsDispersion& dispersion = {});
+
 }

@@ -3,8 +3,7 @@ Filename: Src/Embedded/Hil/Config/HilScenarios.cpp
 Description: HIL execution bindings of the canonical scenarios defined by the
 shared FunctionalScenarios registry. Contains no scenario definition of its
 own: each HilConfig is derived from the registry's mission profile (target,
-duration, wind disturbance and sensor/report overrides); only the HIL fault
-activation timing is defined here.
+duration, wind disturbance, sensor/report overrides and HIL fault activation timing).
 
 Copyright (c) 2026 Nicolas K.
 All rights reserved.
@@ -22,6 +21,7 @@ import Telemetry;
 
 namespace sim::hil {
 
+/* Returns the host runner defaults used before scenario-specific overrides. */
 HilConfig hil_base_config()
 {
     return HilConfig{};
@@ -30,22 +30,16 @@ HilConfig hil_base_config()
 namespace {
 
 /*
-HIL fault activation timing: property of the real-time bench, not of the scenario
-identity. FC1_UNAVAILABLE activates at 40 s (permanent, duration <= 0);
-INVALID_SENSOR_DATA activates at 5 s for 20 s.
+Derives the HIL fault window from the configured target-specific profile.
 */
 sim::sil::FaultScenario hil_fault_timing(const sim::test::FunctionalScenario& shared)
 {
-    sim::sil::FaultScenario fault{
-        .start_time = shared.id == "FAULT_INJECTOR-001" ? 40.0 : 5.0,
+    return {
+        .start_time = shared.hil_fault_start_s,
+        .duration = shared.hil_fault_duration_s,
         .failure_mode = shared.failure_mode,
         .parameters = shared.parameters,
     };
-
-    if (shared.failure_mode == sim::sil::FailureMode::INVALID_SENSOR_DATA) {
-        fault.duration = 20.0;
-    }
-    return fault;
 }
 
 /* Derives one HIL execution binding from a canonical scenario of the registry. */
@@ -58,6 +52,8 @@ HilScenarioRecord make_hil_record(const sim::test::FunctionalScenario& shared)
     config.duration_s = shared.duration_s;
     config.wind_x_mps = shared.wind_x_mps;
     config.wind_y_mps = shared.wind_y_mps;
+    config.wind_start_s = shared.wind_start_s;
+    config.wind_end_s = shared.wind_end_s;
     config.wind_gust_period_s = shared.wind_gust_period_s;
 
     if (shared.station_hold_seconds > 0.0) {
@@ -86,18 +82,32 @@ std::array<HilScenarioRecord, sim::test::functional_scenario_count> build_hil_sc
     return records;
 }
 
-const std::array<HilScenarioRecord, sim::test::functional_scenario_count> kScenarios = build_hil_scenarios();
+/* Keeps the derived catalog stable after startup without early static construction. */
+std::array<HilScenarioRecord, sim::test::functional_scenario_count>& catalog_storage()
+{
+    static std::array<HilScenarioRecord, sim::test::functional_scenario_count> scenarios = build_hil_scenarios();
+
+    return scenarios;
+}
 
 }
 
+/* Refreshes the HIL profiles after the shared startup configuration has been applied. */
+void HilScenarioCatalog::refresh()
+{
+    catalog_storage() = build_hil_scenarios();
+}
+
+/* Returns the catalog prepared before mission execution. */
 std::span<const HilScenarioRecord> HilScenarioCatalog::all() noexcept
 {
-    return kScenarios;
+    return catalog_storage();
 }
 
+/* Resolves a canonical scenario in the prepared HIL catalog. */
 const HilScenarioRecord* HilScenarioCatalog::find(std::string_view id) noexcept
 {
-    for (const HilScenarioRecord& scenario : kScenarios) {
+    for (const HilScenarioRecord& scenario : catalog_storage()) {
         if (scenario.id == id) {
             return &scenario;
         }

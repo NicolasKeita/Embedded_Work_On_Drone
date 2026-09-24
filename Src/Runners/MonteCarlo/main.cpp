@@ -35,7 +35,7 @@ and prints the statistical summary of the whole campaign.
 int main(int argc, char* argv[])
 {
     const std::string_view             executableName = (argc > 0 && argv[0] != nullptr) ? argv[0] : "SIL_MONTE_CARLO";
-    const sim::monte_carlo::CliOptions options = sim::monte_carlo::parse_cli(argc, argv);
+    sim::monte_carlo::CliOptions options = sim::monte_carlo::parse_cli(argc, argv);
 
     if (options.help) {
         sim::monte_carlo::print_usage(executableName);
@@ -47,6 +47,12 @@ int main(int argc, char* argv[])
         return 2;
     }
 
+    auto configured = sim::monte_carlo::prepare_campaign(options);
+    if (!configured) {
+        std::cerr << "Configuration error: " << configured.error() << '\n';
+        return 2;
+    }
+    options = std::move(*configured);
     std::cout << "=== Monte-Carlo SIL validation campaign ===" << std::endl;
     std::cout << "Master seed   : " << options.seed << std::endl;
     std::cout << "Run count     : " << options.runs << std::endl;

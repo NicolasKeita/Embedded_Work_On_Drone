@@ -45,7 +45,7 @@ enum class InterfaceSelection : std::uint8_t {
 struct HilConfig {
     /* Resolved byte channel: "loopback" or a stable Linux serial-device path. */
     std::string        interface_name{"loopback"};
-    std::string        fc1_stlink_serial{"066FFF525771555067225635"};
+    std::string        fc1_stlink_serial{};
     std::string        fc2_stlink_serial{};
     InterfaceSelection interface_selection = InterfaceSelection::ExplicitLoopback;
 
@@ -70,6 +70,7 @@ struct HilConfig {
     /* Safety/health parameters reused from the SIL baseline (SilConfig). */
     std::float64_t                   heartbeat_timeout_s = 0.10;
     std::float64_t                   actuator_mismatch_rpm = 60.0;
+    std::float64_t                   actuator_mismatch_hold_s = 0.50;
     std::float64_t                   thrust_compensation_margin = 1.7;
     sim::sil::SensorValidationLimits sensor_limits{};
 

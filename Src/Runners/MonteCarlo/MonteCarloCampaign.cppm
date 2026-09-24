@@ -27,6 +27,14 @@ struct CliOptions {
     std::string   scenario = "NOMINAL-001";
     std::string   output_csv{};
     std::string   output_json{};
+    std::string   config_path{"config/monte_carlo.conf"};
+    std::string   sil_config_path{"config/sil.conf"};
+    std::string   simulation_config_path{"config/simulation.conf"};
+    std::string   scenarios_directory{"config/scenarios"};
+    std::string   config_output_path{"docs/validation/data/monte_carlo_configuration.txt"};
+    bool          seed_override = false;
+    bool          runs_override = false;
+    bool          scenario_override = false;
     bool          verbose = false;
     bool          help = false;
     bool          invalid = false;
@@ -66,6 +74,9 @@ struct CampaignStats {
 
 /* Parses the SIL_MONTE_CARLO command line into CliOptions. */
 [[nodiscard]] CliOptions parse_cli(int argc, char* argv[]);
+
+/* Loads the campaign, model, runner and shared profiles, then applies CLI overrides. */
+[[nodiscard]] std::expected<CliOptions, std::string> prepare_campaign(CliOptions options);
 
 /* Prints the SIL_MONTE_CARLO usage banner. */
 void print_usage(std::string_view executableName);

@@ -17,6 +17,7 @@ import Aircraft;
 import FlightController;
 import FunctionalScenarios;
 import MissionRunner;
+import SilRuntimeConfig;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {
@@ -40,12 +41,18 @@ void autonomous_altitude_hold(TestHarness&                  runner,
     runner.begin_scenario(scenario.id, scenario.description);
     runner.log_header();
 
-    FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};
+    FlightController controller{sim::host::sil_controller_config(hover_rpm, scenario.id), dispersion};
     Aircraft aircraft{dispersion};
 
     const MissionRunTrace trace = run_mission(controller, aircraft,
                     {.target = scenario.target, .duration = scenario.duration_s, .axis = TrackingAxis::z_axis,
-                     .tolerance = scenario.tracking_tolerance, .verbose = runner.verbose()},
+                     .tolerance = scenario.tracking_tolerance, .verbose = runner.verbose(),
+         .report_period_s = sim::host::sil_report_period(scenario.id),
+         .wind_x_mps = scenario.wind_x_mps,
+         .wind_y_mps = scenario.wind_y_mps,
+         .wind_start_s = scenario.wind_start_s,
+         .wind_end_s = scenario.wind_end_s,
+         .wind_gust_period_s = scenario.wind_gust_period_s},
                     dispersion);
 
     print_metrics_report("altitude", trace.metrics);

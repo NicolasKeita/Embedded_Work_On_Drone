@@ -5,9 +5,9 @@ canonical source shared by the SIL and HIL execution layers: each entry binds a
 standardised scenario ID (NOMINAL-xxx, FAULT_INJECTOR-xxx, WIND-xxx) to its
 description, declarative fault identity (failure mode and parameters) and shared
 mission profile (target, duration, tracking tolerance, wind disturbance and
-sensor/report overrides). Execution layers must not redefine any of these
-fields; they only contribute environment-specific parameters such as fault
-activation timing. The execution target (SIL/HIL) is injected at runtime by the
+sensor/report overrides), plus explicit SIL/HIL fault activation windows.
+Startup configuration can override numeric profile values while preserving the
+fixed scenario identities. The execution target (SIL/HIL) is injected at runtime by the
 harness, so the scenario names never encode the execution environment.
 Exports:
     enum class FunctionalFamily,
@@ -42,8 +42,8 @@ Target-agnostic description of one functional scenario: its standardised ID,
 human-readable description, the declarative fault identity (failure mode and
 parameters; FailureMode::NONE for nominal scenarios), whether a fault is
 expected, and the family used to group the scenario in the taxonomy. The fault
-activation timing (start time and duration) is target-specific and applied by
-each runner.
+activation timing (start time and duration) has separate SIL and HIL values in
+the same shared profile and is applied by each runner.
 
 The mission fields below the fault identity are the shared, target-independent
 definition of the run: mission target, mission window (s), tracking tolerance
@@ -80,6 +80,16 @@ struct FunctionalScenario {
     std::float64_t wind_x_mps = 0.0;
     std::float64_t wind_y_mps = 0.0;
     std::float64_t wind_gust_period_s = 0.0;
+
+    /* Wind activation window in seconds, shared by SIL and HIL. */
+    std::float64_t wind_start_s = 8.0;
+    std::float64_t wind_end_s = 24.0;
+
+    /* Runner-specific fault windows in seconds; zero duration means permanent. */
+    std::float64_t sil_fault_start_s = 0.0;
+    std::float64_t sil_fault_duration_s = 0.0;
+    std::float64_t hil_fault_start_s = 0.0;
+    std::float64_t hil_fault_duration_s = 0.0;
 };
 
 /* Number of scenarios held by the shared registry (compile-time constant). */
@@ -94,7 +104,18 @@ constexpr std::size_t fault_scenario_count = 2;
 /* Number of wind-disturbance scenarios held by the wind catalog. */
 constexpr std::size_t wind_scenario_count = 2;
 
+/* Returns the current fixed-size registry, configured before either runner starts. */
 [[nodiscard]] std::span<const FunctionalScenario> functional_scenarios() noexcept;
+
+/* Returns the compiled baseline independently of previous startup overrides. */
+[[nodiscard]] std::array<FunctionalScenario, functional_scenario_count> functional_scenario_defaults() noexcept;
+
+/*
+Applies validated startup profiles atomically without replacing immutable scenario
+identities or their static string storage. Call before creating runner configurations.
+*/
+[[nodiscard]] std::expected<void, std::string> apply_functional_scenarios(
+    std::span<const FunctionalScenario> scenarios);
 
 /*
 Resolves a functional scenario by its standardised ID (NOMINAL-xxx,

@@ -15,6 +15,32 @@ import std;
 
 export namespace sim {
 
+/* Distribution scales captured once by each Monte Carlo dispersion generator. */
+struct DispersionParameters
+{
+    std::float64_t mass_variation_std = 0.05;
+    std::float64_t cog_offset_x_std_m = 0.05;
+    std::float64_t cog_offset_y_std_m = 0.05;
+    std::float64_t cog_offset_z_std_m = 0.02;
+    std::float64_t actuator_gain_std = 0.025;
+    std::float64_t actuator_lag_std_s = 0.025;
+    std::float64_t wind_speed_std_mps = 2.0;
+    std::float64_t turbulence_maximum = 0.5;
+    std::float64_t atmospheric_density_maximum_offset = 0.02;
+    std::float64_t atmospheric_pressure_maximum_offset = 0.02;
+    std::float64_t imu_accel_noise_scale_mps2 = 0.05;
+    std::float64_t imu_gyro_noise_scale_radps = 0.005;
+    std::float64_t barometer_bias_std_m = 0.1;
+    std::float64_t barometer_drift_std_mps = 0.001;
+    std::float64_t gps_latency_jitter_std_s = 0.01;
+};
+
+/* Returns the distribution scales used by subsequently constructed generators. */
+[[nodiscard]] DispersionParameters dispersion_parameters() noexcept;
+
+/* Installs validated scales before constructing generators or starting worker threads. */
+void set_dispersion_parameters(const DispersionParameters& parameters) noexcept;
+
 /*
 Aircraft and environment parameter dispersions for Monte Carlo simulations.
 Contains variations for mass, center of gravity, actuators, environment, and sensors.
@@ -51,6 +77,7 @@ Uses std::mt19937_64 with a base seed and run index to produce reproducible rand
 class DispersionGenerator
 {
 public:
+    /* Captures the startup distribution scales and the campaign's master seed. */
     explicit DispersionGenerator(std::uint64_t base_seed);
 
     /*
@@ -68,6 +95,7 @@ public:
 
 private:
     std::uint64_t base_seed_;
+    sim::DispersionParameters parameters_ = sim::dispersion_parameters();
 };
 
 }

@@ -34,7 +34,7 @@ using sim::sil::SilError;
 using sim::sil::SilRunOutput;
 using sim::sil::SimulationResult;
 
-std::expected<SilRunOutput, SilError> run_case(std::span<const FaultScenario> scenarios);
+std::expected<SilRunOutput, SilError> run_case(std::string_view id, std::span<const FaultScenario> scenarios);
 sim::sil::FaultScenario make_sil_fault(std::string_view id,
                                        std::float64_t   start_time,
                                        std::float64_t   duration);
@@ -45,9 +45,9 @@ void sensor_fault_scenario(TestHarness& runner, SilRunOutput& output, ScenarioRe
     const sim::test::FunctionalScenario& shared = *sim::test::find_functional_scenario("FAULT_INJECTOR-003");
 
     runner.begin_scenario(shared.id, shared.description);
-    const FaultScenario scenario = make_sil_fault(shared.id, 20.0, 10.0);
+    const FaultScenario scenario = make_sil_fault(shared.id, shared.sil_fault_start_s, shared.sil_fault_duration_s);
     const std::array<FaultScenario, 1> scenarios{scenario};
-    const std::expected<SilRunOutput, SilError> outcome = run_case(scenarios);
+    const std::expected<SilRunOutput, SilError> outcome = run_case(shared.id, scenarios);
     if (!outcome.has_value()) {
         runner.check(false, "SIL runner failed");
         output = SilRunOutput{};

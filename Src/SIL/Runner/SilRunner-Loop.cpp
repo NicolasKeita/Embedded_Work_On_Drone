@@ -69,6 +69,8 @@ void SILRunner::apply_actuators(RunContext& ctx)
     ctx.last_effective_rpm = effective.wing_rpm;
     effective.wing_rpm *= ctx.env.actuator_efficiency;
     ctx.aircraft.set_command(effective);
+    const std::float64_t wind = wind_factor(cfg, ctx.time);
+    ctx.aircraft.set_wind(cfg.wind_x_mps * wind, cfg.wind_y_mps * wind);
     ctx.aircraft.update(cfg.dt);
 }
 

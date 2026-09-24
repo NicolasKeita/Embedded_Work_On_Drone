@@ -86,7 +86,12 @@ void write_target_block(std::ostream& out, const HilConfig& cfg, Stm32ProbeStatu
 
     out << "  Real-time pacing      : YES, monotonic steady clock (" << policy << ")\n";
     write_interface_selection(out, cfg);
-    out << "  Authorized FC1        : ST-LINK " << cfg.fc1_stlink_serial << "\n";
+    if (!cfg.fc1_stlink_serial.empty()) {
+        out << "  Authorized FC1        : ST-LINK " << cfg.fc1_stlink_serial << "\n";
+    }
+    if (!cfg.fc2_stlink_serial.empty()) {
+        out << "  Configured FC2        : ST-LINK " << cfg.fc2_stlink_serial << "\n";
+    }
     if (cfg.interface_name == "loopback") {
         out << "  FC execution target   : in-process host emulator (not the physical STM32)\n";
     }

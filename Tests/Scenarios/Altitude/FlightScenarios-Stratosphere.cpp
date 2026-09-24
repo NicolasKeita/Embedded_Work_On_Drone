@@ -16,6 +16,7 @@ import Aircraft;
 import FlightController;
 import FunctionalScenarios;
 import MissionRunner;
+import SilRuntimeConfig;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {
@@ -30,7 +31,7 @@ void stratosphere_climb(TestHarness&                  runner,
     runner.begin_scenario(scenario.id, scenario.description);
     runner.log_header();
 
-    sim::control::ControllerConfig config{.hover_rpm = hover_rpm};
+    sim::control::ControllerConfig config = sim::host::sil_controller_config(hover_rpm, scenario.id);
     sim::control::FlightController controller{config, dispersion};
     Aircraft aircraft{dispersion};
     const MissionRunTrace trace = run_mission(
@@ -40,7 +41,13 @@ void stratosphere_climb(TestHarness&                  runner,
          .duration = scenario.duration_s,
          .axis = TrackingAxis::z_axis,
          .tolerance = scenario.tracking_tolerance,
-         .verbose = runner.verbose()},
+         .verbose = runner.verbose(),
+         .report_period_s = sim::host::sil_report_period(scenario.id),
+         .wind_x_mps = scenario.wind_x_mps,
+         .wind_y_mps = scenario.wind_y_mps,
+         .wind_start_s = scenario.wind_start_s,
+         .wind_end_s = scenario.wind_end_s,
+         .wind_gust_period_s = scenario.wind_gust_period_s},
         dispersion);
 
     const AircraftState& final_state = aircraft.state();

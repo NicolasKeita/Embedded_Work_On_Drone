@@ -13,6 +13,7 @@ import std;
 import Aircraft;
 import FlightController;
 import MissionRunner;
+import SilRuntimeConfig;
 import TestHarness;
 
 namespace sim::test::flight_scenarios {
@@ -31,7 +32,7 @@ void autonomous_altitude(TestHarness&                  runner,
     runner.begin_scenario("NOMINAL-011", "Autonomous altitude hold (z: 0 -> 100 m)");
     runner.log_header();
 
-    FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};
+    FlightController controller{sim::host::sil_controller_config(hover_rpm), dispersion};
     Aircraft aircraft{dispersion};
 
     const MissionRunTrace trace = run_mission(controller, aircraft,
@@ -61,7 +62,7 @@ void autonomous_position_x(TestHarness&                  runner,
     runner.begin_scenario("NOMINAL-008", "Autonomous cascaded X axis (x: 20 -> 0 m)");
     runner.log_header();
 
-    FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};
+    FlightController controller{sim::host::sil_controller_config(hover_rpm), dispersion};
     Aircraft aircraft{dispersion};
 
     std::cout << "-- Phase 1: rendezvous with point (20, 0, 100) --" << std::endl;
@@ -94,7 +95,7 @@ void autonomous_position_y(TestHarness&                  runner,
     runner.begin_scenario("NOMINAL-009", "Autonomous cascaded Y axis (y: -15 -> 0 m)");
     runner.log_header();
 
-    FlightController controller{ControllerConfig{.hover_rpm = hover_rpm}, dispersion};
+    FlightController controller{sim::host::sil_controller_config(hover_rpm), dispersion};
     Aircraft aircraft{dispersion};
 
     std::cout << "-- Phase 1: rendezvous with point (0, -15, 100) --" << std::endl;

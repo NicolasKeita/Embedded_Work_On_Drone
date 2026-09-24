@@ -50,7 +50,19 @@ struct SilConfig {
     std::float64_t                 transport_latency_s = 0.004;
     std::float64_t                 telemetry_rate_hz = 20.0;
     SilLogLevel                    trace_level = SilLogLevel::Info;
+    std::float64_t                 wind_x_mps = 0.0;
+    std::float64_t                 wind_y_mps = 0.0;
+    std::float64_t                 wind_start_s = 0.0;
+    std::float64_t                 wind_end_s = 0.0;
+    std::float64_t                 wind_gust_period_s = 0.0;
 };
+
+/* Evaluates a bounded wind interval and smooth periodic gusts without random state. */
+[[nodiscard]] std::float64_t wind_factor(std::float64_t start_s, std::float64_t end_s,
+                                        std::float64_t gust_period_s, std::float64_t time_s) noexcept;
+
+/* Evaluates wind for one configured SIL engine run. */
+[[nodiscard]] std::float64_t wind_factor(const SilConfig& config, std::float64_t time_s) noexcept;
 
 // Full observable output of one SIL run: aggregates plus trace artifacts.
 struct SilRunOutput {

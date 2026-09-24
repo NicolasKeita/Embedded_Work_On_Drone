@@ -72,8 +72,19 @@ endfunction()
 # runner so the three executables share one deterministic engine.
 # ----------------------------------------------------------------------------
 add_library(flight_sim_core STATIC)
+set(HOST_CONFIG_FILES
+    Src/Host/Config/ConfigFile.cppm
+    Src/Host/Config/ConfigFile.cpp
+    Src/Host/Config/SimulationConfig.cppm
+    Src/Host/Config/SimulationConfig.cpp
+    Src/Host/Config/ScenarioConfig.cppm
+    Src/Host/Config/ScenarioConfig.cpp
+    Src/Host/Config/SilRuntimeConfig.cppm
+    Src/Host/Config/SilRuntimeConfig.cpp
+)
 target_add_mixed_sources(flight_sim_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
     ${SRC_FILES}
+    ${HOST_CONFIG_FILES}
 )
 project_target_setup(flight_sim_core)
 
@@ -114,6 +125,8 @@ target_add_mixed_sources(HIL_RUNNER PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     ${HIL_CHANNEL_FILES}
     ${TEST_HARNESS_FILES}
     ${TEST_HIL_FILES}
+    Src/Host/Config/HilRuntimeConfig.cppm
+    Src/Host/Config/HilRuntimeConfig.cpp
 )
 project_target_setup(HIL_RUNNER)
 target_link_libraries(HIL_RUNNER PRIVATE flight_sim_core)
@@ -134,6 +147,7 @@ target_add_mixed_sources(SIL_MONTE_CARLO PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     Src/Runners/MonteCarlo/MonteCarloCampaign.cppm
     Src/Runners/MonteCarlo/MonteCarloCampaign-Cli.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Options.cpp
+    Src/Runners/MonteCarlo/MonteCarloCampaign-Config.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Summary.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Run.cpp
     Src/Runners/MonteCarlo/MonteCarloCampaign-Dispersion.cpp

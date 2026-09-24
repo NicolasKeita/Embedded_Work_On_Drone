@@ -16,8 +16,48 @@ ls -l /dev/serial/by-id/usb-STMicroelectronics_STM32_STLink_*-if02
 ```
 
 Les numéros `/dev/ttyACM0` et `/dev/ttyACM1` peuvent changer après reconnexion.
-En cas de remplacement, mettre à jour cette table et l'identité autorisée par
-la configuration du runner ([HilConfig](../../Src/Embedded/Hil/Config/HilConfig.cppm)).
+Cette table conserve les identités du banc de référence. Pour utiliser d'autres
+cartes, renseigner leurs numéros ST-LINK dans un fichier de configuration matériel
+du runner, sans modifier ni recompiler le code.
+
+## Configurer son banc
+
+Les firmwares fournis ciblent deux **Nucleo-L476RG / STM32L476RG**, avec le
+câblage décrit ci-dessous. Le fichier [config/hil_hardware.conf](../../config/hil_hardware.conf)
+associe les sondes ST-LINK aux rôles FC1 et FC2 :
+
+```ini
+fc1_stlink_serial=VOTRE_NUMERO_STLINK_FC1
+fc2_stlink_serial=VOTRE_NUMERO_STLINK_FC2
+```
+
+Remplacer ces deux valeurs par les numéros des cartes de son propre banc, après
+avoir affecté et flashé leurs rôles. Les deux clés sont obligatoires, avec deux
+numéros distincts de **24 caractères hexadécimaux** ; les minuscules sont
+acceptées. Le fichier accepte les lignes vides et les commentaires `#`, seuls
+ou en fin de ligne. Pour conserver la configuration de référence :
+
+```sh
+cp config/hil_hardware.conf /chemin/vers/mon_banc.conf
+```
+
+Modifier la copie, puis l'utiliser avec le même exécutable Linux compatible :
+
+```sh
+./artifacts/linux/hil_runner --scenario NOMINAL-001 --interface auto \
+  --hardware-config /chemin/vers/mon_banc.conf
+```
+
+Un runner précompilé peut ainsi servir à plusieurs bancs sans recompilation.
+Par défaut, les modes `auto` et série chargent `config/hil_hardware.conf` depuis
+le répertoire de travail courant. L'option `--hardware-config` permet aussi
+d'utiliser un fichier séparé du dépôt. Un fichier requis absent ou invalide
+arrête le runner avant la découverte des ports.
+
+L'identité FC1 autorise le canal HIL PC ↔ FC1. L'identité FC2 est conservée dans
+la configuration du banc ; elle n'ouvre pas un second canal HIL entre le PC et
+FC2. Les [modes loopback et commandes d'information](../validation/hil.md)
+peuvent fonctionner sans ce fichier.
 
 ## Câblage
 

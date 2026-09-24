@@ -18,12 +18,12 @@ positive duration in seconds, marking the options invalid on malformed input.
 */
 void apply_telemetry_period(CliOptions& options, std::string_view value)
 {
-    double      parsed = 0.0;
+    std::float64_t parsed = 0.0;
     const char* first = value.data();
     const char* last = first + value.size();
     const auto  result = std::from_chars(first, last, parsed);
 
-    if (result.ec != std::errc{} || result.ptr != last || parsed <= 0.0) {
+    if (result.ec != std::errc{} || result.ptr != last || !std::isfinite(parsed) || parsed <= 0.0 || parsed > 86400.0) {
         std::cerr << "Error: invalid value for --telemetry-period \"" << value << "\"." << std::endl;
         options.invalid = true;
         return;
@@ -47,6 +47,33 @@ namespace {
     /* Applies one recognized option; returns false when parsing must stop. */
     bool apply_option(CliOptions& options, int argc, char* argv[], int& index, std::string_view argument)
     {
+        const std::array<std::pair<std::string_view, std::string*>, 4> paths{{
+            {"--config", &options.config_path},
+            {"--simulation-config", &options.simulation_config_path},
+            {"--scenarios-dir", &options.scenarios_dir},
+            {"--config-output", &options.config_output},
+        }};
+        for (const auto& path : paths) {
+            if (argument == path.first) {
+                if (index + 1 >= argc) {
+                    return missing_option_value(options, path.first);
+                }
+                ++index;
+                *path.second = argv[index] != nullptr ? argv[index] : "";
+                if (path.second->empty() || path.second->starts_with("--")) {
+                    return missing_option_value(options, path.first);
+                }
+                return true;
+            }
+            const std::string prefix = std::string{path.first} + "=";
+            if (argument.starts_with(prefix)) {
+                *path.second = argument.substr(prefix.size());
+                if (path.second->empty()) {
+                    return missing_option_value(options, path.first);
+                }
+                return true;
+            }
+        }
         if (argument == "-a" || argument == "--all") {
             options.all = true;
             return true;

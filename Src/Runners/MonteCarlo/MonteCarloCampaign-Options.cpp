@@ -58,7 +58,7 @@ namespace {
 
         if (!raw.has_value()) { report_error(options, raw.error()); return false; }
         const std::expected<std::uint64_t, std::errc> value = parse_unsigned(raw.value());
-        if (!value.has_value()) {
+        if (!value.has_value() || *value > std::numeric_limits<Target>::max()) {
             report_error(options, std::format("Error: invalid value for {}: {}", label, raw.value()));
             return true;
         }
@@ -87,20 +87,39 @@ bool apply_option(CliOptions& options, int argc, char* argv[], int& index, std::
         return true;
     }
     if (argument == "--seed") {
+        options.seed_override = true;
         return parse_unsigned_option(options, cursor, options.seed, "--seed");
     }
     if (argument == "--runs") {
+        options.runs_override = true;
         return parse_unsigned_option(options, cursor, options.runs, "--runs");
     }
     if (argument == "--scenario") {
+        options.scenario_override = true;
         return parse_string_option(options, cursor, options.scenario, "--scenario");
     }
     if (argument.starts_with(kScenarioPrefix)) {
+        options.scenario_override = true;
         options.scenario = std::string{argument.substr(kScenarioPrefix.size())};
         return true;
     }
     if (argument == "--output-csv") {
         return parse_string_option(options, cursor, options.output_csv, "--output-csv");
+    }
+    if (argument == "--config") {
+        return parse_string_option(options, cursor, options.config_path, "--config");
+    }
+    if (argument == "--sil-config") {
+        return parse_string_option(options, cursor, options.sil_config_path, "--sil-config");
+    }
+    if (argument == "--simulation-config") {
+        return parse_string_option(options, cursor, options.simulation_config_path, "--simulation-config");
+    }
+    if (argument == "--scenarios-dir") {
+        return parse_string_option(options, cursor, options.scenarios_directory, "--scenarios-dir");
+    }
+    if (argument == "--config-output") {
+        return parse_string_option(options, cursor, options.config_output_path, "--config-output");
     }
     if (argument == "--output-json") {
         return parse_string_option(options, cursor, options.output_json, "--output-json");

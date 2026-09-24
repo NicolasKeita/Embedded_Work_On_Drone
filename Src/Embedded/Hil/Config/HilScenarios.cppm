@@ -3,8 +3,8 @@ Filename: Src/Embedded/Hil/Config/HilScenarios.cppm
 Description: Deterministic HIL scenario catalog. This module contains no scenario
 definition of its own: every record is the HIL execution binding of one canonical
 scenario of the shared FunctionalScenarios registry (identity, description and
-mission profile). Only the fault activation timing, a property of the real-time
-HIL bench, is defined here. The execution target (HIL) is injected at runtime, so
+mission profile), including the configured real-time HIL fault activation timing.
+The execution target (HIL) is injected at runtime, so
 the scenario names never encode the execution environment.
 Export summary: HilScenarioRecord, HilScenarioCatalog, hil_base_config()
 
@@ -42,7 +42,13 @@ conservative Warn deadline policy. Scenarios clone this and apply their mission 
 
 class HilScenarioCatalog {
 public:
+    /* Rebuilds derived configurations once after startup configuration loading. */
+    static void refresh();
+
+    /* Returns the fixed catalog without rebuilding it in the mission loop. */
     [[nodiscard]] static std::span<const HilScenarioRecord> all() noexcept;
+
+    /* Resolves one HIL execution binding by its canonical scenario identity. */
     [[nodiscard]] static const HilScenarioRecord* find(std::string_view id) noexcept;
 };
 

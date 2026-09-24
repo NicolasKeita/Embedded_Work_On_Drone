@@ -87,6 +87,13 @@ sous `artifacts/linux/` ; Windows ajoute l'extension `.exe`.
 | `fc2_stm32` | `artifacts/stm32/fc2_stm32.{elf,hex,bin}` | Supervision et sûreté |
 
 Les exécutables existent aussi dans le répertoire de build hôte.
+Les runners hôtes chargent leurs réglages au démarrage depuis le dossier
+[`config/`](../../config/README.md). Pour les distribuer, joindre ce dossier aux
+binaires, ou indiquer les chemins avec `--config`, `--simulation-config` et
+`--scenarios-dir` ; Monte Carlo accepte aussi `--sil-config`. Les chemins par
+défaut supposent un lancement depuis la racine du dépôt. Ces fichiers ne font
+pas partie des images STM32 et peuvent être modifiés sans recompiler les runners.
+
 `west flash` utilise l'image de son répertoire de build, pas la copie nommée
 sous `artifacts/`. Les anciens exécutables `fc1_hil_host` et
 `hil_step_smoke_test` ne sont pas des cibles du CMake actuel.

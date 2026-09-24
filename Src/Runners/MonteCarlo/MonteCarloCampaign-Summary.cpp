@@ -103,6 +103,11 @@ void print_usage(std::string_view executableName)
               << " [--seed <n>] [--runs <n>] [--scenario <id>] [-v]"
               << " [--output-csv <path>] [--output-json <path>]" << std::endl;
     std::cout << "  --seed <n>           Master RNG seed (default 42)." << std::endl;
+    std::cout << "  --config <path>      Campaign settings (default config/monte_carlo.conf)." << std::endl;
+    std::cout << "  --sil-config <path>  SIL settings (default config/sil.conf)." << std::endl;
+    std::cout << "  --simulation-config <path>  Physics settings (default config/simulation.conf)." << std::endl;
+    std::cout << "  --scenarios-dir <path>  Shared profiles (default config/scenarios)." << std::endl;
+    std::cout << "  --config-output <path>  Save the resolved configuration snapshot." << std::endl;
     std::cout << "  --runs <n>           Number of iterations (default 50)." << std::endl;
     std::cout << "  --scenario <id>      Scenario to stress-test (default: NOMINAL-001,"
               << " also: 008, 009, 010)." << std::endl;

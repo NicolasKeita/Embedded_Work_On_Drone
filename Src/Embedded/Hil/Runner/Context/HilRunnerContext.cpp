@@ -43,7 +43,7 @@ HilRunContext::HilRunContext(const HilConfig& cfg,
       health{sim::safety::HealthMonitorConfig{
           .heartbeat_timeout_s = cfg.heartbeat_timeout_s,
           .actuator_mismatch_rpm = cfg.actuator_mismatch_rpm,
-          .actuator_mismatch_hold_s = 0.50,
+          .actuator_mismatch_hold_s = cfg.actuator_mismatch_hold_s,
           .sensor_limits = cfg.sensor_limits,
       }},
       safety{sim::safety::SafetyManagerConfig{.degraded_thrust_margin = cfg.thrust_compensation_margin}},

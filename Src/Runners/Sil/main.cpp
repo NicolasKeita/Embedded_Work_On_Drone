@@ -12,6 +12,11 @@ All rights reserved.
 import std;
 
 import Aircraft;
+import ConfigFile;
+import FunctionalScenarios;
+import ScenarioConfig;
+import SimulationConfig;
+import SilRuntimeConfig;
 import Scenarios;
 import SilRunnerCli;
 import SilScenarios;
@@ -26,13 +31,12 @@ namespace
     */
     int execute_runs(const sim::test::sil::CliOptions& options,
                      sim::test::TestHarness&           runner,
-                     std::string_view                  executableName,
-                     std::float64_t                    telemetryPeriodS)
+                     std::string_view                  executableName)
     {
         if (options.scenario.has_value()) {
             const std::string& scenarioId = *options.scenario;
             if (sim::test::sil::find_sil_scenario(scenarioId) != nullptr) {
-                sim::test::sil::run_sil_scenario(scenarioId, runner, telemetryPeriodS);
+                sim::test::sil::run_sil_scenario(scenarioId, runner, sim::host::sil_report_period(scenarioId));
                 return 0;
             }
             if (sim::test::ScenarioCatalog::find(scenarioId) != nullptr) {
@@ -98,19 +102,75 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    constexpr std::float64_t kDefaultTelemetryPeriodS = 1.0;
-    constexpr std::float64_t kSimulationTimeStepS     = 0.01;
-
-    const std::float64_t telemetryPeriodS = options.telemetry_period.value_or(kDefaultTelemetryPeriodS);
-    const std::size_t    logIntervalSteps
-        = options.verbose ? std::size_t{1}
-                          : static_cast<std::size_t>(telemetryPeriodS / kSimulationTimeStepS + 0.5);
-
+    const auto simulation = sim::host::load_simulation_config(options.simulation_config_path);
+    if (!simulation) {
+        std::cerr << "Error: " << simulation.error() << std::endl;
+        return 2;
+    }
+    auto runtime = sim::host::load_sil_runtime_config(options.config_path);
+    if (!runtime) {
+        std::cerr << "Error: " << runtime.error() << std::endl;
+        return 2;
+    }
+    const auto scenarios = sim::host::load_scenario_configs(options.scenarios_dir);
+    if (!scenarios) {
+        std::cerr << "Error: " << scenarios.error() << std::endl;
+        return 2;
+    }
+    if (options.telemetry_period.has_value()) {
+        runtime->report_period_s = *options.telemetry_period;
+        runtime->report_period_cli = true;
+    }
+    runtime->verbose = options.verbose;
+    if (options.verbose) {
+        runtime->report_period_s = runtime->runner.dt;
+        runtime->report_period_cli = true;
+    }
+    if (runtime->report_period_s < runtime->runner.dt) {
+        std::cerr << "Error: telemetry report period must be at least dt_s." << std::endl;
+        return 2;
+    }
+    const auto validated = sim::host::validate_sil_runtime_profiles(*runtime, options.scenario.value_or(""));
+    if (!validated) {
+        std::cerr << "Error: " << validated.error() << std::endl;
+        return 2;
+    }
+    sim::host::set_sil_runtime_options(*runtime);
+    const std::float64_t effective_report_period_s = options.scenario.has_value()
+        ? sim::host::sil_report_period(*options.scenario) : runtime->report_period_s;
+    std::ostringstream overrides;
+    overrides << std::setprecision(17)
+              << "runner = sil\nscenario = " << options.scenario.value_or("all")
+              << "\neffective.report_period_s = " << effective_report_period_s
+              << "\nderived.controller.hover_rpm = " << runtime->runner.controller.hover_rpm
+              << "\ncli.report_period_override = " << std::boolalpha << runtime->report_period_cli
+              << "\ncli.verbose = " << runtime->verbose << '\n';
+    if (options.scenario.has_value()
+        && sim::test::find_functional_scenario(*options.scenario) != nullptr) {
+        const auto effective = sim::host::sil_config_for_scenario(*options.scenario);
+        overrides << "effective.dt_s = " << effective.dt
+                  << "\neffective.duration_s = " << effective.duration_s
+                  << "\neffective.seed = " << effective.seed
+                  << "\neffective.target_x_m = " << effective.target.x
+                  << "\neffective.target_y_m = " << effective.target.y
+                  << "\neffective.target_z_m = " << effective.target.z
+                  << "\neffective.controller.station_hold_seconds = " << effective.controller.station_hold_seconds
+                  << "\neffective.sensor_max_altitude_m = " << effective.sensor_limits.max_altitude_m << '\n';
+    }
+    const auto snapshot = sim::config::write_configuration_snapshot(options.config_output, overrides.str());
+    if (!snapshot) {
+        std::cerr << "Error: " << snapshot.error() << std::endl;
+        return 2;
+    }
+    const std::size_t logIntervalSteps = std::max(std::size_t{1},
+        static_cast<std::size_t>(runtime->report_period_s / runtime->runner.dt + 0.5));
     sim::test::HarnessConfig harnessConfig{
-        .dt = kSimulationTimeStepS, .log_interval_steps = logIntervalSteps, .target = sim::test::RunTarget::SIL};
+        .dt = runtime->runner.dt,
+        .log_interval_steps = logIntervalSteps,
+        .target = sim::test::RunTarget::SIL};
     sim::test::TestHarness runner{harnessConfig};
 
-    const int outcome = execute_runs(options, runner, executableName, telemetryPeriodS);
+    const int outcome = execute_runs(options, runner, executableName);
     if (outcome != 0) {
         return outcome;
     }

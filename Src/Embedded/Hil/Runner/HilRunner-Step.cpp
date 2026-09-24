@@ -54,7 +54,9 @@ namespace {
         const ActuatorReceiveOutputs outputs{.commands = ctx.actuator_cmd,
                                               .diagnostics = diag,
                                               .round_trip_us = ctx.this_rtt_us};
-        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, ctx.next_deadline_us,
+        const std::uint64_t receive_deadline_us = std::min(ctx.next_deadline_us,
+            sensor_send_wall + ctx.config.transport_timeout_us);
+        const ReceiveResult result = ctx.transport.receiveActuator(ctx.clock, receive_deadline_us,
                                                                  expectations, outputs);
         ctx.this_received = (result == ReceiveResult::Ok);
         if (ctx.this_received) {
